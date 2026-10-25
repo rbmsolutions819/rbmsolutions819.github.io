@@ -1,0 +1,2006 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}</style>
+<title>RBM Solutions App</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="RBM Solutions: reparación de computadoras, compra de equipos y páginas web. Agendá tu cita en línea. Heredia y todo Costa Rica.">
+<meta name="theme-color" content="#07090d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="RBM Solutions">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;800&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+/* Diseño: el mismo mundo oscuro de RBM (camiseta negra) con la bola de agua celeste, azul y blanca como único gesto fuerte.
+   Encima va todo el sistema de la plantilla: menú lateral, paneles que entran desde la derecha, agenda en 6 pasos y panel de administrador. */
+:root{
+  --negro:#07090d;      /* fondo */
+  --noche:#0c1422;      /* bandas y paneles */
+  --sup:#101b2e;        /* tarjetas */
+  --sup2:#15233b;       /* campos y botones secundarios */
+  --azul:#2f6bff;       /* azul eléctrico */
+  --celeste:#7cc4ff;    /* celeste luminoso */
+  --blanco:#f2f6fb;     /* texto principal */
+  --texto2:#c9d6e6;     /* texto de párrafos */
+  --gris:#93a3b8;       /* texto secundario */
+  --gris2:#66768d;
+  --linea:rgba(124,196,255,.16);
+  --borde:rgba(124,196,255,.3);
+  --verde:#25d366;      /* solo WhatsApp */
+  --ok:#5fd39a;
+  --rojo:#ff8a80;
+  --lila:#a99bff;       /* tercera modalidad en el calendario */
+  --f-disp:"Unbounded","Arial Black",system-ui,sans-serif;
+  --f-txt:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+  --gut-l:max(16px,env(safe-area-inset-left,0px));
+  --gut-r:max(16px,env(safe-area-inset-right,0px));
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:70px}
+body{margin:0;background:var(--negro);color:var(--blanco);font:400 16px/1.6 var(--f-txt);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:31;background:var(--negro)}
+a{color:inherit;text-decoration:none}
+h1,h2,h3,h4{font-family:var(--f-disp);text-wrap:balance;margin:0;line-height:1.1}
+p{margin:0}
+button{font-family:inherit}
+img{display:block;max-width:100%}
+.wrap{max-width:1040px;margin:0 auto;padding-left:var(--gut-l);padding-right:var(--gut-r)}
+.etq{font:600 12px var(--f-txt);letter-spacing:.22em;text-transform:uppercase;color:var(--celeste)}
+:focus-visible{outline:2px solid var(--celeste);outline-offset:3px;border-radius:6px}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+
+/* botones */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font:700 15px var(--f-txt);padding:13px 20px;border-radius:14px;border:1px solid transparent;cursor:pointer;transition:transform .15s,box-shadow .2s;color:var(--blanco);background:var(--sup2)}
+.btn:active{transform:scale(.97)}
+.btn svg{width:18px;height:18px;flex:none}
+.btn-agua{background:linear-gradient(135deg,var(--azul),#5aa8ff 60%,var(--celeste));color:#fff;box-shadow:0 10px 30px -10px rgba(47,107,255,.8)}
+.btn-wa{background:var(--verde);color:#04210f}
+.btn-linea{border-color:var(--borde);background:transparent;color:var(--blanco)}
+.btn-osc{background:var(--sup2);border-color:var(--linea);color:var(--blanco)}
+.btn-rojo{background:transparent;border-color:rgba(255,138,128,.45);color:var(--rojo)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* la bola de agua */
+.orbe{position:relative;aspect-ratio:1;border-radius:50%;overflow:hidden;isolation:isolate;flex:none;
+  background:radial-gradient(circle at 50% 55%,#0d2a5c 0%,#071226 60%,#03060c 100%);
+  box-shadow:inset 0 0 0 1px rgba(160,210,255,.35),inset -18px -26px 60px rgba(0,0,0,.55),inset 14px 18px 40px rgba(124,196,255,.25),0 30px 80px -20px rgba(47,107,255,.55)}
+.orbe i{position:absolute;border-radius:50%;filter:blur(14px);mix-blend-mode:screen;will-change:transform}
+.orbe .b1{width:70%;height:70%;left:-8%;top:20%;background:radial-gradient(circle,var(--celeste),rgba(124,196,255,0) 68%);animation:ola1 11s ease-in-out infinite}
+.orbe .b2{width:75%;height:75%;right:-15%;top:-5%;background:radial-gradient(circle,var(--azul),rgba(47,107,255,0) 68%);animation:ola2 13s ease-in-out infinite}
+.orbe .b3{width:45%;height:45%;left:30%;bottom:-6%;background:radial-gradient(circle,#ffffff,rgba(255,255,255,0) 65%);opacity:.75;animation:ola3 9s ease-in-out infinite}
+.orbe .b4{width:60%;height:60%;left:18%;top:8%;background:radial-gradient(circle,#1b3fa8,rgba(27,63,168,0) 70%);animation:ola2 15s ease-in-out infinite reverse}
+.orbe::before{content:"";position:absolute;inset:0;border-radius:50%;z-index:2;background:radial-gradient(ellipse 38% 26% at 34% 22%,rgba(255,255,255,.75),rgba(255,255,255,0) 70%),radial-gradient(ellipse 60% 30% at 50% 100%,rgba(124,196,255,.35),transparent 70%)}
+.orbe::after{content:"";position:absolute;inset:0;border-radius:50%;z-index:3;background:repeating-radial-gradient(circle at 50% 120%,rgba(255,255,255,.05) 0 2px,transparent 2px 14px);mix-blend-mode:overlay;animation:gira 30s linear infinite}
+.orbe .txt{position:absolute;inset:0;z-index:4;display:grid;place-items:center;font:800 clamp(22px,8vw,46px) var(--f-disp);letter-spacing:.04em;color:#fff;text-shadow:0 2px 18px rgba(7,20,60,.7)}
+.orbe.mini i{filter:blur(4px)}
+@keyframes ola1{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(22%,-14%) scale(1.15)}66%{transform:translate(8%,12%) scale(.9)}}
+@keyframes ola2{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-26%,22%) scale(1.2)}}
+@keyframes ola3{0%,100%{transform:translate(0,0)}50%{transform:translate(-30%,-40%)}}
+@keyframes gira{to{transform:rotate(360deg)}}
+
+/* navegación */
+.nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;background:rgba(7,9,13,.86);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--linea)}
+.nav .fila{display:flex;align-items:center;gap:6px;overflow-x:auto;scrollbar-width:none;padding:10px var(--gut-r) 10px var(--gut-l);max-width:1040px;margin:0 auto}
+.nav .fila::-webkit-scrollbar{display:none}
+.nav button,.nav a{flex:none;border:0;background:none;color:var(--gris);font:600 14px var(--f-txt);padding:9px 12px;border-radius:999px;cursor:pointer;white-space:nowrap}
+.nav a:hover,.nav button:hover{color:var(--blanco)}
+.nav .menu{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--azul),#4f95ff);color:#fff;padding:9px 15px}
+.nav .menu svg{width:18px;height:18px}
+.nav .ag{border:1px solid var(--borde);color:var(--celeste)}
+
+/* portada */
+.portada{position:relative;overflow:hidden;padding-block:40px 60px}
+.portada::before{content:"";position:absolute;width:620px;height:620px;max-width:160vw;right:-220px;top:-200px;border-radius:50%;background:radial-gradient(circle,rgba(47,107,255,.22),transparent 65%);pointer-events:none}
+.portada .wrap{display:grid;gap:30px;align-items:center;position:relative}
+.portada .orbe{width:min(270px,66vw);margin:0 auto}
+.portada h1{font-size:clamp(38px,10.5vw,76px);font-weight:800;letter-spacing:-.01em;margin-top:8px}
+.portada h1 .s{display:block;font-weight:400;color:transparent;-webkit-text-stroke:1.2px var(--celeste)}
+.lema{font-size:clamp(17px,4.4vw,20px);color:var(--texto2);max-width:34ch;margin-top:16px}
+.sellos{display:flex;flex-wrap:wrap;gap:8px;margin:20px 0 0;padding:0;list-style:none}
+.sellos li{font-size:13.5px;font-weight:600;color:var(--celeste);border:1px solid var(--linea);background:rgba(124,196,255,.06);padding:6px 12px;border-radius:999px}
+.acciones{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
+.estado{display:inline-flex;align-items:center;gap:8px;margin-top:20px;font-size:13.5px;color:var(--texto2);border:1px solid var(--linea);border-radius:999px;padding:7px 14px;background:rgba(124,196,255,.04)}
+.estado i{width:8px;height:8px;border-radius:50%;background:var(--gris2);flex:none}
+.estado.abierto i{background:var(--ok);box-shadow:0 0 0 4px rgba(95,211,154,.18)}
+
+/* secciones */
+section{padding-block:64px}
+.banda{background:var(--noche);border-block:1px solid var(--linea)}
+.cab-s{display:grid;gap:10px;margin-bottom:28px;max-width:640px}
+.cab-s h2{font-size:clamp(26px,6.4vw,40px);font-weight:600}
+.cab-s p{color:var(--gris)}
+.revela{transition:opacity .7s ease,transform .7s ease}
+.revela.antes{opacity:.001;transform:translateY(16px)}
+
+/* tarjetas de servicio */
+.mini{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.mini button{position:relative;text-align:left;border:1px solid var(--linea);cursor:pointer;background:linear-gradient(160deg,rgba(124,196,255,.08),rgba(124,196,255,.02));color:var(--blanco);border-radius:18px;padding:16px 14px 14px;font:inherit;display:flex;flex-direction:column;gap:6px;min-height:150px;min-width:0;transition:border-color .2s,transform .2s}
+.mini button:hover{border-color:var(--borde);transform:translateY(-2px)}
+.mini .ic{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:radial-gradient(circle at 35% 30%,#bfe2ff,var(--azul) 70%);color:#fff;box-shadow:inset 0 -5px 12px rgba(0,0,40,.35);margin-bottom:4px}
+.mini .ic svg{width:21px;height:21px}
+.mini b{font:600 15.5px/1.2 var(--f-disp);overflow-wrap:anywhere;hyphens:auto}
+.mini em{font:500 14px var(--f-mono);font-style:normal;color:var(--celeste)}
+.mini span{font-size:12.5px;color:var(--gris);margin-top:auto}
+.mini span::after{content:" ›";color:var(--celeste)}
+.mini em.gratis,.p.gratis{color:var(--ok)}
+
+/* precios */
+.pestanas{display:flex;gap:6px;padding:5px;border-radius:16px;background:rgba(124,196,255,.07);border:1px solid var(--linea);overflow-x:auto;scrollbar-width:none;margin-bottom:18px}
+.pestanas::-webkit-scrollbar{display:none}
+.pestanas button{flex:1 0 auto;border:0;background:none;color:var(--gris);font:700 13.5px var(--f-txt);padding:11px 10px;border-radius:12px;cursor:pointer;white-space:nowrap}
+.pestanas button[aria-selected="true"]{background:linear-gradient(135deg,var(--azul),#4f95ff);color:#fff}
+.tabla{border-radius:20px;border:1px solid var(--linea);overflow:hidden;background:rgba(7,9,13,.5)}
+.tabla .fila{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 16px;align-items:baseline;padding:14px 18px;border-bottom:1px solid var(--linea)}
+.tabla .fila:last-child{border-bottom:0}
+.tabla .fila b{font-weight:600;font-size:15.5px}
+.tabla .fila small{grid-column:1/-1;color:var(--gris);font-size:13.5px}
+.tabla .p{font:500 15px var(--f-mono);color:var(--celeste);white-space:nowrap;font-variant-numeric:tabular-nums;text-align:right}
+.nota{color:var(--gris);font-size:13.5px;margin-top:14px}
+.acc-precios{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+
+/* pasos de trabajo */
+.pasos{display:grid;gap:14px;counter-reset:p;padding:0;margin:0;list-style:none}
+.pasos li{counter-increment:p;display:grid;grid-template-columns:auto minmax(0,1fr);gap:14px;align-items:start}
+.pasos li::before{content:counter(p);width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font:800 15px var(--f-disp);background:radial-gradient(circle at 35% 30%,#d6ecff,var(--azul) 75%);color:#fff}
+.pasos b{display:block;font-size:16.5px}
+.pasos span{color:var(--gris);font-size:15px}
+
+/* trabajos */
+.trabajos{display:grid;gap:14px}
+.trab{display:grid;gap:8px;padding:20px;border-radius:20px;border:1px solid var(--linea);background:var(--negro);transition:border-color .2s,transform .2s}
+.trab:hover{border-color:rgba(124,196,255,.5);transform:translateY(-2px)}
+.trab .tipo{font:500 12px var(--f-mono);color:var(--celeste)}
+.trab h3{font-size:20px;font-weight:600}
+.trab p{color:var(--texto2);font-size:15px}
+.trab .url{font:500 13px var(--f-mono);color:var(--gris);overflow-wrap:anywhere}
+
+/* horario */
+.horario{display:grid;gap:10px;max-width:620px}
+.dia{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:14px;background:var(--sup);border:1px solid var(--linea);border-radius:16px;padding:14px 16px}
+.dia .ic{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:rgba(124,196,255,.12);color:var(--celeste)}
+.dia .ic svg{width:20px;height:20px}
+.dia b{font:600 15px var(--f-disp);overflow-wrap:anywhere}
+.dia span{text-align:right;font:500 13.5px/1.5 var(--f-mono);color:var(--texto2);white-space:nowrap}
+.dia.hoy{border-color:var(--celeste);box-shadow:0 0 0 3px rgba(124,196,255,.15)}
+.dia.hoy b::after{content:"Hoy";margin-left:8px;font:700 10px var(--f-txt);letter-spacing:.14em;text-transform:uppercase;background:var(--azul);color:#fff;padding:3px 8px;border-radius:999px;vertical-align:middle}
+
+/* ubicación y contacto */
+.ubic{display:grid;gap:22px}
+.mapa{position:relative;border-radius:20px;overflow:hidden;aspect-ratio:16/10;max-width:100%;border:1px solid var(--borde);background:
+  radial-gradient(circle at 52% 46%,rgba(47,107,255,.35),transparent 40%),
+  linear-gradient(transparent 49.5%,rgba(124,196,255,.12) 49.5% 50.5%,transparent 50.5%) 0 0/100% 64px,
+  linear-gradient(90deg,transparent 49.5%,rgba(124,196,255,.12) 49.5% 50.5%,transparent 50.5%) 0 0/64px 100%,var(--noche)}
+.mapa::before{content:"";position:absolute;left:-10%;right:-10%;top:58%;height:14px;background:rgba(124,196,255,.18);transform:rotate(-12deg)}
+.mapa::after{content:"";position:absolute;top:-10%;bottom:-10%;left:30%;width:10px;background:rgba(124,196,255,.14);transform:rotate(18deg)}
+.mapa .pin{position:absolute;left:52%;top:46%;transform:translate(-50%,-100%);z-index:2;color:var(--celeste);filter:drop-shadow(0 6px 14px rgba(47,107,255,.8))}
+.mapa .pin svg{width:44px;height:44px}
+.mapa .rot{position:absolute;left:12px;bottom:12px;right:12px;z-index:2;background:rgba(7,9,13,.82);border:1px solid var(--linea);border-radius:14px;padding:10px 12px;font-size:13.5px;color:var(--texto2)}
+.mapa .rot b{display:block;color:var(--blanco);font-size:14.5px}
+.ir{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.datos{display:grid;gap:10px}
+.dato{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:14px;align-items:center;padding:14px 16px;border-radius:16px;border:1px solid var(--linea);background:rgba(124,196,255,.04);color:var(--blanco)}
+.dato .ic{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:rgba(124,196,255,.12);color:var(--celeste)}
+.dato .ic svg{width:20px;height:20px}
+.dato small{display:block;font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--gris)}
+.dato b{font-weight:600;overflow-wrap:anywhere;user-select:all}
+.dato .sub{display:block;color:var(--gris);font-size:14px}
+.copiar{border:1px solid var(--linea);background:none;color:var(--celeste);font:600 12.5px var(--f-txt);padding:7px 11px;border-radius:10px;cursor:pointer}
+.modos{display:grid;gap:10px}
+.modo{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:start;padding:14px 16px;border-radius:16px;border:1px solid var(--linea);background:var(--sup)}
+.modo i{width:12px;height:12px;border-radius:4px;margin-top:6px}
+.modo b{display:block}
+.modo span{color:var(--gris);font-size:14px}
+
+/* cierre */
+.frase{position:relative;overflow:hidden;text-align:center;padding-block:80px}
+.frase::before{content:"";position:absolute;inset:auto 0 -55% 0;margin:auto;width:900px;max-width:200vw;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(47,107,255,.35),rgba(124,196,255,.08) 45%,transparent 70%);pointer-events:none}
+.frase blockquote{position:relative;margin:0 auto;max-width:20ch;font:600 clamp(24px,6.6vw,44px)/1.2 var(--f-disp);text-wrap:balance}
+.frase blockquote em{font-style:normal;background:linear-gradient(100deg,var(--celeste),#fff 50%,var(--celeste));-webkit-background-clip:text;background-clip:text;color:transparent}
+.frase cite{position:relative;display:block;margin-top:18px;font:500 13px var(--f-mono);font-style:normal;color:var(--gris);letter-spacing:.08em}
+.frase .btn{position:relative;margin-top:28px}
+footer{border-top:1px solid var(--linea);padding-block:30px 110px;color:var(--gris);font-size:13.5px}
+footer .wrap{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between}
+footer b{font-family:var(--f-disp);color:var(--blanco);font-size:14px}
+
+/* botón flotante de WhatsApp */
+.wa{position:fixed;right:calc(16px + env(safe-area-inset-right,0px));bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:40;width:58px;height:58px;border-radius:50%;display:grid;place-items:center;background:var(--verde);color:#04210f;box-shadow:0 10px 26px -8px rgba(0,0,0,.7),0 0 0 4px rgba(37,211,102,.18)}
+.wa svg{width:28px;height:28px}
+
+/* capa oscura, menú lateral y paneles */
+.velo{position:fixed;inset:0;z-index:50;background:rgba(2,4,8,.66);opacity:0;pointer-events:none;transition:opacity .25s}
+.velo.on{opacity:1;pointer-events:auto}
+.cajon{position:fixed;inset:0 auto 0 0;z-index:55;width:min(330px,86vw);background:var(--negro);border-right:1px solid var(--borde);transform:translateX(-102%);transition:transform .3s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column;overflow-y:auto;padding-top:env(safe-area-inset-top,0px);padding-left:env(safe-area-inset-left,0px)}
+.cajon:not(.on){visibility:hidden;transition:transform .3s,visibility 0s .3s}
+.cajon.on{transform:none}
+.cajon .cab{display:flex;align-items:center;gap:12px;padding:20px 18px 16px;border-bottom:1px solid var(--linea)}
+.cajon .cab .orbe{width:48px}
+.cajon .cab b{font:800 18px var(--f-disp);display:block;line-height:1.1}
+.cajon .cab b span{font-weight:400;color:var(--celeste)}
+.cajon .cab small{color:var(--gris);font-size:12.5px}
+.cajon h4{font:700 11px var(--f-txt);letter-spacing:.24em;text-transform:uppercase;color:var(--celeste);padding:18px 20px 6px}
+.cajon .it{display:flex;align-items:center;gap:12px;width:100%;border:0;background:none;color:var(--texto2);font:500 16px var(--f-txt);text-align:left;padding:11px 20px;cursor:pointer}
+.cajon .it:hover,.cajon .it:active{background:rgba(124,196,255,.08);color:var(--blanco)}
+.cajon .it svg{width:18px;height:18px;color:var(--celeste);flex:none}
+.cajon .pie{margin-top:auto;padding:16px 20px calc(24px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--linea)}
+.cajon .pie button{background:none;border:0;color:var(--gris2);font:500 13px var(--f-txt);cursor:pointer;padding:6px 0}
+
+section.panel{padding:0}
+.panel{position:fixed;inset:0;z-index:58;background:var(--noche);color:var(--blanco);transform:translateX(100%);transition:transform .32s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px)}
+.panel:not(.on){visibility:hidden;transition:transform .32s,visibility 0s .32s}
+.panel.on{transform:none}
+.panel>.cab{display:flex;align-items:center;gap:10px;padding:12px var(--gut-r) 12px var(--gut-l);border-bottom:1px solid var(--linea);background:var(--negro)}
+.panel>.cab button{width:40px;height:40px;border-radius:50%;border:1px solid var(--borde);background:none;color:var(--celeste);font-size:22px;line-height:1;cursor:pointer;flex:none}
+.panel>.cab h3{font:600 18px var(--f-disp);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.panel .cuerpo{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.panel .in{max-width:640px;margin:0 auto;padding:22px var(--gut-r) calc(40px + env(safe-area-inset-bottom,0px)) var(--gut-l)}
+
+/* detalle de servicio */
+.det-foto{width:100%;aspect-ratio:16/10;object-fit:cover;border-radius:20px;border:1px solid var(--linea)}
+.det h2{font-size:clamp(26px,7vw,34px);font-weight:600;margin:20px 0 10px}
+.det p{font-size:16.5px;color:var(--texto2)}
+.det .datos2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:22px 0}
+.det .datos2 div{background:var(--sup);border:1px solid var(--linea);border-radius:14px;padding:12px 14px;min-width:0}
+.det .datos2 small{display:block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gris)}
+.det .datos2 b{font:500 17px var(--f-mono);color:var(--celeste)}
+.det .incl{list-style:none;display:grid;gap:8px;margin:6px 0 18px;padding:0}
+.det .incl li{display:flex;gap:10px;align-items:flex-start;font-size:15.5px;color:var(--texto2)}
+.det .incl svg{width:18px;height:18px;color:var(--celeste);flex:none;margin-top:3px}
+.det .modos-s{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 24px}
+.det .modos-s span{font-size:13px;color:var(--celeste);background:rgba(124,196,255,.08);padding:5px 11px;border-radius:999px}
+.bloque{display:grid;gap:10px}
+.bloque .btn{width:100%;padding:15px}
+
+/* galería */
+.gal{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.gal>*{position:relative;border:0;padding:0;border-radius:16px;overflow:hidden;cursor:zoom-in;aspect-ratio:1;background:var(--sup)}
+.gal .ancha{grid-column:span 2;aspect-ratio:16/10}
+.gal img{width:100%;height:100%;object-fit:cover}
+.gal .vid{display:grid;place-items:center;cursor:pointer;background:radial-gradient(circle at 50% 40%,#16305e,var(--sup))}
+.play{position:relative;width:52px;height:52px;border-radius:50%;display:grid;place-items:center;background:rgba(7,9,13,.7);border:1px solid var(--celeste);color:var(--celeste);font-size:20px;padding-left:3px}
+.red{position:absolute;left:8px;right:8px;bottom:8px;font-size:12.5px;font-weight:600;color:#fff;text-shadow:0 1px 6px #000;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lb{position:fixed;inset:0;z-index:70;background:rgba(3,5,9,.95);display:none;place-items:center;padding:20px}
+.lb.on{display:grid}
+.lb img{max-height:82vh;max-width:100%;border-radius:14px;box-shadow:0 0 0 1px var(--borde)}
+.lb .x{position:absolute;top:calc(14px + env(safe-area-inset-top,0px));right:calc(14px + env(safe-area-inset-right,0px));width:44px;height:44px;border-radius:50%;border:1px solid var(--borde);background:none;color:var(--celeste);font-size:24px;cursor:pointer}
+.g-admin{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.g-it{position:relative;border-radius:12px;overflow:hidden;background:var(--sup);aspect-ratio:1}
+.g-it>img,.g-vid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.g-vid{display:grid;place-items:center}
+.g-vid .play{width:36px;height:36px;font-size:14px}
+.g-acc{position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:space-between;gap:4px;padding:5px;background:linear-gradient(transparent,rgba(0,0,0,.8))}
+.g-acc button{width:30px;height:30px;border-radius:50%;border:0;background:rgba(242,246,251,.92);color:var(--negro);font-size:15px;line-height:1;cursor:pointer}
+.g-acc button:disabled{opacity:.35}
+.g-acc .rojo{background:#ffd3cf;color:#8a1d14}
+
+/* ventana de opciones */
+.hoja{position:fixed;left:0;right:0;bottom:0;z-index:62;background:var(--noche);color:var(--blanco);border:1px solid var(--borde);border-bottom:0;border-radius:24px 24px 0 0;padding:10px var(--gut-r) calc(22px + env(safe-area-inset-bottom,0px)) var(--gut-l);transform:translateY(105%);transition:transform .3s cubic-bezier(.2,.8,.2,1);max-width:560px;margin:0 auto;box-shadow:0 -20px 60px -20px rgba(0,0,0,.8)}
+.hoja:not(.on){visibility:hidden;transition:transform .3s,visibility 0s .3s}
+.hoja.on{transform:none}
+.hoja .asa{width:44px;height:5px;border-radius:9px;background:var(--borde);margin:0 auto 14px}
+.hoja h3{font-size:22px;font-weight:600;text-align:center}
+.hoja p.sub{text-align:center;color:var(--gris);margin:6px 0 18px;font-size:14.5px}
+.opcion{display:flex;align-items:center;gap:14px;width:100%;text-align:left;border:1px solid var(--linea);background:var(--sup);border-radius:16px;padding:16px;margin-bottom:10px;cursor:pointer;font:inherit;color:inherit}
+.opcion .ic{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;background:radial-gradient(circle at 35% 30%,#bfe2ff,var(--azul) 70%);color:#fff;flex:none}
+.opcion .ic.v{background:var(--verde);color:#04210f}
+.opcion .ic svg{width:24px;height:24px}
+.opcion b{display:block;font-size:16.5px;font-weight:700}
+.opcion small{color:var(--gris);font-size:13.5px}
+.opcion.prin{border-color:var(--celeste);box-shadow:0 0 0 3px rgba(124,196,255,.15)}
+.hoja .cancel{display:block;width:100%;border:0;background:none;color:var(--gris);font:600 14px var(--f-txt);padding:12px;cursor:pointer}
+
+/* agenda */
+.paso{margin-bottom:24px}
+.paso>.lbl{display:block;font:700 12px var(--f-txt);letter-spacing:.2em;text-transform:uppercase;color:var(--gris);margin-bottom:10px}
+.chip{border:1px solid var(--borde);background:var(--sup);color:var(--blanco);border-radius:999px;padding:9px 14px;font:600 14px var(--f-txt);cursor:pointer}
+.chip.si{background:linear-gradient(135deg,var(--azul),#4f95ff);border-color:transparent;color:#fff}
+.seg2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.seg2 .chip{border-radius:14px;padding:12px;text-align:center;font-size:15px}
+.semana{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.semana b{font:600 16px var(--f-disp)}
+.semana button{width:38px;height:38px;border-radius:50%;border:1px solid var(--borde);background:var(--sup);font-size:18px;cursor:pointer;color:var(--blanco)}
+.semana button:disabled{opacity:.3;cursor:default}
+.dias{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}
+.dia-b{border:1px solid var(--linea);background:var(--sup);border-radius:12px;padding:8px 0 7px;text-align:center;cursor:pointer;font:inherit;color:var(--blanco);display:flex;flex-direction:column;align-items:center;gap:1px;min-width:0}
+.dia-b small{font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--gris)}
+.dia-b b{font:600 19px/1.15 var(--f-disp)}
+.dia-b i{font-style:normal;font-size:10px;color:var(--ok);font-weight:600;min-height:12px;white-space:nowrap}
+.dia-b i.lleno{color:var(--rojo)}
+.dia-b:disabled{opacity:.35;cursor:default}
+.dia-b.si{background:linear-gradient(160deg,var(--azul),#3f7dff);border-color:transparent}
+.dia-b.si small,.dia-b.si i{color:#e3efff}
+.turno-t{font:700 12px var(--f-txt);letter-spacing:.14em;text-transform:uppercase;color:var(--gris);margin:16px 0 8px}
+.horas{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.hora{border:1px solid var(--borde);background:var(--sup);border-radius:12px;padding:10px 4px;text-align:center;font:500 14px var(--f-mono);color:var(--blanco);cursor:pointer;font-variant-numeric:tabular-nums}
+.hora small{display:block;font:500 10.5px var(--f-txt);color:var(--gris)}
+.hora.res{background:repeating-linear-gradient(135deg,var(--noche) 0 6px,#0a111d 6px 12px);border-color:var(--linea);color:var(--gris2);cursor:not-allowed;text-decoration:line-through}
+.hora.res small{color:var(--rojo);text-decoration:none}
+.hora.nd{opacity:.4;cursor:not-allowed}
+.hora.si{background:linear-gradient(135deg,var(--azul),#4f95ff);border-color:transparent;color:#fff}
+.hora.si small{color:#e3efff}
+.hora.ocup2{background:rgba(47,107,255,.18);border-color:var(--azul)}
+.leyenda{display:flex;gap:16px;flex-wrap:wrap;font-size:12.5px;color:var(--gris);margin-top:12px}
+.leyenda span{display:inline-flex;align-items:center;gap:6px}
+.leyenda i{width:14px;height:14px;border-radius:4px;border:1px solid var(--borde);background:var(--sup)}
+.leyenda i.r{background:repeating-linear-gradient(135deg,var(--noche) 0 3px,#1c2a42 3px 6px)}
+.leyenda i.s{background:var(--azul);border-color:var(--azul)}
+.vacio{background:var(--sup);border:1px dashed var(--borde);border-radius:14px;padding:18px;text-align:center;color:var(--gris);font-size:14.5px}
+.campo{display:grid;gap:6px;margin-bottom:12px}
+.campo label{font-size:13.5px;color:var(--texto2);font-weight:600}
+.campo input,.campo textarea{width:100%;border:1px solid var(--borde);background:var(--negro);border-radius:12px;padding:13px 14px;font:400 16px var(--f-txt);color:var(--blanco)}
+.campo input:focus,.campo textarea:focus{outline:2px solid var(--azul);outline-offset:0;border-color:transparent}
+.campo input::placeholder,.campo textarea::placeholder{color:var(--gris2)}
+.resumen{background:linear-gradient(160deg,rgba(47,107,255,.25),rgba(124,196,255,.06));border:1px solid var(--borde);border-radius:16px;padding:16px 18px;margin-bottom:14px}
+.resumen small{display:block;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--celeste);margin-bottom:4px}
+.resumen b{font:600 17px/1.4 var(--f-txt)}
+.error{color:var(--rojo);font-size:14px;margin:4px 0 10px;min-height:1px}
+.listo{text-align:center;padding-top:10px}
+.listo .ok{width:110px;margin:0 auto 16px}
+.listo .ok .txt{font-size:40px}
+.listo h2{font-size:26px;font-weight:600}
+.listo p{color:var(--gris);margin:8px 0 18px}
+.prueba{font-size:12.5px;color:var(--gris);background:rgba(124,196,255,.06);border:1px solid var(--linea);border-radius:10px;padding:9px 12px;margin-top:16px;text-align:center}
+.pasarela{position:sticky;top:-22px;z-index:2;background:var(--noche);margin:-22px calc(-1 * var(--gut-r)) 18px calc(-1 * var(--gut-l));padding:16px var(--gut-r) 12px var(--gut-l);border-bottom:1px solid var(--linea)}
+.pp-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:10px}
+.pp-top span{font:500 12px var(--f-mono);color:var(--gris)}
+.pp-top b{font:600 15px var(--f-disp)}
+.pp-barra{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+.pp-barra button{height:6px;border-radius:9px;border:0;background:var(--sup2);padding:0;cursor:default}
+.pp-barra button.hecho{background:var(--celeste);cursor:pointer}
+.pp-barra button.act{background:var(--azul)}
+.pp-h{font-size:clamp(23px,6.4vw,28px);font-weight:600;margin-bottom:6px}
+.pp-sub{color:var(--gris);margin-bottom:16px;font-size:15px}
+.pp-cuerpo{min-height:46vh;padding-bottom:10px}
+.pp-nav{position:sticky;bottom:0;display:flex;gap:10px;padding:14px 0 calc(10px + env(safe-area-inset-bottom,0px));background:linear-gradient(transparent,var(--noche) 22%)}
+.pp-nav .btn{flex:1;padding:15px 10px}
+.pp-nav .pp-atras{flex:0 0 32%}
+.pp-wa{display:flex;align-items:center;justify-content:center;gap:8px;color:var(--gris);font-size:14px;padding:8px 0 4px;text-decoration:underline;text-underline-offset:3px}
+.pp-wa svg{width:16px;height:16px;color:var(--verde)}
+.lista-s{display:grid;border:1px solid var(--linea);border-radius:16px;overflow:hidden;background:var(--sup);margin-top:14px}
+.desp-op{width:100%;display:flex;justify-content:space-between;align-items:center;gap:10px;border:0;border-bottom:1px solid var(--linea);background:none;padding:14px 16px;font:500 15.5px var(--f-txt);color:var(--blanco);cursor:pointer;text-align:left}
+.desp-op:last-child{border-bottom:0}
+.desp-op small{color:var(--celeste);font:500 13px var(--f-mono);white-space:nowrap}
+.desp-op.si{background:rgba(47,107,255,.18)}
+.desp-op.si span::after{content:" ✓";color:var(--celeste)}
+.lug-ops{display:grid;gap:10px;margin-top:14px}
+.lug-op{display:grid;gap:4px;text-align:left;border:1px solid var(--borde);background:var(--sup);border-radius:16px;padding:16px;cursor:pointer;font:inherit;color:var(--blanco)}
+.lug-op b{font:600 16px var(--f-disp);display:flex;align-items:center;gap:8px}
+.lug-op b i{width:10px;height:10px;border-radius:3px;flex:none}
+.lug-op span{font-size:14px;color:var(--gris)}
+.lug-op.si{border-color:var(--celeste);box-shadow:0 0 0 2px var(--celeste)}
+.lug-op:disabled{opacity:.4;cursor:not-allowed}
+.dur-ops{grid-template-columns:1fr 1fr!important}
+.dur-ops .chip{padding:18px 10px;font-size:16px}
+.rs{background:var(--sup);border:1px solid var(--linea);border-radius:18px;overflow:hidden}
+.rs-fila{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--linea)}
+.rs-fila:last-child{border-bottom:0}
+.rs-fila>div{min-width:0}
+.rs-fila small{display:block;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--gris);margin-bottom:2px}
+.rs-fila b{font-weight:600;font-size:15.5px;line-height:1.45;overflow-wrap:anywhere}
+.rs-p{color:var(--celeste);font:500 14px var(--f-mono);margin-left:6px;white-space:nowrap}
+.rs-ed{flex:none;border:1px solid var(--borde);background:none;border-radius:999px;padding:6px 12px;font:600 13px var(--f-txt);color:var(--celeste);cursor:pointer}
+
+/* modalidades: colores en el calendario */
+.ev-taller{background:rgba(124,196,255,.2);border-left:3px solid var(--celeste)!important;color:var(--blanco)}
+.ev-dom{background:rgba(47,107,255,.32);border-left:3px solid var(--azul)!important;color:var(--blanco)}
+.ev-rem{background:rgba(169,155,255,.22);border-left:3px solid var(--lila)!important;color:var(--blanco)}
+.pt-taller{background:var(--celeste)}.pt-dom{background:var(--azul)}.pt-rem{background:var(--lila)}
+
+/* panel de administrador */
+.cita-a{background:var(--sup);border:1px solid var(--linea);border-radius:16px;padding:14px 16px;margin-bottom:10px}
+.cita-a .h{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.cita-a .h b{font:600 16px var(--f-disp);min-width:0;overflow-wrap:anywhere}
+.cita-a .h span{font:500 12.5px var(--f-mono);color:var(--celeste);white-space:nowrap}
+.cita-a p{font-size:14.5px;color:var(--texto2);margin-top:6px;overflow-wrap:anywhere}
+.cita-a .acc{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.cita-a .acc a,.cita-a .acc button{border:1px solid var(--borde);background:none;border-radius:999px;padding:7px 13px;font:600 13px var(--f-txt);color:var(--blanco);cursor:pointer}
+.cita-a .acc .rojo{color:var(--rojo);border-color:rgba(255,138,128,.4)}
+.cita-a .acc .ya{color:var(--ok);border-color:rgba(95,211,154,.4)}
+.dia-t{font:700 12px var(--f-txt);letter-spacing:.16em;text-transform:uppercase;color:var(--gris);margin:20px 0 8px}
+.toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(20px);z-index:90;background:var(--sup2);color:var(--blanco);border:1px solid var(--borde);padding:11px 18px;border-radius:999px;font-size:14px;opacity:0;pointer-events:none;transition:.25s;max-width:90vw;text-align:center}
+.toast.on{opacity:1;transform:translateX(-50%)}
+.avisos{display:grid;gap:6px;background:var(--sup);border-radius:16px;padding:14px 16px;margin-bottom:16px;border:1px solid var(--borde)}
+.avisos b{font:600 15px var(--f-disp);color:var(--celeste)}
+.avisos span{font-size:14px;color:var(--texto2);line-height:1.45}
+.avisos span b{font:700 14px var(--f-txt);color:var(--blanco)}
+.avisos .btn{margin-top:6px;width:100%}
+.avisos.ok{border-color:rgba(95,211,154,.4)}
+.avisos.ok b{color:var(--ok)}
+.aviso-ios{background:rgba(255,200,90,.08);border:1px solid rgba(255,200,90,.35);border-radius:12px;padding:10px 12px;color:#f4dba4;margin-top:4px}
+.aviso-ios b{font:700 13.5px var(--f-txt)!important;color:#ffe2a6!important}
+.aviso-ios ol{margin:6px 0 0 18px;padding:0;display:grid;gap:5px;font-size:13.5px;line-height:1.4}
+
+/* calendario del administrador */
+.cal-bar{display:grid;gap:10px;margin-bottom:12px}
+.cal-vistas{display:grid;grid-template-columns:repeat(4,1fr);background:var(--sup);border:1px solid var(--linea);border-radius:12px;padding:4px;gap:4px}
+.cal-vistas button{border:0;background:none;border-radius:9px;padding:9px 4px;font:600 14px var(--f-txt);color:var(--gris);cursor:pointer}
+.cal-vistas button.si{background:var(--azul);color:#fff}
+.cal-nav{display:flex;align-items:center;gap:6px;min-width:0}
+.cal-nav button{border:1px solid var(--borde);background:var(--sup);border-radius:999px;min-width:36px;height:36px;font-size:18px;color:var(--blanco);cursor:pointer;flex:none}
+.cal-nav .hoy{font:600 13px var(--f-txt);padding:0 14px}
+.cal-nav b{margin-left:6px;font:600 15px var(--f-disp);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.cal-ley{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12.5px;color:var(--gris)}
+.cal-ley span{display:inline-flex;align-items:center;gap:6px}
+.cal-ley i{width:12px;height:12px;border-radius:4px}
+.mes{background:var(--sup);border:1px solid var(--linea);border-radius:14px;overflow:hidden}
+.mes-cab{display:grid;grid-template-columns:repeat(7,1fr);font:700 11px var(--f-txt);color:var(--gris);text-align:center;padding:8px 0;border-bottom:1px solid var(--linea)}
+.mes-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
+.mes-d{min-height:78px;border:0;border-right:1px solid var(--linea);border-bottom:1px solid var(--linea);background:var(--sup);padding:4px 2px;display:flex;flex-direction:column;align-items:stretch;gap:2px;cursor:pointer;font:inherit;text-align:left;min-width:0;color:var(--blanco)}
+.mes-d:nth-child(7n){border-right:0}
+.mes-d.fuera{background:var(--noche)}.mes-d.fuera .n{color:var(--gris2)}
+.mes-d.cerr{background:repeating-linear-gradient(135deg,var(--sup) 0 6px,var(--noche) 6px 12px)}
+.mes-d .n{align-self:center;font:500 12px var(--f-mono);width:24px;height:24px;border-radius:50%;display:grid;place-items:center}
+.mes-d .n.hoy{background:var(--azul);color:#fff}
+.mes-ev{display:block;font-size:10px;line-height:1.3;padding:1px 3px;border-radius:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mes-d .mas{font-size:10px;color:var(--gris);padding-left:3px}
+.tg{background:var(--sup);border:1px solid var(--linea);border-radius:14px;overflow:hidden}
+.tg-cab{display:grid;grid-template-columns:38px repeat(var(--n,7),minmax(0,1fr));border-bottom:1px solid var(--linea);position:sticky;top:0;background:var(--sup);z-index:2}
+.tg-dia .tg-cab{--n:1}.tg-dia .tg-cols{grid-template-columns:1fr}
+.tg-cab button{border:0;background:none;padding:6px 0 7px;display:flex;flex-direction:column;align-items:center;gap:1px;cursor:pointer;font:inherit;color:var(--blanco)}
+.tg-cab small{font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--gris)}
+.tg-cab b{font:600 15px var(--f-mono);width:30px;height:30px;border-radius:50%;display:grid;place-items:center}
+.tg-cab .hoy b{background:var(--azul);color:#fff}
+.tg-cab .hoy small{color:var(--celeste);font-weight:700}
+.tg-cuerpo{display:grid;grid-template-columns:38px 1fr;position:relative}
+.tg-horas{position:relative;border-right:1px solid var(--linea)}
+.tg-horas span{position:absolute;right:4px;transform:translateY(-6px);font:500 9.5px var(--f-mono);color:var(--gris);white-space:nowrap}
+.tg-horas span:first-child{transform:none}
+.tg-cols{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));background-image:linear-gradient(var(--linea) 1px,transparent 1px)}
+.col{position:relative;border-right:1px solid var(--linea);min-width:0}
+.col:last-child{border-right:0}
+.col.es-hoy{background:rgba(47,107,255,.07)}
+.cerr-b{position:absolute;left:0;right:0;background:repeating-linear-gradient(135deg,rgba(0,0,0,.18) 0 6px,rgba(0,0,0,.32) 6px 12px)}
+.ev{position:absolute;left:2px;right:2px;border:0;border-radius:6px;padding:3px 4px;text-align:left;overflow:hidden;cursor:pointer;font:inherit;display:flex;flex-direction:column;gap:1px}
+.ev b{font-size:11px;font-weight:700;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ev span{font-size:10px;line-height:1.2;opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tg-dia .ev{left:6px;right:6px;padding:6px 8px}.tg-dia .ev b{font-size:14px}.tg-dia .ev span{font-size:12px;white-space:normal}
+.ahora{position:absolute;left:0;right:0;height:2px;background:#ff5a4f;z-index:1}
+.ahora::before{content:"";position:absolute;left:-5px;top:-4px;width:10px;height:10px;border-radius:50%;background:#ff5a4f}
+.tg-vacio{text-align:center;color:var(--gris);font-size:14px;padding:12px;border-top:1px solid var(--linea)}
+.ev-det{display:flex;gap:12px;align-items:flex-start;margin:4px 0 12px}
+.ev-punto{width:14px;height:14px;border-radius:4px;margin-top:9px;flex:none}
+.ev-det p{color:var(--gris);font-size:14.5px;margin-top:4px}
+.ev-lista{list-style:none;display:grid;gap:8px;margin:0 0 16px;padding:0;font-size:15px;color:var(--texto2)}
+.ev-lista li{overflow-wrap:anywhere}
+.ev-acc{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.ev-acc .btn{padding:12px 8px;font-size:13.5px}
+.modal-ev{position:fixed;left:50%;top:50%;z-index:64;width:min(440px,calc(100vw - 28px));max-height:calc(100vh - 40px);overflow:auto;background:var(--noche);color:var(--blanco);border:1px solid var(--borde);border-radius:22px;box-shadow:0 30px 80px -20px rgba(0,0,0,.8);transform:translate(-50%,-46%) scale(.96);opacity:0;transition:transform .22s ease,opacity .22s ease}
+.modal-ev.on{transform:translate(-50%,-50%);opacity:1}
+.mev-cab{display:flex;justify-content:space-between;align-items:center;padding:12px 14px 12px 18px;border-left:0!important;font:700 12px var(--f-txt);letter-spacing:.16em;text-transform:uppercase}
+.mev-x{width:34px;height:34px;border-radius:50%;border:0;background:rgba(7,9,13,.5);font-size:20px;line-height:1;color:var(--blanco);cursor:pointer}
+.mev-in{padding:16px 18px 18px}
+.mev-in h3{font-size:22px;font-weight:600}
+.mev-in .conf-txt{color:var(--texto2);margin:6px 0 18px}
+.apuntes{display:grid;gap:6px;background:var(--sup);border:1px solid var(--linea);border-radius:14px;padding:12px;margin-bottom:12px}
+.apuntes label{font-weight:700;font-size:14px}
+.apuntes label small{font-weight:400;color:var(--gris)}
+.apuntes textarea{width:100%;border:1px solid var(--borde);border-radius:10px;padding:10px;font:400 15px var(--f-txt);color:var(--blanco);resize:vertical;background:var(--negro)}
+.ap-pie{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.ap-pie span{font-size:13px;color:var(--ok)}
+.ap-pie .btn{padding:9px 14px;font-size:13px}
+.ap-mini{display:inline-block;margin-top:4px;background:rgba(124,196,255,.08);border-radius:8px;padding:4px 8px;font-size:13.5px;color:var(--celeste)}
+.n-fila{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.n-fila span{flex:1;font:600 18px var(--f-disp)}
+.n-fila .chip{padding:8px 12px;font-size:13px}
+.aviso-mini{display:block;width:100%;text-align:left;border:1px solid rgba(255,200,90,.35);background:rgba(255,200,90,.08);color:#ffe2a6;border-radius:12px;padding:10px 12px;font:600 13.5px var(--f-txt);margin-bottom:12px;cursor:pointer}
+.n-tabs{display:flex;overflow-x:auto;scrollbar-width:none;gap:6px;margin:0 calc(-1 * var(--gut-r)) 16px calc(-1 * var(--gut-l));padding:0 var(--gut-r) 2px var(--gut-l)}
+.n-tabs::-webkit-scrollbar{display:none}
+.n-tabs .chip{flex:none;padding:10px 14px;white-space:nowrap}
+.n-tabs [data-nv="env"]{border-color:rgba(37,211,102,.5);color:var(--verde)}
+.n-tabs [data-nv="env"].si{background:var(--verde);border-color:var(--verde);color:#04210f}
+.op-t{font:700 12px var(--f-txt);letter-spacing:.16em;text-transform:uppercase;color:var(--gris);margin:16px 0 10px}
+
+/* ingresos */
+.ing{display:grid;gap:14px}
+.ing-total{background:linear-gradient(150deg,rgba(47,107,255,.35),rgba(124,196,255,.06));border:1px solid var(--borde);border-radius:18px;padding:18px 20px;display:grid;gap:2px}
+.ing-total small{font:700 11.5px var(--f-txt);letter-spacing:.2em;text-transform:uppercase;color:var(--celeste)}
+.ing-total b{font:500 clamp(30px,9vw,40px)/1.15 var(--f-mono);font-variant-numeric:tabular-nums}
+.ing-total span{font-size:14px;color:var(--texto2)}
+.ing-kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.ing-kpis div{background:var(--sup);border:1px solid var(--linea);border-radius:14px;padding:10px 12px;min-width:0}
+.ing-kpis small{display:block;font-size:11px;color:var(--gris);line-height:1.3}
+.ing-kpis b{font:500 14.5px var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+.ing-box{background:var(--sup);border:1px solid var(--linea);border-radius:16px;padding:14px 16px}
+.ing-box h4{font:700 12px var(--f-txt);letter-spacing:.16em;text-transform:uppercase;color:var(--gris);margin-bottom:12px}
+.ing-dias{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:3px;height:140px;align-items:end;background-image:linear-gradient(var(--linea) 1px,transparent 1px);background-size:100% 25%}
+.ing-dias.id-semana{gap:8px}
+.ing-dia{display:grid;grid-template-rows:auto 1fr auto;height:100%;align-items:end;text-align:center;min-width:0}
+.ing-dia i{display:block;background:linear-gradient(var(--celeste),var(--azul));border-radius:4px 4px 1px 1px;min-height:2px;align-self:end}
+.ing-dia.hoy i{background:#fff}
+.ing-dia .v{font:500 9.5px var(--f-mono);color:var(--gris);white-space:nowrap;overflow:hidden}
+.ing-dia small{font:500 10px var(--f-mono);color:var(--gris);padding-top:4px;min-height:18px}
+.ing-fila{margin-bottom:10px}.ing-fila:last-child{margin-bottom:0}
+.ing-fila .t{display:flex;justify-content:space-between;gap:10px;font-size:14.5px;margin-bottom:5px}
+.ing-fila .t span{min-width:0;overflow-wrap:anywhere}
+.ing-fila em{font-style:normal;color:var(--gris);font-size:13px}
+.ing-fila b{font:500 13.5px var(--f-mono);white-space:nowrap}
+.ing-fila .bar{height:8px;background:var(--noche);border-radius:9px;overflow:hidden}
+.ing-fila .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--azul),var(--celeste));border-radius:9px}
+.ing-lug{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.ing-lug div{border-radius:12px;padding:10px 12px;min-width:0}
+.ing-lug small{display:block;font-size:12px;margin-bottom:2px;opacity:.85}
+.ing-lug b{font:500 13.5px var(--f-mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+.ing-vacio{color:var(--gris);font-size:14px}
+
+/* encuestas y opiniones */
+.enc-p{display:grid;gap:8px;margin-bottom:16px}
+.enc-p>span{font-weight:700;font-size:15px}
+.estrellas{display:flex;gap:6px}
+.estrellas button{border:0;background:none;font-size:36px;line-height:1;color:var(--sup2);cursor:pointer;padding:0 2px;transition:transform .1s;-webkit-text-stroke:1px var(--borde)}
+.estrellas button.si{color:var(--celeste);-webkit-text-stroke:0}
+.estrellas button:active{transform:scale(1.15)}
+.enc-res{display:grid;gap:2px;background:rgba(124,196,255,.06);border:1px solid var(--linea);border-radius:12px;padding:10px 12px;margin-bottom:10px}
+.enc-res b{color:var(--celeste);font-size:18px;letter-spacing:2px}
+.enc-res span{font-size:13.5px;color:var(--texto2)}
+.enc-resumen{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center;background:linear-gradient(150deg,rgba(47,107,255,.3),rgba(124,196,255,.05));border:1px solid var(--borde);border-radius:16px;padding:16px;margin-bottom:12px}
+.enc-resumen .grande{display:grid;justify-items:center;gap:2px;padding-right:14px;border-right:1px solid var(--borde)}
+.enc-resumen .grande b{font:500 40px/1 var(--f-mono);color:#fff}
+.enc-resumen .grande span{color:var(--celeste);letter-spacing:2px;font-size:14px}
+.enc-resumen .grande small{font-size:12px;color:var(--texto2)}
+.enc-resumen .det{display:grid;gap:6px;min-width:0}
+.enc-resumen .det div{display:flex;justify-content:space-between;gap:8px;font-size:14px}
+.enc-resumen .det small{color:var(--texto2);font-size:13.5px}
+.estr{color:var(--celeste);letter-spacing:1px}
+.enc-btns{display:flex;gap:8px;align-items:center;margin-top:10px}
+.enc-btns .btn{flex:1;padding:11px 10px;font-size:13px}
+.enc-env-f{display:block;margin-top:6px;font-size:12.5px;color:var(--gris)}
+.enc-card .h span{color:var(--gris)}
+
+/* configuración */
+.conf{display:grid;gap:12px}
+.conf-s{background:var(--sup);border:1px solid var(--linea);border-radius:16px;padding:14px 16px;display:grid;gap:10px}
+.conf-s h4{font:600 16px var(--f-disp)}
+.conf-s .avisos{margin-bottom:0}
+.conf-p{font-size:14.5px;color:var(--texto2)}
+.conf-nota{font-size:13px;color:var(--gris)}
+.conf-b{width:100%;padding:12px;font-size:13.5px}
+.conf-l{list-style:none;display:grid;gap:6px;margin:0;padding:0}
+.conf-l li{display:flex;justify-content:space-between;gap:12px;font-size:14px;border-bottom:1px solid var(--linea);padding-bottom:6px}
+.conf-l li:last-child{border-bottom:0}
+.conf-l b{font-weight:700;flex:none}
+.conf-l span{text-align:right;color:var(--texto2);min-width:0;overflow-wrap:anywhere}
+.copia-campo{width:100%;border:1px solid var(--borde);background:var(--negro);border-radius:10px;padding:10px;font:400 14px var(--f-mono);color:var(--blanco);margin-bottom:14px}
+
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}.revela.antes{opacity:1;transform:none}}
+@media (min-width:780px){
+  section{padding-block:96px}
+  .portada .wrap{grid-template-columns:1.15fr .85fr}
+  .portada .orbe{width:min(370px,100%);order:2}
+  .mini{grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+  .pasos{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .pasos li{grid-template-columns:1fr}
+  .trabajos{grid-template-columns:1fr 1fr}
+  .ubic{grid-template-columns:1.1fr 1fr;align-items:start}
+  .gal{grid-template-columns:repeat(3,1fr)}
+  .gal .ancha{grid-column:span 3;aspect-ratio:21/9}
+}
+</style>
+
+</head><body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-wa" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6.5-.1 1.5-.6 1.8-1.2.2-.6.2-1.1.1-1.2l-.5-.3Z"/></symbol>
+  <symbol id="i-pc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M2 20h20M9 8l-2 2 2 2M15 8l2 2-2 2"/></symbol>
+  <symbol id="i-lupa" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m20 20-4.8-4.8M8 10.5h5M10.5 8v5"/></symbol>
+  <symbol id="i-win" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M3 5.5 10.5 4.4v7.1H3zM13 4l8-1.2v8.7h-8zM3 13.5h7.5v7.1L3 19.5zM13 13.5h8v8.7L13 21z"/></symbol>
+  <symbol id="i-escudo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4.5 6v5.5c0 4.6 3.2 8.4 7.5 9.5 4.3-1.1 7.5-4.9 7.5-9.5V6z"/><path d="m8.8 12 2.2 2.2 4.4-4.6"/></symbol>
+  <symbol id="i-vent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="1.6"/><path d="M12 10.4c0-3 .6-5.2 3-5.2s2 3.6-1.6 5.6M13.6 12c3 0 5.2.6 5.2 3s-3.6 2-5.6-1.6M12 13.6c0 3-.6 5.2-3 5.2s-2-3.6 1.6-5.6M10.4 12c-3 0-5.2-.6-5.2-3s3.6-2 5.6 1.6"/></symbol>
+  <symbol id="i-ssd" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 10h4v4H7zM14 10h4M14 14h2M19.5 10v4"/></symbol>
+  <symbol id="i-caja" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 8 4.5v9L12 21l-8-4.5v-9z"/><path d="m4 7.5 8 4.5 8-4.5M12 12v9"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.7 7.1L4 20.5l1.4-4.7A8 8 0 1 1 21 12Z"/><path d="M8.5 10.5h7M8.5 13.5h4.5"/></symbol>
+  <symbol id="i-web" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M7 6.5h.01M10 6.5h.01M8 13h8M8 16h5"/></symbol>
+  <symbol id="i-tel" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2Z"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M12 22s7-6.2 7-12a7 7 0 1 0-14 0c0 5.8 7 12 7 12Z"/><circle cx="12" cy="10" r="2.6"/></symbol>
+  <symbol id="i-reloj" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></symbol>
+  <symbol id="i-foto" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></symbol>
+  <symbol id="i-idea" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3Z"/></symbol>
+  <symbol id="i-precio" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12 12 20l-8-8V4h8z"/><circle cx="8" cy="8" r="1.4"/></symbol>
+  <symbol id="i-casa" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/></symbol>
+</svg>
+
+<nav class="nav" aria-label="Principal">
+  <div class="fila">
+    <button class="menu" data-abrir="cajon" aria-label="Abrir menú"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>Menú</button>
+    <button class="ag" data-reservar>Agendar cita</button>
+    <a href="#servicios">Servicios</a>
+    <a href="#precios">Precios</a>
+    <button data-abrir="p-galeria">Galería</button>
+    <a href="#horario">Horario</a>
+    <a href="#contacto">Contacto</a>
+  </div>
+</nav>
+
+<main>
+  <section class="portada" id="inicio">
+    <div class="wrap">
+      <div class="orbe" aria-hidden="true"><i class="b1"></i><i class="b2"></i><i class="b4"></i><i class="b3"></i><span class="txt">RBM</span></div>
+      <div>
+        <p class="etq">Soluciones en tecnología · Costa Rica</p>
+        <h1>RBM <span class="s">Solutions</span></h1>
+        <p class="lema">Reparo tu computadora, te ayudo a comprar el equipo correcto y creo la página web de tu negocio.</p>
+        <ul class="sellos"><li>Servicio a domicilio</li><li>En taller o a distancia</li><li>Heredia y todo el país</li></ul>
+        <div class="acciones">
+          <button class="btn btn-agua" data-reservar><svg><use href="#i-cal"/></svg>Agendar cita</button>
+          <a class="btn btn-linea" href="#precios">Ver precios</a>
+        </div>
+        <div class="estado" id="estado"><i></i><span>Atención con cita</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="banda" id="servicios">
+    <div class="wrap">
+      <div class="cab-s revela"><p class="etq">Servicios</p><h2>Todo lo que tu tecnología necesita</h2><p>Tocá un servicio para ver qué incluye y agendarlo. Voy hasta donde estés, lo traés al taller o lo resolvemos a distancia.</p></div>
+      <div class="mini revela" id="mini"></div>
+    </div>
+  </section>
+
+  <section id="precios">
+    <div class="wrap">
+      <div class="cab-s revela"><p class="etq">Precios</p><h2>Precios claros, sin sorpresas</h2><p>Precios de referencia en colones. Te confirmo el precio final antes de empezar.</p></div>
+      <div class="pestanas" role="tablist" aria-label="Tipo de servicio">
+        <button role="tab" aria-selected="true" aria-controls="lista-precios" data-cat="pc">Computadoras</button>
+        <button role="tab" aria-selected="false" aria-controls="lista-precios" data-cat="eq">Compra de equipos</button>
+        <button role="tab" aria-selected="false" aria-controls="lista-precios" data-cat="web">Páginas web</button>
+      </div>
+      <div class="tabla" id="lista-precios" role="tabpanel"></div>
+      <p class="nota" id="nota-precios"></p>
+      <div class="acc-precios">
+        <button class="btn btn-agua" data-reservar><svg><use href="#i-cal"/></svg>Agendar cita</button>
+        <a class="btn btn-linea" id="cotizar-cat" href="#" target="_blank" rel="noopener"><svg><use href="#i-wa"/></svg>Cotizar por WhatsApp</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="banda">
+    <div class="wrap">
+      <div class="cab-s revela"><p class="etq">Cómo trabajo</p><h2>De tu cita a tu equipo funcionando</h2></div>
+      <ol class="pasos revela">
+        <li><div><b>Agendás o me escribís</b><span>Escogés día y hora aquí, o me contás por WhatsApp qué pasa.</span></div></li>
+        <li><div><b>Diagnóstico y precio</b><span>Reviso y te digo cuánto cuesta antes de tocar nada.</span></div></li>
+        <li><div><b>Lo resuelvo</b><span>A domicilio, en mi taller o a distancia, como te quede mejor.</span></div></li>
+        <li><div><b>Te acompaño</b><span>Te explico qué se hizo y quedo disponible para dudas.</span></div></li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="trabajos">
+    <div class="wrap">
+      <div class="cab-s revela"><p class="etq">Trabajos</p><h2>Páginas que ya están funcionando</h2></div>
+      <div class="trabajos revela">
+        <a class="trab" href="https://iglesiajesuseselrey.github.io" target="_blank" rel="noopener">
+          <span class="tipo">Iglesia · App web</span><h3>Iglesia Jesús es el Rey</h3>
+          <p>Peticiones de oración con buzón para cada grupo de pastores, eventos, transmisiones en vivo, encuestas y agradecimientos.</p>
+          <span class="url">iglesiajesuseselrey.github.io ↗</span></a>
+        <a class="trab" href="https://enzo-spa.github.io" target="_blank" rel="noopener">
+          <span class="tipo">Spa · Citas en línea</span><h3>Enzō Spa</h3>
+          <p>Catálogo de servicios con precios, calendario de citas en línea con dos ubicaciones y avisos al celular de la dueña.</p>
+          <span class="url">enzo-spa.github.io ↗</span></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="banda" id="horario">
+    <div class="wrap">
+      <div class="cab-s revela"><p class="etq">Horario</p><h2>Cuándo atiendo</h2><p>Estos son los espacios que podés reservar en línea. ¿Necesitás otro día u hora? Escribime y lo coordinamos.</p></div>
+      <div class="horario revela" id="tabla-horario"></div>
+    </div>
+  </section>
+
+  <section id="contacto">
+    <div class="wrap">
+      <div class="cab-s revela"><p class="etq">Ubicación y contacto</p><h2>Hablemos</h2><p>Respondo rápido por WhatsApp.</p></div>
+      <div class="ubic">
+        <div class="revela">
+          <div class="mapa" aria-label="Ubicación del taller">
+            <span class="pin"><svg><use href="#i-pin"/></svg></span>
+            <div class="rot"><b>Taller RBM</b><span id="lug-dir"></span></div>
+          </div>
+          <div class="ir" id="lug-ir"></div>
+          <h4 class="op-t" style="margin-top:22px">Tres formas de atenderte</h4>
+          <div class="modos" id="modos"></div>
+        </div>
+        <div class="datos revela">
+          <div class="dato"><span class="ic"><svg><use href="#i-tel"/></svg></span><span><small>WhatsApp y llamadas</small><b id="d-tel">6157-2339</b></span><button class="copiar" data-copiar="d-tel">Copiar</button></div>
+          <div class="dato"><span class="ic"><svg><use href="#i-mail"/></svg></span><span><small>Correo</small><b id="d-mail">rbrenes819@gmail.com</b></span><button class="copiar" data-copiar="d-mail">Copiar</button></div>
+          <div class="dato"><span class="ic"><svg><use href="#i-pin"/></svg></span><span><small>Ubicación</small><b>San Miguel de Santo Domingo, Heredia</b><span class="sub">Me traslado a diversas partes del país.</span></span><span></span></div>
+          <a class="btn btn-wa" data-wa="Hola, vengo de la página de RBM Solutions. Tengo una consulta." href="#"><svg><use href="#i-wa"/></svg>Escribir por WhatsApp</a>
+          <button class="btn btn-agua" data-reservar><svg><use href="#i-cal"/></svg>Agendar cita en línea</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="banda frase">
+    <div class="wrap">
+      <blockquote>Califícame no por mis éxitos, sino por mis fracasos… <em>que son muy pocos.</em></blockquote>
+      <cite>— RBM Solutions</cite>
+      <button class="btn btn-agua" data-reservar><svg><use href="#i-cal"/></svg>Agendar mi cita</button>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap"><b>RBM Solutions</b><span>Reparación de computadoras · Compra de equipos · Páginas web</span><span>Heredia, Costa Rica</span></div>
+</footer>
+
+<a class="wa" data-wa="Hola, vengo de la página de RBM Solutions. Tengo una consulta." href="#" aria-label="Escribir por WhatsApp"><svg><use href="#i-wa"/></svg></a>
+
+<div class="velo" id="velo"></div>
+
+<!-- Menú lateral -->
+<aside class="cajon" id="cajon" aria-label="Menú">
+  <div class="cab"><span class="orbe mini" aria-hidden="true"><i class="b1"></i><i class="b2"></i><i class="b3"></i></span><div><b>RBM <span>Solutions</span></b><small>Tecnología a domicilio</small></div></div>
+  <button class="it" data-reservar style="margin-top:8px"><svg><use href="#i-cal"/></svg>Agendar cita</button>
+  <h4>Servicios</h4>
+  <div id="menu-serv"></div>
+  <h4>Más</h4>
+  <button class="it" data-ir="#precios"><svg><use href="#i-precio"/></svg>Precios</button>
+  <button class="it" data-abrir="p-galeria"><svg><use href="#i-foto"/></svg>Galería</button>
+  <button class="it" data-abrir="p-sug"><svg><use href="#i-idea"/></svg>Sugerencias</button>
+  <button class="it" data-ir="#horario"><svg><use href="#i-reloj"/></svg>Horario</button>
+  <button class="it" data-ir="#contacto"><svg><use href="#i-pin"/></svg>Ubicación y contacto</button>
+  <a class="it" data-wa="Hola, vengo de la página de RBM Solutions. Tengo una consulta." href="#"><svg><use href="#i-wa"/></svg>WhatsApp</a>
+  <div class="pie"><button data-abrir="p-admin">🔒 Acceso administrador</button></div>
+</aside>
+
+<!-- Detalle de servicio -->
+<section class="panel" id="p-servicio" aria-label="Servicio">
+  <div class="cab"><button data-atras aria-label="Volver">‹</button><h3 id="ps-titulo">Servicio</h3></div>
+  <div class="cuerpo"><div class="in det" id="ps-cuerpo"></div></div>
+</section>
+
+<!-- Galería -->
+<section class="panel" id="p-galeria" aria-label="Galería">
+  <div class="cab"><button data-atras aria-label="Volver">‹</button><h3>Galería</h3></div>
+  <div class="cuerpo"><div class="in"><p style="color:var(--gris);margin-bottom:16px" id="gal-txt">Trabajos de RBM Solutions. Tocá una imagen para verla en grande.</p><div class="gal" id="gal"></div></div></div>
+</section>
+
+<!-- Agenda -->
+<section class="panel" id="p-agenda" aria-label="Agendar cita">
+  <div class="cab"><button data-atras aria-label="Volver">‹</button><h3>Agendar cita</h3></div>
+  <div class="cuerpo"><div class="in" id="agenda"></div></div>
+</section>
+
+<!-- Sugerencias -->
+<section class="panel" id="p-sug" aria-label="Sugerencias">
+  <div class="cab"><button data-atras aria-label="Volver">‹</button><h3>Sugerencias</h3></div>
+  <div class="cuerpo"><div class="in">
+    <form id="sug-form" novalidate>
+      <h2 class="pp-h">¿Cómo puedo mejorar?</h2>
+      <p class="pp-sub">Tu opinión me ayuda a dar un mejor servicio. Podés enviarla sin nombre.</p>
+      <div class="campo"><label for="sug-texto">Tu sugerencia</label><textarea id="sug-texto" rows="5" maxlength="600" placeholder="Ej.: me gustaría que también arreglaran celulares"></textarea></div>
+      <div class="campo"><label for="sug-nombre">Tu nombre (opcional)</label><input id="sug-nombre" maxlength="40" autocomplete="name" placeholder="Podés dejarlo en blanco"></div>
+      <p class="error" id="sug-err"></p>
+      <button class="btn btn-agua" style="width:100%;padding:16px" id="sug-enviar" type="submit">Enviar sugerencia</button>
+    </form>
+    <div class="listo" id="sug-ok" hidden>
+      <div class="orbe ok" aria-hidden="true"><i class="b1"></i><i class="b2"></i><i class="b3"></i><span class="txt">✓</span></div><h2>¡Gracias!</h2><p>Ya recibí tu sugerencia.</p>
+      <div class="bloque"><button class="btn btn-osc" id="sug-otra" type="button">Enviar otra</button><button class="btn btn-linea" data-atras type="button">Volver</button></div>
+    </div>
+  </div></div>
+</section>
+
+<!-- Encuesta de satisfacción (se abre con el link que se envía por WhatsApp) -->
+<section class="panel" id="p-encuesta" aria-label="Encuesta de satisfacción">
+  <div class="cab"><button data-atras aria-label="Volver">‹</button><h3>Tu opinión</h3></div>
+  <div class="cuerpo"><div class="in">
+    <form id="enc-form" novalidate>
+      <div class="orbe" style="width:76px;margin:4px auto 14px" aria-hidden="true"><i class="b1"></i><i class="b2"></i><i class="b3"></i></div>
+      <h2 class="pp-h" style="text-align:center">¿Cómo te fue con RBM Solutions?</h2>
+      <p class="pp-sub" style="text-align:center">Gracias por confiar en mí. Tu opinión me ayuda a mejorar.</p>
+      <div id="enc-preg"></div>
+      <div class="campo" style="margin-top:6px"><label for="enc-com">¿Algo que quieras contarme? (opcional)</label><textarea id="enc-com" rows="3" maxlength="600" placeholder="Lo que más te gustó o lo que puedo mejorar"></textarea></div>
+      <div class="campo"><label for="enc-nom">Tu nombre (opcional)</label><input id="enc-nom" maxlength="40" autocomplete="name" placeholder="Podés dejarlo en blanco"></div>
+      <p class="error" id="enc-err"></p>
+      <button class="btn btn-agua" style="width:100%;padding:16px" id="enc-enviar" type="submit">Enviar encuesta</button>
+    </form>
+    <div class="listo" id="enc-ok" hidden>
+      <div class="orbe ok" aria-hidden="true"><i class="b1"></i><i class="b2"></i><i class="b3"></i><span class="txt">✓</span></div><h2>¡Gracias!</h2><p>Ya recibí tu opinión. Cuando tu equipo necesite algo, aquí estoy.</p>
+      <div class="bloque"><button class="btn btn-agua" data-reservar type="button">Agendar otra cita</button><button class="btn btn-linea" data-atras type="button">Ir al inicio</button></div>
+    </div>
+  </div></div>
+</section>
+
+<!-- Acceso administrador -->
+<section class="panel" id="p-admin" aria-label="Mis citas">
+  <div class="cab"><button data-atras aria-label="Volver">‹</button><h3>Mis citas</h3></div>
+  <div class="cuerpo"><div class="in" id="admin"></div></div>
+</section>
+
+<!-- Opciones para reservar -->
+<div class="hoja" id="hoja" role="dialog" aria-modal="true" aria-label="Cómo reservar">
+  <div class="asa"></div>
+  <h3>¿Cómo querés agendar?</h3>
+  <p class="sub" id="hoja-sub">Escogé la forma que te quede más cómoda.</p>
+  <button class="opcion prin" id="op-cal"><span class="ic"><svg><use href="#i-cal"/></svg></span><span><b>Agendar aquí en el calendario</b><small>Ves los espacios libres y reservás al instante.</small></span></button>
+  <a class="opcion" id="op-wa" href="#" target="_blank" rel="noopener"><span class="ic v"><svg><use href="#i-wa"/></svg></span><span><b>Coordinar por WhatsApp</b><small>Si querés consultar algo antes.</small></span></a>
+  <button class="cancel" data-atras>Cancelar</button>
+</div>
+
+<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Imagen"><button class="x" aria-label="Cerrar">×</button><img alt=""></div>
+<div class="toast" id="toast" role="status"></div>
+<script type="module">
+
+// ================== DATOS FÁCILES DE CAMBIAR ==================
+const WHATSAPP = "50661572339";
+const NEGOCIO = "RBM Solutions";
+// Modalidades de atención (en la plantilla del spa eran los dos locales)
+const LUGARES = {
+  taller:    { nombre:"En mi taller", corto:"Taller", color:"taller", lat:9.9925, lng:-84.0770,
+               dir:"San Miguel de Santo Domingo, Heredia. Te paso la ubicación exacta por WhatsApp.",
+               txt:"Traés tu equipo y lo revisamos juntos.", maps:"https://maps.google.com/?q=9.9925,-84.0770" },
+  domicilio: { nombre:"A domicilio", corto:"Domicilio", color:"dom",
+               dir:"Voy a tu casa u oficina en Heredia, San José y alrededores.",
+               txt:"Voy a tu casa u oficina. Me traslado a diversas partes del país." },
+  remoto:    { nombre:"A distancia", corto:"Remoto", color:"rem",
+               dir:"Me conecto a tu computadora por internet (AnyDesk) o hacemos videollamada.",
+               txt:"Para programas, virus, configuración y reuniones de páginas web." }
+};
+const TODOS = ["taller", "domicilio", "remoto"], FISICO = ["taller", "domicilio"];
+// precio: texto que se muestra ("Gratis" o "desde ₡20.000"). dur: minutos sugeridos. ilus: imagen del servicio.
+const SERVICIOS = [
+  { id:"diagnostico", nombre:"Revisión y diagnóstico", precio:"₡10.000", dur:60, ic:"lupa", ilus:"laptop", lugares:TODOS, corto:"Qué tiene y cuánto cuesta",
+    texto:"Reviso tu computadora a fondo y te digo qué tiene y cuánto cuesta arreglarlo, antes de tocar nada. Si hacemos la reparación, el diagnóstico se rebaja del total.",
+    incluye:["Revisión de disco, memoria, temperatura y batería","Te explico el problema en palabras simples","Precio final antes de empezar","Se rebaja si hacemos la reparación"] },
+  { id:"formateo", nombre:"Formateo e instalación de Windows", precio:"₡17.000", dur:120, ic:"win", ilus:"windows", lugares:FISICO, corto:"Windows limpio y rápido",
+    texto:"Dejo tu computadora como nueva: Windows limpio, con sus drivers, actualizaciones y los programas básicos que usás todos los días.",
+    incluye:["Respaldo de tus archivos antes de empezar","Drivers y actualizaciones al día","Navegador, lector de PDF y programas básicos","Te la entrego lista para usar"] },
+  { id:"virus", nombre:"Eliminación de virus y optimización", precio:"₡15.000", dur:90, ic:"escudo", ilus:"escudo", lugares:TODOS, corto:"Más rápida y segura",
+    texto:"Quito virus, publicidad y programas que se instalaron sin permiso, y dejo el arranque más rápido. Se puede hacer a distancia.",
+    incluye:["Limpieza de virus y programas no deseados","Arranque y navegador más rápidos","Revisión de antivirus","Consejos para no volver a infectarte"] },
+  { id:"mantenimiento", nombre:"Mantenimiento preventivo de laptop", precio:"₡20.000", dur:90, ic:"vent", ilus:"ventilador", lugares:FISICO, corto:"Limpieza y pasta térmica",
+    texto:"Si tu laptop se calienta, hace ruido o se apaga sola, la abro, la limpio por dentro y le cambio la pasta térmica. Para PC de escritorio son ₡17.000 y equipo gamer desde ₡25.000.",
+    incluye:["Limpieza interna de polvo","Cambio de pasta térmica","Revisión de ventiladores y temperatura","Prueba de rendimiento al final"] },
+  { id:"ssd", nombre:"Cambio a disco SSD", precio:"desde ₡20.000", dur:120, ic:"ssd", ilus:"ssd", lugares:FISICO, corto:"Hasta 5 veces más rápida",
+    texto:"El cambio que más se nota en una computadora lenta. Instalo el disco nuevo y paso toda tu información para que sigás trabajando igual, pero mucho más rápido.",
+    incluye:["Te recomiendo cuál disco comprar","Instalación del disco SSD","Paso de Windows, programas y archivos","El disco se paga aparte"] },
+  { id:"equipo", nombre:"Configuración de equipo nuevo", precio:"₡20.000", dur:120, ic:"caja", ilus:"caja", lugares:TODOS, corto:"Listo para usar desde el día uno",
+    texto:"Compraste computadora nueva y no querés perder la tarde configurándola. Dejo listas tus cuentas, programas y antivirus, y paso los archivos del equipo viejo.",
+    incluye:["Cuentas de Windows, correo y nube","Programas y antivirus","Paso de archivos del equipo viejo","Quito programas de prueba que vienen de fábrica"] },
+  { id:"asesoria", nombre:"Asesoría para comprar equipo", precio:"Gratis", dur:30, ic:"chat", ilus:"tienda", lugares:TODOS, corto:"Comprá lo que de verdad necesitás",
+    texto:"Antes de gastar, hablemos. Te recomiendo opciones según tu uso y presupuesto. Si querés, también lo busco, lo compro por vos y te lo llevo (₡15.000).",
+    incluye:["Opciones según tu uso y presupuesto","Comparación de precios en tiendas de Costa Rica","Te digo qué evitar","Búsqueda y compra por vos, opcional"] },
+  { id:"web", nombre:"Reunión para tu página web", precio:"Gratis", dur:60, ic:"web", ilus:"web", lugares:TODOS, corto:"Te muestro ejemplos y cotizamos",
+    texto:"Páginas para negocios e iglesias que se instalan en el celular como una app: citas en línea, catálogos y paneles de administración, como esta misma página. En la reunión vemos qué necesitás y te doy el precio.",
+    incluye:["Ejemplos de páginas funcionando","Ideas para tu negocio","Precio cerrado: desde ₡150.000","Hosting gratis; dominio .com opcional"] }
+];
+const PRECIOS = {
+  pc: { nombre:"Computadoras", nota:"Repuestos (discos, memorias, pantallas) se cobran aparte. El diagnóstico se rebaja si hacemos la reparación.", items:[
+    ["Revisión y diagnóstico","₡10.000","Te digo qué tiene y cuánto cuesta arreglarlo."],
+    ["Formateo e instalación de Windows","₡17.000","Incluye drivers, actualizaciones y programas básicos."],
+    ["Eliminación de virus y optimización","₡15.000","Limpieza de programas no deseados y arranque más rápido."],
+    ["Mantenimiento preventivo de laptop","₡20.000","Limpieza interna, cambio de pasta térmica y revisión de temperatura."],
+    ["Mantenimiento de PC de escritorio","₡17.000","Limpieza interna, ventiladores y pasta térmica."],
+    ["Mantenimiento de equipo gamer","desde ₡25.000","Pasta térmica de alto rendimiento y limpieza a fondo."],
+    ["Cambio a disco SSD","desde ₡20.000","Instalación y paso de tu información al disco nuevo. Disco aparte."],
+    ["Instalación de memoria RAM u otra pieza","₡10.000","Te recomiendo cuál comprar para tu equipo."],
+    ["Instalación de programas u Office","₡10.000","Por equipo, programas con licencia del cliente."],
+    ["Recuperar contraseña de Windows","₡15.000","Sin perder tus archivos."],
+    ["Wi-Fi, red o impresora","₡15.000","Configuración en casa u oficina."],
+    ["Respaldo y recuperación de archivos","desde ₡20.000","Según la cantidad de información y el estado del disco."] ]},
+  eq: { nombre:"Compra de equipos", nota:"El precio del equipo lo pagás directo a la tienda; yo cobro solo mi servicio.", items:[
+    ["Asesoría para escoger equipo","Gratis","Te recomiendo opciones según tu uso y presupuesto."],
+    ["Búsqueda y compra por vos","₡15.000","Comparo precios, lo compro y te lo llevo."],
+    ["Configuración de equipo nuevo","₡20.000","Cuentas, programas, antivirus y paso de archivos del equipo viejo."],
+    ["Armado de PC a la medida","desde ₡35.000","Para gaming, diseño u oficina. Piezas aparte."] ]},
+  web: { nombre:"Páginas web", nota:"El hosting es gratis. Dominio propio (.com) opcional, cerca de $12 al año.", items:[
+    ["Página de presentación","desde ₡150.000","Una página con tus servicios, fotos, WhatsApp y ubicación."],
+    ["Página para negocio","desde ₡250.000","Servicios con precios, galería, varias secciones y se instala como app."],
+    ["Página con sistema","desde ₡450.000","Citas en línea, usuarios, panel de administración y avisos al celular."],
+    ["Mantenimiento mensual","desde ₡15.000/mes","Cambios de precios, fotos, textos y soporte."] ]}
+};
+const waze = l => `https://waze.com/ul?ll=${l.lat},${l.lng}&navigate=yes`;
+const DURACIONES = [30, 60, 90, 120, 180];   // opciones al agendar
+// Horario: 0 = domingo ... 6 = sábado. Horas en formato 24 h. turnos:[] = no se agenda en línea.
+const HORARIO = [
+  { dias:[1,2,3,4,5], nombre:"Lunes a viernes", turnos:[["08:00","12:00"],["13:00","19:00"]] },
+  { dias:[6], nombre:"Sábado", turnos:[["08:00","16:00"]] },
+  { dias:[0], nombre:"Domingo", turnos:[], nota:"Solo urgencias por WhatsApp" }
+];
+const SEMANAS_ADELANTE = 4;   // cuántas semanas se pueden reservar
+const ANTICIPACION_MIN = 90;  // minutos mínimos de anticipación
+const CLAVE_ADMIN = "demo1234";  // clave solo para la versión de prueba (sin Firebase)
+
+// ===== CONEXIÓN =====
+// Pegue aquí la configuración de Firebase. Si queda en null, la página funciona en modo de prueba.
+const FIREBASE = null;
+const ADMIN_EMAIL = "rbrenes819@gmail.com";   // usuario del administrador en Firebase → Authentication
+
+// ================== IMÁGENES DE MUESTRA ==================
+// Ilustraciones livianas mientras se suben fotos reales desde el acceso administrador.
+const ILUS = (() => {
+  const C = "#7cc4ff", A = "#2f6bff", W = "#f2f6fb";
+  const base = (inner, gx = 64, gy = 30) => "data:image/svg+xml," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500">
+    <defs><radialGradient id="g" cx="${gx}%" cy="${gy}%" r="75%"><stop offset="0" stop-color="#16397a"/><stop offset=".55" stop-color="#0c1422"/><stop offset="1" stop-color="#07090d"/></radialGradient>
+    <linearGradient id="l" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${C}"/><stop offset="1" stop-color="${A}"/></linearGradient>
+    <pattern id="p" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0v40" fill="none" stroke="${C}" stroke-opacity=".07"/></pattern></defs>
+    <rect width="800" height="500" fill="url(#g)"/><rect width="800" height="500" fill="url(#p)"/>
+    <circle cx="${gx * 8}" cy="${gy * 5}" r="150" fill="${A}" fill-opacity=".18"/>
+    <g fill="none" stroke="${C}" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">${inner}</g></svg>`);
+  return {
+    laptop: base(`<rect x="230" y="120" width="340" height="215" rx="14" fill="#0c1a33"/><path d="M180 360h440l-30 34H210z" fill="#0c1a33"/>
+      <circle cx="375" cy="225" r="46" stroke="${W}"/><path d="m408 258 46 46" stroke="${W}" stroke-width="9"/><path d="M355 225h40M375 205v40" stroke="${A}"/>`),
+    windows: base(`<rect x="230" y="110" width="340" height="230" rx="14" fill="#0c1a33"/><path d="M340 380h120M400 340v40"/>
+      <path d="M318 168 392 157v66h-74zM408 155l84-12v80h-84zM318 236h74v66l-74-11zM408 236h84v80l-84-12z" fill="url(#l)" stroke="none"/>`),
+    escudo: base(`<path d="M400 90 290 135v90c0 75 48 135 110 155 62-20 110-80 110-155v-90z" fill="#0c1a33"/>
+      <path d="m350 238 36 36 70-76" stroke="${W}" stroke-width="12"/><circle cx="560" cy="130" r="10" fill="${C}"/><circle cx="235" cy="320" r="7" fill="${C}"/>`, 50),
+    ventilador: base(`<rect x="250" y="100" width="300" height="300" rx="28" fill="#0c1a33"/><circle cx="400" cy="250" r="115"/><circle cx="400" cy="250" r="18" fill="${C}"/>
+      <path d="M400 232c0-55 12-95 55-95s36 66-30 102M418 250c55 0 95 12 95 55s-66 36-102-30M400 268c0 55-12 95-55 95s-36-66 30-102M382 250c-55 0-95-12-95-55s66-36 102 30" stroke="url(#l)" stroke-width="6"/>`, 50),
+    ssd: base(`<rect x="210" y="150" width="380" height="200" rx="18" fill="#0c1a33"/><rect x="250" y="195" width="110" height="110" rx="8" fill="url(#l)" stroke="none"/>
+      <path d="M400 210h140M400 245h100M400 280h120M590 205v90" /><path d="M150 250h40M610 250h40" stroke-dasharray="2 14"/>`),
+    caja: base(`<path d="m400 95 170 90v170l-170 90-170-90V185z" fill="#0c1a33"/><path d="m230 185 170 90 170-90M400 275v170"/>
+      <path d="m315 140 170 90" stroke="${A}" stroke-width="8"/><path d="M600 120l20-20M620 150h28M585 95V68" stroke="${W}"/>`, 50),
+    tienda: base(`<rect x="160" y="150" width="210" height="140" rx="10" fill="#0c1a33"/><path d="M130 310h270"/>
+      <rect x="440" y="130" width="200" height="170" rx="10" fill="#0c1a33"/><path d="M500 340h80M540 300v40"/>
+      <path d="M200 200h90M200 230h60M480 180h110M480 210h80" stroke="${W}" stroke-opacity=".6"/><path d="m385 245 40 0m-14-14 14 14-14 14" stroke="${W}"/>`, 50),
+    web: base(`<rect x="170" y="100" width="460" height="300" rx="16" fill="#0c1a33"/><path d="M170 145h460"/><circle cx="200" cy="123" r="5" fill="${C}"/><circle cx="222" cy="123" r="5" fill="${C}"/>
+      <circle cx="290" cy="230" r="48" fill="url(#l)" stroke="none"/><path d="M370 205h200M370 240h150M210 320h120M360 320h120M510 320h90" stroke="${W}" stroke-opacity=".7"/>
+      <rect x="560" y="210" width="110" height="200" rx="18" fill="#0c1a33" stroke="${W}"/><path d="M585 260h60M585 290h40M585 330h60" />`),
+    citas: base(`<rect x="300" y="70" width="200" height="360" rx="30" fill="#0c1a33"/><path d="M370 92h60"/>
+      <path d="M325 150h150" stroke="${W}"/><g stroke-width="0" fill="${C}" fill-opacity=".35"><rect x="325" y="175" width="40" height="34" rx="6"/><rect x="380" y="175" width="40" height="34" rx="6"/><rect x="435" y="175" width="40" height="34" rx="6"/><rect x="325" y="222" width="40" height="34" rx="6"/><rect x="435" y="222" width="40" height="34" rx="6"/></g>
+      <rect x="380" y="222" width="40" height="34" rx="6" fill="${A}" stroke-width="0"/><rect x="325" y="300" width="150" height="46" rx="12" fill="url(#l)" stroke="none"/>`, 50),
+    pc: base(`<rect x="300" y="90" width="200" height="320" rx="16" fill="#0c1a33"/><circle cx="400" cy="200" r="62"/><circle cx="400" cy="330" r="38"/>
+      <path d="M340 200a60 60 0 0 1 120 0" stroke="${A}" stroke-width="10"/><path d="M325 120h40" stroke="${W}"/><path d="M200 410h400"/>`, 50)
+  };
+})();
+// Galería de muestra: [imagen, título]
+const FOTOS = [["laptop","Diagnóstico de laptop"],["ventilador","Mantenimiento y pasta térmica"],["ssd","Cambio a disco SSD"],["web","Páginas web que se instalan como app"],["citas","Citas en línea"],["pc","PC a la medida"],["escudo","Limpieza de virus"],["windows","Formateo de Windows"],["caja","Equipo nuevo listo para usar"]]
+  .map(([k, t]) => ({ tipo:"foto", data: ILUS[k], titulo: t, muestra:true }));
+
+// ================== UTILIDADES ==================
+const $ = s => document.querySelector(s);
+const esc = t => String(t ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const waLink = msg => `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`;
+const CAL = '<svg><use href="#i-cal"/></svg>';
+const WA_IC = '<svg><use href="#i-wa"/></svg>';
+function toast(t){ const el = $("#toast"); el.textContent = t; el.classList.add("on"); clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.remove("on"), 2600); }
+const DIAS_C = ["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"];
+const DIAS_L = ["domingo","lunes","martes","miércoles","jueves","viernes","sábado"];
+const MESES = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+const MES_C = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+const lsGet = (k, d) => { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch { return d; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch { return false; } };
+
+// Fechas en hora de Costa Rica (UTC-6, sin horario de verano)
+const crAhora = () => new Date(Date.now() - 6 * 3600e3);
+const iso = d => d.toISOString().slice(0, 10);
+const deIso = s => new Date(s + "T00:00:00Z");
+const masDias = (d, n) => new Date(d.getTime() + n * 864e5);
+const aMin = h => { const [a, b] = h.split(":").map(Number); return a * 60 + b; };
+const hhmm = m => String(Math.floor(m / 60)).padStart(2, "0") + String(m % 60).padStart(2, "0");
+const h12m = m => { let a = Math.floor(m / 60), b = m % 60; const pm = a >= 12; a = a % 12 || 12; return `${a}:${String(b).padStart(2, "0")} ${pm ? "p. m." : "a. m."}`; };
+const h12 = h => h12m(aMin(h));
+const fechaLarga = f => { const d = deIso(f); return `${DIAS_L[d.getUTCDay()]} ${d.getUTCDate()} de ${MESES[d.getUTCMonth()]}`; };
+const mayus = t => t.replace(/^./, c => c.toUpperCase());
+const turnosDe = f => (HORARIO.find(h => h.dias.includes(deIso(f).getUTCDay())) || { turnos: [] }).turnos.map(t => [aMin(t[0]), aMin(t[1])]);
+const durTxt = d => d === 30 ? "30 min" : d === 60 ? "1 hora" : d === 90 ? "1 h 30 min" : d === 120 ? "2 horas" : d === 180 ? "3 horas" : `${d} min`;
+const esGratis = s => /gratis/i.test(String(s?.precio || ""));
+const precioHTML = s => s.precio ? esc(s.precio) : "Consultar";
+const tel506 = t => { const tel = String(t).replace(/\D/g, ""); return tel.length === 8 ? "506" + tel : tel; };
+const lugarTxt = c => LUGARES[c.lugar] ? LUGARES[c.lugar].nombre : "Sin modalidad";
+
+// Copiar al portapapeles: si el navegador no deja, se muestra el texto para copiarlo a mano
+async function copiar(texto, ok = "Copiado"){
+  try { await navigator.clipboard.writeText(texto); toast(ok); return true; }
+  catch { ventana({ titulo:"Copiá este texto", html:`<input class="copia-campo" readonly value="${esc(texto)}" id="copia-campo">`, si:"Listo", no:null, alAbrir: el => { const i = el.querySelector("#copia-campo"); i.focus(); i.select(); } }); return false; }
+}
+// Ventana de confirmación propia (los avisos del navegador no siempre se muestran)
+function ventana({ titulo, texto = "", html = "", si = "Sí", no = "Cancelar", peligro = false, alAbrir }){
+  return new Promise(res => {
+    document.getElementById("ventana")?.remove();
+    const el = document.createElement("div"); el.className = "modal-ev"; el.id = "ventana"; el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true");
+    el.innerHTML = `<div class="mev-in"><h3>${esc(titulo)}</h3>${texto ? `<p class="conf-txt">${esc(texto)}</p>` : `<div style="height:14px"></div>`}${html}
+      <div class="ev-acc" style="${no ? "" : "grid-template-columns:1fr"}">${no ? `<button class="btn btn-linea" data-r="0">${esc(no)}</button>` : ""}<button class="btn ${peligro ? "btn-rojo" : "btn-agua"}" data-r="1">${esc(si)}</button></div></div>`;
+    const velo = $("#velo"); const antes = velo.className, zAntes = velo.style.zIndex;
+    velo.classList.add("on"); velo.style.zIndex = 63;
+    document.body.appendChild(el); requestAnimationFrame(() => el.classList.add("on"));
+    const fin = r => { el.remove(); velo.className = antes; velo.style.zIndex = zAntes; document.removeEventListener("keydown", tecla); res(r); };
+    const tecla = e => { if (e.key === "Escape") fin(false); };
+    document.addEventListener("keydown", tecla);
+    el.addEventListener("click", e => { const b = e.target.closest("[data-r]"); if (b) fin(b.dataset.r === "1"); });
+    alAbrir?.(el);
+  });
+}
+
+// ================== RESERVAS (versión de prueba: se guardan en este navegador) ==================
+// Para que todas las personas vean lo mismo se conecta a Firebase (gratis). Esta capa es la única que cambia.
+const ReservasPrueba = (() => {
+  const KEY = "rbm_citas_v1";
+  let mem = [], sugMem = [], galMem = null, encMem = [];
+  const leer = () => lsGet(KEY, mem);
+  const guardar = l => { mem = l; lsSet(KEY, l); };
+  // Citas de ejemplo para que se vean espacios "Reservado" y el panel con datos
+  function ejemplos(){
+    const hoy = deIso(iso(crAhora())); const out = []; const nombres = ["María Solís","Andrés Rojas","Carlos Vargas","Daniela Mora","José Arias","Valeria Chaves","Luis Jiménez"]; let k = 0;
+    const lug = ["domicilio","taller","remoto"];
+    for (let i = -20; i < 21; i++) {
+      const f = iso(masDias(hoy, i)); const tt = turnosDe(f); if (!tt.length) continue;
+      const [a, b] = tt[0]; const sem = ((i + 40) * 7 + 3) % 5;
+      const s = SERVICIOS[((i + 40) * 3) % SERVICIOS.length];
+      const ini = a + 30 * (sem % Math.max(1, (b - a) / 30 - 4));
+      const l = s.lugares.includes(lug[(i + 40) % 3]) ? lug[(i + 40) % 3] : s.lugares[0];
+      out.push({ id:"ej" + (i + 40), fecha:f, ini, dur: Math.min(s.dur, b - ini), servicio: s.nombre, lugar: l, nombre: nombres[k++ % nombres.length] + " (ejemplo)", tel:"8888 0000", dir: l === "domicilio" ? "Santo Domingo, Heredia" : "", nota: i % 3 === 0 ? "La laptop se calienta y se apaga sola" : "", ejemplo:true });
+      if (tt[1] && (i + 40) % 2 === 0) { const s2 = SERVICIOS[((i + 40) * 5 + 1) % SERVICIOS.length];
+        out.push({ id:"ejb" + (i + 40), fecha:f, ini: tt[1][0] + 60, dur: Math.min(s2.dur, 120), servicio: s2.nombre, lugar: s2.lugares[s2.lugares.length - 1], nombre: nombres[k++ % nombres.length] + " (ejemplo)", tel:"8888 0000", dir:"", nota:"", ejemplo:true }); }
+    }
+    return out;
+  }
+  let borradosEj = new Set(lsGet(KEY + "_ej", []));
+  const todas = () => [...ejemplos().filter(c => !borradosEj.has(c.id)), ...leer()];
+  return {
+    prueba: true, admin: false,
+    async entrar(clave){ if (clave !== CLAVE_ADMIN) throw new Error("clave"); this.admin = true; },
+    salir(){ this.admin = false; },
+    todas,
+    ocupados(){ const s = new Set(); for (const c of todas()) for (let m = c.ini; m < c.ini + c.dur; m += 30) s.add(c.fecha + "_" + hhmm(m)); return s; },
+    async reservar(c){
+      const oc = this.ocupados();
+      for (let m = c.ini; m < c.ini + c.dur; m += 30) if (oc.has(c.fecha + "_" + hhmm(m))) throw new Error("ocupado");
+      const nueva = { ...c, id: "c" + Date.now().toString(36), creada: Date.now() };
+      guardar([...leer(), nueva]); return nueva;
+    },
+    galeria(){ const l = lsGet(KEY + "_gal", galMem); return l && l.sort((a, b) => a.orden - b.orden); },
+    async guardarGal(l){ galMem = l; if (!lsSet(KEY + "_gal", l)) throw new Error("lleno"); },
+    async subirFoto(data){ const l = this.galeria() || []; await this.guardarGal([...l, { id:"g" + Date.now().toString(36) + l.length, tipo:"foto", data, orden: Date.now() + l.length }]); },
+    async agregarVideo(url, titulo){ const l = this.galeria() || []; await this.guardarGal([...l, { id:"g" + Date.now().toString(36), tipo:"video", url, titulo, orden: Date.now() }]); },
+    async borrarGal(id){ await this.guardarGal((this.galeria() || []).filter(x => x.id !== id)); },
+    async moverGal(a, b){ const l = this.galeria() || []; const A = l.find(x => x.id === a), B = l.find(x => x.id === b); [A.orden, B.orden] = [B.orden, A.orden]; await this.guardarGal(l); },
+    async guardarApuntes(id, txt){ const l = leer(); const c = l.find(x => x.id === id); if (c) { c.apuntes = txt; guardar(l); } else throw new Error("ejemplo"); },
+    encuestas(){ return lsGet(KEY + "_enc", encMem); },
+    async enviarEncuesta(id, x){ const l = this.encuestas(); if (l.some(e => e.id === id)) throw new Error("repetida"); l.unshift({ ...x, id, fecha: Date.now() }); encMem = l; lsSet(KEY + "_enc", l); },
+    sugerencias(){ return lsGet(KEY + "_sug", sugMem); },
+    async enviarSug(x){ const l = [{ ...x, id: "s" + Date.now().toString(36), fecha: Date.now() }, ...this.sugerencias()]; sugMem = l; lsSet(KEY + "_sug", l); },
+    async borrarSug(id){ const l = this.sugerencias().filter(x => x.id !== id); sugMem = l; lsSet(KEY + "_sug", l); },
+    async cancelar(id){
+      if (id.startsWith("ej")) { borradosEj.add(id); lsSet(KEY + "_ej", [...borradosEj]); }
+      else guardar(leer().filter(c => c.id !== id));
+    }
+  };
+})();
+async function crearReservasFirebase(){
+  const base = "https://www.gstatic.com/firebasejs/10.12.2/";
+  const [{ initializeApp }, F, A] = await Promise.all([import(base + "firebase-app.js"), import(base + "firebase-firestore.js"), import(base + "firebase-auth.js")]);
+  const app = initializeApp(FIREBASE), db = F.getFirestore(app), auth = A.getAuth(app);
+  let oc = new Set(), citas = [], quitarCitas = null, sugs = [], quitarSugs = null, gal = null, citasCargadas = false, sugsCargadas = false, encs = [], quitarEncs = null, encsCargadas = false;
+  const R = {
+    prueba: false, admin: false,
+    ocupados: () => oc,
+    todas: () => citas,
+    async reservar(c){
+      for (let m = c.ini; m < c.ini + c.dur; m += 30) if (oc.has(c.fecha + "_" + hhmm(m))) throw new Error("ocupado");
+      const ref = F.doc(F.collection(db, "citas"));
+      const b = F.writeBatch(db);
+      b.set(ref, { fecha:c.fecha, ini:c.ini, dur:c.dur, servicio:c.servicio, lugar:c.lugar, nombre:c.nombre, tel:c.tel, dir:c.dir, nota:c.nota, creada:F.serverTimestamp() });
+      for (let m = c.ini; m < c.ini + c.dur; m += 30) b.set(F.doc(db, "ocupados", c.fecha + "_" + hhmm(m)), { fecha:c.fecha, cita:ref.id });
+      try { await b.commit(); } catch (e) {
+        console.warn(e);
+        let tomado = false; for (let m = c.ini; m < c.ini + c.dur; m += 30) if (oc.has(c.fecha + "_" + hhmm(m))) tomado = true;
+        throw new Error(tomado ? "ocupado" : "error");
+      }
+      return { ...c, id: ref.id };
+    },
+    async cancelar(id){
+      const c = citas.find(x => x.id === id); if (!c) return;
+      const b = F.writeBatch(db); b.delete(F.doc(db, "citas", id));
+      for (let m = c.ini; m < c.ini + c.dur; m += 30) b.delete(F.doc(db, "ocupados", c.fecha + "_" + hhmm(m)));
+      await b.commit();
+    },
+    galeria: () => gal,
+    async subirFoto(data){ await F.addDoc(F.collection(db, "galeria"), { tipo:"foto", data, url:"", titulo:"", orden: Date.now() }); },
+    async agregarVideo(url, titulo){ await F.addDoc(F.collection(db, "galeria"), { tipo:"video", data:"", url, titulo, orden: Date.now() }); },
+    async borrarGal(id){ await F.deleteDoc(F.doc(db, "galeria", id)); },
+    async moverGal(a, b){ const A2 = gal.find(x => x.id === a), B2 = gal.find(x => x.id === b); const w = F.writeBatch(db);
+      w.update(F.doc(db, "galeria", a), { orden: B2.orden }); w.update(F.doc(db, "galeria", b), { orden: A2.orden }); await w.commit(); },
+    sugerencias: () => sugs,
+    encuestas: () => encs,
+    async enviarEncuesta(id, x){ try { await F.setDoc(F.doc(db, "encuestas", id), { ...x, fecha: F.serverTimestamp() }); } catch (e) { console.warn(e); throw new Error("repetida"); } },
+    async enviarSug(x){ await F.addDoc(F.collection(db, "sugerencias"), { texto:x.texto, nombre:x.nombre, fecha:F.serverTimestamp() }); },
+    async borrarSug(id){ await F.deleteDoc(F.doc(db, "sugerencias", id)); },
+    async guardarApuntes(id, txt){ await F.updateDoc(F.doc(db, "citas", id), { apuntes: txt }); const c = citas.find(x => x.id === id); if (c) c.apuntes = txt; },
+    async entrar(clave){ await A.signInWithEmailAndPassword(auth, ADMIN_EMAIL, clave); },
+    salir(){ A.signOut(auth); }
+  };
+  F.onSnapshot(F.collection(db, "galeria"), snap => {
+    gal = snap.docs.map(d => ({ id:d.id, ...d.data() })).sort((a, b) => a.orden - b.orden);
+    pintarGaleria(); if (pila.includes("p-admin") && nVista === "gal") pintarAdmin();
+  }, e => console.warn("galeria", e));
+  const hoy = iso(crAhora()), lim = iso(masDias(deIso(hoy), SEMANAS_ADELANTE * 7 + 7));
+  F.onSnapshot(F.query(F.collection(db, "ocupados"), F.where("fecha", ">=", hoy), F.where("fecha", "<=", lim)), snap => {
+    oc = new Set(snap.docs.map(d => d.id));
+    if (pila.includes("p-agenda") && !ag.hecho && (ag.paso === 4 || (ag.ini != null && oc.has(ag.fecha + "_" + hhmm(ag.ini))))) pintarAgenda();
+  }, e => console.warn("ocupados", e));
+  A.onAuthStateChanged(auth, u => {
+    R.admin = !!u && u.email === ADMIN_EMAIL;
+    for (const q of [quitarCitas, quitarSugs, quitarEncs]) q?.();
+    quitarCitas = quitarSugs = quitarEncs = null; citas = []; sugs = []; encs = [];
+    citasCargadas = sugsCargadas = encsCargadas = false;
+    if (R.admin) {
+      quitarEncs = F.onSnapshot(F.collection(db, "encuestas"), snap => {
+        const nuevas = encsCargadas ? snap.docs.filter(d => !encs.some(x => x.id === d.id)) : []; encsCargadas = true;
+        for (const d of nuevas) { const v = d.data(); avisoLocal(`Nueva opinión: ${"★".repeat(v.estrellas || 0)}`, String(v.comentario || "Sin comentario").slice(0, 120), "enc-" + d.id); }
+        encs = snap.docs.map(d => { const v = d.data(); return { id:d.id, ...v, fecha: v.fecha?.toMillis ? v.fecha.toMillis() : Date.now() }; }).sort((a, b) => b.fecha - a.fecha);
+        if (pila.includes("p-admin")) pintarAdmin();
+      }, e => console.warn("encuestas", e));
+      quitarSugs = F.onSnapshot(F.collection(db, "sugerencias"), snap => {
+        const nuevas = sugsCargadas ? snap.docs.filter(d => !sugs.some(x => x.id === d.id)) : []; sugsCargadas = true;
+        for (const d of nuevas) { const v = d.data(); avisoLocal("Nueva sugerencia" + (v.nombre ? " de " + v.nombre : ""), String(v.texto || "").slice(0, 120), "sug-" + d.id); }
+        sugs = snap.docs.map(d => { const v = d.data(); return { id:d.id, ...v, fecha: v.fecha?.toMillis ? v.fecha.toMillis() : Date.now() }; }).sort((a, b) => b.fecha - a.fecha);
+        if (pila.includes("p-admin")) pintarAdmin();
+      }, e => console.warn("sugerencias", e));
+      quitarCitas = F.onSnapshot(F.query(F.collection(db, "citas"), F.where("fecha", ">=", iso(masDias(deIso(iso(crAhora())), -400)))), snap => {
+        const nuevas = citasCargadas ? snap.docs.filter(d => !citas.some(c => c.id === d.id)).map(d => ({ id:d.id, ...d.data() })) : [];
+        citas = snap.docs.map(d => ({ id:d.id, ...d.data() })); citasCargadas = true;
+        for (const c of nuevas) avisoLocal(`Nueva cita (${lugarTxt(c)}): ${c.nombre}`, `${c.servicio} · ${fechaLarga(c.fecha)} · ${h12m(c.ini)}`, "cita-" + c.id);
+        if (pila.includes("p-admin")) pintarAdmin();
+        if ("setAppBadge" in navigator) { try { navigator.setAppBadge(citas.filter(c => c.fecha === iso(crAhora())).length); } catch {} }
+      }, e => console.warn("citas", e));
+    }
+    if (pila.includes("p-admin")) pintarAdmin();
+  });
+  return R;
+}
+// Mientras Firebase carga, el calendario muestra todo libre pero no deja confirmar.
+const ReservasCargando = { prueba:false, admin:false, ocupados:() => new Set(), todas:() => [], sugerencias:() => [], galeria:() => null, encuestas:() => [],
+  async enviarEncuesta(){ throw new Error("cargando"); }, async enviarSug(){ throw new Error("cargando"); }, async borrarSug(){},
+  async reservar(){ throw new Error("cargando"); }, async cancelar(){}, async entrar(){ throw new Error("cargando"); }, salir(){} };
+let Reservas = FIREBASE ? ReservasCargando : ReservasPrueba;
+
+// ===== Encuesta de satisfacción =====
+const linkEncuesta = c => location.href.split("#")[0] + "#encuesta-" + c.id;
+function waEncuesta(c){
+  const nombre = String(c.nombre || "").split(" ")[0];
+  return `https://wa.me/${tel506(c.tel)}?text=${encodeURIComponent(`Hola ${nombre} 👋 gracias por confiar en ${NEGOCIO}. ¿Me ayudás con una encuesta de 1 minuto sobre el servicio de ${String(c.servicio).toLowerCase()}? Tu opinión me sirve muchísimo.\n\n${linkEncuesta(c)}\n\n${NEGOCIO}`)}`;
+}
+const ENV_KEY = "rbm_encuestas_enviadas";
+let envMem = {};
+const envLeer = () => lsGet(ENV_KEY, envMem);
+function envMarcar(id){ const m = envLeer(); m[id] = Date.now(); envMem = m; lsSet(ENV_KEY, m); }
+function citasParaEncuesta(){
+  const hoy = iso(crAhora()), a = crAhora(), min = a.getUTCHours() * 60 + a.getUTCMinutes(), desde = iso(masDias(deIso(hoy), -45));
+  return Reservas.todas().filter(c => c.fecha >= desde && (c.fecha < hoy || (c.fecha === hoy && c.ini + c.dur <= min)))
+    .sort((x, y) => (y.fecha + hhmm(y.ini)).localeCompare(x.fecha + hhmm(x.ini)));
+}
+const pendEnc = () => { const env = envLeer(), resp = new Set(Reservas.encuestas().map(e => e.id)); return citasParaEncuesta().filter(c => !resp.has(c.id) && !env[c.id]).length; };
+const estrellasTxt = n => "★".repeat(n) + "☆".repeat(5 - n);
+function pintarEnvioEncuestas(){
+  const env = envLeer(), resp = new Map(Reservas.encuestas().map(e => [e.id, e]));
+  const l = citasParaEncuesta();
+  const pend = l.filter(c => !resp.has(c.id) && !env[c.id]), espera = l.filter(c => !resp.has(c.id) && env[c.id]), listas = l.filter(c => resp.has(c.id));
+  const tarjeta = (c, tipo) => `<div class="cita-a enc-card">
+      <div class="h"><b>${esc(c.nombre)}</b><span>${mayus(fechaLarga(c.fecha))}</span></div>
+      <p>${esc(c.servicio)} · ${h12m(c.ini)} · ${LUGARES[c.lugar]?.corto || ""}</p>
+      ${tipo === "resp" ? `<div class="enc-res" style="margin:8px 0 0"><b>${estrellasTxt(resp.get(c.id).estrellas)}</b>${resp.get(c.id).comentario ? `<span>“${esc(resp.get(c.id).comentario)}”</span>` : ""}</div>`
+        : `<div class="enc-btns"><a class="btn ${tipo === "pend" ? "btn-wa" : "btn-linea"}" data-enviar-enc="${c.id}" href="${waEncuesta(c)}" target="_blank" rel="noopener">${WA_IC}${tipo === "pend" ? "Enviar por WhatsApp" : "Reenviar"}</a>
+           <button class="chip" data-copiar-enc="${c.id}">Copiar link</button></div>
+           ${tipo === "esp" ? `<small class="enc-env-f">Enviada el ${new Date(env[c.id]).toLocaleDateString("es-CR", { day:"numeric", month:"short" })} · esperando respuesta</small>` : ""}`}
+    </div>`;
+  const seccion = (t, arr, tipo, vacio) => `<h4 class="op-t">${t} (${arr.length})</h4>` + (arr.length ? arr.map(c => tarjeta(c, tipo)).join("") : `<div class="vacio" style="margin-bottom:6px">${vacio}</div>`);
+  return `<p class="conf-p" style="margin-bottom:6px">Aquí aparecen las citas ya atendidas de los últimos 45 días. Enviales la encuesta por WhatsApp con un toque.</p>`
+    + seccion("Por enviar", pend, "pend", "No hay citas pendientes de encuesta.")
+    + seccion("Enviadas, esperando respuesta", espera, "esp", "Ninguna por ahora.")
+    + seccion("Respondidas", listas, "resp", "Todavía no hay respuestas.");
+}
+
+// ===== Notificaciones del celular (solo para el administrador) =====
+const soportaAvisos = "Notification" in window && "serviceWorker" in navigator;
+const appInstalada = () => matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+const esIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+async function avisoLocal(titulo, cuerpo, tag){
+  if (!soportaAvisos || Notification.permission !== "granted") return;
+  const op = { body: cuerpo, icon: "icon-192.png", badge: "icon-192.png", tag, data: { url: location.href.split("#")[0] } };
+  try { const reg = await navigator.serviceWorker.getRegistration(); if (reg) return reg.showNotification(titulo, op); } catch {}
+  try { new Notification(titulo, op); } catch {}
+}
+const versionIOS = () => { const m = navigator.userAgent.match(/OS (\d+)_(\d+)/); return m ? +m[1] + +m[2] / 100 : 0; };
+function avisoIphone(){
+  if (!esIOS) return "";
+  const v = versionIOS(); const pasos = [];
+  if (v && v < 16.04) pasos.push(`Tu iPhone tiene iOS ${Math.floor(v)}. Las notificaciones necesitan <b>iOS 16.4 o más reciente</b>: andá a <b>Ajustes → General → Actualización de software</b>.`);
+  if (!appInstalada()) pasos.push(`Instalá la app: en Safari tocá <b>Compartir</b> y luego <b>Agregar a inicio</b>. Abrila siempre desde el ícono de ${NEGOCIO}.`);
+  pasos.push(`Revisá <b>Ajustes → Notificaciones → ${NEGOCIO}</b>: activá <b>Permitir notificaciones</b>, <b>Sonidos</b> y <b>Pantalla bloqueada</b>.`);
+  return `<div class="aviso-ios" role="note"><b>En iPhone</b><ol>${pasos.map(p => `<li>${p}</li>`).join("")}</ol></div>`;
+}
+function tarjetaAvisos(){
+  if (!soportaAvisos) return esIOS ? `<div class="avisos"><b>Avisos de citas nuevas</b><span>Para recibir avisos en este iPhone seguí estos pasos:</span>${avisoIphone()}</div>` : "";
+  const p = Notification.permission;
+  if (p === "granted") return `<div class="avisos ok"><b>Notificaciones activadas</b><span>Te aviso de citas y sugerencias nuevas en este celular.</span>${avisoIphone()}</div>`;
+  if (p === "denied") return `<div class="avisos"><b>Notificaciones bloqueadas</b><span>Para activarlas, andá a los ajustes del navegador, buscá <b>Notificaciones</b> y permití las de ${NEGOCIO}.</span>${avisoIphone()}</div>`;
+  return `<div class="avisos"><b>¿Querés que te avise?</b><span>Recibí una notificación en este celular cada vez que alguien agende o deje una sugerencia.</span>${avisoIphone()}<button class="btn btn-agua" id="n-avisos">Activar notificaciones</button></div>`;
+}
+
+// Link que abre la página y agrega la cita al calendario del celular
+function linkCalendario(c){
+  const datos = { i:c.id, f:c.fecha, s:c.ini, d:c.dur, n:c.nombre, t:c.tel, v:c.servicio, l:c.lugar, a:c.dir || "", o:c.nota || "" };
+  const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(datos)))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  return location.href.split("#")[0] + "#cal-" + b64;
+}
+function citaDeLink(){
+  const m = location.hash.match(/^#cal-([\w-]+)$/); if (!m) return null;
+  try {
+    const t = m[1].replace(/-/g, "+").replace(/_/g, "/");
+    const d = JSON.parse(decodeURIComponent(escape(atob(t + "===".slice((t.length + 3) % 4)))));
+    return { id:d.i, fecha:d.f, ini:+d.s, dur:+d.d, nombre:d.n, tel:d.t, servicio:d.v, lugar:d.l, dir:d.a, nota:d.o };
+  } catch { return null; }
+}
+
+// ================== CAPAS (menú, paneles, ventana) con botón atrás del celular ==================
+const pila = [];
+function abrir(id){
+  const el = document.getElementById(id); if (!el || pila.includes(id)) return;
+  if (id !== "cajon" && pila[pila.length - 1] === "cajon") { cerrarCapa(); history.replaceState({ capa:id }, ""); }
+  else history.pushState({ capa:id }, "");
+  pila.push(id); el.classList.add("on"); actualizarVelo();
+  if (id === "p-agenda") pintarAgenda();
+  if (id === "p-admin") pintarAdmin();
+}
+function cerrarCapa(){
+  const id = pila.pop(); if (!id) return;
+  document.getElementById(id).classList.remove("on"); actualizarVelo();
+}
+function actualizarVelo(){
+  const v = $("#velo"); const top = pila[pila.length - 1];
+  v.classList.toggle("on", top === "cajon" || top === "hoja"); v.style.zIndex = top === "hoja" ? 60 : 50;
+  document.body.style.overflow = pila.length ? "hidden" : "";
+}
+addEventListener("popstate", () => { cerrarCapa(); });
+const atras = () => { if (pila.length) history.back(); };
+$("#velo").addEventListener("click", () => { if (!document.getElementById("ventana") && !document.getElementById("hoja-ev")) atras(); });
+
+document.addEventListener("click", e => {
+  const t = e.target.closest("[data-abrir],[data-atras],[data-reservar],[data-ir],[data-serv]");
+  if (!t) return;
+  if (t.hasAttribute("data-atras")) return atras();
+  if (t.dataset.abrir) return abrir(t.dataset.abrir);
+  if (t.hasAttribute("data-reservar")) return pedirForma(t.dataset.reservar || "");
+  if (t.dataset.serv) return verServicio(t.dataset.serv);
+  if (t.dataset.ir) { const destino = t.dataset.ir; atras(); setTimeout(() => document.querySelector(destino).scrollIntoView({ behavior:"smooth" }), 320); }
+});
+
+// Enlaces de WhatsApp
+const enlazarWa = (root = document) => root.querySelectorAll("[data-wa]").forEach(a => { a.href = waLink(a.dataset.wa); a.target = "_blank"; a.rel = "noopener"; });
+enlazarWa();
+
+// ================== SERVICIOS ==================
+const servDe = id => SERVICIOS.find(s => s.id === id);
+$("#mini").innerHTML = SERVICIOS.map(s => `<button data-serv="${s.id}"><span class="ic"><svg><use href="#i-${s.ic}"/></svg></span><b>${esc(s.nombre)}</b><em class="${esGratis(s) ? "gratis" : ""}">${precioHTML(s)}</em><span>${esc(s.corto)}</span></button>`).join("");
+$("#menu-serv").innerHTML = SERVICIOS.map(s => `<button class="it" data-serv="${s.id}"><svg><use href="#i-${s.ic}"/></svg>${esc(s.nombre)}</button>`).join("");
+
+function verServicio(id){
+  const s = servDe(id); if (!s) return;
+  $("#ps-titulo").textContent = s.nombre;
+  $("#ps-cuerpo").innerHTML = `
+    <img class="det-foto" src="${ILUS[s.ilus]}" alt="">
+    <h2>${esc(s.nombre)}</h2>
+    <p>${esc(s.texto)}</p>
+    <div class="datos2"><div><small>Precio</small><b style="${esGratis(s) ? "color:var(--ok)" : ""}">${precioHTML(s)}</b></div><div><small>Duración aprox.</small><b>${durTxt(s.dur)}</b></div></div>
+    <ul class="incl">${s.incluye.map(i => `<li><svg><use href="#i-check"/></svg>${esc(i)}</li>`).join("")}</ul>
+    <div class="modos-s">${s.lugares.map(k => `<span>${LUGARES[k].nombre}</span>`).join("")}</div>
+    <div class="bloque">
+      <button class="btn btn-agua" data-reservar="${s.id}">${CAL}Agendar este servicio</button>
+      <a class="btn btn-linea" data-wa="Hola, tengo una consulta sobre: ${esc(s.nombre)}." href="#">${WA_IC}Preguntar por WhatsApp</a>
+    </div>`;
+  enlazarWa($("#ps-cuerpo"));
+  $("#p-servicio .cuerpo").scrollTop = 0;
+  abrir("p-servicio");
+}
+
+// ================== PRECIOS ==================
+let cat = "pc";
+function pintarPrecios(){
+  const c = PRECIOS[cat];
+  $("#lista-precios").innerHTML = c.items.map(([n, p, d]) => `<div class="fila"><b>${n}</b><span class="p${p === "Gratis" ? " gratis" : ""}">${p}</span><small>${d}</small></div>`).join("");
+  $("#nota-precios").textContent = c.nota;
+  $("#cotizar-cat").href = waLink(`Hola, quisiera cotizar un servicio de ${c.nombre.toLowerCase()}.`);
+  document.querySelectorAll(".pestanas button").forEach(b => b.setAttribute("aria-selected", b.dataset.cat === cat));
+}
+$(".pestanas").addEventListener("click", e => { const b = e.target.closest("button"); if (b) { cat = b.dataset.cat; pintarPrecios(); } });
+pintarPrecios();
+
+// ================== ¿CÓMO AGENDAR? ==================
+let servElegido = "";
+function pedirForma(id){
+  servElegido = id || "";
+  const s = servDe(servElegido);
+  $("#hoja-sub").textContent = s ? s.nombre : "Escogé la forma que te quede más cómoda.";
+  $("#op-wa").href = waLink(s ? `Hola, quisiera agendar: ${s.nombre}. ¿Qué espacios tenés disponibles?` : "Hola, quisiera agendar una cita. ¿Qué espacios tenés disponibles?");
+  abrir("hoja");
+}
+$("#op-cal").addEventListener("click", () => {
+  const s = servDe(servElegido);
+  ag = { serv: servElegido, dur: s?.dur || 60, semana: 0, fecha: null, ini: null, hecho: null, lugar: s && s.lugares.length === 1 ? s.lugares[0] : undefined, paso: s ? 2 : 1 };
+  cerrarCapa(); history.replaceState({ capa:"p-agenda" }, ""); pila.push("p-agenda"); $("#p-agenda").classList.add("on"); actualizarVelo(); pintarAgenda();
+  $("#p-agenda .cuerpo").scrollTop = 0;
+});
+$("#op-wa").addEventListener("click", () => setTimeout(atras, 300));
+
+// ================== CALENDARIO PARA AGENDAR ==================
+let ag = { serv:"", dur:60, semana:0, fecha:null, ini:null, hecho:null };
+function inicioSemana(n){ const hoy = deIso(iso(crAhora())); const lunes = masDias(hoy, -((hoy.getUTCDay() + 6) % 7)); return masDias(lunes, 7 * n); }
+function inicios(fecha, dur, oc){
+  const ahora = crAhora(); const hoy = iso(ahora); const minAhora = ahora.getUTCHours() * 60 + ahora.getUTCMinutes();
+  const out = [];
+  for (const [a, b] of turnosDe(fecha)) {
+    for (let m = a; m + 30 <= b; m += 30) {
+      if (fecha === hoy && m < minAhora + ANTICIPACION_MIN) continue;
+      if (oc.has(fecha + "_" + hhmm(m))) { out.push({ ini:m, estado:"res", turno:[a, b] }); continue; }
+      let cabe = m + dur <= b;
+      for (let x = m; cabe && x < m + dur; x += 30) if (oc.has(fecha + "_" + hhmm(x))) cabe = false;
+      out.push({ ini:m, estado: cabe ? "libre" : "nd", turno:[a, b] });
+    }
+  }
+  return out;
+}
+const PASOS = ["Servicio", "Modalidad", "Duración", "Día y hora", "Tus datos", "Resumen"];
+const pideDir = () => ag.lugar === "domicilio";
+function pasoValido(n){
+  if (n >= 1 && !servDe(ag.serv)) return 1;
+  if (n >= 2 && (!LUGARES[ag.lugar] || !servDe(ag.serv).lugares.includes(ag.lugar))) return 2;
+  if (n >= 4 && (ag.fecha == null || ag.ini == null)) return 4;
+  if (n >= 5 && (String(ag.v_nom || "").trim().length < 2 || String(ag.v_tel || "").replace(/\D/g, "").length < 8 || (pideDir() && String(ag.v_dir || "").trim().length < 4))) return 5;
+  return 0;
+}
+function pintarAgenda(){
+  const box = $("#agenda");
+  if (ag.hecho) return pintarListo(box, ag.hecho);
+  if (!ag.paso) ag.paso = servDe(ag.serv) ? 2 : 1;
+  const oc = Reservas.ocupados();
+  const hoy = iso(crAhora()); const limite = iso(masDias(deIso(hoy), SEMANAS_ADELANTE * 7));
+  const libresDe = f => (f < hoy || f > limite) ? -1 : !turnosDe(f).length ? -2 : inicios(f, ag.dur, oc).filter(x => x.estado === "libre").length;
+  // Si esta semana ya no tiene espacios, saltar sola a la primera semana con horas libres
+  if (ag.paso === 4 && ag.autoSem !== ag.dur) {
+    ag.autoSem = ag.dur;
+    for (let w = ag.semana; w < SEMANAS_ADELANTE; w++) {
+      const l = inicioSemana(w);
+      if ([...Array(7)].some((_, i) => libresDe(iso(masDias(l, i))) > 0)) { if (w !== ag.semana) { ag.semana = w; ag.fecha = null; ag.ini = null; } break; }
+    }
+  }
+  const lunes = inicioSemana(ag.semana); const dom = masDias(lunes, 6);
+  const dias = [...Array(7)].map((_, i) => iso(masDias(lunes, i)));
+  if (!ag.fecha || !dias.includes(ag.fecha) || libresDe(ag.fecha) < 0) { if (ag.paso <= 4) ag.fecha = dias.find(f => libresDe(f) > 0) || dias.find(f => libresDe(f) >= 0) || null; }
+  const lista = ag.fecha ? inicios(ag.fecha, ag.dur, oc) : [];
+  if (ag.ini != null && !lista.some(x => x.ini === ag.ini && x.estado === "libre")) {
+    ag.ini = null; if (ag.paso > 4) { ag.paso = 4; toast("Esa hora se acaba de ocupar. Escogé otra."); }
+  }
+  const s = servDe(ag.serv), L = LUGARES[ag.lugar];
+  const p = ag.paso;
+  const barra = `<div class="pasarela">
+      <div class="pp-top"><span>Paso ${p} de ${PASOS.length}</span><b>${PASOS[p - 1]}</b></div>
+      <div class="pp-barra">${PASOS.map((t, i) => `<button class="${i + 1 < p ? "hecho" : i + 1 === p ? "act" : ""}" data-a-ir="${i + 1}" ${i + 1 < p ? "" : "disabled"} aria-label="${t}"></button>`).join("")}</div>
+    </div>`;
+  let cuerpo = "";
+  if (p === 1) {
+    cuerpo = `<h2 class="pp-h">¿Qué necesitás?</h2>
+      <div class="lista-s">${SERVICIOS.map(x => `<button class="desp-op${x.id === ag.serv ? " si" : ""}" data-a-serv="${x.id}"><span>${esc(x.nombre)}</span><small style="${esGratis(x) ? "color:var(--ok)" : ""}">${esc(x.precio)}</small></button>`).join("")}</div>
+      <p class="pp-sub" style="margin-top:12px">¿No ves lo que necesitás? Escogé <b>Revisión y diagnóstico</b> o escribime por WhatsApp.</p>`;
+  } else if (p === 2) {
+    cuerpo = `<h2 class="pp-h">¿Cómo te atiendo?</h2><div class="lug-ops">${Object.entries(LUGARES).map(([k, l]) => { const ok = s.lugares.includes(k);
+      return `<button class="lug-op${ag.lugar === k ? " si" : ""}" data-a-lug="${k}" ${ok ? "" : "disabled"}><b><i class="pt-${l.color}"></i>${l.nombre}</b><span>${ok ? esc(l.txt) : "No disponible para este servicio"}</span></button>`; }).join("")}</div>`;
+  } else if (p === 3) {
+    cuerpo = `<h2 class="pp-h">¿Cuánto tiempo apartamos?</h2><p class="pp-sub">${s ? `Para ${esc(s.nombre.toLowerCase())} recomiendo ${durTxt(s.dur)}.` : ""}</p>
+      <div class="seg2 dur-ops">${DURACIONES.map(d => `<button class="chip${ag.dur === d ? " si" : ""}" data-a-dur="${d}">${durTxt(d)}</button>`).join("")}</div>`;
+  } else if (p === 4) {
+    const rango = lunes.getUTCMonth() === dom.getUTCMonth() ? `${lunes.getUTCDate()} – ${dom.getUTCDate()} ${MES_C[dom.getUTCMonth()]}` : `${lunes.getUTCDate()} ${MES_C[lunes.getUTCMonth()]} – ${dom.getUTCDate()} ${MES_C[dom.getUTCMonth()]}`;
+    const turnos = ag.fecha ? turnosDe(ag.fecha) : [];
+    cuerpo = `<h2 class="pp-h">¿Qué día y a qué hora?</h2>
+      <div class="semana" style="margin-top:14px"><button data-a-sem="-1" ${ag.semana <= 0 ? "disabled" : ""} aria-label="Semana anterior">‹</button><b>${rango}</b><button data-a-sem="1" ${ag.semana >= SEMANAS_ADELANTE - 1 ? "disabled" : ""} aria-label="Semana siguiente">›</button></div>
+      <div class="dias">${dias.map(f => { const d = deIso(f); const n = libresDe(f);
+        return `<button class="dia-b${f === ag.fecha ? " si" : ""}" data-a-dia="${f}" ${n < 0 ? "disabled" : ""}><small>${DIAS_C[d.getUTCDay()]}</small><b>${d.getUTCDate()}</b><i class="${n === 0 ? "lleno" : ""}">${n === -2 ? "Cerrado" : n < 0 ? "" : n === 0 ? "Lleno" : n + " libres"}</i></button>`; }).join("")}</div>
+      <div class="turno-t">${ag.fecha ? fechaLarga(ag.fecha) : ""}</div>
+      ${!ag.fecha ? `<div class="vacio">No hay días disponibles en esta semana.</div>` :
+        !lista.length ? `<div class="vacio">Ya no quedan horas para este día. Escogé otro.</div>` :
+        turnos.map(([a]) => { const items = lista.filter(x => x.turno[0] === a); if (!items.length) return "";
+          return `<div class="horas" style="margin-bottom:10px">${items.map(x => {
+            const sel = ag.ini != null && x.ini >= ag.ini && x.ini < ag.ini + ag.dur;
+            const cls = x.ini === ag.ini ? " si" : sel ? " ocup2" : x.estado === "res" ? " res" : x.estado === "nd" ? " nd" : "";
+            const sub = x.ini === ag.ini ? `hasta ${h12m(x.ini + ag.dur)}` : x.estado === "res" ? "Reservado" : x.estado === "nd" ? "No alcanza" : "Libre";
+            return `<button class="hora${cls}" data-a-ini="${x.ini}" ${x.estado !== "libre" ? "disabled" : ""}>${h12m(x.ini)}<small>${sub}</small></button>`; }).join("")}</div>`; }).join("")}
+      <div class="leyenda"><span><i></i>Libre</span><span><i class="r"></i>Reservado</span><span><i class="s"></i>Tu elección</span></div>`;
+  } else if (p === 5) {
+    cuerpo = `<h2 class="pp-h">Tus datos</h2><p class="pp-sub">Te escribo a este número para confirmar la cita.</p>
+      <div class="campo"><label for="a-nom">Nombre</label><input id="a-nom" maxlength="50" autocomplete="name" placeholder="Tu nombre"></div>
+      <div class="campo"><label for="a-tel">Celular / WhatsApp</label><input id="a-tel" inputmode="tel" maxlength="20" autocomplete="tel" placeholder="Ej.: 8888 7777"></div>
+      ${pideDir() ? `<div class="campo"><label for="a-dir">¿Dónde te visito?</label><input id="a-dir" maxlength="160" autocomplete="street-address" placeholder="Ej.: Santo Domingo, 200 m norte de la iglesia"></div>` : ""}
+      <div class="campo"><label for="a-nota">¿Qué le pasa a tu equipo? (opcional)</label><textarea id="a-nota" rows="3" maxlength="300" placeholder="Ej.: laptop HP muy lenta, se calienta y hace ruido"></textarea></div>
+      <p class="error" id="a-err"></p>`;
+  } else {
+    const fila = (n, et, val) => `<div class="rs-fila"><div><small>${et}</small><b>${val}</b></div><button class="rs-ed" data-a-ir="${n}">Cambiar</button></div>`;
+    cuerpo = `<h2 class="pp-h">Revisá tu cita</h2><p class="pp-sub">Si todo está bien, tocá <b>Confirmar cita</b>.</p>
+      <div class="rs">
+        ${fila(1, "Servicio", `${esc(s.nombre)} <span class="rs-p">${precioHTML(s)}</span>`)}
+        ${fila(2, "Modalidad", `${L.nombre}${pideDir() && ag.v_dir ? `<br><span style="color:var(--gris);font-weight:500">${esc(ag.v_dir)}</span>` : ""}`)}
+        ${fila(3, "Duración", durTxt(ag.dur))}
+        ${fila(4, "Día y hora", `${mayus(fechaLarga(ag.fecha))}<br>${h12m(ag.ini)} a ${h12m(ag.ini + ag.dur)}`)}
+        ${fila(5, "Tus datos", `${esc(ag.v_nom)}<br>${esc(ag.v_tel)}${ag.v_nota ? `<br><i style="color:var(--gris)">“${esc(ag.v_nota)}”</i>` : ""}`)}
+      </div>
+      ${Reservas.prueba ? `<p class="prueba">Versión de prueba: tu cita se guarda solo en este navegador.</p>` : ""}`;
+  }
+  const falta = pasoValido(p);
+  const sigTxt = p === 6 ? "Confirmar cita" : p === 5 ? "Revisar mi cita" : "Siguiente";
+  box.innerHTML = barra + `<div class="pp-cuerpo">${cuerpo}</div>
+    <div class="pp-nav">${p > 1 ? `<button class="btn btn-linea pp-atras" data-a-atras>Atrás</button>` : ""}<button class="btn btn-agua pp-sig" id="${p === 6 ? "a-ok" : "a-sig"}" ${p !== 5 && falta && falta <= p ? "disabled" : ""}>${sigTxt}</button></div>
+    ${p <= 4 ? `<a class="pp-wa" data-wa="Hola, quisiera consultar por una cita." href="#">${WA_IC}Prefiero escribir por WhatsApp</a>` : ""}`;
+  enlazarWa(box);
+  for (const k of ["nom", "tel", "dir", "nota"]) { const el = $("#a-" + k); if (el && ag["v_" + k]) el.value = ag["v_" + k]; el?.addEventListener("input", () => ag["v_" + k] = el.value); }
+}
+function irPaso(n){ ag.paso = n; pintarAgenda(); $("#p-agenda .cuerpo").scrollTop = 0; }
+$("#agenda").addEventListener("click", async e => {
+  const b = e.target.closest("button"); if (!b || b.disabled) return;
+  if (b.dataset.aIr) return irPaso(+b.dataset.aIr);
+  if (b.hasAttribute("data-a-atras")) return irPaso(Math.max(1, ag.paso - 1));
+  if (b.dataset.aServ !== undefined) {
+    const s = servDe(b.dataset.aServ); const cambio = ag.serv !== s.id; ag.serv = s.id;
+    if (cambio) { ag.dur = s.dur; ag.ini = null; }
+    if (ag.lugar && !s.lugares.includes(ag.lugar)) ag.lugar = undefined;
+    if (!ag.lugar && s.lugares.length === 1) ag.lugar = s.lugares[0];
+    return irPaso(ag.ini != null && ag.lugar ? 6 : 2);
+  }
+  if (b.dataset.aLug) { ag.lugar = b.dataset.aLug; return irPaso(ag.ini != null && ag.v_nom && !pasoValido(5) ? 6 : 3); }
+  if (b.dataset.aDur) { if (ag.dur !== +b.dataset.aDur) ag.ini = null; ag.dur = +b.dataset.aDur; return irPaso(4); }
+  if (b.dataset.aSem) { ag.semana += +b.dataset.aSem; ag.fecha = null; ag.ini = null; pintarAgenda(); return; }
+  if (b.dataset.aDia) { ag.fecha = b.dataset.aDia; ag.ini = null; pintarAgenda(); return; }
+  if (b.dataset.aIni) { ag.ini = +b.dataset.aIni; pintarAgenda(); setTimeout(() => irPaso(!pasoValido(5) ? 6 : 5), 350); return; }
+  if (b.id === "a-sig") {
+    if (ag.paso === 5) {
+      const err = t => { $("#a-err").textContent = t; };
+      if (String(ag.v_nom || "").trim().length < 2) return err("Escribí tu nombre.");
+      if (String(ag.v_tel || "").replace(/\D/g, "").length < 8) return err("Escribí tu número de celular (8 dígitos).");
+      if (pideDir() && String(ag.v_dir || "").trim().length < 4) return err("Escribí la dirección o zona donde te visito.");
+    }
+    const falta = pasoValido(ag.paso); if (falta && falta <= ag.paso) return;
+    return irPaso(ag.paso + 1);
+  }
+  if (b.id === "a-ok") {
+    const falta = pasoValido(6); if (falta) return irPaso(falta);
+    b.disabled = true; b.textContent = "Agendando…";
+    try {
+      const s = servDe(ag.serv);
+      ag.hecho = await Reservas.reservar({ fecha: ag.fecha, ini: ag.ini, dur: ag.dur, servicio: s.nombre, lugar: ag.lugar, nombre: ag.v_nom.trim(), tel: ag.v_tel.trim(), dir: pideDir() ? String(ag.v_dir || "").trim() : "", nota: String(ag.v_nota || "").trim() });
+      ag.v_nom = ag.v_tel = ag.v_nota = ag.v_dir = "";
+      pintarAgenda(); $("#p-agenda .cuerpo").scrollTop = 0;
+    } catch (ex) {
+      if (ex.message === "cargando") { b.disabled = false; b.textContent = "Confirmar cita"; return toast("Conectando… intentá de nuevo en unos segundos."); }
+      if (ex.message === "error") { b.disabled = false; b.textContent = "Confirmar cita"; return toast("No se pudo guardar la cita. Intentá de nuevo o escribime por WhatsApp."); }
+      ag.ini = null; irPaso(4); toast("Esa hora se acaba de ocupar. Escogé otra.");
+    }
+  }
+  if (b.id === "a-otra") { ag = { serv:"", dur:60, semana:0, fecha:null, ini:null, hecho:null, paso: 1 }; pintarAgenda(); }
+});
+function gcal(c, paraAdmin){
+  const d = c.fecha.replace(/-/g, ""); const t = m => { const u = m + 360; return (u >= 1440 ? iso(masDias(deIso(c.fecha), 1)).replace(/-/g, "") : d) + "T" + hhmm(u % 1440) + "00Z"; };
+  const L = LUGARES[c.lugar];
+  const donde = c.lugar === "domicilio" ? (c.dir || "") : c.lugar === "taller" && L ? `${L.lat},${L.lng}` : "";
+  return "https://calendar.google.com/calendar/render?action=TEMPLATE&text=" + encodeURIComponent(paraAdmin ? `${c.nombre} · ${c.servicio} · ${L?.corto || ""}` : `${NEGOCIO} · ${c.servicio} · ${L?.nombre || ""}`)
+    + (paraAdmin ? "&details=" + encodeURIComponent(`Cel: ${c.tel}${c.nota ? "\nEquipo: " + c.nota : ""}`) : "") + "&dates=" + t(c.ini) + "/" + t(c.ini + c.dur) + "&location=" + encodeURIComponent(donde);
+}
+// Archivo de calendario (.ics) con varias citas: el celular las agrega todas de una vez
+const CAL_KEY = "rbm_calendario_v1";
+const firmaCita = c => [c.fecha, c.ini, c.dur, c.lugar, c.servicio].join("|");
+let calMem = {};
+const calLeer = () => lsGet(CAL_KEY, calMem);
+function calGuardar(m){ calMem = m; lsSet(CAL_KEY, m); }
+const enCalendario = c => calLeer()[c.id]?.f === firmaCita(c);
+function marcarCal(c){ const reg = calLeer(); const r = reg[c.id]; reg[c.id] = { f: firmaCita(c), s: r ? r.s + 1 : 0 }; calGuardar(reg); }
+function descargarIcs(lista, nombre){
+  const reg = calLeer();
+  const f = (fecha, min) => { const u = min + 360; const d = u >= 1440 ? iso(masDias(deIso(fecha), 1)) : fecha; return d.replace(/-/g, "") + "T" + hhmm(u % 1440) + "00Z"; };
+  const tx = t => String(t).replace(/\\/g, "\\\\").replace(/([,;])/g, "\\$1").replace(/\n/g, "\\n");
+  const ahora = new Date().toISOString().replace(/[-:]/g, "").slice(0, 15) + "Z";
+  const ev = lista.map(c => { const L = LUGARES[c.lugar]; const loc = c.lugar === "domicilio" ? c.dir : c.lugar === "taller" ? `${NEGOCIO} - ${L.dir}` : "A distancia";
+    return ["BEGIN:VEVENT", `UID:${c.id}@rbmsolutions`, `DTSTAMP:${ahora}`, `SEQUENCE:${reg[c.id] ? (reg[c.id].f === firmaCita(c) ? reg[c.id].s : reg[c.id].s + 1) : 0}`, `DTSTART:${f(c.fecha, c.ini)}`, `DTEND:${f(c.fecha, c.ini + c.dur)}`,
+    `SUMMARY:${tx(c.nombre + " · " + c.servicio + (L ? " · " + L.corto : ""))}`, ...(loc ? [`LOCATION:${tx(loc)}`] : []), `DESCRIPTION:${tx("Cel: " + c.tel + (c.nota ? "\nEquipo: " + c.nota : "") + (c.apuntes ? "\nMis anotaciones: " + c.apuntes : ""))}`,
+    "BEGIN:VALARM", "TRIGGER:-PT30M", "ACTION:DISPLAY", "DESCRIPTION:Cita en 30 minutos", "END:VALARM", "END:VEVENT"].join("\r\n"); });
+  const ics = ["BEGIN:VCALENDAR", "VERSION:2.0", `PRODID:-//${NEGOCIO}//Citas//ES`, "CALSCALE:GREGORIAN", "METHOD:PUBLISH", ...ev, "END:VCALENDAR"].join("\r\n");
+  const blob = new Blob([ics], { type: "text/calendar;charset=utf-8" });
+  const archivo = new File([blob], nombre + ".ics", { type: "text/calendar" });
+  for (const c of lista) { const r = reg[c.id]; reg[c.id] = { f: firmaCita(c), s: r ? (r.f === firmaCita(c) ? r.s : r.s + 1) : 0 }; }
+  calGuardar(reg);
+  if (esIOS) { const url = URL.createObjectURL(blob); location.href = url; setTimeout(() => URL.revokeObjectURL(url), 60000); }
+  else if (navigator.canShare && navigator.canShare({ files: [archivo] }) && /Android/i.test(navigator.userAgent)) navigator.share({ files: [archivo], title: `Citas ${NEGOCIO}` }).catch(() => {});
+  else { const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = nombre + ".ics"; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); }
+  toast(`${lista.length} cita${lista.length === 1 ? "" : "s"} lista${lista.length === 1 ? "" : "s"} para tu calendario`);
+  setTimeout(() => { if (pila.includes("p-admin")) pintarAdmin(); }, 400);
+}
+
+function pintarListo(box, c){
+  const L = LUGARES[c.lugar];
+  const msg = `Hola, acabo de agendar en la página:\n• ${c.servicio}\n• ${L ? L.nombre : ""}${c.dir ? " (" + c.dir + ")" : ""}\n• ${fechaLarga(c.fecha)}\n• ${h12m(c.ini)} a ${h12m(c.ini + c.dur)}\nA nombre de ${c.nombre}.`;
+  const extra = c.lugar === "taller" ? `<div class="seg2"><a class="btn btn-linea" style="padding:13px 8px" href="${waze(L)}" target="_blank" rel="noopener">Waze</a><a class="btn btn-linea" style="padding:13px 8px" href="${L.maps}" target="_blank" rel="noopener">Google Maps</a></div><p style="font-size:13.5px;color:var(--gris);margin-top:-2px">${esc(L.dir)}</p>`
+    : c.lugar === "domicilio" ? `<p style="font-size:13.5px;color:var(--gris)">Llego a: ${esc(c.dir)}</p>`
+    : `<p style="font-size:13.5px;color:var(--gris)">Antes de la cita te escribo por WhatsApp para conectarnos.</p>`;
+  box.innerHTML = `<div class="listo">
+    <div class="orbe ok" aria-hidden="true"><i class="b1"></i><i class="b2"></i><i class="b3"></i><span class="txt">✓</span></div><h2>¡Tu cita quedó agendada!</h2><p>Te confirmo por WhatsApp.</p>
+    <div class="resumen" style="text-align:left"><small>Tu cita</small><b>${esc(c.servicio)} · ${L ? L.nombre : ""}<br>${mayus(fechaLarga(c.fecha))}<br>${h12m(c.ini)} a ${h12m(c.ini + c.dur)} · ${durTxt(c.dur)}</b></div>
+    <div class="bloque">
+      <a class="btn btn-wa" href="${waLink(msg)}" target="_blank" rel="noopener">${WA_IC}Avisar por WhatsApp</a>
+      <a class="btn btn-linea" href="${gcal(c, false)}" target="_blank" rel="noopener">${CAL}Guardar en mi calendario</a>
+      ${extra}
+      <button class="btn btn-osc" id="a-otra">Agendar otra cita</button>
+    </div>
+    <p class="prueba">Si necesitás cambiar o cancelar, escribime por WhatsApp.</p></div>`;
+}
+
+// ================== ACCESO DEL ADMINISTRADOR ==================
+// Calendario con vistas Día, Semana, Mes y Lista, como Google Calendar
+let nCal = { vista: "semana", ref: null };
+const MESES_L = MESES.map(m => m[0].toUpperCase() + m.slice(1));
+const colorLugar = l => "ev-" + (LUGARES[l]?.color || "taller");
+const puntoLugar = l => "pt-" + (LUGARES[l]?.color || "taller");
+function rangoHoras(lista){
+  let a = 24 * 60, b = 0;
+  for (const h of HORARIO) for (const [x, y] of h.turnos) { a = Math.min(a, aMin(x)); b = Math.max(b, aMin(y)); }
+  for (const c of lista) { a = Math.min(a, c.ini); b = Math.max(b, c.ini + c.dur); }
+  if (a >= b) { a = 8 * 60; b = 19 * 60; }
+  return [Math.floor(a / 60) * 60, Math.ceil(b / 60) * 60];
+}
+const leyenda = () => `<div class="cal-ley">${Object.values(LUGARES).map(l => `<span><i class="pt-${l.color}"></i>${l.nombre}</span>`).join("")}</div>`;
+function barraCal(){
+  const ref = deIso(nCal.ref);
+  let titulo;
+  if (nCal.vista === "mes" || nCal.vista === "lista") titulo = nCal.vista === "lista" ? "Próximas citas" : `${MESES_L[ref.getUTCMonth()]} ${ref.getUTCFullYear()}`;
+  else if (nCal.vista === "semana") { const l = masDias(ref, -((ref.getUTCDay() + 6) % 7)), d = masDias(l, 6);
+    titulo = l.getUTCMonth() === d.getUTCMonth() ? `${l.getUTCDate()} – ${d.getUTCDate()} ${MES_C[d.getUTCMonth()]} ${d.getUTCFullYear()}` : `${l.getUTCDate()} ${MES_C[l.getUTCMonth()]} – ${d.getUTCDate()} ${MES_C[d.getUTCMonth()]}`; }
+  else titulo = mayus(fechaLarga(nCal.ref));
+  return `<div class="cal-bar">
+    <div class="cal-vistas">${[["dia", "Día"], ["semana", "Semana"], ["mes", "Mes"], ["lista", "Lista"]].map(([k, t]) => `<button class="${nCal.vista === k ? "si" : ""}" data-cv="${k}">${t}</button>`).join("")}</div>
+    ${nCal.vista === "lista" ? "" : `<div class="cal-nav"><button data-cnav="0" class="hoy">Hoy</button><button data-cnav="-1" aria-label="Anterior">‹</button><button data-cnav="1" aria-label="Siguiente">›</button><b>${titulo}</b></div>`}
+    ${leyenda()}
+  </div>`;
+}
+function pintarCal(todas){
+  const hoy = iso(crAhora()), ahora = crAhora(), minAhora = ahora.getUTCHours() * 60 + ahora.getUTCMinutes();
+  const porDia = f => todas.filter(c => c.fecha === f).sort((a, b) => a.ini - b.ini);
+  const ref = deIso(nCal.ref);
+  if (nCal.vista === "mes") {
+    const primero = new Date(Date.UTC(ref.getUTCFullYear(), ref.getUTCMonth(), 1));
+    const inicio = masDias(primero, -((primero.getUTCDay() + 6) % 7));
+    let celdas = "";
+    for (let i = 0; i < 42; i++) {
+      const d = masDias(inicio, i), f = iso(d), l = porDia(f), fuera = d.getUTCMonth() !== ref.getUTCMonth();
+      if (i === 35 && fuera) break;
+      celdas += `<button class="mes-d${fuera ? " fuera" : ""}${!turnosDe(f).length ? " cerr" : ""}" data-cdia="${f}">
+        <span class="n${f === hoy ? " hoy" : ""}">${d.getUTCDate()}</span>
+        ${l.slice(0, 2).map(c => `<span class="mes-ev ${colorLugar(c.lugar)}">${h12m(c.ini).replace(/:00| /g, "").replace("p.m.", "p").replace("a.m.", "a")} ${esc(c.nombre.split(" ")[0])}</span>`).join("")}
+        ${l.length > 2 ? `<span class="mas">+${l.length - 2} más</span>` : ""}</button>`;
+    }
+    return `<div class="mes"><div class="mes-cab">${["L", "M", "M", "J", "V", "S", "D"].map(x => `<span>${x}</span>`).join("")}</div><div class="mes-grid">${celdas}</div></div>`;
+  }
+  const dias = nCal.vista === "dia" ? [nCal.ref] : [...Array(7)].map((_, i) => iso(masDias(masDias(ref, -((ref.getUTCDay() + 6) % 7)), i)));
+  const visibles = todas.filter(c => dias.includes(c.fecha));
+  const [ha, hb] = rangoHoras(visibles), H = nCal.vista === "dia" ? 64 : 52, alto = (hb - ha) / 60 * H;
+  const horas = []; for (let m = ha; m < hb; m += 60) horas.push(m);
+  const col = f => {
+    const cerr = (() => { const t = turnosDe(f); let out = "", pos = ha;
+      for (const [a, b] of t) { if (a > pos) out += `<div class="cerr-b" style="top:${(pos - ha) / 60 * H}px;height:${(a - pos) / 60 * H}px"></div>`; pos = Math.max(pos, b); }
+      if (pos < hb) out += `<div class="cerr-b" style="top:${(pos - ha) / 60 * H}px;height:${(hb - pos) / 60 * H}px"></div>`; return out; })();
+    const evs = porDia(f).map(c => `<button class="ev ${colorLugar(c.lugar)}" data-cev="${c.id}" style="top:${(c.ini - ha) / 60 * H + 1}px;height:${c.dur / 60 * H - 2}px">
+        <b>${c.apuntes ? "🗒️ " : ""}${esc(nCal.vista === "dia" ? c.nombre : c.nombre.split(" ")[0])}</b>${nCal.vista === "dia" ? `<span>${h12m(c.ini)} – ${h12m(c.ini + c.dur)} · ${esc(c.servicio)} · ${LUGARES[c.lugar]?.corto || ""}</span>` : `<span>${h12m(c.ini).replace(" ", "")}</span>`}</button>`).join("");
+    const linea = f === hoy && minAhora >= ha && minAhora <= hb ? `<div class="ahora" style="top:${(minAhora - ha) / 60 * H}px"></div>` : "";
+    return `<div class="col${f === hoy ? " es-hoy" : ""}" style="height:${alto}px">${cerr}${evs}${linea}</div>`;
+  };
+  return `<div class="tg tg-${nCal.vista}">
+    <div class="tg-cab"><span></span>${dias.map(f => { const d = deIso(f); return `<button class="${f === hoy ? "hoy" : ""}" data-cdia="${f}"><small>${DIAS_C[d.getUTCDay()]}</small><b>${d.getUTCDate()}</b></button>`; }).join("")}</div>
+    <div class="tg-cuerpo"><div class="tg-horas" style="height:${alto}px">${horas.map(m => `<span style="top:${(m - ha) / 60 * H}px">${(Math.floor(m / 60) % 12 || 12) + (m >= 720 ? " pm" : " am")}</span>`).join("")}</div>
+      <div class="tg-cols" style="background-size:100% ${H}px;grid-template-columns:repeat(${dias.length},minmax(0,1fr))">${dias.map(col).join("")}</div></div>
+    ${!visibles.length ? `<p class="tg-vacio">${nCal.vista === "dia" ? "No hay citas este día." : "No hay citas esta semana."}</p>` : ""}
+  </div>`;
+}
+const botonCal = (c, clase = "") => `<a class="${clase}${enCalendario(c) ? " ya" : ""}" data-cal="${c.id}" href="${gcal(c, true)}" target="_blank" rel="noopener">${enCalendario(c) ? "✓ En mi calendario" : "📅 A mi calendario"}</a>`;
+function verCita(id){
+  const c = Reservas.todas().find(x => x.id === id); if (!c) return;
+  const tel = String(c.tel).replace(/\D/g, "");
+  document.getElementById("hoja-ev")?.remove();
+  const el = document.createElement("div"); el.className = "modal-ev"; el.id = "hoja-ev"; el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true");
+  const e = Reservas.encuestas().find(x => x.id === c.id);
+  el.innerHTML = `<div class="mev-cab ${colorLugar(c.lugar)}"><span>${lugarTxt(c)}</span><button class="mev-x" data-cerrar-ev aria-label="Cerrar">×</button></div>
+    <div class="mev-in">
+    <div class="ev-det"><span class="ev-punto ${puntoLugar(c.lugar)}"></span><div><h3>${esc(c.nombre)}</h3>
+      <p>${mayus(fechaLarga(c.fecha))} · ${h12m(c.ini)} – ${h12m(c.ini + c.dur)}</p></div></div>
+    <ul class="ev-lista"><li>🛠️ ${esc(c.servicio)} · ${durTxt(c.dur)} · <b class="mono">${montoCita(c) ? colones(montoCita(c)) : "Gratis"}</b></li><li>📍 ${lugarTxt(c)}${c.dir ? ` · ${esc(c.dir)}` : ""}</li><li>📱 <span style="user-select:all">${esc(c.tel)}</span></li>${c.nota ? `<li>💬 “${esc(c.nota)}”</li>` : ""}</ul>
+    <div class="apuntes"><label for="ev-apuntes">🗒️ Mis anotaciones <small>(solo vos las ves)</small></label>
+      <textarea id="ev-apuntes" rows="3" maxlength="1000" placeholder="Ej.: cambiar pasta térmica, cliente trae cargador, pagó por SINPE…">${esc(c.apuntes || "")}</textarea>
+      <div class="ap-pie"><span id="ev-ap-est"></span><button class="btn btn-osc" id="ev-ap-ok">Guardar anotación</button></div></div>
+    <div class="ev-acc"><a class="btn btn-wa" href="https://wa.me/${tel506(c.tel)}" target="_blank" rel="noopener">${WA_IC}WhatsApp</a><a class="btn btn-osc" href="tel:${tel}">Llamar</a></div>
+    ${e ? `<div class="enc-res"><b>${estrellasTxt(e.estrellas)}</b><span>Encuesta respondida${e.comentario ? `: “${esc(e.comentario)}”` : ""}</span></div>` : ""}
+    <div class="ev-acc">${botonCal(c, "btn btn-linea")}<button class="btn btn-rojo" data-cancel="${c.id}">Cancelar cita</button></div>
+    </div>`;
+  const velo = $("#velo"); velo.classList.add("on"); velo.style.zIndex = 60;
+  document.body.appendChild(el); requestAnimationFrame(() => el.classList.add("on"));
+  const cerrar = () => { el.remove(); velo.classList.remove("on"); velo.style.zIndex = 50; document.removeEventListener("keydown", tecla); velo.removeEventListener("click", cerrar); };
+  const tecla = ev => { if (ev.key === "Escape" && !document.getElementById("ventana")) cerrar(); }; document.addEventListener("keydown", tecla);
+  velo.addEventListener("click", cerrar);
+  el.addEventListener("click", async ev => {
+    const a = ev.target.closest("a[data-cal]");
+    if (a) { if (esIOS) { ev.preventDefault(); descargarIcs([c], "cita-" + c.fecha); } else marcarCal(c); setTimeout(() => { cerrar(); pintarAdmin(); }, 300); return; }
+    const b = ev.target.closest("button"); if (!b) return;
+    if (b.hasAttribute("data-cerrar-ev")) return cerrar();
+    if (b.id === "ev-ap-ok") {
+      const txt = el.querySelector("#ev-apuntes").value.trim().slice(0, 1000), est = el.querySelector("#ev-ap-est");
+      b.disabled = true; est.textContent = "Guardando…";
+      try { await Reservas.guardarApuntes(c.id, txt); c.apuntes = txt; est.textContent = "✓ Guardado"; pintarAdmin(); }
+      catch (ex) { est.style.color = "var(--rojo)"; est.textContent = ex.message === "ejemplo" ? "Las citas de ejemplo no se pueden editar." : "No se pudo guardar. Revisá tu conexión."; }
+      b.disabled = false; return;
+    }
+    if (b.dataset.cancel) { cerrar(); cancelarCita(b.dataset.cancel); }
+  });
+}
+async function cancelarCita(id){
+  if (!await ventana({ titulo:"¿Cancelar esta cita?", texto:"El espacio queda libre otra vez para que alguien más lo agende.", si:"Cancelar cita", no:"Volver", peligro:true })) return;
+  try { const estaba = enCalendario(Reservas.todas().find(x => x.id === id) || {}); await Reservas.cancelar(id); pintarAdmin(); toast(estaba ? "Cita cancelada. Borrala también de tu calendario." : "Cita cancelada"); }
+  catch { toast("No se pudo cancelar. Revisá tu conexión."); }
+}
+
+// ===== Montos estimados según el precio de cada servicio =====
+let nIng = { vista: "mes", ref: null };
+const colones = n => "₡" + Math.round(n).toLocaleString("es-CR").replace(/\s/g, ".");
+const precioNum = s => +String(s?.precio || "").replace(/[^\d]/g, "") || 0;
+// Estimado: precio del servicio. Si se apartó más tiempo del sugerido no se cobra más (es trabajo por servicio, no por hora).
+function montoCita(c){ const s = SERVICIOS.find(x => x.nombre === c.servicio); return s ? precioNum(s) : 0; }
+function pintarIngresos(){
+  const hoy = iso(crAhora()); if (!nIng.ref) nIng.ref = hoy;
+  const r = deIso(nIng.ref);
+  let ini, fin, titulo;
+  if (nIng.vista === "semana") { const l = masDias(r, -((r.getUTCDay() + 6) % 7)); ini = iso(l); fin = iso(masDias(l, 6));
+    const d = masDias(l, 6); titulo = `${l.getUTCDate()} ${MES_C[l.getUTCMonth()]} – ${d.getUTCDate()} ${MES_C[d.getUTCMonth()]}`; }
+  else { const a = new Date(Date.UTC(r.getUTCFullYear(), r.getUTCMonth(), 1)), b = new Date(Date.UTC(r.getUTCFullYear(), r.getUTCMonth() + 1, 0));
+    ini = iso(a); fin = iso(b); titulo = `${MESES_L[r.getUTCMonth()]} ${r.getUTCFullYear()}`; }
+  const lista = Reservas.todas().filter(c => c.fecha >= ini && c.fecha <= fin);
+  const ahoraM = crAhora(); const minA = ahoraM.getUTCHours() * 60 + ahoraM.getUTCMinutes();
+  const hecha = c => c.fecha < hoy || (c.fecha === hoy && c.ini + c.dur <= minA);
+  const total = lista.reduce((t, c) => t + montoCita(c), 0);
+  const real = lista.filter(hecha).reduce((t, c) => t + montoCita(c), 0);
+  const cobradas = lista.filter(c => montoCita(c)).length;
+  const porServ = {}; for (const c of lista) { const k = c.servicio; porServ[k] = porServ[k] || { n: 0, m: 0 }; porServ[k].n++; porServ[k].m += montoCita(c); }
+  const servs = Object.entries(porServ).sort((a, b) => b[1].m - a[1].m || b[1].n - a[1].n); const maxS = Math.max(1, ...servs.map(x => x[1].m));
+  const porLug = Object.keys(LUGARES).map(k => [k, lista.filter(c => c.lugar === k).reduce((t, c) => t + montoCita(c), 0), lista.filter(c => c.lugar === k).length]);
+  const dias = []; for (let d = deIso(ini); iso(d) <= fin; d = masDias(d, 1)) dias.push(iso(d));
+  const porDia = dias.map(f => [f, lista.filter(c => c.fecha === f).reduce((t, c) => t + montoCita(c), 0)]);
+  const maxD = Math.max(1, ...porDia.map(x => x[1]));
+  const gratis = lista.length - cobradas;
+  const k = n => n >= 1000 ? Math.round(n / 1000) + "k" : String(n);
+  return `<div class="ing">
+    <div class="cal-bar">
+      <div class="cal-vistas" style="grid-template-columns:1fr 1fr">${[["semana", "Semana"], ["mes", "Mes"]].map(([k2, t]) => `<button class="${nIng.vista === k2 ? "si" : ""}" data-iv="${k2}">${t}</button>`).join("")}</div>
+      <div class="cal-nav"><button data-inav="0" class="hoy">Hoy</button><button data-inav="-1" aria-label="Anterior">‹</button><button data-inav="1" aria-label="Siguiente">›</button><b>${titulo}</b></div>
+    </div>
+    <div class="ing-total"><small>Total estimado</small><b>${colones(total)}</b>
+      <span>${lista.length} cita${lista.length === 1 ? "" : "s"}${gratis ? ` · ${gratis} sin costo (asesorías y reuniones)` : ""}</span></div>
+    <div class="ing-kpis">
+      <div><small>Ya atendidas</small><b>${colones(real)}</b></div>
+      <div><small>Por atender</small><b>${colones(total - real)}</b></div>
+      <div><small>Promedio por trabajo</small><b>${colones(cobradas ? total / cobradas : 0)}</b></div>
+    </div>
+    <div class="ing-box"><h4>Por día</h4>
+      <div class="ing-dias id-${nIng.vista}">${porDia.map(([f, m]) => { const d = deIso(f); return `<div class="ing-dia${f === hoy ? " hoy" : ""}" title="${fechaLarga(f)}: ${colones(m)}">
+        <span class="v">${m && nIng.vista === "semana" ? k(m) : ""}</span><i style="height:${Math.round(m / maxD * 100)}%"></i><small>${nIng.vista === "semana" ? DIAS_C[d.getUTCDay()] : (d.getUTCDate() % 5 === 1 ? d.getUTCDate() : "")}</small></div>`; }).join("")}</div></div>
+    <div class="ing-box"><h4>Por servicio</h4>
+      ${servs.length ? servs.map(([n, v]) => `<div class="ing-fila"><div class="t"><span>${esc(n)} <em>× ${v.n}</em></span><b>${v.m ? colones(v.m) : "Gratis"}</b></div><div class="bar"><i style="width:${Math.round(v.m / maxS * 100)}%"></i></div></div>`).join("") : `<p class="ing-vacio">No hay citas en este periodo.</p>`}</div>
+    <div class="ing-box"><h4>Por modalidad</h4><div class="ing-lug">${porLug.map(([k2, m, n]) => `<div class="${colorLugar(k2)}"><small>${LUGARES[k2].corto} · ${n}</small><b>${colones(m)}</b></div>`).join("")}</div></div>
+    <p class="prueba">Montos estimados con los precios de la página (precio base en los que dicen “desde”). No incluyen repuestos, descuentos ni cancelaciones de último momento.</p>
+  </div>`;
+}
+// ===== Configuración =====
+let eventoInstalar = null;
+addEventListener("beforeinstallprompt", e => { eventoInstalar = e; });
+function pintarConfig(){
+  const enCal = Object.keys(calLeer()).length;
+  const turnos = HORARIO.map(h => `<li><b>${h.nombre}</b><span>${h.turnos.length ? h.turnos.map(t => `${h12(t[0])} – ${h12(t[1])}`).join(", ") : h.nota || "Cerrado"}</span></li>`).join("");
+  return `<div class="conf">
+    <section class="conf-s"><h4>🔔 Notificaciones en este celular</h4>${tarjetaAvisos() || `<p class="conf-p">Este navegador no permite notificaciones. Abrí la página en Chrome (Android) o instalá la app (iPhone).</p>`}
+      <p class="conf-nota">Los avisos llegan mientras la página o la app esté abierta o minimizada. Si la cerrás por completo, revisá tus citas al abrirla.</p>
+      ${soportaAvisos && Notification.permission === "granted" ? `<button class="btn btn-linea conf-b" id="c-prueba-local">Enviar notificación de prueba</button>` : ""}</section>
+    <section class="conf-s"><h4>📅 Calendario del celular</h4>
+      <p class="conf-p">${enCal} cita${enCal === 1 ? "" : "s"} marcada${enCal === 1 ? "" : "s"} como pasada${enCal === 1 ? "" : "s"} a tu calendario en este celular.</p>
+      <button class="btn btn-linea conf-b" id="c-cal-reset">Olvidar registro (volver a pasar todas)</button></section>
+    <section class="conf-s"><h4>📱 App</h4>
+      <p class="conf-p">${appInstalada() ? "✓ Estás usando la app instalada." : "Estás usando la página en el navegador."}</p>
+      ${!appInstalada() ? (eventoInstalar ? `<button class="btn btn-agua conf-b" id="c-instalar">Instalar app de ${NEGOCIO}</button>` : `<p class="conf-nota">${esIOS ? "En iPhone: Safari → Compartir → Agregar a inicio." : "En Chrome: menú ⋮ → Instalar app (o Agregar a pantalla principal)."}</p>`) : ""}</section>
+    <section class="conf-s"><h4>🏷️ Datos del negocio</h4>
+      <ul class="conf-l"><li><b>WhatsApp</b><span class="mono">+${WHATSAPP.slice(0, 3)} ${WHATSAPP.slice(3, 7)} ${WHATSAPP.slice(7)}</span></li>${turnos}
+        ${Object.values(LUGARES).map(l => `<li><b>${l.nombre}</b><span>${esc(l.dir)}</span></li>`).join("")}
+        <li><b>Servicios agendables</b><span>${SERVICIOS.length}</span></li></ul>
+      <p class="conf-nota">Precios, horario y servicios se cambian al inicio del código de la página.</p></section>
+    <section class="conf-s"><h4>👤 Cuenta</h4>
+      <p class="conf-p">Sesión iniciada como <b>${esc(ADMIN_EMAIL)}</b>${Reservas.prueba ? " (modo de prueba)" : ""}.</p>
+      <button class="btn btn-rojo conf-b" id="n-salir2">Cerrar sesión</button></section>
+  </div>`;
+}
+let nVista = "citas";
+function pintarAdmin(){
+  const box = $("#admin");
+  if (!Reservas.admin) {
+    box.innerHTML = `<div style="max-width:360px;margin:30px auto 0;text-align:center">
+      <div class="orbe" style="width:84px;margin:0 auto 16px" aria-hidden="true"><i class="b1"></i><i class="b2"></i><i class="b3"></i></div>
+      <h2 class="pp-h">Acceso administrador</h2>
+      <p style="color:var(--gris);margin:4px 0 18px">Aquí ves todas tus citas, ingresos y opiniones.</p>
+      <div class="campo"><label for="n-clave" style="text-align:left">Contraseña</label><input id="n-clave" type="password" autocomplete="current-password" style="text-align:center"></div>
+      <p class="error" id="n-err"></p>
+      <button class="btn btn-agua" style="width:100%" id="n-ok">Entrar</button>
+      ${Reservas.prueba ? `<p class="prueba">Versión de prueba. La contraseña es <b class="mono" style="user-select:all">${CLAVE_ADMIN}</b></p>` : ""}
+      </div>`;
+    return;
+  }
+  const sugs = Reservas.sugerencias(), nOp = sugs.length + Reservas.encuestas().length, pe = pendEnc();
+  const sinAvisos = (soportaAvisos && Notification.permission === "default") || (esIOS && !soportaAvisos);
+  const pest = `<div class="n-fila"><span>Hola 👋</span><button class="chip${nVista === "conf" ? " si" : ""}" data-nv="conf">⚙️ Ajustes</button><button class="chip" id="n-salir">Salir</button></div>`
+    + (sinAvisos && nVista !== "conf" ? `<button class="aviso-mini" data-nv="conf">🔔 Activá las notificaciones de citas nuevas ›</button>` : "")
+    + `<div class="n-tabs">${[["citas", "Citas"], ["ing", "Ingresos"], ["sug", `Opiniones${nOp ? ` (${nOp})` : ""}`], ["gal", "Galería"], ["env", `Enviar encuesta${pe ? ` (${pe})` : ""}`]].map(([k2, t]) => `<button class="chip${nVista === k2 ? " si" : ""}" data-nv="${k2}">${t}</button>`).join("")}</div>`;
+  if (nVista === "conf") { box.innerHTML = pest + pintarConfig(); return; }
+  if (nVista === "env") { box.innerHTML = pest + pintarEnvioEncuestas(); return; }
+  if (nVista === "ing") { box.innerHTML = pest + pintarIngresos(); return; }
+  if (nVista === "gal") {
+    const l = Reservas.galeria() || [];
+    box.innerHTML = pest + `
+      <div class="paso"><span class="lbl">Agregar fotos</span>
+        <label class="btn btn-agua" style="width:100%;padding:15px;cursor:pointer" for="g-fotos">📷 Subir fotos de trabajos</label>
+        <input id="g-fotos" type="file" accept="image/*" multiple hidden>
+        <p class="prueba" style="text-align:left">Las fotos se achican solas para que la página cargue rápido.${Reservas.prueba ? " En la versión de prueba se guardan solo en este navegador." : ""}</p></div>
+      <div class="paso"><span class="lbl">Agregar video</span>
+        <div class="campo"><label for="g-video-url">Link del video</label><input id="g-video-url" inputmode="url" placeholder="YouTube, Instagram, TikTok o Facebook"></div>
+        <div class="campo"><label for="g-video-tit">Título (opcional)</label><input id="g-video-tit" maxlength="60" placeholder="Ej.: Así queda una laptop por dentro"></div>
+        <button class="btn btn-osc" style="width:100%" id="g-video-ok">Agregar video</button></div>
+      <div class="paso"><span class="lbl">En la galería ahora (${l.length || FOTOS.length})</span>
+        ${l.length ? `<div class="g-admin">${l.map((x, i) => `<div class="g-it">
+            ${x.tipo === "foto" ? `<img src="${x.data}" alt="">` : `<div class="g-vid">${miniVideo(x)}</div>`}
+            <div class="g-acc"><button data-gal-mover="${x.id}:-1" ${i === 0 ? "disabled" : ""} aria-label="Mover antes">‹</button><button data-gal-mover="${x.id}:1" ${i === l.length - 1 ? "disabled" : ""} aria-label="Mover después">›</button><button class="rojo" data-gal-borrar="${x.id}" aria-label="Quitar">🗑</button></div></div>`).join("")}</div>
+          <button class="chip" style="margin-top:12px" id="g-restaurar">Volver a las imágenes de muestra</button>`
+        : `<div class="vacio">Ahora se muestran ${FOTOS.length} imágenes de muestra. Cuando subás la primera foto o video, la galería mostrará solo lo tuyo.</div>`}</div>`;
+    $("#g-fotos").addEventListener("change", subirFotos);
+    return;
+  }
+  if (nVista === "sug") {
+    const encs = Reservas.encuestas(), prom = k2 => encs.length ? encs.reduce((t, e) => t + (+e[k2] || 0), 0) / encs.length : 0;
+    const recom = encs.length ? Math.round(encs.filter(e => e.recomendaria === "si").length / encs.length * 100) : 0;
+    const resumen = encs.length ? `<div class="enc-resumen"><div class="grande"><b>${prom("estrellas").toFixed(1)}</b><span>${estrellasTxt(Math.round(prom("estrellas")))}</span><small>${encs.length} encuesta${encs.length === 1 ? "" : "s"}</small></div>
+        <div class="det"><div><small>Calidad del trabajo</small><b class="mono">${prom("calidad").toFixed(1)} ★</b></div><div><small>Puntualidad y trato</small><b class="mono">${prom("trato").toFixed(1)} ★</b></div><div><small>Recomendarían</small><b class="mono">${recom}%</b></div></div></div>
+      ${encs.map(e => `<div class="cita-a"><div class="h"><b>${esc(e.nombre || "Anónimo")}</b><span>${new Date(e.fecha).toLocaleDateString("es-CR", { day:"numeric", month:"short" })}</span></div>
+        <p><span class="estr">${estrellasTxt(e.estrellas)}</span> · Calidad ${e.calidad}★ · Trato ${e.trato}★ · ${e.recomendaria === "si" ? "👍 Recomendaría" : e.recomendaria === "no" ? "👎 No recomendaría" : "🤔 Tal vez"}</p>
+        ${e.comentario ? `<p style="white-space:pre-wrap">“${esc(e.comentario)}”</p>` : ""}</div>`).join("")}`
+      : `<div class="vacio">Todavía no hay encuestas. Envialas desde la pestaña <b>Enviar encuesta</b>.</div>`;
+    box.innerHTML = pest + `<h4 class="op-t">Encuestas de satisfacción</h4>` + resumen + `<h4 class="op-t">Sugerencias</h4>` + (sugs.length ? sugs.map(x => `<div class="cita-a"><div class="h"><b>${esc(x.nombre || "Anónimo")}</b><span>${new Date(x.fecha).toLocaleDateString("es-CR", { day:"numeric", month:"short" })}</span></div>
+      <p style="white-space:pre-wrap">${esc(x.texto)}</p><div class="acc"><button class="rojo" data-borrar-sug="${x.id}">Borrar</button></div></div>`).join("") : `<div class="vacio">Todavía no hay sugerencias.</div>`);
+    return;
+  }
+  const hoy = iso(crAhora());
+  if (!nCal.ref) nCal.ref = hoy;
+  if (nCal.vista !== "lista") {
+    box.innerHTML = pest + barraCal() + pintarCal(Reservas.todas());
+    const ah = box.querySelector(".es-hoy .ahora"); if (ah && nCal.vista !== "mes") setTimeout(() => ah.scrollIntoView({ block:"center" }), 50);
+    return;
+  }
+  const citas = Reservas.todas().filter(c => c.fecha >= hoy).sort((a, b) => (a.fecha + hhmm(a.ini)).localeCompare(b.fecha + hhmm(b.ini)));
+  const nuevas = citas.filter(c => !enCalendario(c)).length;
+  let html = pest + barraCal() + `<p style="color:var(--gris)">${citas.length} cita${citas.length === 1 ? "" : "s"} próxima${citas.length === 1 ? "" : "s"}.</p>
+    ${citas.length ? `<div class="bloque" style="margin:14px 0 6px">
+      ${nuevas ? `<button class="btn btn-agua" id="n-ics-nuevas">${CAL}Pasar ${nuevas} cita${nuevas === 1 ? "" : "s"} nueva${nuevas === 1 ? "" : "s"} a mi calendario (.ics)</button>`
+               : `<div class="vacio" style="padding:12px">✓ Todas tus citas ya están en tu calendario</div>`}
+      <button class="chip" style="justify-self:center" id="n-ics-todas">Volver a pasar todas (${citas.length})</button>
+    </div>` : ""}`;
+  let dia = "";
+  for (const c of citas) {
+    if (c.fecha !== dia) { dia = c.fecha; html += `<div class="dia-t">${c.fecha === hoy ? "Hoy · " : ""}${fechaLarga(c.fecha)}</div>`; }
+    const tel = String(c.tel).replace(/\D/g, "");
+    html += `<div class="cita-a"><div class="h"><b>${esc(c.nombre)}</b><span>${h12m(c.ini)} – ${h12m(c.ini + c.dur)}</span></div>
+      <p><b style="color:var(--celeste);font-weight:600"><i class="ev-punto ${puntoLugar(c.lugar)}" style="display:inline-block;width:9px;height:9px;margin:0 6px 1px 0;vertical-align:middle"></i>${lugarTxt(c)}</b>${c.dir ? ` · ${esc(c.dir)}` : ""}<br>${esc(c.servicio)} · ${durTxt(c.dur)}${c.nota ? `<br><i>“${esc(c.nota)}”</i>` : ""}${c.apuntes ? `<br><span class="ap-mini">🗒️ ${esc(c.apuntes)}</span>` : ""}</p>
+      <div class="acc"><a href="https://wa.me/${tel506(c.tel)}" target="_blank" rel="noopener">WhatsApp</a><a href="tel:${tel}">Llamar</a>${botonCal(c)}<button class="rojo" data-cancel="${c.id}">Cancelar cita</button></div></div>`;
+  }
+  box.innerHTML = html;
+}
+$("#admin").addEventListener("click", async e => {
+  const a = e.target.closest("a");
+  if (a?.dataset.cal) { const c = Reservas.todas().find(x => x.id === a.dataset.cal); if (!c) return;
+    if (esIOS) { e.preventDefault(); return descargarIcs([c], "cita-" + c.fecha); }
+    marcarCal(c); setTimeout(pintarAdmin, 400); return; }
+  if (a?.dataset.enviarEnc) { envMarcar(a.dataset.enviarEnc); setTimeout(pintarAdmin, 600); return; }
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.id === "n-ok") {
+    b.disabled = true;
+    try { await Reservas.entrar($("#n-clave").value); pintarAdmin(); }
+    catch { $("#n-err").textContent = "Contraseña incorrecta."; b.disabled = false; }
+    return;
+  }
+  if (b.id === "n-ics-nuevas" || b.id === "n-ics-todas") {
+    const hoy = iso(crAhora());
+    const lista = Reservas.todas().filter(c => c.fecha >= hoy && (b.id === "n-ics-todas" || !enCalendario(c)));
+    if (!lista.length) return toast("No hay citas nuevas.");
+    return descargarIcs(lista, "citas-rbm");
+  }
+  if (b.dataset.nv) { nVista = b.dataset.nv; pintarAdmin(); const t = $("#admin .n-tabs .si"); if (t) t.parentElement.scrollLeft = t.offsetLeft - 18; return; }
+  if (b.dataset.copiarEnc) { const c = Reservas.todas().find(x => x.id === b.dataset.copiarEnc); if (!c) return;
+    await copiar(linkEncuesta(c), "Link copiado. Pegalo en WhatsApp."); envMarcar(c.id); setTimeout(pintarAdmin, 300); return; }
+  if (b.dataset.cv) { nCal.vista = b.dataset.cv; pintarAdmin(); return; }
+  if (b.dataset.iv) { nIng.vista = b.dataset.iv; pintarAdmin(); return; }
+  if (b.dataset.inav !== undefined) { const n = +b.dataset.inav, r = deIso(nIng.ref);
+    nIng.ref = n === 0 ? iso(crAhora()) : nIng.vista === "mes" ? iso(new Date(Date.UTC(r.getUTCFullYear(), r.getUTCMonth() + n, 1))) : iso(masDias(r, n * 7));
+    pintarAdmin(); return; }
+  if (b.dataset.cnav !== undefined) { const n = +b.dataset.cnav, r = deIso(nCal.ref);
+    if (n === 0) nCal.ref = iso(crAhora());
+    else if (nCal.vista === "mes") nCal.ref = iso(new Date(Date.UTC(r.getUTCFullYear(), r.getUTCMonth() + n, 1)));
+    else nCal.ref = iso(masDias(r, n * (nCal.vista === "semana" ? 7 : 1)));
+    pintarAdmin(); return; }
+  if (b.dataset.cdia) { nCal.ref = b.dataset.cdia; nCal.vista = "dia"; pintarAdmin(); return; }
+  if (b.dataset.cev) return verCita(b.dataset.cev);
+  if (b.id === "n-avisos") {
+    try { const r = await Notification.requestPermission(); if (r === "granted") { toast("Notificaciones activadas"); avisoLocal(NEGOCIO, "Así te van a llegar los avisos de citas nuevas.", "prueba"); } } catch {}
+    pintarAdmin(); return;
+  }
+  if (b.dataset.galBorrar) { if (!await ventana({ titulo:"¿Quitar de la galería?", si:"Quitar", peligro:true })) return;
+    try { await Reservas.borrarGal(b.dataset.galBorrar); pintarGaleria(); pintarAdmin(); } catch { toast("No se pudo quitar. Revisá tu conexión."); } return; }
+  if (b.dataset.galMover) { const [id, dir] = b.dataset.galMover.split(":"); const l = Reservas.galeria() || []; const i = l.findIndex(x => x.id === id), j = i + (+dir);
+    if (j < 0 || j >= l.length) return; try { await Reservas.moverGal(id, l[j].id); pintarGaleria(); pintarAdmin(); } catch { toast("No se pudo mover."); } return; }
+  if (b.id === "g-video-ok") {
+    const url = $("#g-video-url").value.trim(), titulo = $("#g-video-tit").value.trim().slice(0, 60);
+    if (!infoVideo(url)) return toast("Pegá un link de YouTube, Instagram, TikTok o Facebook.");
+    b.disabled = true; try { await Reservas.agregarVideo(url, titulo); toast("Video agregado a la galería"); pintarGaleria(); pintarAdmin(); } catch { toast("No se pudo agregar. Revisá tu conexión."); b.disabled = false; } return;
+  }
+  if (b.id === "g-restaurar") { if (!await ventana({ titulo:"¿Volver a las imágenes de muestra?", texto:"Se quitan las fotos y videos que subiste.", si:"Volver a las de muestra", peligro:true })) return;
+    for (const x of [...(Reservas.galeria() || [])]) { try { await Reservas.borrarGal(x.id); } catch {} } pintarGaleria(); pintarAdmin(); return; }
+  if (b.dataset.borrarSug) { if (!await ventana({ titulo:"¿Borrar esta sugerencia?", si:"Borrar", peligro:true })) return;
+    try { await Reservas.borrarSug(b.dataset.borrarSug); pintarAdmin(); } catch { toast("No se pudo borrar. Revisá tu conexión."); } return; }
+  if (b.id === "c-prueba-local") { avisoLocal(`${NEGOCIO} · prueba`, "Así te van a llegar los avisos de citas nuevas.", "prueba"); toast("Notificación enviada"); return; }
+  if (b.id === "c-cal-reset") { if (!await ventana({ titulo:"¿Olvidar el registro?", texto:"El botón volverá a ofrecer todas las citas para pasarlas al calendario.", si:"Olvidar registro" })) return; calGuardar({}); toast("Listo"); pintarAdmin(); return; }
+  if (b.id === "c-instalar") { if (eventoInstalar) { eventoInstalar.prompt(); eventoInstalar = null; } return; }
+  if (b.id === "n-salir2" || b.id === "n-salir") { Reservas.salir(); nVista = "citas"; pintarAdmin(); return; }
+  if (b.dataset.cancel) return cancelarCita(b.dataset.cancel);
+});
+$("#admin").addEventListener("keydown", e => { if (e.key === "Enter" && e.target.id === "n-clave") $("#n-ok").click(); });
+
+// ================== SUGERENCIAS ==================
+let ultimaSug = 0;
+$("#sug-form").addEventListener("submit", async e => {
+  e.preventDefault();
+  const texto = $("#sug-texto").value.trim(), nombre = $("#sug-nombre").value.trim().slice(0, 40);
+  const err = t => $("#sug-err").textContent = t;
+  if (texto.length < 3) return err("Escribí tu sugerencia.");
+  if (Date.now() - ultimaSug < 30000) return err("Esperá unos segundos antes de enviar otra.");
+  const b = $("#sug-enviar"); b.disabled = true; b.textContent = "Enviando…"; err("");
+  try { await Reservas.enviarSug({ texto: texto.slice(0, 600), nombre }); ultimaSug = Date.now(); $("#sug-form").hidden = true; $("#sug-ok").hidden = false; }
+  catch (ex) { err(ex.message === "cargando" ? "Conectando… intentá de nuevo en unos segundos." : "No se pudo enviar. Revisá tu conexión."); }
+  b.disabled = false; b.textContent = "Enviar sugerencia";
+});
+$("#sug-otra").addEventListener("click", () => { $("#sug-texto").value = ""; $("#sug-form").hidden = false; $("#sug-ok").hidden = true; });
+
+// ================== GALERÍA ==================
+function infoVideo(url){
+  let u; try { u = new URL(url); } catch { return null; }
+  const h = u.hostname.replace(/^www\.|^m\./, "");
+  if (h === "youtu.be" || h.endsWith("youtube.com")) return { red:"YouTube" };
+  if (h.endsWith("instagram.com")) return { red:"Instagram" };
+  if (h.endsWith("tiktok.com")) return { red:"TikTok" };
+  if (h.endsWith("facebook.com") || h === "fb.watch") return { red:"Facebook" };
+  return null;
+}
+const miniVideo = x => `<span class="play">▶</span><span class="red">${esc(x.titulo || (infoVideo(x.url) || { red:"Video" }).red)}</span>`;
+let itemsGal = [];
+function pintarGaleria(){
+  const l = Reservas.galeria();
+  itemsGal = l && l.length ? l : FOTOS;
+  $("#gal-txt").textContent = l && l.length ? "Trabajos de RBM Solutions. Tocá una foto para verla en grande." : "Imágenes de muestra mientras se suben fotos de trabajos reales. Tocá una para verla en grande.";
+  $("#gal").innerHTML = itemsGal.map((x, i) => x.tipo === "foto"
+    ? `<button data-i="${i}" class="${i === 0 ? "ancha" : ""}" aria-label="Ver ${esc(x.titulo || "foto " + (i + 1))}"><img src="${x.data}" alt="" loading="lazy">${x.titulo ? `<span class="red">${esc(x.titulo)}</span>` : ""}</button>`
+    : `<a class="vid${i === 0 ? " ancha" : ""}" href="${esc(x.url)}" target="_blank" rel="noopener" aria-label="Ver video ${esc(x.titulo || "")}">${miniVideo(x)}</a>`).join("");
+}
+pintarGaleria();
+$("#gal").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return; const x = itemsGal[b.dataset.i];
+  $("#lb img").src = x.data; $("#lb").classList.add("on");
+});
+$("#lb").addEventListener("click", e => { if (e.target.tagName !== "IMG") $("#lb").classList.remove("on"); });
+
+// Subir fotos: se achican en el celular antes de guardarlas
+function reducir(file, max = 1280, calidad = 0.8){
+  return new Promise((ok, mal) => {
+    const img = new Image(); const url = URL.createObjectURL(file);
+    img.onload = () => {
+      let { width:w, height:h } = img; const k = Math.min(1, max / Math.max(w, h)); w = Math.round(w * k); h = Math.round(h * k);
+      const c = document.createElement("canvas"); c.width = w; c.height = h; c.getContext("2d").drawImage(img, 0, 0, w, h);
+      URL.revokeObjectURL(url);
+      let q = calidad, d = c.toDataURL("image/jpeg", q);
+      while (d.length > 700000 && q > 0.4) { q -= 0.1; d = c.toDataURL("image/jpeg", q); }
+      ok(d);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); mal(new Error("foto")); };
+    img.src = url;
+  });
+}
+async function subirFotos(e){
+  const files = [...e.target.files]; if (!files.length) return;
+  let n = 0;
+  for (const f of files) {
+    toast(`Subiendo foto ${n + 1} de ${files.length}…`);
+    try { await Reservas.subirFoto(await reducir(f)); n++; }
+    catch (ex) { toast(ex.message === "lleno" ? "Ya no caben más fotos en la versión de prueba." : "Una foto no se pudo subir."); break; }
+  }
+  if (n) toast(`${n} foto${n === 1 ? "" : "s"} agregada${n === 1 ? "" : "s"} a la galería`);
+  pintarGaleria(); pintarAdmin();
+}
+document.addEventListener("keydown", e => { if (e.key !== "Escape" || document.getElementById("ventana") || document.getElementById("hoja-ev")) return; if ($("#lb").classList.contains("on")) $("#lb").classList.remove("on"); else atras(); });
+
+// ================== UBICACIÓN Y MODALIDADES ==================
+(() => {
+  const L = LUGARES.taller;
+  $("#lug-dir").textContent = L.dir;
+  $("#lug-ir").innerHTML = `<a class="dato" style="grid-template-columns:auto 1fr" href="${waze(L)}" target="_blank" rel="noopener"><span class="ic"><svg><use href="#i-pin"/></svg></span><span><small>Ir con</small><b>Waze</b></span></a>
+    <a class="dato" style="grid-template-columns:auto 1fr" href="${L.maps}" target="_blank" rel="noopener"><span class="ic"><svg><use href="#i-pin"/></svg></span><span><small>Ir con</small><b>Google Maps</b></span></a>`;
+  $("#modos").innerHTML = Object.values(LUGARES).map(l => `<div class="modo"><i class="pt-${l.color}"></i><div><b>${l.nombre}</b><span>${esc(l.txt)}</span></div></div>`).join("");
+})();
+
+// Copiar número y correo
+document.querySelectorAll("[data-copiar]").forEach(b => b.addEventListener("click", () => { const t = document.getElementById(b.dataset.copiar).textContent; copiar(t, "Copiado: " + t); }));
+
+// ================== HORARIO Y ESTADO ==================
+const hoyD = crAhora().getUTCDay();
+$("#tabla-horario").innerHTML = HORARIO.map(h => `
+  <div class="dia${h.dias.includes(hoyD) ? " hoy" : ""}">
+    <span class="ic"><svg><use href="#i-reloj"/></svg></span>
+    <b>${h.nombre}</b>
+    <span>${h.turnos.length ? h.turnos.map(t => `${h12(t[0])} – ${h12(t[1])}`).join("<br>") : h.nota || "Cerrado"}</span>
+  </div>`).join("");
+function estado(){
+  const n = crAhora(); const min = n.getUTCHours() * 60 + n.getUTCMinutes(); const tt = turnosDe(iso(n));
+  const t = tt.find(([a, b]) => min >= a && min < b); const el = $("#estado");
+  el.classList.toggle("abierto", !!t);
+  const prox = tt.find(([a]) => min < a);
+  el.querySelector("span").textContent = t ? `Atendiendo ahora · hasta las ${h12m(t[1])}` : prox ? `Hoy atiendo desde las ${h12m(prox[0])}` : "Fuera de horario · agendá tu cita aquí";
+}
+estado(); setInterval(estado, 60000);
+
+if (FIREBASE) crearReservasFirebase().then(r => {
+  Reservas = r;
+  if (pila.includes("p-agenda") && !ag.hecho) pintarAgenda();
+  if (pila.includes("p-admin")) pintarAdmin();
+}).catch(e => { console.warn("Firebase no cargó", e); toast("Sin conexión. Intentá de nuevo en un momento."); });
+
+// Encuesta: se abre con el link #encuesta-ID
+let encId = null, enc = { estrellas:0, calidad:0, trato:0, recomendaria:"" };
+function pintarEncuesta(){
+  const fila = (k, t) => `<div class="enc-p"><span>${t}</span><div class="estrellas" role="radiogroup" aria-label="${t}">${[1, 2, 3, 4, 5].map(n => `<button type="button" class="${enc[k] >= n ? "si" : ""}" data-enc="${k}:${n}" aria-label="${n} de 5">★</button>`).join("")}</div></div>`;
+  $("#enc-preg").innerHTML = fila("estrellas", "¿Cómo calificarías el servicio?") + fila("calidad", "Calidad del trabajo") + fila("trato", "Puntualidad y trato")
+    + `<div class="enc-p"><span>¿Me recomendarías con un amigo?</span><div class="seg2" style="grid-template-columns:repeat(3,1fr)">${[["si", "👍 Sí"], ["tal vez", "🤔 Tal vez"], ["no", "👎 No"]].map(([k, t]) => `<button type="button" class="chip${enc.recomendaria === k ? " si" : ""}" data-enc="recomendaria:${k}">${t}</button>`).join("")}</div></div>`;
+}
+$("#enc-form").addEventListener("click", e => {
+  const b = e.target.closest("[data-enc]"); if (!b) return;
+  const [k, v] = b.dataset.enc.split(":"); enc[k] = k === "recomendaria" ? v : +v; pintarEncuesta();
+});
+$("#enc-form").addEventListener("submit", async e => {
+  e.preventDefault();
+  const err = t => $("#enc-err").textContent = t;
+  if (!enc.estrellas || !enc.calidad || !enc.trato) return err("Tocá las estrellas de las tres preguntas.");
+  if (!enc.recomendaria) return err("Decime si me recomendarías.");
+  const b = $("#enc-enviar"); b.disabled = true; b.textContent = "Enviando…"; err("");
+  try {
+    await Reservas.enviarEncuesta(encId, { ...enc, comentario: $("#enc-com").value.trim().slice(0, 600), nombre: $("#enc-nom").value.trim().slice(0, 40) });
+    $("#enc-form").hidden = true; $("#enc-ok").hidden = false;
+  } catch (ex) { err(ex.message === "cargando" ? "Conectando… intentá de nuevo en unos segundos." : "Esta encuesta ya fue respondida o el link no es válido. ¡Gracias!"); }
+  b.disabled = false; b.textContent = "Enviar encuesta";
+});
+(() => {
+  const m = location.hash.match(/^#encuesta-([\w-]{4,40})$/); if (!m) return;
+  encId = m[1]; history.replaceState(null, "", location.pathname + location.search);
+  pintarEncuesta(); setTimeout(() => abrir("p-encuesta"), 300);
+})();
+
+// Si se abrió desde un link para agregar la cita al calendario
+(() => {
+  const c = citaDeLink(); if (!c) return;
+  history.replaceState(null, "", location.pathname + location.search);
+  const el = document.createElement("div"); el.className = "hoja on"; el.id = "hoja-cal"; el.setAttribute("role", "dialog");
+  el.innerHTML = `<div class="asa"></div><h3>Agregar a tu calendario</h3>
+    <div class="resumen" style="margin-top:14px"><small>Cita</small><b>${esc(c.nombre)} · ${esc(c.servicio)} · ${lugarTxt(c)}<br>${fechaLarga(c.fecha)}<br>${h12m(c.ini)} a ${h12m(c.ini + c.dur)}</b></div>
+    <button class="btn btn-agua" style="width:100%;padding:16px" id="hc-ok">${CAL}Agregar a mi calendario</button>
+    <button class="cancel" id="hc-no">Ahora no</button>`;
+  const velo = $("#velo"); velo.classList.add("on"); velo.style.zIndex = 60;
+  document.body.appendChild(el);
+  const cerrar = () => { el.remove(); velo.classList.remove("on"); velo.style.zIndex = 50; };
+  el.querySelector("#hc-ok").onclick = () => { descargarIcs([c], "cita-" + c.fecha); setTimeout(cerrar, 600); };
+  el.querySelector("#hc-no").onclick = cerrar;
+})();
+// Atajos: #agendar abre la agenda, #admin el acceso del administrador
+if (location.hash === "#agendar") { history.replaceState(null, "", location.pathname + location.search); setTimeout(() => pedirForma(""), 400); }
+if (location.hash === "#admin") { history.replaceState(null, "", location.pathname + location.search); setTimeout(() => abrir("p-admin"), 400); }
+window.__dbg = { get ag(){ return ag; }, get pila(){ return pila; }, pintarAgenda, get R(){ return Reservas; } };
+</script>
+</body></html>
