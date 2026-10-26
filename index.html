@@ -607,6 +607,29 @@ section.panel{padding:0}
   .gal{grid-template-columns:repeat(3,1fr)}
   .gal .ancha{grid-column:span 3;aspect-ratio:21/9}
 }
+
+/* pie de página completo */
+footer.pie-g{border-top:1px solid var(--linea);padding:44px 0 110px;color:var(--gris);font-size:14px;background:linear-gradient(180deg,var(--noche),var(--negro))}
+footer.pie-g .wrap{display:block}
+.pie-cols{display:grid;grid-template-columns:1.4fr 1fr 1fr 1.2fr;gap:32px}
+@media (max-width:820px){.pie-cols{grid-template-columns:1fr 1fr}.pie-marca,.pie-contacto{grid-column:1/-1}}
+.pie-logo{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.pie-logo .orbe{width:44px;flex:none}
+.pie-logo b{font:800 17px var(--f-disp);color:var(--blanco)}
+.pie-logo b span{font-weight:400;color:var(--celeste)}
+.pie-marca p{line-height:1.6;max-width:360px}
+.pie-redes{display:flex;gap:10px;margin-top:18px}
+.pie-redes a{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;border:1px solid var(--linea);background:var(--sup);color:var(--celeste);transition:.2s}
+.pie-redes a:hover{background:var(--azul);color:#fff;border-color:var(--azul)}
+.pie-redes svg{width:20px;height:20px}
+.pie-col h4{font:600 12px var(--f-txt);letter-spacing:.2em;text-transform:uppercase;color:var(--celeste);margin:0 0 14px}
+.pie-col button,.pie-col a,.pie-col span{display:flex;align-items:center;gap:10px;background:none;border:0;padding:6px 0;color:var(--gris);font:500 14px var(--f-txt);text-align:left;cursor:pointer;text-decoration:none;width:100%}
+.pie-col span{cursor:default}
+.pie-col button:hover,.pie-col a:hover{color:var(--blanco)}
+.pie-col svg{width:17px;height:17px;flex:none;color:var(--celeste)}
+.pie-contacto a{word-break:break-word}
+.pie-base{margin-top:34px;padding-top:20px;border-top:1px solid var(--linea);display:flex;flex-wrap:wrap;gap:8px 20px;justify-content:space-between;font-size:12.5px}
+.pie-base a{color:var(--celeste);text-decoration:none}
 </style>
 </head><body>
 
@@ -621,7 +644,7 @@ section.panel{padding:0}
   <symbol id="i-caja" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 8 4.5v9L12 21l-8-4.5v-9z"/><path d="m4 7.5 8 4.5 8-4.5M12 12v9"/></symbol>
   <symbol id="i-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.7 7.1L4 20.5l1.4-4.7A8 8 0 1 1 21 12Z"/><path d="M8.5 10.5h7M8.5 13.5h4.5"/></symbol>
   <symbol id="i-web" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M7 6.5h.01M10 6.5h.01M8 13h8M8 16h5"/></symbol>
-  <symbol id="i-tel" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2Z"/></symbol>
+  <symbol id="i-app" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M10.5 5h3M11 18.5h2"/><path d="M9 10.5l2 2 4-4"/></symbol><symbol id="i-ig" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6" fill="currentColor"/></symbol><symbol id="i-tel" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2Z"/></symbol>
   <symbol id="i-mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></symbol>
   <symbol id="i-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M12 22s7-6.2 7-12a7 7 0 1 0-14 0c0 5.8 7 12 7 12Z"/><circle cx="12" cy="10" r="2.6"/></symbol>
   <symbol id="i-reloj" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
@@ -652,7 +675,7 @@ section.panel{padding:0}
       <div>
         <p class="etq">Soluciones en tecnología · Costa Rica</p>
         <h1 class="sr">RBM Solutions</h1>
-        <p class="lema">Reparo tu computadora, te ayudo a comprar el equipo correcto y creo la página web de tu negocio.</p>
+        <p class="lema">Reparo tu computadora, te ayudo a comprar el equipo correcto y creo la página web o la app de tu negocio.</p>
         <ul class="sellos"><li>Servicio a domicilio</li><li>En taller o a distancia</li><li>Heredia y todo el país</li></ul>
         <div class="acciones">
           <button class="btn btn-agua" data-reservar><svg><use href="#i-cal"/></svg>Agendar cita</button>
@@ -677,6 +700,7 @@ section.panel{padding:0}
         <button role="tab" aria-selected="true" aria-controls="lista-precios" data-cat="pc">Computadoras</button>
         <button role="tab" aria-selected="false" aria-controls="lista-precios" data-cat="eq">Compra de equipos</button>
         <button role="tab" aria-selected="false" aria-controls="lista-precios" data-cat="web">Páginas web</button>
+        <button role="tab" aria-selected="false" aria-controls="lista-precios" data-cat="app">Apps móviles</button>
       </div>
       <div class="tabla" id="lista-precios" role="tabpanel"></div>
       <p class="nota" id="nota-precios"></p>
@@ -737,7 +761,8 @@ section.panel{padding:0}
         </div>
         <div class="datos revela">
           <div class="dato"><span class="ic"><svg><use href="#i-tel"/></svg></span><span><small>WhatsApp y llamadas</small><b id="d-tel">6157-2339</b></span><button class="copiar" data-copiar="d-tel">Copiar</button></div>
-          <div class="dato"><span class="ic"><svg><use href="#i-mail"/></svg></span><span><small>Correo</small><b id="d-mail">info@rbmsolutionscr.com</b></span><button class="copiar" data-copiar="d-mail">Copiar</button></div>
+          <div class="dato"><span class="ic"><svg><use href="#i-mail"/></svg></span><span><small>Correo</small><b id="d-mail" style="font-size:.9em">info<wbr>@rbmsolutionscr.com</b></span><button class="copiar" data-copiar="d-mail">Copiar</button></div>
+          <a class="dato" style="grid-template-columns:auto 1fr" href="https://www.instagram.com/rbmsolutionscr" target="_blank" rel="noopener"><span class="ic"><svg><use href="#i-ig"/></svg></span><span><small>Instagram</small><b>@rbmsolutionscr</b></span></a>
           <div class="dato"><span class="ic"><svg><use href="#i-pin"/></svg></span><span><small>Ubicación</small><b>San Miguel de Santo Domingo, Heredia</b><span class="sub">Me traslado a diversas partes del país.</span></span><span></span></div>
           <a class="btn btn-wa" data-wa="Hola, vengo de la página de RBM Solutions. Tengo una consulta." href="#"><svg><use href="#i-wa"/></svg>Escribir por WhatsApp</a>
           <button class="btn btn-agua" data-reservar><svg><use href="#i-cal"/></svg>Agendar cita en línea</button>
@@ -755,9 +780,49 @@ section.panel{padding:0}
   </section>
 </main>
 
-<footer>
-  <div class="wrap"><b>RBM Solutions</b><span>Reparación de computadoras · Compra de equipos · Páginas web</span><span>Heredia, Costa Rica</span></div>
+<footer class="pie-g">
+  <div class="wrap">
+    <div class="pie-cols">
+      <div class="pie-marca">
+        <div class="pie-logo"><span class="orbe mini" aria-hidden="true"><i class="b1"></i><i class="b2"></i><i class="b3"></i></span><b>RBM <span>Solutions CR</span></b></div>
+        <p>Soluciones en tecnología para personas, familias y pequeños negocios. Reparo tu computadora, te ayudo a comprar el equipo correcto y creo la página web o la app de tu negocio.</p>
+        <div class="pie-redes">
+          <a href="#" data-wa="Hola, vengo de la página de RBM Solutions. Tengo una consulta." aria-label="WhatsApp"><svg><use href="#i-wa"/></svg></a>
+          <a href="https://www.instagram.com/rbmsolutionscr" target="_blank" rel="noopener" aria-label="Instagram"><svg><use href="#i-ig"/></svg></a>
+          <a href="mailto:info@rbmsolutionscr.com" aria-label="Correo"><svg><use href="#i-mail"/></svg></a>
+        </div>
+      </div>
+      <div class="pie-col">
+        <h4>Servicios</h4>
+        <button data-serv="diagnostico">Reparación de computadoras</button>
+        <button data-serv="asesoria">Compra de equipos</button>
+        <button data-serv="web">Páginas web</button>
+        <button data-serv="app">Apps móviles</button>
+      </div>
+      <div class="pie-col">
+        <h4>Enlaces</h4>
+        <button data-reservar>Agendar cita</button>
+        <button data-ir="#precios">Precios</button>
+        <button data-abrir="p-galeria">Galería de trabajos</button>
+        <button data-ir="#horario">Horario</button>
+        <button data-abrir="p-sug">Sugerencias</button>
+      </div>
+      <div class="pie-col pie-contacto">
+        <h4>Contacto</h4>
+        <a href="#" data-wa="Hola, vengo de la página de RBM Solutions. Tengo una consulta."><svg><use href="#i-wa"/></svg>6157-2339</a>
+        <a href="mailto:info@rbmsolutionscr.com"><svg><use href="#i-mail"/></svg>info@rbmsolutionscr.com</a>
+        <a href="https://www.instagram.com/rbmsolutionscr" target="_blank" rel="noopener"><svg><use href="#i-ig"/></svg>@rbmsolutionscr</a>
+        <span><svg><use href="#i-pin"/></svg>San Miguel de Santo Domingo, Heredia</span>
+        <span><svg><use href="#i-reloj"/></svg>Lun–vie 8 a. m.–7 p. m. · Sáb 8 a. m.–4 p. m.</span>
+      </div>
+    </div>
+    <div class="pie-base">
+      <span>© <span id="pie-anio">2026</span> RBM Solutions CR · Todos los derechos reservados</span>
+      <span>Hecho en Costa Rica 🇨🇷 · <a href="https://rbmsolutionscr.com">rbmsolutionscr.com</a></span>
+    </div>
+  </div>
 </footer>
+<script>try{document.getElementById("pie-anio").textContent=new Date().getFullYear()}catch(e){}</script>
 
 <a class="wa" data-wa="Hola, vengo de la página de RBM Solutions. Tengo una consulta." href="#" aria-label="Escribir por WhatsApp"><svg><use href="#i-wa"/></svg></a>
 
@@ -776,6 +841,7 @@ section.panel{padding:0}
   <button class="it" data-ir="#horario"><svg><use href="#i-reloj"/></svg>Horario</button>
   <button class="it" data-ir="#contacto"><svg><use href="#i-pin"/></svg>Ubicación y contacto</button>
   <a class="it" data-wa="Hola, vengo de la página de RBM Solutions. Tengo una consulta." href="#"><svg><use href="#i-wa"/></svg>WhatsApp</a>
+  <a class="it" href="https://www.instagram.com/rbmsolutionscr" target="_blank" rel="noopener"><svg><use href="#i-ig"/></svg>Instagram</a>
   <div class="pie"><button data-abrir="p-admin">🔒 Acceso administrador</button></div>
 </aside>
 
@@ -898,7 +964,10 @@ const SERVICIOS = [
     incluye:["Opciones según tu uso y presupuesto","Comparación de precios en tiendas de Costa Rica","Te digo qué evitar","Búsqueda y compra por vos, opcional"] },
   { id:"web", nombre:"Reunión para tu página web", precio:"Gratis", dur:60, ic:"web", ilus:"web", lugares:TODOS, corto:"Te muestro ejemplos y cotizamos",
     texto:"Páginas para negocios e iglesias que se instalan en el celular como una app: citas en línea, catálogos y paneles de administración, como esta misma página. En la reunión vemos qué necesitás y te doy el precio.",
-    incluye:["Ejemplos de páginas funcionando","Ideas para tu negocio","Precio cerrado: desde ₡150.000","Hosting gratis; dominio .com opcional"] }
+    incluye:["Ejemplos de páginas funcionando","Ideas para tu negocio","Precio cerrado: desde ₡150.000","Hosting gratis; dominio .com opcional"] },
+  { id:"app", nombre:"Reunión para tu app móvil", precio:"Gratis", dur:60, ic:"app", ilus:"citas", lugares:TODOS, corto:"Tu negocio en Google Play",
+    texto:"Apps para Android que tus clientes descargan desde Google Play, con tu logo y tu nombre: citas, catálogo, avisos y panel de administración. También para iPhone (App Store), con cotización aparte.",
+    incluye:["Ejemplos y lo que puede hacer tu app","Publicación en Google Play","iPhone (App Store) con cotización aparte","Precio cerrado antes de empezar"] }
 ];
 const PRECIOS = {
   pc: { nombre:"Computadoras", nota:"Repuestos (discos, memorias, pantallas) se cobran aparte. El diagnóstico se rebaja si hacemos la reparación.", items:[
@@ -923,7 +992,12 @@ const PRECIOS = {
     ["Página de presentación","desde ₡150.000","Una página con tus servicios, fotos, WhatsApp y ubicación."],
     ["Página para negocio","desde ₡250.000","Servicios con precios, galería, varias secciones y se instala como app."],
     ["Página con sistema","desde ₡450.000","Citas en línea, usuarios, panel de administración y avisos al celular."],
-    ["Mantenimiento mensual","desde ₡15.000/mes","Cambios de precios, fotos, textos y soporte."] ]}
+    ["Mantenimiento mensual","desde ₡15.000/mes","Cambios de precios, fotos, textos y soporte."] ]},
+  app: { nombre:"Apps móviles", nota:"Las cuentas de desarrollador las paga el cliente: Google Play $25 una sola vez; Apple App Store $99 al año.", items:[
+    ["Tu página como app de Android","desde ₡200.000","Tu página web publicada en Google Play, con tu ícono y tu nombre."],
+    ["App Android a la medida","desde ₡400.000","Citas, catálogo, usuarios, avisos al celular y panel de administración."],
+    ["App para iPhone (App Store)","Cotización aparte","Se cotiza según lo que necesités."],
+    ["Mantenimiento de la app","desde ₡20.000/mes","Actualizaciones, cambios y soporte en las tiendas."] ]}
 };
 const waze = l => `https://waze.com/ul?ll=${l.lat},${l.lng}&navigate=yes`;
 const DURACIONES = [30, 60, 90, 120, 180];   // opciones al agendar
