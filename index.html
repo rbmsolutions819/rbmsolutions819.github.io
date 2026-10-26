@@ -1638,7 +1638,7 @@ function pintarListo(box, c){
 
 // ================== ACCESO DEL ADMINISTRADOR ==================
 // Calendario con vistas Día, Semana, Mes y Lista, como Google Calendar
-let nCal = { vista: "semana", ref: null };
+let nCal = { vista: "mes", ref: null };
 const MESES_L = MESES.map(m => m[0].toUpperCase() + m.slice(1));
 const colorLugar = l => "ev-" + (LUGARES[l]?.color || "taller");
 const puntoLugar = l => "pt-" + (LUGARES[l]?.color || "taller");
