@@ -1,6 +1,6 @@
 // RBM Solutions: permite instalar la página como app y que abra rápido.
 // Cuando subás una versión nueva de la página, cambiá el número de VERSION.
-const VERSION = "rbm-v3";
+const VERSION = "rbm-v4";
 const ARCHIVOS = ["./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png"];
 
 self.addEventListener("install", e => {

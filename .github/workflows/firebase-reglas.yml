@@ -1,0 +1,39 @@
+# Publica las reglas de Firestore en Firebase cada vez que cambia firestore.rules.
+# Necesita el secreto FIREBASE_SERVICE_ACCOUNT (la llave JSON de la cuenta de servicio de Firebase).
+name: Reglas de Firebase
+
+on:
+  push:
+    branches: [main]
+    paths: [firestore.rules, firebase.json]
+  workflow_dispatch:
+
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Revisar que exista la llave
+        env:
+          LLAVE: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          if [ -z "$LLAVE" ]; then
+            echo "::error::Falta el secreto FIREBASE_SERVICE_ACCOUNT en Settings > Secrets and variables > Actions."
+            exit 1
+          fi
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Publicar reglas
+        env:
+          LLAVE: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          printf '%s' "$LLAVE" > "$RUNNER_TEMP/llave.json"
+          export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/llave.json"
+          PROYECTO=$(jq -r .project_id "$RUNNER_TEMP/llave.json")
+          echo "Proyecto: $PROYECTO"
+          npx --yes firebase-tools@13 deploy --only firestore:rules --project "$PROYECTO" --non-interactive
+          rm -f "$RUNNER_TEMP/llave.json"
