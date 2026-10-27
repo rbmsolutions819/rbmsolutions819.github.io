@@ -76,6 +76,15 @@ service cloud.firestore {
       allow read, delete: if esAdmin();
     }
 
+    // Boletas del taller (equipos recibidos, en proceso y finalizados): solo el administrador.
+    match /boletas/{id} {
+      allow read, delete: if esAdmin();
+      allow create, update: if esAdmin()
+        && request.resource.data.num is int
+        && request.resource.data.estado in ['proceso', 'final']
+        && request.resource.data.nombre is string && request.resource.data.nombre.size() <= 60;
+    }
+
     match /{path=**} { allow read, write: if false; }
   }
 }

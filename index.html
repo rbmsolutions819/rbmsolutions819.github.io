@@ -498,6 +498,30 @@ section.panel{padding:0}
 .n-tabs [data-nv="env"]{border-color:rgba(37,211,102,.5);color:var(--verde)}
 .n-tabs [data-nv="env"].si{background:var(--verde);border-color:var(--verde);color:#04210f}
 .op-t{font:700 12px var(--f-txt);letter-spacing:.16em;text-transform:uppercase;color:var(--gris);margin:16px 0 10px}
+/* boletas del taller */
+.bol-seg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-bottom:16px}
+.bol-seg .chip{border-radius:12px;padding:11px 4px;font-size:13px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bol-sec{background:var(--sup);border:1px solid var(--linea);border-radius:16px;padding:14px 14px 4px;margin-bottom:12px}
+.bol-sec h4{font:600 15px var(--f-disp);margin-bottom:12px}
+.bol-sec .campo label small{font-weight:400;color:var(--gris)}
+.bol-dos{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 10px}
+.bol-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.bol-chips .chip{padding:8px 12px;font-size:13.5px}
+.bol-ed{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.bol-ed b{font:600 16px var(--f-disp);min-width:0;overflow-wrap:anywhere}
+.bol-ed .chip{flex:none;padding:8px 12px;font-size:13px}
+.bol-limpiar{display:block;margin:12px auto 0}
+.bol-limpiar.rojo{color:var(--rojo);border-color:rgba(255,138,128,.4)}
+.bol-acc{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.bol-acc .btn{padding:14px 10px}
+.bol-saldo{display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid var(--linea);padding:10px 0 12px;color:var(--texto2);font-weight:600}
+.bol-saldo b{font-size:18px;color:var(--celeste)}
+.bol-card .h span{color:var(--gris)}
+.bol-card.fin{border-color:rgba(95,211,154,.3)}
+.bol-meta{display:inline-block;margin-top:4px;font-size:13px;color:var(--gris)}
+.bol-card.fin .bol-meta{color:var(--ok)}
+.cita-a .acc .prin{background:linear-gradient(135deg,var(--azul),#4f95ff);border-color:transparent;color:#fff}
+.bol-buscar input{padding:11px 14px}
 
 /* ingresos */
 .ing{display:grid;gap:14px}
@@ -1123,7 +1147,7 @@ function ventana({ titulo, texto = "", html = "", si = "Sí", no = "Cancelar", p
 // Para que todas las personas vean lo mismo se conecta a Firebase (gratis). Esta capa es la única que cambia.
 const ReservasPrueba = (() => {
   const KEY = "rbm_citas_v1";
-  let mem = [], sugMem = [], galMem = null, encMem = [];
+  let mem = [], sugMem = [], galMem = null, encMem = [], bolMem = [];
   const leer = () => lsGet(KEY, mem);
   const guardar = l => { mem = l; lsSet(KEY, l); };
   // Citas de ejemplo para que se vean espacios "Reservado" y el panel con datos
@@ -1168,6 +1192,10 @@ const ReservasPrueba = (() => {
     sugerencias(){ return lsGet(KEY + "_sug", sugMem); },
     async enviarSug(x){ const l = [{ ...x, id: "s" + Date.now().toString(36), fecha: Date.now() }, ...this.sugerencias()]; sugMem = l; lsSet(KEY + "_sug", l); },
     async borrarSug(id){ const l = this.sugerencias().filter(x => x.id !== id); sugMem = l; lsSet(KEY + "_sug", l); },
+    boletas(){ return lsGet(KEY + "_bol", bolMem); },
+    async guardarBol(b){ const l = this.boletas(); const id = b.id || "b" + Date.now().toString(36); const n = { ...b, id };
+      const i = l.findIndex(x => x.id === id); if (i >= 0) l[i] = n; else l.push(n); bolMem = l; if (!lsSet(KEY + "_bol", l)) throw new Error("lleno"); return id; },
+    async borrarBol(id){ const l = this.boletas().filter(x => x.id !== id); bolMem = l; lsSet(KEY + "_bol", l); },
     async cancelar(id){
       if (id.startsWith("ej")) { borradosEj.add(id); lsSet(KEY + "_ej", [...borradosEj]); }
       else guardar(leer().filter(c => c.id !== id));
@@ -1178,7 +1206,7 @@ async function crearReservasFirebase(){
   const base = "https://www.gstatic.com/firebasejs/10.12.2/";
   const [{ initializeApp }, F, A] = await Promise.all([import(base + "firebase-app.js"), import(base + "firebase-firestore.js"), import(base + "firebase-auth.js")]);
   const app = initializeApp(FIREBASE), db = F.getFirestore(app), auth = A.getAuth(app);
-  let oc = new Set(), citas = [], quitarCitas = null, sugs = [], quitarSugs = null, gal = null, citasCargadas = false, sugsCargadas = false, encs = [], quitarEncs = null, encsCargadas = false;
+  let oc = new Set(), citas = [], quitarCitas = null, sugs = [], quitarSugs = null, gal = null, citasCargadas = false, sugsCargadas = false, encs = [], quitarEncs = null, encsCargadas = false, bols = [], quitarBols = null;
   const R = {
     prueba: false, admin: false,
     ocupados: () => oc,
@@ -1213,6 +1241,9 @@ async function crearReservasFirebase(){
     async enviarEncuesta(id, x){ try { await F.setDoc(F.doc(db, "encuestas", id), { ...x, fecha: F.serverTimestamp() }); } catch (e) { console.warn(e); throw new Error("repetida"); } },
     async enviarSug(x){ await F.addDoc(F.collection(db, "sugerencias"), { texto:x.texto, nombre:x.nombre, fecha:F.serverTimestamp() }); },
     async borrarSug(id){ await F.deleteDoc(F.doc(db, "sugerencias", id)); },
+    boletas: () => bols,
+    async guardarBol(b){ const { id, ...d } = b; const ref = id ? F.doc(db, "boletas", id) : F.doc(F.collection(db, "boletas")); await F.setDoc(ref, d); return ref.id; },
+    async borrarBol(id){ await F.deleteDoc(F.doc(db, "boletas", id)); },
     async guardarApuntes(id, txt){ await F.updateDoc(F.doc(db, "citas", id), { apuntes: txt }); const c = citas.find(x => x.id === id); if (c) c.apuntes = txt; },
     async entrar(clave){ await A.signInWithEmailAndPassword(auth, ADMIN_EMAIL, clave); },
     salir(){ A.signOut(auth); }
@@ -1228,10 +1259,14 @@ async function crearReservasFirebase(){
   }, e => console.warn("ocupados", e));
   A.onAuthStateChanged(auth, u => {
     R.admin = !!u && u.email === ADMIN_EMAIL;
-    for (const q of [quitarCitas, quitarSugs, quitarEncs]) q?.();
-    quitarCitas = quitarSugs = quitarEncs = null; citas = []; sugs = []; encs = [];
+    for (const q of [quitarCitas, quitarSugs, quitarEncs, quitarBols]) q?.();
+    quitarCitas = quitarSugs = quitarEncs = quitarBols = null; citas = []; sugs = []; encs = []; bols = [];
     citasCargadas = sugsCargadas = encsCargadas = false;
     if (R.admin) {
+      quitarBols = F.onSnapshot(F.collection(db, "boletas"), snap => {
+        bols = snap.docs.map(d => ({ id:d.id, ...d.data() }));
+        if (pila.includes("p-admin")) pintarAdmin();
+      }, e => console.warn("boletas", e));
       quitarEncs = F.onSnapshot(F.collection(db, "encuestas"), snap => {
         const nuevas = encsCargadas ? snap.docs.filter(d => !encs.some(x => x.id === d.id)) : []; encsCargadas = true;
         for (const d of nuevas) { const v = d.data(); avisoLocal(`Nueva opinión: ${"★".repeat(v.estrellas || 0)}`, String(v.comentario || "Sin comentario").slice(0, 120), "enc-" + d.id); }
@@ -1257,7 +1292,8 @@ async function crearReservasFirebase(){
   return R;
 }
 // Mientras Firebase carga, el calendario muestra todo libre pero no deja confirmar.
-const ReservasCargando = { prueba:false, admin:false, ocupados:() => new Set(), todas:() => [], sugerencias:() => [], galeria:() => null, encuestas:() => [],
+const ReservasCargando = { prueba:false, admin:false, ocupados:() => new Set(), todas:() => [], sugerencias:() => [], galeria:() => null, encuestas:() => [], boletas:() => [],
+  async guardarBol(){ throw new Error("cargando"); }, async borrarBol(){ throw new Error("cargando"); },
   async enviarEncuesta(){ throw new Error("cargando"); }, async enviarSug(){ throw new Error("cargando"); }, async borrarSug(){},
   async reservar(){ throw new Error("cargando"); }, async cancelar(){}, async entrar(){ throw new Error("cargando"); }, salir(){} };
 let Reservas = FIREBASE ? ReservasCargando : ReservasPrueba;
@@ -1795,6 +1831,343 @@ function pintarIngresos(){
     <p class="prueba">Montos estimados con los precios de la página (precio base en los que dicen “desde”). No incluyen repuestos, descuentos ni cancelaciones de último momento.</p>
   </div>`;
 }
+// ================== BOLETAS DEL TALLER ==================
+// Nueva boleta (equipo recibido) → En proceso (lo que se hizo) → Trabajos finalizados, con PDF para el cliente.
+// Estos textos se pueden cambiar a gusto:
+const BOL_TIPOS = ["Laptop", "PC de escritorio", "Todo en uno", "Impresora", "Otro"];
+const BOL_ACCES = ["Cargador", "Batería", "Estuche o bolso", "Mouse", "Teclado", "Cable de poder", "Memoria USB"];
+const BOL_GARANTIA = "30 días sobre la mano de obra";
+const BOL_CONDICIONES = [
+  "Presente esta boleta (o su número) para retirar el equipo.",
+  "Se recomienda tener un respaldo de la información antes de cualquier reparación.",
+  "Cualquier costo adicional al presupuesto se le consulta antes de hacerlo."
+];
+const BOL_GRACIAS = ["Gracias por confiar en RBM Solutions. Conserve este comprobante para hacer válida la garantía."];   // al pie del comprobante final
+const BOL_BORR = "rbm_bol_borrador";
+const bolVacia = () => ({ nombre:"", tel:"", correo:"", ced:"", tipo:"Laptop", marca:"", modelo:"", serie:"", color:"", acces:[], accOtro:"", clave:"", fisico:"", falla:"", presu:"", adelanto:"" });
+let nBol = { vista:"nueva", trab:null, editar:null, busca:"", rec:{ ...bolVacia(), ...lsGet(BOL_BORR, {}) }, recGuard:null, tr:{} };
+const bolNum = n => "B-" + String(n || 0).padStart(4, "0");
+const numCR = v => +String(v ?? "").replace(/[^\d]/g, "") || 0;
+const equipoTxt = b => [b.tipo, b.marca, b.modelo].filter(Boolean).join(" · ");
+const accesTxt = b => [...(b.acces || []), b.accOtro].filter(Boolean).join(", ") || "Solo el equipo";
+const fechaCorta = ms => new Date(ms).toLocaleDateString("es-CR", { timeZone:"America/Costa_Rica", day:"numeric", month:"short" });
+const fechaHoraCR = ms => new Date(ms).toLocaleString("es-CR", { timeZone:"America/Costa_Rica", day:"numeric", month:"long", year:"numeric", hour:"numeric", minute:"2-digit" });
+const cortar = (t, n) => { t = String(t || ""); return t.length > n ? t.slice(0, n - 1) + "…" : t; };
+const archivoBol = b => `${bolNum(b.num)} ${String(b.nombre || "").normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^\w ]/g, "").trim().split(/\s+/).slice(0, 2).join(" ")}.pdf`.replace(/ +/g, "-");
+
+function bcampo(f, k, label, o = {}){
+  const v = esc(nBol[f][k] ?? ""), id = `bf-${f}-${k}`, ph = o.ph ? ` placeholder="${esc(o.ph)}"` : "";
+  const ctl = o.area ? `<textarea id="${id}" data-bf="${f}.${k}" rows="${o.rows || 3}" maxlength="${o.max || 1000}"${ph}>${v}</textarea>`
+    : `<input id="${id}" data-bf="${f}.${k}" maxlength="${o.max || 80}"${o.tipo ? ` type="${o.tipo}"` : ""}${o.modo ? ` inputmode="${o.modo}"` : ""} autocomplete="off"${ph} value="${v}">`;
+  return `<div class="campo"><label for="${id}">${label}</label>${ctl}</div>`;
+}
+function pintarBoletas(){
+  cargarPdfLib().catch(() => {});   // se prepara el PDF de antemano para que "Enviar" sea instantáneo
+  const todas = Reservas.boletas();
+  const proc = todas.filter(b => b.estado !== "final").sort((a, b) => b.recibida - a.recibida);
+  const fin = todas.filter(b => b.estado === "final").sort((a, b) => (b.finalizada || 0) - (a.finalizada || 0));
+  const seg = `<div class="bol-seg">${[["nueva", "＋ Nueva"], ["proc", `En proceso (${proc.length})`], ["fin", `Finalizados (${fin.length})`]]
+    .map(([k, t]) => `<button class="chip${nBol.vista === k && !nBol.editar ? " si" : ""}" data-bv="${k}">${t}</button>`).join("")}</div>`;
+  const nota = Reservas.prueba ? `<p class="prueba">Versión de prueba: las boletas se guardan solo en este navegador.</p>` : "";
+  if (nBol.editar) { const b = todas.find(x => x.id === nBol.editar); if (b) return seg + formRecibo(b); nBol.editar = null; nBol.rec = nBol.recGuard || bolVacia(); }
+  if (nBol.vista === "nueva") return seg + formRecibo() + nota;
+  if (nBol.trab) { const b = todas.find(x => x.id === nBol.trab); if (b) return seg + formTrabajo(b); nBol.trab = null; }
+  const lista = nBol.vista === "proc" ? proc : fin, q = nBol.busca.trim().toLowerCase();
+  const vis = q ? lista.filter(b => [bolNum(b.num), b.nombre, b.tel, equipoTxt(b), b.serie].join(" ").toLowerCase().includes(q)) : lista;
+  return seg
+    + (lista.length > 3 || q ? `<div class="campo bol-buscar"><input id="bf-busca" data-bbusca autocomplete="off" placeholder="Buscar por nombre, número, celular o equipo" value="${esc(nBol.busca)}"></div>` : "")
+    + (vis.length ? vis.map(tarjetaBol).join("") : `<div class="vacio">${q ? "No hay boletas que coincidan." : nBol.vista === "proc" ? "No hay equipos en proceso. Cuando recibás uno, llená una <b>Nueva</b> boleta." : "Todavía no hay trabajos finalizados."}</div>`)
+    + nota;
+}
+function formRecibo(ed){
+  const r = nBol.rec;
+  return `${ed ? `<div class="bol-ed"><b>Editando ${bolNum(ed.num)}</b><button class="chip" data-bcancel>Cancelar</button></div>` : ""}
+    <section class="bol-sec"><h4>👤 Cliente</h4>
+      ${bcampo("rec", "nombre", "Nombre completo *", { max:60, ph:"Ej.: María Solís" })}
+      <div class="bol-dos">${bcampo("rec", "tel", "Celular *", { max:20, tipo:"tel", modo:"tel", ph:"8888 8888" })}${bcampo("rec", "ced", "Cédula", { max:20, ph:"Opcional" })}</div>
+      ${bcampo("rec", "correo", "Correo", { max:80, tipo:"email", modo:"email", ph:"Opcional" })}</section>
+    <section class="bol-sec"><h4>💻 Equipo</h4>
+      <div class="bol-chips" role="group" aria-label="Tipo de equipo">${BOL_TIPOS.map(t => `<button class="chip${r.tipo === t ? " si" : ""}" data-btipo="${t}" aria-pressed="${r.tipo === t}">${t}</button>`).join("")}</div>
+      <div class="bol-dos">${bcampo("rec", "marca", "Marca", { max:30, ph:"HP, Dell, Lenovo…" })}${bcampo("rec", "modelo", "Modelo", { max:40 })}</div>
+      <div class="bol-dos">${bcampo("rec", "serie", "N.º de serie", { max:40 })}${bcampo("rec", "color", "Color", { max:20 })}</div>
+      ${bcampo("rec", "clave", "Contraseña o PIN <small>(no sale en el PDF)</small>", { max:40 })}</section>
+    <section class="bol-sec"><h4>🎒 Se recibe con</h4>
+      <div class="bol-chips">${BOL_ACCES.map(t => { const on = r.acces.includes(t); return `<button class="chip${on ? " si" : ""}" data-bacc="${t}" aria-pressed="${on}">${on ? "✓ " : ""}${t}</button>`; }).join("")}</div>
+      ${bcampo("rec", "accOtro", "Otros", { max:100, ph:"Ej.: funda azul, cargador genérico" })}
+      ${bcampo("rec", "fisico", "Estado físico del equipo", { area:true, rows:2, max:400, ph:"Ej.: rayón en la tapa, falta una tecla" })}</section>
+    <section class="bol-sec"><h4>🛠️ Falla reportada</h4>
+      ${bcampo("rec", "falla", "¿Qué le pasa según el cliente? *", { area:true, rows:3, max:800, ph:"Ej.: se calienta y se apaga sola, está muy lenta" })}
+      <div class="bol-dos">${bcampo("rec", "presu", "Presupuesto ₡", { max:12, modo:"numeric", ph:"Opcional" })}${bcampo("rec", "adelanto", "Adelanto ₡", { max:12, modo:"numeric", ph:"0" })}</div></section>
+    <p class="error" id="bol-err"></p>
+    <button class="btn btn-agua" style="width:100%;padding:16px" data-bguardar>${ed ? "Guardar cambios" : "Guardar y pasar a En proceso"}</button>
+    ${ed ? "" : `<button class="chip bol-limpiar" data-blimpiar>Limpiar formulario</button>`}`;
+}
+function resumenBol(b){
+  return `💻 ${esc(equipoTxt(b))}${b.serie ? ` · Serie ${esc(b.serie)}` : ""}<br>🎒 ${esc(accesTxt(b))}<br>🛠️ ${esc(b.falla)}${b.fisico ? `<br>🔎 ${esc(b.fisico)}` : ""}${b.clave ? `<br>🔑 <span style="user-select:all">${esc(b.clave)}</span>` : ""}
+    <br><small class="bol-meta">Recibido el ${fechaHoraCR(b.recibida)}${b.presu ? ` · Presupuesto ${colones(b.presu)}` : ""} · 📱 ${esc(b.tel)}</small>`;
+}
+function formTrabajo(b){
+  const fin = b.estado === "final";
+  return `<div class="bol-ed"><b>${bolNum(b.num)} · ${esc(b.nombre)}</b><button class="chip" data-bvolver>‹ Volver</button></div>
+    <div class="cita-a"><p>${resumenBol(b)}</p><div class="acc"><button data-beditar="${b.id}">Editar datos de recibido</button><a href="https://wa.me/${tel506(b.tel)}" target="_blank" rel="noopener">WhatsApp</a></div></div>
+    <section class="bol-sec"><h4>🔧 Lo que se hizo</h4>
+      ${bcampo("tr", "trabajo", "Trabajo realizado *", { area:true, rows:5, max:1500, ph:"Ej.: limpieza interna, cambio de pasta térmica, instalación de SSD de 480 GB y Windows 11" })}
+      ${bcampo("tr", "repuestos", "Repuestos o materiales", { area:true, rows:2, max:500, ph:"Ej.: SSD Kingston 480 GB" })}
+      <div class="bol-dos">${bcampo("tr", "costo", "Costo total ₡", { max:12, modo:"numeric" })}${bcampo("tr", "adelanto", "Adelanto ₡", { max:12, modo:"numeric" })}</div>
+      ${bcampo("tr", "garantia", "Garantía", { max:80 })}
+      ${bcampo("tr", "obs", "Observaciones para el cliente", { area:true, rows:2, max:600, ph:"Ej.: se recomienda cambiar la batería pronto" })}
+      <div class="bol-saldo">Saldo a pagar <b class="mono" id="bol-saldo">${colones(Math.max(0, numCR(nBol.tr.costo) - numCR(nBol.tr.adelanto)))}</b></div></section>
+    <p class="error" id="bol-err"></p>
+    <div class="bol-acc"${fin ? ' style="grid-template-columns:1fr"' : ""}><button class="btn btn-linea" data-bavance>${fin ? "Guardar cambios" : "Guardar avance"}</button>${fin ? "" : `<button class="btn btn-agua" data-bfinal>✓ Finalizar</button>`}</div>
+    <button class="chip bol-limpiar rojo" data-bborrar="${b.id}">Eliminar boleta</button>`;
+}
+function tarjetaBol(b){
+  const fin = b.estado === "final", dias = Math.max(0, Math.floor((Date.now() - b.recibida) / 864e5));
+  return `<div class="cita-a bol-card${fin ? " fin" : ""}"><div class="h"><b>${esc(b.nombre)}</b><span>${bolNum(b.num)}</span></div>
+    <p>💻 ${esc(equipoTxt(b))}<br>🛠️ ${esc(cortar(fin ? b.trabajo : b.falla, 120))}<br>
+      <small class="bol-meta">${fin ? `✓ Finalizado ${fechaCorta(b.finalizada)} · ${colones(numCR(b.costo))}` : `Recibido ${fechaCorta(b.recibida)} · ${dias === 0 ? "hoy" : dias === 1 ? "hace 1 día" : `hace ${dias} días`}${b.trabajo ? " · 🗒️ con avance" : ""}`}</small></p>
+    <div class="acc">${fin
+      ? `<button class="prin" data-benviar="${b.id}">📤 Enviar PDF</button><button data-bver="${b.id}">Ver PDF</button><button data-btrab="${b.id}">Editar</button><button data-breabrir="${b.id}">Regresar a proceso</button>`
+      : `<button class="prin" data-btrab="${b.id}">🔧 Lo que se hizo</button><button data-benviar="${b.id}">📤 Boleta al cliente</button><button data-bver="${b.id}">Ver PDF</button>`}
+      <button class="rojo" data-bborrar="${b.id}">Eliminar</button></div></div>`;
+}
+function bolErr(t){ const e = $("#bol-err"); if (e) e.textContent = t; if (t) e?.scrollIntoView({ block:"center", behavior:"smooth" }); }
+function irArriba(){ const c = $("#p-admin .cuerpo"); if (c) c.scrollTop = 0; }
+async function guardarRecibo(btn){
+  const r = nBol.rec, l = Reservas.boletas(), ed = nBol.editar && l.find(x => x.id === nBol.editar);
+  const nombre = r.nombre.trim(), tel = r.tel.trim(), falla = r.falla.trim();
+  if (nombre.length < 2) return bolErr("Escribí el nombre del cliente.");
+  if (tel.replace(/\D/g, "").length < 8) return bolErr("Escribí un celular válido (8 dígitos).");
+  if (falla.length < 3) return bolErr("Contá qué falla reporta el cliente.");
+  const datos = { nombre, tel, correo:r.correo.trim(), ced:r.ced.trim(), tipo:r.tipo, marca:r.marca.trim(), modelo:r.modelo.trim(), serie:r.serie.trim(), color:r.color.trim(),
+    acces:[...r.acces], accOtro:r.accOtro.trim(), clave:r.clave.trim(), fisico:r.fisico.trim(), falla, presu:numCR(r.presu), adelanto:numCR(r.adelanto) };
+  btn.disabled = true;
+  try {
+    if (ed) {
+      await Reservas.guardarBol({ ...ed, ...datos, actualizada: Date.now() });
+      nBol.editar = null; nBol.rec = nBol.recGuard || bolVacia(); nBol.recGuard = null;
+      if (nBol.trab === ed.id) nBol.tr.adelanto = String(datos.adelanto || "");
+      toast("Boleta actualizada"); pintarAdmin(); irArriba(); return;
+    }
+    const b = { ...datos, num: Math.max(0, ...l.map(x => x.num || 0)) + 1, estado:"proceso", recibida: Date.now(),
+      trabajo:"", repuestos:"", costo:0, garantia:"", obs:"", finalizada:0, actualizada: Date.now() };
+    b.id = await Reservas.guardarBol(b);
+    nBol.rec = bolVacia(); lsSet(BOL_BORR, {}); nBol.vista = "proc"; nBol.busca = ""; pintarAdmin(); irArriba();
+    if (await ventana({ titulo:`Boleta ${bolNum(b.num)} guardada`, texto:"Quedó en En proceso. ¿Le enviás al cliente la boleta de recibido en PDF?", si:"Enviar PDF", no:"Ahora no" })) enviarBolPDF(b);
+  } catch { bolErr("No se pudo guardar. Revisá tu conexión."); btn.disabled = false; }
+}
+function abrirTrabajo(b){
+  nBol.trab = b.id;
+  nBol.tr = { trabajo:b.trabajo || "", repuestos:b.repuestos || "", costo: String(b.costo || b.presu || ""), adelanto: String(b.adelanto || ""), garantia: b.garantia || BOL_GARANTIA, obs:b.obs || "" };
+  pintarAdmin(); irArriba();
+}
+async function guardarTrabajo(btn, finalizar){
+  const b = Reservas.boletas().find(x => x.id === nBol.trab); if (!b) return;
+  const t = nBol.tr;
+  if ((finalizar || b.estado === "final") && t.trabajo.trim().length < 3) return bolErr("Escribí qué se le hizo al equipo.");
+  const nb = { ...b, trabajo:t.trabajo.trim(), repuestos:t.repuestos.trim(), costo:numCR(t.costo), adelanto:numCR(t.adelanto), garantia:t.garantia.trim(), obs:t.obs.trim(), actualizada: Date.now() };
+  if (finalizar) { nb.estado = "final"; nb.finalizada = Date.now(); }
+  btn.disabled = true;
+  try { await Reservas.guardarBol(nb); }
+  catch { bolErr("No se pudo guardar. Revisá tu conexión."); btn.disabled = false; return; }
+  if (!finalizar) { btn.disabled = false; toast(b.estado === "final" ? "Cambios guardados" : "Avance guardado"); return; }
+  nBol.trab = null; nBol.vista = "fin"; pintarAdmin(); irArriba();
+  if (await ventana({ titulo:`${bolNum(nb.num)} finalizado`, texto:"Pasó a Trabajos finalizados. ¿Le enviás al cliente el comprobante en PDF?", si:"Enviar PDF", no:"Ahora no" })) enviarBolPDF(nb);
+}
+function entradaBoletas(e){
+  const t = e.target;
+  if (t.dataset.bf) {
+    const [f, k] = t.dataset.bf.split("."); nBol[f][k] = t.value;
+    if (f === "rec" && !nBol.editar) lsSet(BOL_BORR, nBol.rec);
+    if (f === "tr" && (k === "costo" || k === "adelanto")) { const s = $("#bol-saldo"); if (s) s.textContent = colones(Math.max(0, numCR(nBol.tr.costo) - numCR(nBol.tr.adelanto))); }
+    const er = $("#bol-err"); if (er && er.textContent) er.textContent = "";
+    return;
+  }
+  if (t.hasAttribute("data-bbusca")) { nBol.busca = t.value; pintarAdmin(); }
+}
+// Devuelve true si el botón era de las boletas
+function clickBoletas(b){
+  const d = b.dataset, bol = id => Reservas.boletas().find(x => x.id === id);
+  if (d.bv) { nBol.vista = d.bv; nBol.trab = null; nBol.busca = "";
+    if (nBol.editar) { nBol.editar = null; nBol.rec = nBol.recGuard || bolVacia(); nBol.recGuard = null; }
+    pintarAdmin(); irArriba(); return true; }
+  if (d.btipo) { nBol.rec.tipo = d.btipo; if (!nBol.editar) lsSet(BOL_BORR, nBol.rec); pintarAdmin(); return true; }
+  if (d.bacc) { const a = nBol.rec.acces, i = a.indexOf(d.bacc); i >= 0 ? a.splice(i, 1) : a.push(d.bacc); if (!nBol.editar) lsSet(BOL_BORR, nBol.rec); pintarAdmin(); return true; }
+  if (b.hasAttribute("data-bguardar")) { guardarRecibo(b); return true; }
+  if (b.hasAttribute("data-blimpiar")) { ventana({ titulo:"¿Limpiar el formulario?", texto:"Se borra lo que llevás escrito en esta boleta.", si:"Limpiar", peligro:true })
+    .then(ok => { if (ok) { nBol.rec = bolVacia(); lsSet(BOL_BORR, {}); pintarAdmin(); irArriba(); } }); return true; }
+  if (b.hasAttribute("data-bcancel")) { nBol.editar = null; nBol.rec = nBol.recGuard || bolVacia(); nBol.recGuard = null; pintarAdmin(); irArriba(); return true; }
+  if (d.beditar) { const x = bol(d.beditar); if (!x) return true;
+    nBol.recGuard = nBol.rec; nBol.editar = x.id;
+    nBol.rec = { ...bolVacia(), ...Object.fromEntries(Object.keys(bolVacia()).map(k => [k, Array.isArray(x[k]) ? [...x[k]] : (k === "presu" || k === "adelanto") ? (x[k] ? String(x[k]) : "") : (x[k] ?? "")])) };
+    pintarAdmin(); irArriba(); return true; }
+  if (d.btrab) { const x = bol(d.btrab); if (x) abrirTrabajo(x); return true; }
+  if (b.hasAttribute("data-bvolver")) { nBol.trab = null; pintarAdmin(); irArriba(); return true; }
+  if (b.hasAttribute("data-bavance")) { guardarTrabajo(b, false); return true; }
+  if (b.hasAttribute("data-bfinal")) { guardarTrabajo(b, true); return true; }
+  if (d.benviar) { const x = bol(d.benviar); if (x) enviarBolPDF(x); return true; }
+  if (d.bver) { const x = bol(d.bver); if (x) verBolPDF(x); return true; }
+  if (d.breabrir) { const x = bol(d.breabrir); if (!x) return true;
+    ventana({ titulo:`¿Regresar ${bolNum(x.num)} a En proceso?`, texto:"Se conserva lo que escribiste del trabajo realizado.", si:"Regresar" }).then(async ok => {
+      if (!ok) return; try { await Reservas.guardarBol({ ...x, estado:"proceso", finalizada:0, actualizada: Date.now() }); nBol.vista = "proc"; pintarAdmin(); toast("Regresó a En proceso"); } catch { toast("No se pudo cambiar. Revisá tu conexión."); } });
+    return true; }
+  if (d.bborrar) { const x = bol(d.bborrar); if (!x) return true;
+    ventana({ titulo:`¿Eliminar la boleta ${bolNum(x.num)}?`, texto:`Se borra para siempre la boleta de ${x.nombre}. Esto no se puede deshacer.`, si:"Eliminar", peligro:true }).then(async ok => {
+      if (!ok) return; try { await Reservas.borrarBol(x.id); if (nBol.trab === x.id) nBol.trab = null; pintarAdmin(); toast("Boleta eliminada"); } catch { toast("No se pudo eliminar. Revisá tu conexión."); } });
+    return true; }
+  return false;
+}
+
+// ----- PDF -----
+let pdfLib = null, pdfLogo = null;
+function cargarPdfLib(){
+  if (!pdfLib) pdfLib = new Promise((res, rej) => {
+    if (window.jspdf) return res(window.jspdf.jsPDF);
+    const s = document.createElement("script"); s.src = "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
+    s.onload = () => window.jspdf ? res(window.jspdf.jsPDF) : rej(new Error("pdf")); s.onerror = () => { pdfLib = null; s.remove(); rej(new Error("pdf")); };
+    document.head.appendChild(s);
+  });
+  if (!pdfLogo) pdfLogo = fetch("firma-logo.png").then(r => r.ok ? r.blob() : null).then(bl => bl && new Promise(r2 => { const fr = new FileReader(); fr.onload = () => r2(fr.result); fr.onerror = () => r2(null); fr.readAsDataURL(bl); })).catch(() => null);
+  return Promise.all([pdfLib, pdfLogo]);
+}
+// El PDF usa la letra Helvetica, que no tiene el símbolo ₡; en el PDF el colón se escribe ¢ (como se usa en Costa Rica).
+const colPdf = n => "¢" + Math.round(n || 0).toLocaleString("es-CR").replace(/\s/g, ".");
+const txtPdf = t => String(t ?? "").replace(/₡/g, "¢").replace(/[“”]/g, '"').replace(/[‘’]/g, "'").replace(/[–—]/g, "-").replace(/…/g, "...").replace(/[^\x00-\xFF\n]/gu, "");
+function hacerBolPDF(JsPDF, logo, b){
+  const fin = b.estado === "final";
+  const d = new JsPDF({ unit:"pt", format:"letter" });
+  const W = 612, H = 792, M = 40, CW = W - 2 * M;
+  const AZ = [47, 107, 255], OSC = [12, 20, 34], GR = [96, 110, 130], LIN = [214, 224, 238], SUAVE = [244, 247, 252], VERDE = [22, 150, 90];
+  const fuente = (est, tam, color = OSC) => { d.setFont("helvetica", est); d.setFontSize(tam); d.setTextColor(...color); };
+  let y = 0;
+  const pie = () => {
+    d.setDrawColor(...LIN); d.setLineWidth(.6); d.line(M, H - 34, W - M, H - 34);
+    fuente("normal", 8, GR); d.text("RBM Solutions CR · rbmsolutionscr.com · WhatsApp 6157-2339 · Santo Domingo, Heredia", M, H - 20);
+  };
+  const espacio = h => { if (y + h > H - 44) { pie(); d.addPage(); y = M; } };
+
+  // Encabezado
+  d.setFillColor(...OSC); d.rect(0, 0, W, 108, "F");
+  d.setFillColor(...AZ); d.rect(0, 108, W, 4, "F");
+  if (logo) { try { d.addImage(logo, "PNG", M, 20, 68, 68); } catch {} }
+  fuente("bold", 19, [255, 255, 255]); d.text("RBM Solutions", M + 82, 46);
+  const wN = d.getTextWidth("RBM Solutions "); fuente("bold", 19, [124, 196, 255]); d.text("CR", M + 82 + wN, 46);
+  fuente("normal", 8.5, [201, 214, 230]);
+  d.text("Reparación de computadoras · Equipos · Páginas web · Apps", M + 82, 62);
+  d.text("WhatsApp 6157-2339 · info@rbmsolutionscr.com", M + 82, 75);
+  d.text("Santo Domingo, Heredia · Costa Rica", M + 82, 88);
+  fuente("bold", 9, [124, 196, 255]); d.text(fin ? "COMPROBANTE DE TRABAJO" : "BOLETA DE RECIBIDO", W - M, 40, { align:"right" });
+  fuente("bold", 22, [255, 255, 255]); d.text(bolNum(b.num), W - M, 66, { align:"right" });
+  fuente("normal", 8.5, [201, 214, 230]); d.text(txtPdf((fin ? "Entregado: " : "Recibido: ") + fechaHoraCR(fin ? b.finalizada : b.recibida)), W - M, 84, { align:"right" });
+  if (fin) d.text(txtPdf("Recibido: " + fechaHoraCR(b.recibida)), W - M, 96, { align:"right" });
+  y = 134;
+
+  // Estado
+  const est = fin ? "TRABAJO FINALIZADO" : "EQUIPO RECIBIDO · EN PROCESO", ec = fin ? VERDE : AZ;
+  fuente("bold", 8.5, ec); const we = d.getTextWidth(est) + 22;
+  d.setFillColor(...ec.map(c => Math.round(c + (255 - c) * .88))); d.roundedRect(M, y - 12, we, 18, 9, 9, "F"); d.text(est, M + 11, y);
+  y += 22;
+
+  // Cliente y equipo en dos columnas
+  const colW = (CW - 14) / 2;
+  const caja = (x, titulo, filas) => {
+    const partes = filas.filter(f => f[1]).map(([l, v]) => { fuente("normal", 10); return [l, d.splitTextToSize(txtPdf(v), colW - 24)]; });
+    const fila = ls => 11 + ls.length * 12.5 + 6;
+    const alto = 26 + partes.reduce((t, [, ls]) => t + fila(ls), 0) + 2;
+    d.setFillColor(...SUAVE); d.setDrawColor(...LIN); d.setLineWidth(.8); d.roundedRect(x, y, colW, alto, 8, 8, "FD");
+    fuente("bold", 8, AZ); d.text(titulo, x + 12, y + 17);
+    let yy = y + 33;
+    for (const [l, ls] of partes) { fuente("normal", 7, GR); d.text(l.toUpperCase(), x + 12, yy); fuente("normal", 10); d.text(ls, x + 12, yy + 12); yy += fila(ls); }
+    return alto;
+  };
+  const a1 = caja(M, "CLIENTE", [["Nombre", b.nombre], ["Celular", b.tel], ["Correo", b.correo], ["Cédula", b.ced]]);
+  const a2 = caja(M + colW + 14, "EQUIPO", [["Tipo", b.tipo], ["Marca y modelo", [b.marca, b.modelo].filter(Boolean).join(" ")], ["N.º de serie", b.serie], ["Color", b.color]]);
+  y += Math.max(a1, a2) + 22;
+
+  // Secciones de texto a todo lo ancho
+  const seccion = (titulo, texto, opts = {}) => {
+    if (!texto) return;
+    fuente("normal", 10); const ls = d.splitTextToSize(txtPdf(texto), CW - (opts.caja ? 24 : 0));
+    const alto = 16 + ls.length * 13 + (opts.caja ? 16 : 0);
+    espacio(alto + 10);
+    fuente("bold", 8, AZ); d.text(titulo, M, y); y += 8;
+    if (opts.caja) { d.setFillColor(...SUAVE); d.setDrawColor(...LIN); d.roundedRect(M, y, CW, ls.length * 13 + 14, 8, 8, "FD"); y += 4; }
+    fuente("normal", 10); d.text(ls, M + (opts.caja ? 12 : 0), y + 12); y += ls.length * 13 + (opts.caja ? 14 : 4) + 12;
+  };
+  seccion("SE RECIBE CON", accesTxt(b));
+  seccion("ESTADO FÍSICO AL RECIBIR", b.fisico);
+  seccion("FALLA REPORTADA POR EL CLIENTE", b.falla, { caja:true });
+  if (fin) {
+    seccion("TRABAJO REALIZADO", b.trabajo, { caja:true });
+    seccion("REPUESTOS Y MATERIALES", b.repuestos);
+    seccion("OBSERVACIONES", b.obs);
+  }
+
+  // Montos (a la derecha) con garantía y condiciones a la izquierda
+  const filas = fin
+    ? [["Costo total", colPdf(b.costo)], ...(b.adelanto ? [["Adelanto", "- " + colPdf(b.adelanto)]] : []), ["Saldo a pagar", colPdf(Math.max(0, (b.costo || 0) - (b.adelanto || 0)))]]
+    : [...(b.presu ? [["Presupuesto estimado", colPdf(b.presu)]] : []), ...(b.adelanto ? [["Adelanto recibido", colPdf(b.adelanto)]] : [])];
+  const tw = 230, th = filas.length * 20 + 14, lw = filas.length ? CW - tw - 24 : CW;
+  fuente("normal", 10); const gar = fin && b.garantia ? d.splitTextToSize(txtPdf(b.garantia), lw) : [];
+  const avisos = [...(!fin && b.presu ? ["El presupuesto es un estimado; se confirma con usted después del diagnóstico."] : []), ...(fin ? BOL_GRACIAS : BOL_CONDICIONES)];
+  fuente("normal", 8); const cond = avisos.flatMap(c => d.splitTextToSize("• " + txtPdf(c), lw));
+  const izq = (gar.length ? 14 + gar.length * 13 + 10 : 0) + cond.length * 10.5;
+  espacio(Math.max(izq, filas.length ? th : 0) + 60);
+  const y0 = y;
+  if (filas.length) {
+    const x = W - M - tw; d.setFillColor(...SUAVE); d.setDrawColor(...LIN); d.setLineWidth(.8); d.roundedRect(x, y0, tw, th, 8, 8, "FD");
+    let yy = y0 + 20;
+    filas.forEach(([l, v], i) => {
+      const ult = fin && i === filas.length - 1;
+      if (ult) { d.setDrawColor(...LIN); d.line(x + 12, yy - 13, x + tw - 12, yy - 13); }
+      fuente(ult ? "bold" : "normal", ult ? 11 : 10, ult ? OSC : GR); d.text(l, x + 12, yy);
+      fuente("bold", ult ? 12 : 10, ult ? AZ : OSC); d.text(v, x + tw - 12, yy, { align:"right" }); yy += 20;
+    });
+  }
+  let yl = y0 + 8;
+  if (gar.length) { fuente("bold", 8, AZ); d.text("GARANTÍA", M, yl); fuente("normal", 10); d.text(gar, M, yl + 14); yl += 14 + gar.length * 13 + 8; }
+  fuente("normal", 8, GR); d.text(cond, M, yl); yl += (cond.length - 1) * 10.5;
+  y = Math.max(yl, filas.length ? y0 + th : 0) + 40;
+
+  // Firmas
+  const fw = (CW - 40) / 2; d.setDrawColor(...OSC); d.setLineWidth(.7);
+  d.line(M, y, M + fw, y); d.line(M + fw + 40, y, W - M, y);
+  fuente("normal", 8.5, GR);
+  d.text(fin ? "Firma del cliente (recibí conforme)" : "Firma del cliente", M, y + 13);
+  d.text(fin ? "Entregado por RBM Solutions" : "Recibido por RBM Solutions", M + fw + 40, y + 13);
+  pie();
+  const n = d.getNumberOfPages();
+  for (let i = 1; i <= n; i++) { d.setPage(i); fuente("normal", 8, GR); d.text(bolNum(b.num) + (n > 1 ? ` · Página ${i} de ${n}` : ""), W - M, H - 20, { align:"right" }); }
+  return d;
+}
+async function pdfBlob(b){ const [J, logo] = await cargarPdfLib(); return hacerBolPDF(J, logo, b).output("blob"); }
+function descargarArchivo(blob, nombre){
+  const u = URL.createObjectURL(blob), a = document.createElement("a"); a.href = u; a.download = nombre; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(u), 60000);
+}
+async function enviarBolPDF(b){
+  let blob; try { blob = await pdfBlob(b); } catch { return toast("No se pudo crear el PDF. Revisá tu conexión."); }
+  const nombre = archivoBol(b), file = new File([blob], nombre, { type:"application/pdf" });
+  const fin = b.estado === "final", nom = String(b.nombre).split(" ")[0];
+  const msg = fin ? `Hola ${nom} 👋 tu equipo ya está listo. Te adjunto el comprobante del trabajo (${bolNum(b.num)}). ¡Gracias por confiar en ${NEGOCIO}!`
+                  : `Hola ${nom} 👋 te adjunto la boleta de recibido de tu equipo (${bolNum(b.num)}). Te aviso apenas esté listo. ${NEGOCIO}`;
+  if (navigator.canShare?.({ files:[file] })) {
+    try { await navigator.share({ files:[file], title:nombre, text:msg }); return; }
+    catch (e) { if (e?.name === "AbortError") return; }
+  }
+  // Computadora o navegador que no comparte archivos: se descarga y se abre el chat de WhatsApp del cliente.
+  descargarArchivo(blob, nombre);
+  if (await ventana({ titulo:"PDF descargado", texto:`Se descargó ${nombre}. En WhatsApp tocá el clip 📎 y adjuntalo al chat de ${b.nombre}.`, si:"Abrir WhatsApp", no:"Listo" }))
+    window.open(`https://wa.me/${tel506(b.tel)}?text=${encodeURIComponent(msg)}`, "_blank", "noopener");
+}
+async function verBolPDF(b){
+  const w = esIOS || matchMedia("(pointer:coarse)").matches ? null : window.open("", "_blank");
+  let blob; try { blob = await pdfBlob(b); } catch { w?.close(); return toast("No se pudo crear el PDF. Revisá tu conexión."); }
+  const u = URL.createObjectURL(blob);
+  if (w) { w.location.href = u; setTimeout(() => URL.revokeObjectURL(u), 120000); }
+  else { URL.revokeObjectURL(u); descargarArchivo(blob, archivoBol(b)); }
+}
+
 // ===== Configuración =====
 let eventoInstalar = null;
 addEventListener("beforeinstallprompt", e => { e.preventDefault(); eventoInstalar = e; setTimeout(mostrarInstalar, 1800); });
@@ -1858,14 +2231,21 @@ function pintarAdmin(){
       </div>`;
     return;
   }
-  const sugs = Reservas.sugerencias(), nOp = sugs.length + Reservas.encuestas().length, pe = pendEnc();
+  const sugs = Reservas.sugerencias(), nOp = sugs.length + Reservas.encuestas().length, pe = pendEnc(), nProc = Reservas.boletas().filter(b => b.estado !== "final").length;
   const sinAvisos = (soportaAvisos && Notification.permission === "default") || (esIOS && !soportaAvisos);
   const pest = `<div class="n-fila"><span>Hola 👋</span><button class="chip${nVista === "conf" ? " si" : ""}" data-nv="conf">⚙️ Ajustes</button><button class="chip" id="n-salir">Salir</button></div>`
     + (sinAvisos && nVista !== "conf" ? `<button class="aviso-mini" data-nv="conf">🔔 Activá las notificaciones de citas nuevas ›</button>` : "")
-    + `<div class="n-tabs">${[["citas", "Citas"], ["ing", "Ingresos"], ["sug", `Opiniones${nOp ? ` (${nOp})` : ""}`], ["gal", "Galería"], ["env", `Enviar encuesta${pe ? ` (${pe})` : ""}`]].map(([k2, t]) => `<button class="chip${nVista === k2 ? " si" : ""}" data-nv="${k2}">${t}</button>`).join("")}</div>`;
+    + `<div class="n-tabs">${[["citas", "Citas"], ["bol", `Boletas${nProc ? ` (${nProc})` : ""}`], ["ing", "Ingresos"], ["sug", `Opiniones${nOp ? ` (${nOp})` : ""}`], ["gal", "Galería"], ["env", `Enviar encuesta${pe ? ` (${pe})` : ""}`]].map(([k2, t]) => `<button class="chip${nVista === k2 ? " si" : ""}" data-nv="${k2}">${t}</button>`).join("")}</div>`;
   if (nVista === "conf") { box.innerHTML = pest + pintarConfig(); return; }
   if (nVista === "env") { box.innerHTML = pest + pintarEnvioEncuestas(); return; }
   if (nVista === "ing") { box.innerHTML = pest + pintarIngresos(); return; }
+  if (nVista === "bol") {
+    // Se repinta cuando llegan datos nuevos: se conserva el campo donde estabas escribiendo.
+    const a = document.activeElement, id = a && box.contains(a) && a.id ? a.id : null, sel = id ? [a.selectionStart, a.selectionEnd] : null;
+    box.innerHTML = pest + pintarBoletas();
+    if (id) { const n = document.getElementById(id); if (n) { n.focus({ preventScroll:true }); try { n.setSelectionRange(sel[0], sel[1]); } catch {} } }
+    return;
+  }
   if (nVista === "gal") {
     const l = Reservas.galeria() || [];
     box.innerHTML = pest + `
@@ -1943,6 +2323,7 @@ $("#admin").addEventListener("click", async e => {
     if (!lista.length) return toast("No hay citas nuevas.");
     return descargarIcs(lista, "citas-rbm");
   }
+  if (clickBoletas(b)) return;
   if (b.dataset.nv) { nVista = b.dataset.nv; pintarAdmin(); const t = $("#admin .n-tabs .si"); if (t) t.parentElement.scrollLeft = t.offsetLeft - 18; return; }
   if (b.dataset.copiarEnc) { const c = Reservas.todas().find(x => x.id === b.dataset.copiarEnc); if (!c) return;
     await copiar(linkEncuesta(c), "Link copiado. Pegalo en WhatsApp."); envMarcar(c.id); setTimeout(pintarAdmin, 300); return; }
@@ -1983,6 +2364,7 @@ $("#admin").addEventListener("click", async e => {
   if (b.dataset.cancel) return cancelarCita(b.dataset.cancel);
 });
 $("#admin").addEventListener("keydown", e => { if (e.key === "Enter" && e.target.id === "n-clave") $("#n-ok").click(); });
+$("#admin").addEventListener("input", entradaBoletas);
 
 // ================== SUGERENCIAS ==================
 let ultimaSug = 0;
