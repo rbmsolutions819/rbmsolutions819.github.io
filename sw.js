@@ -1,6 +1,6 @@
 // RBM Solutions: permite instalar la página como app y que abra rápido.
 // Cuando subás una versión nueva de la página, cambiá el número de VERSION.
-const VERSION = "rbm-v11";
+const VERSION = "rbm-v12";
 const ARCHIVOS = ["./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png", "./icon-maskable-512.png", "./apple-touch-icon.png"];
 
 self.addEventListener("install", e => {
@@ -14,6 +14,8 @@ self.addEventListener("fetch", e => {
   if (r.method !== "GET" || new URL(r.url).origin !== location.origin) return;
   // La página: primero internet (para ver siempre lo último), si no hay señal la copia guardada.
   if (r.mode === "navigate") {
+    const ruta = new URL(r.url).pathname;
+    if (ruta !== "/" && ruta !== "/index.html") return; // los demos se abren normal, sin guardarse como la página principal
     e.respondWith(fetch(r).then(res => { const copia = res.clone(); caches.open(VERSION).then(c => c.put("./index.html", copia)); return res; })
       .catch(() => caches.match("./index.html")));
     return;
