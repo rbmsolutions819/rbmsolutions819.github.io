@@ -1,7 +1,7 @@
 // RBM Solutions: permite instalar la página como app y que abra rápido.
 // Cuando subás una versión nueva de la página, cambiá el número de VERSION.
-const VERSION = "rbm-v6";
-const ARCHIVOS = ["./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png"];
+const VERSION = "rbm-v7";
+const ARCHIVOS = ["./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png", "./icon-maskable-512.png", "./apple-touch-icon.png"];
 
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(VERSION).then(c => c.addAll(ARCHIVOS)).then(() => self.skipWaiting()));
