@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /firma.html
+
+Sitemap: https://rbmsolutionscr.com/sitemap.xml
