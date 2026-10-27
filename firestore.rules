@@ -85,6 +85,16 @@ service cloud.firestore {
         && request.resource.data.nombre is string && request.resource.data.nombre.size() <= 60;
     }
 
+    // Fotos de las boletas (cómo se recibe y trabajo final): solo el administrador.
+    match /bolfotos/{id} {
+      allow read, delete: if esAdmin();
+      allow create: if esAdmin()
+        && request.resource.data.keys().hasOnly(['bol','etapa','data','orden'])
+        && request.resource.data.bol is string
+        && request.resource.data.etapa in ['rec', 'fin']
+        && request.resource.data.data is string && request.resource.data.data.size() < 950000;
+    }
+
     match /{path=**} { allow read, write: if false; }
   }
 }

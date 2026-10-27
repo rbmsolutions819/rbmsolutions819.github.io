@@ -522,6 +522,12 @@ section.panel{padding:0}
 .bol-card.fin .bol-meta{color:var(--ok)}
 .cita-a .acc .prin{background:linear-gradient(135deg,var(--azul),#4f95ff);border-color:transparent;color:#fff}
 .bol-buscar input{padding:11px 14px}
+.bol-fotos{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:12px}
+.bol-fotos .g-it button{position:absolute;top:5px;right:5px;width:28px;height:28px;border-radius:50%;border:0;background:rgba(7,9,13,.75);color:#fff;font-size:16px;line-height:1;cursor:pointer}
+.bol-fotos .g-it img{cursor:zoom-in}
+.bol-add{aspect-ratio:1;border:1px dashed var(--borde);border-radius:12px;display:grid;place-items:center;align-content:center;gap:2px;color:var(--celeste);font:600 12.5px var(--f-txt);cursor:pointer;background:var(--negro);text-align:center}
+.bol-add b{font-size:24px;line-height:1}
+.bol-sec .sub{font-size:13px;color:var(--gris);margin:-6px 0 10px}
 
 /* ingresos */
 .ing{display:grid;gap:14px}
@@ -1147,7 +1153,7 @@ function ventana({ titulo, texto = "", html = "", si = "Sí", no = "Cancelar", p
 // Para que todas las personas vean lo mismo se conecta a Firebase (gratis). Esta capa es la única que cambia.
 const ReservasPrueba = (() => {
   const KEY = "rbm_citas_v1";
-  let mem = [], sugMem = [], galMem = null, encMem = [], bolMem = [];
+  let mem = [], sugMem = [], galMem = null, encMem = [], bolMem = [], bolfMem = [];
   const leer = () => lsGet(KEY, mem);
   const guardar = l => { mem = l; lsSet(KEY, l); };
   // Citas de ejemplo para que se vean espacios "Reservado" y el panel con datos
@@ -1195,7 +1201,12 @@ const ReservasPrueba = (() => {
     boletas(){ return lsGet(KEY + "_bol", bolMem); },
     async guardarBol(b){ const l = this.boletas(); const id = b.id || "b" + Date.now().toString(36); const n = { ...b, id };
       const i = l.findIndex(x => x.id === id); if (i >= 0) l[i] = n; else l.push(n); bolMem = l; if (!lsSet(KEY + "_bol", l)) throw new Error("lleno"); return id; },
-    async borrarBol(id){ const l = this.boletas().filter(x => x.id !== id); bolMem = l; lsSet(KEY + "_bol", l); },
+    async borrarBol(id){ const l = this.boletas().filter(x => x.id !== id); bolMem = l; lsSet(KEY + "_bol", l);
+      const f = lsGet(KEY + "_bolf", bolfMem).filter(x => x.bol !== id); bolfMem = f; lsSet(KEY + "_bolf", f); },
+    async fotosBol(bol){ return lsGet(KEY + "_bolf", bolfMem).filter(x => x.bol === bol); },
+    async subirFotoBol(bol, etapa, data){ const l = lsGet(KEY + "_bolf", bolfMem); const id = "f" + Date.now().toString(36) + l.length;
+      l.push({ id, bol, etapa, data, orden: Date.now() }); bolfMem = l; if (!lsSet(KEY + "_bolf", l)) { l.pop(); throw new Error("lleno"); } return id; },
+    async borrarFotoBol(id){ const l = lsGet(KEY + "_bolf", bolfMem).filter(x => x.id !== id); bolfMem = l; lsSet(KEY + "_bolf", l); },
     async cancelar(id){
       if (id.startsWith("ej")) { borradosEj.add(id); lsSet(KEY + "_ej", [...borradosEj]); }
       else guardar(leer().filter(c => c.id !== id));
@@ -1243,7 +1254,12 @@ async function crearReservasFirebase(){
     async borrarSug(id){ await F.deleteDoc(F.doc(db, "sugerencias", id)); },
     boletas: () => bols,
     async guardarBol(b){ const { id, ...d } = b; const ref = id ? F.doc(db, "boletas", id) : F.doc(F.collection(db, "boletas")); await F.setDoc(ref, d); return ref.id; },
-    async borrarBol(id){ await F.deleteDoc(F.doc(db, "boletas", id)); },
+    async borrarBol(id){
+      const fs = await F.getDocs(F.query(F.collection(db, "bolfotos"), F.where("bol", "==", id)));
+      const w = F.writeBatch(db); fs.docs.forEach(x => w.delete(x.ref)); w.delete(F.doc(db, "boletas", id)); await w.commit(); },
+    async fotosBol(bol){ const fs = await F.getDocs(F.query(F.collection(db, "bolfotos"), F.where("bol", "==", bol))); return fs.docs.map(x => ({ id:x.id, ...x.data() })); },
+    async subirFotoBol(bol, etapa, data){ const r = await F.addDoc(F.collection(db, "bolfotos"), { bol, etapa, data, orden: Date.now() }); return r.id; },
+    async borrarFotoBol(id){ await F.deleteDoc(F.doc(db, "bolfotos", id)); },
     async guardarApuntes(id, txt){ await F.updateDoc(F.doc(db, "citas", id), { apuntes: txt }); const c = citas.find(x => x.id === id); if (c) c.apuntes = txt; },
     async entrar(clave){ await A.signInWithEmailAndPassword(auth, ADMIN_EMAIL, clave); },
     salir(){ A.signOut(auth); }
@@ -1293,7 +1309,8 @@ async function crearReservasFirebase(){
 }
 // Mientras Firebase carga, el calendario muestra todo libre pero no deja confirmar.
 const ReservasCargando = { prueba:false, admin:false, ocupados:() => new Set(), todas:() => [], sugerencias:() => [], galeria:() => null, encuestas:() => [], boletas:() => [],
-  async guardarBol(){ throw new Error("cargando"); }, async borrarBol(){ throw new Error("cargando"); },
+  async guardarBol(){ throw new Error("cargando"); }, async borrarBol(){ throw new Error("cargando"); }, async fotosBol(){ return []; },
+  async subirFotoBol(){ throw new Error("cargando"); }, async borrarFotoBol(){ throw new Error("cargando"); },
   async enviarEncuesta(){ throw new Error("cargando"); }, async enviarSug(){ throw new Error("cargando"); }, async borrarSug(){},
   async reservar(){ throw new Error("cargando"); }, async cancelar(){}, async entrar(){ throw new Error("cargando"); }, salir(){} };
 let Reservas = FIREBASE ? ReservasCargando : ReservasPrueba;
@@ -1846,6 +1863,36 @@ const BOL_GRACIAS = ["Gracias por confiar en RBM Solutions. Conserve este compro
 const BOL_BORR = "rbm_bol_borrador";
 const bolVacia = () => ({ nombre:"", tel:"", correo:"", ced:"", tipo:"Laptop", marca:"", modelo:"", serie:"", color:"", acces:[], accOtro:"", clave:"", fisico:"", falla:"", presu:"", adelanto:"" });
 let nBol = { vista:"nueva", trab:null, editar:null, busca:"", rec:{ ...bolVacia(), ...lsGet(BOL_BORR, {}) }, recGuard:null, tr:{} };
+nBol.fotosNuevas = [];   // fotos de una boleta nueva antes de guardarla
+const fotosCache = {};   // fotos por boleta, se cargan cuando se necesitan
+function cargarFotosBol(id){
+  if (fotosCache[id] !== undefined) return;
+  fotosCache[id] = null;
+  Reservas.fotosBol(id).then(l => { fotosCache[id] = l.sort((a, b) => a.orden - b.orden); if (nVista === "bol" && pila.includes("p-admin")) pintarAdmin(); })
+    .catch(() => { delete fotosCache[id]; });
+}
+function seccionFotos(etapa, bolId, titulo, sub){
+  const lista = bolId ? (fotosCache[bolId] || []).filter(f => f.etapa === etapa) : nBol.fotosNuevas.map((data, i) => ({ i, data }));
+  const cargando = bolId && fotosCache[bolId] == null, fid = `bf-foto-${etapa}`;
+  return `<section class="bol-sec"><h4>${titulo}</h4><p class="sub">${sub}</p>
+    <div class="bol-fotos">${lista.map(f => `<div class="g-it"><img src="${f.data}" alt="" data-bfzoom><button ${bolId ? `data-bfborrar="${f.id}"` : `data-bfquitar="${f.i}"`} aria-label="Quitar foto">×</button></div>`).join("")}
+      ${cargando ? `<div class="bol-add" style="cursor:default">Cargando…</div>` : `<label class="bol-add" for="${fid}"><b>＋</b>${lista.length ? "Otra foto" : "Agregar foto"}</label>`}</div>
+    <input id="${fid}" type="file" accept="image/*" multiple hidden data-bfoto="${etapa}" data-bol="${bolId || ""}"></section>`;
+}
+async function subirFotosBol(input){
+  const files = [...input.files]; input.value = ""; if (!files.length) return;
+  const etapa = input.dataset.bfoto, bol = input.dataset.bol; let n = 0;
+  for (const f of files) {
+    toast(files.length > 1 ? `Subiendo foto ${n + 1} de ${files.length}…` : "Subiendo foto…");
+    try {
+      const data = await reducir(f, 1200, 0.75);
+      if (!bol) nBol.fotosNuevas.push(data);
+      else { const id = await Reservas.subirFotoBol(bol, etapa, data); (fotosCache[bol] ||= []).push({ id, bol, etapa, data, orden: Date.now() }); }
+      n++; pintarAdmin();
+    } catch (ex) { toast(ex.message === "lleno" ? "Ya no caben más fotos en la versión de prueba." : "Una foto no se pudo subir. Revisá tu conexión."); break; }
+  }
+  if (n) toast(`${n} foto${n === 1 ? "" : "s"} agregada${n === 1 ? "" : "s"}`);
+}
 const bolNum = n => "B-" + String(n || 0).padStart(4, "0");
 const numCR = v => +String(v ?? "").replace(/[^\d]/g, "") || 0;
 const equipoTxt = b => [b.tipo, b.marca, b.modelo].filter(Boolean).join(" · ");
@@ -1895,6 +1942,7 @@ function formRecibo(ed){
       <div class="bol-chips">${BOL_ACCES.map(t => { const on = r.acces.includes(t); return `<button class="chip${on ? " si" : ""}" data-bacc="${t}" aria-pressed="${on}">${on ? "✓ " : ""}${t}</button>`; }).join("")}</div>
       ${bcampo("rec", "accOtro", "Otros", { max:100, ph:"Ej.: funda azul, cargador genérico" })}
       ${bcampo("rec", "fisico", "Estado físico del equipo", { area:true, rows:2, max:400, ph:"Ej.: rayón en la tapa, falta una tecla" })}</section>
+    ${ed ? "" : seccionFotos("rec", null, "📷 Fotos de cómo se recibe", "Opcional. Golpes, rayones, pantalla, accesorios… Salen en el PDF.")}
     <section class="bol-sec"><h4>🛠️ Falla reportada</h4>
       ${bcampo("rec", "falla", "¿Qué le pasa según el cliente? *", { area:true, rows:3, max:800, ph:"Ej.: se calienta y se apaga sola, está muy lenta" })}
       <div class="bol-dos">${bcampo("rec", "presu", "Presupuesto ₡", { max:12, modo:"numeric", ph:"Opcional" })}${bcampo("rec", "adelanto", "Adelanto ₡", { max:12, modo:"numeric", ph:"0" })}</div></section>
@@ -1910,6 +1958,7 @@ function formTrabajo(b){
   const fin = b.estado === "final";
   return `<div class="bol-ed"><b>${bolNum(b.num)} · ${esc(b.nombre)}</b><button class="chip" data-bvolver>‹ Volver</button></div>
     <div class="cita-a"><p>${resumenBol(b)}</p><div class="acc"><button data-beditar="${b.id}">Editar datos de recibido</button><a href="https://wa.me/${tel506(b.tel)}" target="_blank" rel="noopener">WhatsApp</a></div></div>
+    ${(cargarFotosBol(b.id), seccionFotos("rec", b.id, "📷 Cómo se recibió", "Opcional. Salen en la boleta y en el comprobante."))}
     <section class="bol-sec"><h4>🔧 Lo que se hizo</h4>
       ${bcampo("tr", "trabajo", "Trabajo realizado *", { area:true, rows:5, max:1500, ph:"Ej.: limpieza interna, cambio de pasta térmica, instalación de SSD de 480 GB y Windows 11" })}
       ${bcampo("tr", "repuestos", "Repuestos o materiales", { area:true, rows:2, max:500, ph:"Ej.: SSD Kingston 480 GB" })}
@@ -1917,15 +1966,17 @@ function formTrabajo(b){
       ${bcampo("tr", "garantia", "Garantía", { max:80 })}
       ${bcampo("tr", "obs", "Observaciones para el cliente", { area:true, rows:2, max:600, ph:"Ej.: se recomienda cambiar la batería pronto" })}
       <div class="bol-saldo">Saldo a pagar <b class="mono" id="bol-saldo">${colones(Math.max(0, numCR(nBol.tr.costo) - numCR(nBol.tr.adelanto)))}</b></div></section>
+    ${seccionFotos("fin", b.id, "📷 Fotos del trabajo final", "Opcional. Cómo quedó el equipo. Salen en el comprobante final.")}
     <p class="error" id="bol-err"></p>
     <div class="bol-acc"${fin ? ' style="grid-template-columns:1fr"' : ""}><button class="btn btn-linea" data-bavance>${fin ? "Guardar cambios" : "Guardar avance"}</button>${fin ? "" : `<button class="btn btn-agua" data-bfinal>✓ Finalizar</button>`}</div>
     <button class="chip bol-limpiar rojo" data-bborrar="${b.id}">Eliminar boleta</button>`;
 }
 function tarjetaBol(b){
   const fin = b.estado === "final", dias = Math.max(0, Math.floor((Date.now() - b.recibida) / 864e5));
+  cargarFotosBol(b.id); const nf = (fotosCache[b.id] || []).length;
   return `<div class="cita-a bol-card${fin ? " fin" : ""}"><div class="h"><b>${esc(b.nombre)}</b><span>${bolNum(b.num)}</span></div>
     <p>💻 ${esc(equipoTxt(b))}<br>🛠️ ${esc(cortar(fin ? b.trabajo : b.falla, 120))}<br>
-      <small class="bol-meta">${fin ? `✓ Finalizado ${fechaCorta(b.finalizada)} · ${colones(numCR(b.costo))}` : `Recibido ${fechaCorta(b.recibida)} · ${dias === 0 ? "hoy" : dias === 1 ? "hace 1 día" : `hace ${dias} días`}${b.trabajo ? " · 🗒️ con avance" : ""}`}</small></p>
+      <small class="bol-meta">${fin ? `✓ Finalizado ${fechaCorta(b.finalizada)} · ${colones(numCR(b.costo))}` : `Recibido ${fechaCorta(b.recibida)} · ${dias === 0 ? "hoy" : dias === 1 ? "hace 1 día" : `hace ${dias} días`}${b.trabajo ? " · 🗒️ con avance" : ""}`}${nf ? ` · 📷 ${nf}` : ""}</small></p>
     <div class="acc">${fin
       ? `<button class="prin" data-benviar="${b.id}">📤 Enviar PDF</button><button data-bver="${b.id}">Ver PDF</button><button data-btrab="${b.id}">Editar</button><button data-breabrir="${b.id}">Regresar a proceso</button>`
       : `<button class="prin" data-btrab="${b.id}">🔧 Lo que se hizo</button><button data-benviar="${b.id}">📤 Boleta al cliente</button><button data-bver="${b.id}">Ver PDF</button>`}
@@ -1952,6 +2003,9 @@ async function guardarRecibo(btn){
     const b = { ...datos, num: Math.max(0, ...l.map(x => x.num || 0)) + 1, estado:"proceso", recibida: Date.now(),
       trabajo:"", repuestos:"", costo:0, garantia:"", obs:"", finalizada:0, actualizada: Date.now() };
     b.id = await Reservas.guardarBol(b);
+    const fotos = nBol.fotosNuevas; nBol.fotosNuevas = []; fotosCache[b.id] = []; let fallan = 0;
+    for (const data of fotos) { try { const id = await Reservas.subirFotoBol(b.id, "rec", data); fotosCache[b.id].push({ id, bol:b.id, etapa:"rec", data, orden: Date.now() }); } catch { fallan++; } }
+    if (fallan) toast(`La boleta se guardó, pero ${fallan} foto${fallan === 1 ? "" : "s"} no se ${fallan === 1 ? "subió" : "subieron"}.`);
     nBol.rec = bolVacia(); lsSet(BOL_BORR, {}); nBol.vista = "proc"; nBol.busca = ""; pintarAdmin(); irArriba();
     if (await ventana({ titulo:`Boleta ${bolNum(b.num)} guardada`, texto:"Quedó en En proceso. ¿Le enviás al cliente la boleta de recibido en PDF?", si:"Enviar PDF", no:"Ahora no" })) enviarBolPDF(b);
   } catch { bolErr("No se pudo guardar. Revisá tu conexión."); btn.disabled = false; }
@@ -1994,8 +2048,12 @@ function clickBoletas(b){
   if (d.btipo) { nBol.rec.tipo = d.btipo; if (!nBol.editar) lsSet(BOL_BORR, nBol.rec); pintarAdmin(); return true; }
   if (d.bacc) { const a = nBol.rec.acces, i = a.indexOf(d.bacc); i >= 0 ? a.splice(i, 1) : a.push(d.bacc); if (!nBol.editar) lsSet(BOL_BORR, nBol.rec); pintarAdmin(); return true; }
   if (b.hasAttribute("data-bguardar")) { guardarRecibo(b); return true; }
+  if (d.bfquitar !== undefined) { nBol.fotosNuevas.splice(+d.bfquitar, 1); pintarAdmin(); return true; }
+  if (d.bfborrar) { ventana({ titulo:"¿Quitar esta foto?", si:"Quitar", peligro:true }).then(async ok => {
+      if (!ok) return; try { await Reservas.borrarFotoBol(d.bfborrar); for (const k in fotosCache) if (fotosCache[k]) fotosCache[k] = fotosCache[k].filter(f => f.id !== d.bfborrar); pintarAdmin(); }
+      catch { toast("No se pudo quitar. Revisá tu conexión."); } }); return true; }
   if (b.hasAttribute("data-blimpiar")) { ventana({ titulo:"¿Limpiar el formulario?", texto:"Se borra lo que llevás escrito en esta boleta.", si:"Limpiar", peligro:true })
-    .then(ok => { if (ok) { nBol.rec = bolVacia(); lsSet(BOL_BORR, {}); pintarAdmin(); irArriba(); } }); return true; }
+    .then(ok => { if (ok) { nBol.rec = bolVacia(); nBol.fotosNuevas = []; lsSet(BOL_BORR, {}); pintarAdmin(); irArriba(); } }); return true; }
   if (b.hasAttribute("data-bcancel")) { nBol.editar = null; nBol.rec = nBol.recGuard || bolVacia(); nBol.recGuard = null; pintarAdmin(); irArriba(); return true; }
   if (d.beditar) { const x = bol(d.beditar); if (!x) return true;
     nBol.recGuard = nBol.rec; nBol.editar = x.id;
@@ -2033,7 +2091,7 @@ function cargarPdfLib(){
 // El PDF usa la letra Helvetica, que no tiene el símbolo ₡; en el PDF el colón se escribe ¢ (como se usa en Costa Rica).
 const colPdf = n => "¢" + Math.round(n || 0).toLocaleString("es-CR").replace(/\s/g, ".");
 const txtPdf = t => String(t ?? "").replace(/₡/g, "¢").replace(/[“”]/g, '"').replace(/[‘’]/g, "'").replace(/[–—]/g, "-").replace(/…/g, "...").replace(/[^\x00-\xFF\n]/gu, "");
-function hacerBolPDF(JsPDF, logo, b){
+function hacerBolPDF(JsPDF, logo, b, fotos = []){
   const fin = b.estado === "final";
   const d = new JsPDF({ unit:"pt", format:"letter" });
   const W = 612, H = 792, M = 40, CW = W - 2 * M;
@@ -2135,12 +2193,38 @@ function hacerBolPDF(JsPDF, logo, b){
   fuente("normal", 8.5, GR);
   d.text(fin ? "Firma del cliente (recibí conforme)" : "Firma del cliente", M, y + 13);
   d.text(fin ? "Entregado por RBM Solutions" : "Recibido por RBM Solutions", M + fw + 40, y + 13);
+  // Fotos (opcionales) en páginas aparte
+  const grupos = [["rec", "FOTOS DE CÓMO SE RECIBIÓ EL EQUIPO"], ["fin", "FOTOS DEL TRABAJO FINAL"]].map(([e, t]) => [t, fotos.filter(f => f.etapa === e)]).filter(g => g[1].length);
+  if (grupos.length) {
+    pie(); d.addPage(); y = M;
+    const cw = (CW - 14) / 2, maxH = 250;
+    for (const [titulo, lista] of grupos) {
+      espacio(40); fuente("bold", 8, AZ); d.text(titulo, M, y + 8); y += 20;
+      for (let i = 0; i < lista.length; i += 2) {
+        const par = lista.slice(i, i + 2).map(f => { let w = cw, h = cw * f.h / f.w; if (h > maxH) { h = maxH; w = maxH * f.w / f.h; } return { ...f, dw:w, dh:h }; });
+        const alto = Math.max(...par.map(f => f.dh)); espacio(alto + 14);
+        par.forEach((f, k) => { const x0 = M + k * (cw + 14), x = x0 + (cw - f.dw) / 2, yy = y + (alto - f.dh) / 2;
+          d.setFillColor(...SUAVE); d.roundedRect(x0, y, cw, alto, 6, 6, "F");
+          try { d.addImage(f.data, "JPEG", x, yy, f.dw, f.dh); } catch {}
+          d.setDrawColor(...LIN); d.setLineWidth(.8); d.roundedRect(x0, y, cw, alto, 6, 6, "S"); });
+        y += alto + 14;
+      }
+      y += 8;
+    }
+  }
   pie();
   const n = d.getNumberOfPages();
   for (let i = 1; i <= n; i++) { d.setPage(i); fuente("normal", 8, GR); d.text(bolNum(b.num) + (n > 1 ? ` · Página ${i} de ${n}` : ""), W - M, H - 20, { align:"right" }); }
   return d;
 }
-async function pdfBlob(b){ const [J, logo] = await cargarPdfLib(); return hacerBolPDF(J, logo, b).output("blob"); }
+async function pdfBlob(b){
+  const [J, logo] = await cargarPdfLib();
+  let fotos = fotosCache[b.id];
+  if (!fotos) { try { fotos = (await Reservas.fotosBol(b.id)).sort((x, y) => x.orden - y.orden); fotosCache[b.id] = fotos; } catch { fotos = []; } }
+  const usar = fotos.filter(f => f.etapa === "rec" || b.estado === "final");
+  const conTam = await Promise.all(usar.map(f => new Promise(r => { const i = new Image(); i.onload = () => r({ ...f, w:i.naturalWidth, h:i.naturalHeight }); i.onerror = () => r(null); i.src = f.data; })));
+  return hacerBolPDF(J, logo, b, conTam.filter(Boolean)).output("blob");
+}
 function descargarArchivo(blob, nombre){
   const u = URL.createObjectURL(blob), a = document.createElement("a"); a.href = u; a.download = nombre; document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(u), 60000);
@@ -2365,6 +2449,8 @@ $("#admin").addEventListener("click", async e => {
 });
 $("#admin").addEventListener("keydown", e => { if (e.key === "Enter" && e.target.id === "n-clave") $("#n-ok").click(); });
 $("#admin").addEventListener("input", entradaBoletas);
+$("#admin").addEventListener("change", e => { if (e.target.dataset.bfoto) subirFotosBol(e.target); });
+$("#admin").addEventListener("click", e => { const i = e.target.closest("img[data-bfzoom]"); if (i) { $("#lb img").src = i.src; $("#lb").classList.add("on"); } });
 
 // ================== SUGERENCIAS ==================
 let ultimaSug = 0;
