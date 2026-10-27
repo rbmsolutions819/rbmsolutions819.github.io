@@ -721,7 +721,7 @@ footer.pie-g .wrap{display:block}
     <button class="ag" data-reservar>Agendar cita</button>
     <a href="#servicios">Servicios</a>
     <a href="#precios">Precios</a>
-    <a href="#opiniones" id="nav-op" hidden>Opiniones</a>
+    <a href="#resenas-sec" id="nav-op" hidden>Reseñas</a>
     <button data-abrir="p-galeria">Galería</button>
     <a href="#horario">Horario</a>
     <a href="#contacto">Contacto</a>
@@ -783,9 +783,9 @@ footer.pie-g .wrap{display:block}
     </div>
   </section>
 
-  <section id="opiniones" hidden>
+  <section id="resenas-sec" hidden>
     <div class="wrap">
-      <div class="cab-s"><p class="etq">Opiniones</p><h2>Lo que dicen mis clientes</h2></div>
+      <div class="cab-s"><p class="etq">Reseñas</p><h2>Lo que dicen mis clientes</h2></div>
       <div id="resenas"></div>
     </div>
   </section>
@@ -2403,7 +2403,7 @@ function pintarAdmin(){
     const recom = encs.length ? Math.round(encs.filter(e => e.recomendaria === "si").length / encs.length * 100) : 0;
     const resumen = encs.length ? `<div class="enc-resumen"><div class="grande"><b>${prom("estrellas").toFixed(1)}</b><span>${estrellasTxt(Math.round(prom("estrellas")))}</span><small>${encs.length} encuesta${encs.length === 1 ? "" : "s"}</small></div>
         <div class="det"><div><small>Calidad del trabajo</small><b class="mono">${prom("calidad").toFixed(1)} ★</b></div><div><small>Puntualidad y trato</small><b class="mono">${prom("trato").toFixed(1)} ★</b></div><div><small>Recomendarían</small><b class="mono">${recom}%</b></div></div></div>
-      <p class="prueba" style="text-align:left;margin:0 0 12px">🌐 Tocá <b>Mostrar en la página</b> en las opiniones que querés que vean tus clientes en la sección <i>Opiniones</i>.</p>
+      <p class="prueba" style="text-align:left;margin:0 0 12px">🌐 Tocá <b>Mostrar en la página</b> en las opiniones que querés que vean tus clientes en la sección <i>Reseñas</i>.</p>
       ${encs.map(e => { const pub = Reservas.resenas().some(r => r.id === e.id); return `<div class="cita-a"><div class="h"><b>${esc(e.nombre || "Anónimo")}</b><span>${new Date(e.fecha).toLocaleDateString("es-CR", { day:"numeric", month:"short" })}</span></div>
         <p><span class="estr">${estrellasTxt(e.estrellas)}</span> · Calidad ${e.calidad}★ · Trato ${e.trato}★ · ${e.recomendaria === "si" ? "👍 Recomendaría" : e.recomendaria === "no" ? "👎 No recomendaría" : "🤔 Tal vez"}</p>
         ${e.comentario ? `<p style="white-space:pre-wrap">“${esc(e.comentario)}”</p>` : ""}
@@ -2492,7 +2492,7 @@ $("#admin").addEventListener("click", async e => {
     const c = Reservas.todas().find(x => x.id === e2.id); b.disabled = true;
     try { await Reservas.publicarResena({ id:e2.id, nombre: nombrePublico(e2.nombre), estrellas:e2.estrellas, calidad:e2.calidad, trato:e2.trato, comentario: String(e2.comentario || "").slice(0, 600), servicio: c?.servicio || "", fecha: +e2.fecha || Date.now() });
       pintarResenas(); pintarAdmin(); toast("Ahora se ve en la página"); } catch { b.disabled = false; toast("No se pudo publicar. Revisá tu conexión."); } return; }
-  if (b.dataset.resQuitar) { if (!await ventana({ titulo:"¿Quitar de la página?", texto:"La opinión sigue guardada aquí; solo deja de verse en la sección Opiniones.", si:"Quitar" })) return;
+  if (b.dataset.resQuitar) { if (!await ventana({ titulo:"¿Quitar de la página?", texto:"La opinión sigue guardada aquí; solo deja de verse en la sección Reseñas.", si:"Quitar" })) return;
     try { await Reservas.quitarResena(b.dataset.resQuitar); pintarResenas(); pintarAdmin(); toast("Se quitó de la página"); } catch { toast("No se pudo quitar. Revisá tu conexión."); } return; }
   if (b.dataset.borrarSug) { if (!await ventana({ titulo:"¿Borrar esta sugerencia?", si:"Borrar", peligro:true })) return;
     try { await Reservas.borrarSug(b.dataset.borrarSug); pintarAdmin(); } catch { toast("No se pudo borrar. Revisá tu conexión."); } return; }
@@ -2540,20 +2540,20 @@ let itemsGal = [];
 const nombrePublico = n => { const p = String(n || "").trim().split(/\s+/).filter(Boolean); return !p.length ? "Cliente" : p.length === 1 ? p[0].slice(0, 30) : `${p[0]} ${p[1][0].toUpperCase()}.`.slice(0, 30); };
 let resTodas = false;
 function pintarResenas(){
-  const sec = document.getElementById("opiniones"); if (!sec) return;
+  const sec = document.getElementById("resenas-sec"); if (!sec) return;
   const l = [...(Reservas.resenas?.() || [])].sort((a, b) => (b.fecha || 0) - (a.fecha || 0));
   sec.hidden = !l.length; const nav = document.getElementById("nav-op"); if (nav) nav.hidden = !l.length;
   if (!l.length) return;
   const prom = k => l.reduce((t, r) => t + (+r[k] || 0), 0) / l.length;
   const vis = resTodas ? l : l.slice(0, 6);
-  $("#resenas").innerHTML = `<div class="res-top"><div class="res-prom"><b>${prom("estrellas").toFixed(1)}</b><span><i>${estrellasTxt(Math.round(prom("estrellas")))}</i><small>${l.length} ${l.length === 1 ? "opinión" : "opiniones"} de clientes</small></span></div>
+  $("#resenas").innerHTML = `<div class="res-top"><div class="res-prom"><b>${prom("estrellas").toFixed(1)}</b><span><i>${estrellasTxt(Math.round(prom("estrellas")))}</i><small>${l.length} ${l.length === 1 ? "reseña" : "reseñas"} de clientes</small></span></div>
       <div class="res-kpi"><span><b>${prom("calidad").toFixed(1)} ★</b>Calidad del trabajo</span><span><b>${prom("trato").toFixed(1)} ★</b>Puntualidad y trato</span></div></div>
     <div class="res-grid">${vis.map(r => `<article class="res"><span class="est" aria-label="${r.estrellas} de 5 estrellas">${estrellasTxt(r.estrellas)}</span>
       ${r.comentario ? `<blockquote>“${esc(r.comentario)}”</blockquote>` : ""}
       <div class="quien"><span class="av" aria-hidden="true">${esc((r.nombre || "C")[0].toUpperCase())}</span><span><b>${esc(r.nombre || "Cliente")}</b><small>${[r.servicio, r.fecha ? new Date(r.fecha).toLocaleDateString("es-CR", { month:"long", year:"numeric" }) : ""].filter(Boolean).map(esc).join(" · ")}</small></span></div></article>`).join("")}</div>
-    ${l.length > 6 ? `<button class="chip res-mas" id="res-mas">${resTodas ? "Ver menos" : `Ver las ${l.length} opiniones`}</button>` : ""}`;
+    ${l.length > 6 ? `<button class="chip res-mas" id="res-mas">${resTodas ? "Ver menos" : `Ver las ${l.length} reseñas`}</button>` : ""}`;
 }
-document.addEventListener("click", e => { if (e.target.id === "res-mas") { resTodas = !resTodas; pintarResenas(); if (!resTodas) document.getElementById("opiniones").scrollIntoView({ behavior:"smooth" }); } });
+document.addEventListener("click", e => { if (e.target.id === "res-mas") { resTodas = !resTodas; pintarResenas(); if (!resTodas) document.getElementById("resenas-sec").scrollIntoView({ behavior:"smooth" }); } });
 
 function pintarGaleria(){
   const l = Reservas.galeria();
