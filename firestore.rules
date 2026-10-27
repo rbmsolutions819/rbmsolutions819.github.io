@@ -95,6 +95,19 @@ service cloud.firestore {
         && request.resource.data.data is string && request.resource.data.data.size() < 950000;
     }
 
+    // Opiniones que el administrador decide mostrar en la página: todos las ven, solo él las publica o quita.
+    match /resenas/{id} {
+      allow read: if true;
+      allow delete: if esAdmin();
+      allow create, update: if esAdmin()
+        && exists(/databases/$(database)/documents/encuestas/$(id))
+        && request.resource.data.keys().hasOnly(['nombre','estrellas','calidad','trato','comentario','servicio','fecha'])
+        && request.resource.data.estrellas is int && request.resource.data.estrellas >= 1 && request.resource.data.estrellas <= 5
+        && request.resource.data.nombre is string && request.resource.data.nombre.size() <= 40
+        && request.resource.data.comentario is string && request.resource.data.comentario.size() <= 600
+        && request.resource.data.servicio is string && request.resource.data.servicio.size() <= 80;
+    }
+
     match /{path=**} { allow read, write: if false; }
   }
 }

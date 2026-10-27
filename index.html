@@ -164,6 +164,26 @@ section{padding-block:64px}
 .pasos b{display:block;font-size:16.5px}
 .pasos span{color:var(--gris);font-size:15px}
 
+/* opiniones públicas */
+.res-top{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-bottom:18px}
+.res-prom{display:flex;align-items:center;gap:14px;background:linear-gradient(150deg,rgba(47,107,255,.3),rgba(124,196,255,.05));border:1px solid var(--borde);border-radius:18px;padding:14px 18px}
+.res-prom b{font:500 44px/1 var(--f-mono);color:#fff}
+.res-prom span{display:grid;gap:2px}
+.res-prom i{font-style:normal;color:var(--celeste);letter-spacing:2px;font-size:17px}
+.res-prom small{color:var(--texto2);font-size:13.5px}
+.res-kpi{display:flex;gap:18px;flex-wrap:wrap;color:var(--texto2);font-size:14px}
+.res-kpi b{display:block;font:500 18px var(--f-mono);color:var(--blanco)}
+.res-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,280px),1fr));gap:12px}
+.res{display:grid;gap:10px;align-content:start;padding:18px;border-radius:20px;border:1px solid var(--linea);background:var(--sup)}
+.res .est{color:var(--celeste);letter-spacing:2px;font-size:16px}
+.res blockquote{margin:0;color:var(--blanco);font-size:15.5px;line-height:1.55;overflow-wrap:anywhere}
+.res .quien{display:flex;align-items:center;gap:10px;margin-top:auto}
+.res .av{width:36px;height:36px;border-radius:50%;flex:none;display:grid;place-items:center;font:700 15px var(--f-disp);color:#fff;background:radial-gradient(circle at 35% 30%,#7cc4ff,var(--azul) 75%)}
+.res .quien b{display:block;font-size:15px}
+.res .quien small{display:block;color:var(--gris);font-size:12.5px}
+.res-mas{display:block;margin:16px auto 0}
+.enc-pub{color:var(--ok)!important;border-color:rgba(95,211,154,.45)!important}
+
 /* trabajos */
 .trabajos{display:grid;gap:14px}
 .trab{display:grid;gap:8px;padding:20px;border-radius:20px;border:1px solid var(--linea);background:var(--negro);transition:border-color .2s,transform .2s}
@@ -701,6 +721,7 @@ footer.pie-g .wrap{display:block}
     <button class="ag" data-reservar>Agendar cita</button>
     <a href="#servicios">Servicios</a>
     <a href="#precios">Precios</a>
+    <a href="#opiniones" id="nav-op" hidden>Opiniones</a>
     <button data-abrir="p-galeria">Galería</button>
     <a href="#horario">Horario</a>
     <a href="#contacto">Contacto</a>
@@ -759,6 +780,13 @@ footer.pie-g .wrap{display:block}
         <li><div><b>Lo resuelvo</b><span>A domicilio, en mi taller o a distancia, como te quede mejor.</span></div></li>
         <li><div><b>Te acompaño</b><span>Te explico qué se hizo y quedo disponible para dudas.</span></div></li>
       </ol>
+    </div>
+  </section>
+
+  <section id="opiniones" hidden>
+    <div class="wrap">
+      <div class="cab-s"><p class="etq">Opiniones</p><h2>Lo que dicen mis clientes</h2></div>
+      <div id="resenas"></div>
     </div>
   </section>
 
@@ -1162,7 +1190,7 @@ function ventana({ titulo, texto = "", html = "", si = "Sí", no = "Cancelar", p
 // Para que todas las personas vean lo mismo se conecta a Firebase (gratis). Esta capa es la única que cambia.
 const ReservasPrueba = (() => {
   const KEY = "rbm_citas_v1";
-  let mem = [], sugMem = [], galMem = null, encMem = [], bolMem = [], bolfMem = [];
+  let mem = [], sugMem = [], galMem = null, encMem = [], bolMem = [], bolfMem = [], resMem = [];
   const leer = () => lsGet(KEY, mem);
   const guardar = l => { mem = l; lsSet(KEY, l); };
   // Citas de ejemplo para que se vean espacios "Reservado" y el panel con datos
@@ -1203,6 +1231,9 @@ const ReservasPrueba = (() => {
     async moverGal(a, b){ const l = this.galeria() || []; const A = l.find(x => x.id === a), B = l.find(x => x.id === b); [A.orden, B.orden] = [B.orden, A.orden]; await this.guardarGal(l); },
     async guardarApuntes(id, txt){ const l = leer(); const c = l.find(x => x.id === id); if (c) { c.apuntes = txt; guardar(l); } else throw new Error("ejemplo"); },
     encuestas(){ return lsGet(KEY + "_enc", encMem); },
+    resenas(){ return lsGet(KEY + "_res", resMem); },
+    async publicarResena(r){ const l = this.resenas().filter(x => x.id !== r.id); l.push(r); resMem = l; lsSet(KEY + "_res", l); },
+    async quitarResena(id){ const l = this.resenas().filter(x => x.id !== id); resMem = l; lsSet(KEY + "_res", l); },
     async enviarEncuesta(id, x){ const l = this.encuestas(); if (l.some(e => e.id === id)) throw new Error("repetida"); l.unshift({ ...x, id, fecha: Date.now() }); encMem = l; lsSet(KEY + "_enc", l); },
     sugerencias(){ return lsGet(KEY + "_sug", sugMem); },
     async enviarSug(x){ const l = [{ ...x, id: "s" + Date.now().toString(36), fecha: Date.now() }, ...this.sugerencias()]; sugMem = l; lsSet(KEY + "_sug", l); },
@@ -1226,6 +1257,7 @@ async function crearReservasFirebase(){
   const base = "https://www.gstatic.com/firebasejs/10.12.2/";
   const [{ initializeApp }, F, A] = await Promise.all([import(base + "firebase-app.js"), import(base + "firebase-firestore.js"), import(base + "firebase-auth.js")]);
   const app = initializeApp(FIREBASE), db = F.getFirestore(app), auth = A.getAuth(app);
+  let res = [];
   let oc = new Set(), citas = [], quitarCitas = null, sugs = [], quitarSugs = null, gal = null, citasCargadas = false, sugsCargadas = false, encs = [], quitarEncs = null, encsCargadas = false, bols = [], quitarBols = null;
   const R = {
     prueba: false, admin: false,
@@ -1258,6 +1290,9 @@ async function crearReservasFirebase(){
       w.update(F.doc(db, "galeria", a), { orden: B2.orden }); w.update(F.doc(db, "galeria", b), { orden: A2.orden }); await w.commit(); },
     sugerencias: () => sugs,
     encuestas: () => encs,
+    resenas: () => res,
+    async publicarResena(r){ const { id, ...d } = r; await F.setDoc(F.doc(db, "resenas", id), d); },
+    async quitarResena(id){ await F.deleteDoc(F.doc(db, "resenas", id)); },
     async enviarEncuesta(id, x){ try { await F.setDoc(F.doc(db, "encuestas", id), { ...x, fecha: F.serverTimestamp() }); } catch (e) { console.warn(e); throw new Error("repetida"); } },
     async enviarSug(x){ await F.addDoc(F.collection(db, "sugerencias"), { texto:x.texto, nombre:x.nombre, fecha:F.serverTimestamp() }); },
     async borrarSug(id){ await F.deleteDoc(F.doc(db, "sugerencias", id)); },
@@ -1273,6 +1308,10 @@ async function crearReservasFirebase(){
     async entrar(clave){ await A.signInWithEmailAndPassword(auth, ADMIN_EMAIL, clave); },
     salir(){ A.signOut(auth); }
   };
+  F.onSnapshot(F.collection(db, "resenas"), snap => {
+    res = snap.docs.map(d => ({ id:d.id, ...d.data() }));
+    pintarResenas(); if (pila.includes("p-admin") && nVista === "sug") pintarAdmin();
+  }, e => console.warn("resenas", e));
   F.onSnapshot(F.collection(db, "galeria"), snap => {
     gal = snap.docs.map(d => ({ id:d.id, ...d.data() })).sort((a, b) => a.orden - b.orden);
     pintarGaleria(); if (pila.includes("p-admin") && nVista === "gal") pintarAdmin();
@@ -1317,7 +1356,7 @@ async function crearReservasFirebase(){
   return R;
 }
 // Mientras Firebase carga, el calendario muestra todo libre pero no deja confirmar.
-const ReservasCargando = { prueba:false, admin:false, ocupados:() => new Set(), todas:() => [], sugerencias:() => [], galeria:() => null, encuestas:() => [], boletas:() => [],
+const ReservasCargando = { prueba:false, admin:false, ocupados:() => new Set(), todas:() => [], sugerencias:() => [], galeria:() => null, encuestas:() => [], boletas:() => [], resenas:() => [],
   async guardarBol(){ throw new Error("cargando"); }, async borrarBol(){ throw new Error("cargando"); }, async fotosBol(){ return []; },
   async subirFotoBol(){ throw new Error("cargando"); }, async borrarFotoBol(){ throw new Error("cargando"); },
   async enviarEncuesta(){ throw new Error("cargando"); }, async enviarSug(){ throw new Error("cargando"); }, async borrarSug(){},
@@ -2364,9 +2403,11 @@ function pintarAdmin(){
     const recom = encs.length ? Math.round(encs.filter(e => e.recomendaria === "si").length / encs.length * 100) : 0;
     const resumen = encs.length ? `<div class="enc-resumen"><div class="grande"><b>${prom("estrellas").toFixed(1)}</b><span>${estrellasTxt(Math.round(prom("estrellas")))}</span><small>${encs.length} encuesta${encs.length === 1 ? "" : "s"}</small></div>
         <div class="det"><div><small>Calidad del trabajo</small><b class="mono">${prom("calidad").toFixed(1)} ★</b></div><div><small>Puntualidad y trato</small><b class="mono">${prom("trato").toFixed(1)} ★</b></div><div><small>Recomendarían</small><b class="mono">${recom}%</b></div></div></div>
-      ${encs.map(e => `<div class="cita-a"><div class="h"><b>${esc(e.nombre || "Anónimo")}</b><span>${new Date(e.fecha).toLocaleDateString("es-CR", { day:"numeric", month:"short" })}</span></div>
+      <p class="prueba" style="text-align:left;margin:0 0 12px">🌐 Tocá <b>Mostrar en la página</b> en las opiniones que querés que vean tus clientes en la sección <i>Opiniones</i>.</p>
+      ${encs.map(e => { const pub = Reservas.resenas().some(r => r.id === e.id); return `<div class="cita-a"><div class="h"><b>${esc(e.nombre || "Anónimo")}</b><span>${new Date(e.fecha).toLocaleDateString("es-CR", { day:"numeric", month:"short" })}</span></div>
         <p><span class="estr">${estrellasTxt(e.estrellas)}</span> · Calidad ${e.calidad}★ · Trato ${e.trato}★ · ${e.recomendaria === "si" ? "👍 Recomendaría" : e.recomendaria === "no" ? "👎 No recomendaría" : "🤔 Tal vez"}</p>
-        ${e.comentario ? `<p style="white-space:pre-wrap">“${esc(e.comentario)}”</p>` : ""}</div>`).join("")}`
+        ${e.comentario ? `<p style="white-space:pre-wrap">“${esc(e.comentario)}”</p>` : ""}
+        <div class="acc">${pub ? `<button class="enc-pub" data-res-quitar="${e.id}">✓ En la página · Quitar</button>` : `<button data-res-pub="${e.id}">🌐 Mostrar en la página</button>`}</div></div>`; }).join("")}`
       : `<div class="vacio">Todavía no hay encuestas. Envialas desde la pestaña <b>Enviar encuesta</b>.</div>`;
     box.innerHTML = pest + `<h4 class="op-t">Encuestas de satisfacción</h4>` + resumen + `<h4 class="op-t">Sugerencias</h4>` + (sugs.length ? sugs.map(x => `<div class="cita-a"><div class="h"><b>${esc(x.nombre || "Anónimo")}</b><span>${new Date(x.fecha).toLocaleDateString("es-CR", { day:"numeric", month:"short" })}</span></div>
       <p style="white-space:pre-wrap">${esc(x.texto)}</p><div class="acc"><button class="rojo" data-borrar-sug="${x.id}">Borrar</button></div></div>`).join("") : `<div class="vacio">Todavía no hay sugerencias.</div>`);
@@ -2447,6 +2488,12 @@ $("#admin").addEventListener("click", async e => {
   }
   if (b.id === "g-restaurar") { if (!await ventana({ titulo:"¿Volver a las imágenes de muestra?", texto:"Se quitan las fotos y videos que subiste.", si:"Volver a las de muestra", peligro:true })) return;
     for (const x of [...(Reservas.galeria() || [])]) { try { await Reservas.borrarGal(x.id); } catch {} } pintarGaleria(); pintarAdmin(); return; }
+  if (b.dataset.resPub) { const e2 = Reservas.encuestas().find(x => x.id === b.dataset.resPub); if (!e2) return;
+    const c = Reservas.todas().find(x => x.id === e2.id); b.disabled = true;
+    try { await Reservas.publicarResena({ id:e2.id, nombre: nombrePublico(e2.nombre), estrellas:e2.estrellas, calidad:e2.calidad, trato:e2.trato, comentario: String(e2.comentario || "").slice(0, 600), servicio: c?.servicio || "", fecha: +e2.fecha || Date.now() });
+      pintarResenas(); pintarAdmin(); toast("Ahora se ve en la página"); } catch { b.disabled = false; toast("No se pudo publicar. Revisá tu conexión."); } return; }
+  if (b.dataset.resQuitar) { if (!await ventana({ titulo:"¿Quitar de la página?", texto:"La opinión sigue guardada aquí; solo deja de verse en la sección Opiniones.", si:"Quitar" })) return;
+    try { await Reservas.quitarResena(b.dataset.resQuitar); pintarResenas(); pintarAdmin(); toast("Se quitó de la página"); } catch { toast("No se pudo quitar. Revisá tu conexión."); } return; }
   if (b.dataset.borrarSug) { if (!await ventana({ titulo:"¿Borrar esta sugerencia?", si:"Borrar", peligro:true })) return;
     try { await Reservas.borrarSug(b.dataset.borrarSug); pintarAdmin(); } catch { toast("No se pudo borrar. Revisá tu conexión."); } return; }
   if (b.id === "c-prueba-local") { avisoLocal(`${NEGOCIO} · prueba`, "Así te van a llegar los avisos de citas nuevas.", "prueba"); toast("Notificación enviada"); return; }
@@ -2488,6 +2535,26 @@ function infoVideo(url){
 }
 const miniVideo = x => `<span class="play">▶</span><span class="red">${esc(x.titulo || (infoVideo(x.url) || { red:"Video" }).red)}</span>`;
 let itemsGal = [];
+// ===== Opiniones públicas (las que el administrador escoge mostrar) =====
+// Solo el primer nombre y la inicial del apellido, para cuidar la privacidad del cliente.
+const nombrePublico = n => { const p = String(n || "").trim().split(/\s+/).filter(Boolean); return !p.length ? "Cliente" : p.length === 1 ? p[0].slice(0, 30) : `${p[0]} ${p[1][0].toUpperCase()}.`.slice(0, 30); };
+let resTodas = false;
+function pintarResenas(){
+  const sec = document.getElementById("opiniones"); if (!sec) return;
+  const l = [...(Reservas.resenas?.() || [])].sort((a, b) => (b.fecha || 0) - (a.fecha || 0));
+  sec.hidden = !l.length; const nav = document.getElementById("nav-op"); if (nav) nav.hidden = !l.length;
+  if (!l.length) return;
+  const prom = k => l.reduce((t, r) => t + (+r[k] || 0), 0) / l.length;
+  const vis = resTodas ? l : l.slice(0, 6);
+  $("#resenas").innerHTML = `<div class="res-top"><div class="res-prom"><b>${prom("estrellas").toFixed(1)}</b><span><i>${estrellasTxt(Math.round(prom("estrellas")))}</i><small>${l.length} ${l.length === 1 ? "opinión" : "opiniones"} de clientes</small></span></div>
+      <div class="res-kpi"><span><b>${prom("calidad").toFixed(1)} ★</b>Calidad del trabajo</span><span><b>${prom("trato").toFixed(1)} ★</b>Puntualidad y trato</span></div></div>
+    <div class="res-grid">${vis.map(r => `<article class="res"><span class="est" aria-label="${r.estrellas} de 5 estrellas">${estrellasTxt(r.estrellas)}</span>
+      ${r.comentario ? `<blockquote>“${esc(r.comentario)}”</blockquote>` : ""}
+      <div class="quien"><span class="av" aria-hidden="true">${esc((r.nombre || "C")[0].toUpperCase())}</span><span><b>${esc(r.nombre || "Cliente")}</b><small>${[r.servicio, r.fecha ? new Date(r.fecha).toLocaleDateString("es-CR", { month:"long", year:"numeric" }) : ""].filter(Boolean).map(esc).join(" · ")}</small></span></div></article>`).join("")}</div>
+    ${l.length > 6 ? `<button class="chip res-mas" id="res-mas">${resTodas ? "Ver menos" : `Ver las ${l.length} opiniones`}</button>` : ""}`;
+}
+document.addEventListener("click", e => { if (e.target.id === "res-mas") { resTodas = !resTodas; pintarResenas(); if (!resTodas) document.getElementById("opiniones").scrollIntoView({ behavior:"smooth" }); } });
+
 function pintarGaleria(){
   const l = Reservas.galeria();
   itemsGal = l && l.length ? l : FOTOS;
@@ -2497,6 +2564,7 @@ function pintarGaleria(){
     : `<a class="vid${i === 0 ? " ancha" : ""}" href="${esc(x.url)}" target="_blank" rel="noopener" aria-label="Ver video ${esc(x.titulo || "")}">${miniVideo(x)}</a>`).join("");
 }
 pintarGaleria();
+pintarResenas();
 $("#gal").addEventListener("click", e => {
   const b = e.target.closest("button"); if (!b) return; const x = itemsGal[b.dataset.i];
   $("#lb img").src = x.data; $("#lb").classList.add("on");
@@ -2562,7 +2630,7 @@ function estado(){
 estado(); setInterval(estado, 60000);
 
 if (FIREBASE) crearReservasFirebase().then(r => {
-  Reservas = r;
+  Reservas = r; pintarResenas();
   if (pila.includes("p-agenda") && !ag.hecho) pintarAgenda();
   if (pila.includes("p-admin")) pintarAdmin();
 }).catch(e => { console.warn("Firebase no cargó", e); toast("Sin conexión. Intentá de nuevo en un momento."); });
