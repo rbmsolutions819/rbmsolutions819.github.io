@@ -177,13 +177,20 @@ service cloud.firestore {
       allow get: if true;
       allow list: if esAdmin();
       allow create: if t.size() >= 16 && t.size() <= 40
-        && request.resource.data.keys().hasOnly(['nombre','ced4','correo','sellos','gratis','canjes','total','creado','actualizado'])
+        && request.resource.data.keys().hasOnly(['nombre','ced4','correo','tel','sellos','gratis','canjes','total','creado','actualizado'])
+        && (request.resource.data.get('tel', '') == '' || request.resource.data.get('tel', '').matches('^[0-9]{8}$'))
         && correoOk(request.resource.data.get('correo', ''))
         && request.resource.data.nombre is string && request.resource.data.nombre.size() >= 2 && request.resource.data.nombre.size() <= 60
-        && request.resource.data.ced4 is string && request.resource.data.ced4.size() == 4
-        && request.resource.data.sellos == 0 && request.resource.data.canjes == 0
-        && request.resource.data.get('gratis', 0) == 0 && request.resource.data.get('total', 0) == 0
+        // ced4 vacío = cliente traído de otra tarjeta; la cédula la pone él al activarla.
+        && request.resource.data.ced4 is string && (request.resource.data.ced4.size() == 4 || request.resource.data.ced4 == '')
+        // Puede traer los sellos que ya tenía en su tarjeta anterior (en la versión del cliente, solo la dueña con su acceso).
+        && request.resource.data.sellos is int && request.resource.data.sellos >= 0 && request.resource.data.sellos <= 9
+        && request.resource.data.get('gratis', 0) is int && request.resource.data.get('gratis', 0) >= 0 && request.resource.data.get('gratis', 0) <= 20
+        && request.resource.data.canjes == 0 && request.resource.data.get('total', 0) == kkVal(request.resource.data)
         && request.resource.data.creado == request.time && request.resource.data.actualizado == request.time;
+      // Activar una tarjeta traída de otra plataforma: se le pone la cédula una sola vez.
+      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['ced4'])
+        && resource.data.get('ced4', '') == '' && request.resource.data.ced4 is string && request.resource.data.ced4.matches('^[0-9]{4}$');
       // El cliente puede poner o cambiar su correo (solo eso).
       allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['correo'])
         && correoOk(request.resource.data.correo);
@@ -229,7 +236,7 @@ service cloud.firestore {
     match /prueba_koktela_clientes/{t} {
       allow read, delete: if true;
       allow create, update: if t.size() >= 16 && t.size() <= 40
-        && request.resource.data.keys().hasOnly(['nombre','ced4','correo','sellos','gratis','canjes','total','creado','actualizado'])
+        && request.resource.data.keys().hasOnly(['nombre','ced4','correo','tel','sellos','gratis','canjes','total','creado','actualizado'])
         && correoOk(request.resource.data.get('correo', ''))
         && request.resource.data.nombre is string && request.resource.data.nombre.size() <= 60
         && request.resource.data.sellos is int && request.resource.data.sellos >= 0 && request.resource.data.sellos <= 10

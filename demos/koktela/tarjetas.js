@@ -59,24 +59,63 @@ window.Tarjetas = (() => {
     return s.exists() ? normal({ token, ...s.data() }) : null;
   }
   // Registra un cliente nuevo. Si la cédula ya existe, devuelve la tarjeta que ya tenía.
-  async function crear({ nombre, cedula, correo = "" }) {
+  // previos = sellos que el cliente ya traía de su tarjeta anterior (cada 10 se vuelven un gratis).
+  async function crear({ nombre, cedula, correo = "", tel = "", previos = 0 }) {
     await iniciar();
     const ced = soloDigitos(cedula), h = await huella(ced);
     const ya = await F.getDoc(F.doc(db, IDX, h));
     if (ya.exists()) return { token: ya.data().t, existia: true };
     const token = nuevoToken(), w = F.writeBatch(db);
-    w.set(F.doc(db, COL, token), { nombre: String(nombre).trim().slice(0, 60), ced4: ced.slice(-4), correo: limpiarCorreo(correo), sellos: 0, gratis: 0, canjes: 0, total: 0,
-      creado: F.serverTimestamp(), actualizado: F.serverTimestamp() });
+    w.set(F.doc(db, COL, token), tarjetaNueva({ nombre, ced4: ced.slice(-4), correo, tel, previos }));
     w.set(F.doc(db, IDX, h), { t: token });
     await w.commit();
     return { token, existia: false };
+  }
+  const limpiarTel = t => { let d = soloDigitos(t); if (d.length === 11 && d.startsWith("506")) d = d.slice(3); return d.length === 8 ? d : ""; };
+  function tarjetaNueva({ nombre, ced4 = "", correo = "", tel = "", previos = 0, gratisPrevios = 0 }) {
+    const n = Math.max(0, Math.min(209, Math.floor(+previos || 0) + 10 * Math.floor(+gratisPrevios || 0)));
+    const sellos = n % 10, gratis = Math.floor(n / 10);
+    return { nombre: String(nombre).trim().slice(0, 60), ced4, correo: limpiarCorreo(correo), tel: limpiarTel(tel), sellos, gratis, canjes: 0, total: n,
+      creado: F.serverTimestamp(), actualizado: F.serverTimestamp() };
+  }
+  // ----- Traer clientes de otra tarjeta (Loopy, Devotio, Excel o tarjetas de papel) -----
+  // filas: [{nombre, tel, correo, cedula, sellos, gratis}]. Si trae cédula y ya existe, no se duplica.
+  async function importar(filas) {
+    await iniciar();
+    const hechos = [], repetidos = [];
+    for (let i = 0; i < filas.length; i += 150) {
+      const w = F.writeBatch(db), lote = [];
+      for (const f of filas.slice(i, i + 150)) {
+        const ced = soloDigitos(f.cedula);
+        let h = null;
+        if (ced.length >= 9) { h = await huella(ced); if ((await F.getDoc(F.doc(db, IDX, h))).exists()) { repetidos.push(f.nombre); continue; } }
+        const token = nuevoToken(), d = tarjetaNueva({ nombre: f.nombre, ced4: h ? ced.slice(-4) : "", correo: f.correo, tel: f.tel, previos: f.sellos, gratisPrevios: f.gratis });
+        w.set(F.doc(db, COL, token), d);
+        if (h) w.set(F.doc(db, IDX, h), { t: token });
+        lote.push({ token, nombre: d.nombre, tel: d.tel, sellos: d.sellos, gratis: d.gratis, conCedula: !!h });
+      }
+      if (lote.length) { await w.commit(); hechos.push(...lote); }
+    }
+    return { hechos, repetidos };
   }
   // Crea el usuario del cliente (cédula + clave). Solo funciona si esa cédula es la de esta tarjeta.
   async function crearAcceso(token, cedula, clave) {
     await iniciar();
     if (soloDigitos(clave).length !== 4) throw new Error("clave");
-    const t = await buscarPorCedula(cedula);
-    if (t !== token) throw new Error("cedula");
+    const ced = soloDigitos(cedula); if (ced.length < 9) throw new Error("cedula");
+    const t = await buscarPorCedula(ced);
+    if (!t) {
+      // Tarjeta traída de otra plataforma, todavía sin cédula: se le pone la cédula y se crea el usuario en un solo paso.
+      const c = await obtener(token);
+      if (!c || c.ced4) throw new Error("cedula");
+      const w = F.writeBatch(db);
+      w.update(F.doc(db, COL, token), { ced4: ced.slice(-4) });
+      w.set(F.doc(db, IDX, await huella(ced)), { t: token });
+      w.set(F.doc(db, ACC, await huellaAcceso(ced, clave)), { t: token });
+      await w.commit();
+      return true;
+    }
+    if (t !== token) throw new Error(t ? "otra" : "cedula");
     const ref = F.doc(db, ACC, await huellaAcceso(cedula, clave));
     const ya = await F.getDoc(ref);
     if (!ya.exists()) await F.setDoc(ref, { t: token });
@@ -102,6 +141,14 @@ window.Tarjetas = (() => {
     {nombre: "Valeria Núñez", ced: "909990999", pin: "9999", sellos: 4, gratis: 3, canjes: 1},
     {nombre: "Pablo Arias", ced: "112223334", pin: "1212", sellos: 7, gratis: 0, canjes: 1}
   ].map(e => ({...e, total: e.sellos + 10 * (e.gratis + e.canjes)}));
+  // Simula la lista que el negocio exporta de su plataforma vieja (sin cédula: la pone el cliente al reclamar).
+  const LISTA_EJEMPLO = [
+    {nombre: "Ricardo Brenes", tel: "8888 1111", correo: "ricardo@correo.com", cedula: "", sellos: 7, gratis: 0},
+    {nombre: "Mariana Soto", tel: "8888 2222", correo: "", cedula: "", sellos: 3, gratis: 1},
+    {nombre: "Esteban Ulate", tel: "8888 3333", correo: "esteban@correo.com", cedula: "", sellos: 9, gratis: 0},
+    {nombre: "Natalia Fallas", tel: "8888 4444", correo: "", cedula: "", sellos: 1, gratis: 0},
+    {nombre: "Kevin Araya", tel: "8888 5555", correo: "", cedula: "", sellos: 5, gratis: 2}
+  ];
   async function cargarEjemplos() {
     if (!PRUEBA) throw new Error("solo-prueba");
     await iniciar();
@@ -205,5 +252,5 @@ window.Tarjetas = (() => {
     await iniciar();
     return F.onSnapshot(F.doc(db, COL, token), s => alCambiar(s.exists() ? normal({ token, ...s.data() }) : null), e => alFallar && alFallar(e));
   }
-  return { guardarCorreo, limpiarCorreo, publicarPromo, borrarPromo, escucharPromos, prueba: PRUEBA, KEY, url, EJEMPLOS, cargarEjemplos, asegurarEjemplos, borrarPrueba, top10, normal, iniciar, buscarPorCedula, obtener, crear, crearAcceso, ingresar, sumar, canjear, escuchar, link, tokenDeTexto, soloDigitos };
+  return { importar, LISTA_EJEMPLO, limpiarTel, guardarCorreo, limpiarCorreo, publicarPromo, borrarPromo, escucharPromos, prueba: PRUEBA, KEY, url, EJEMPLOS, cargarEjemplos, asegurarEjemplos, borrarPrueba, top10, normal, iniciar, buscarPorCedula, obtener, crear, crearAcceso, ingresar, sumar, canjear, escuchar, link, tokenDeTexto, soloDigitos };
 })();

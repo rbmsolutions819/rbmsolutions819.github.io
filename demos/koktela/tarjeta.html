@@ -244,6 +244,7 @@ function pintar(c) {
   const pasos = esIOS ? `<li>Tocá <b>Compartir</b> (el cuadro con la flecha).</li><li>Tocá <b>Agregar a inicio</b>.</li>` : `<li>Tocá el menú <b>⋮</b> del navegador.</li><li>Tocá <b>Agregar a pantalla principal</b>.</li>`;
   t.innerHTML = `<img class="logo" src="logo.png" alt="Koktela" width="110" height="110"><div class="sub">Tarjeta de sellos</div>
     <div class="nombre">${esc(c.nombre)}</div>
+    ${!c.ced4 && !esEjemplo ? `<div class="premio">📥 <b>Trajimos tus sellos de tu tarjeta anterior.</b><br><span class="nota">Activala abajo con tu cédula y una clave.</span></div>` : ""}
     <div class="qr" id="qr" aria-label="Tu código QR"></div>
     <p class="nota">Mostrá este QR en la barra para sumar sellos.</p>
     <div class="sellos" aria-label="${s} de 10 sellos">${sellos}</div>
@@ -260,12 +261,12 @@ function pintar(c) {
     <span class="vivo"><i></i>Se actualiza sola</span>
     ${instalada() ? "" : `<div class="guardar"><b>Guardala en tu celular</b><span>Así la abrís como una app, sin buscar el link:</span><ol>${pasos}</ol></div>`}
     <div class="links"><a class="btn" href="${Tarjetas.url('./')}">Ver el menú</a></div>
-    ${esEjemplo ? `<p class="nota">Esta es una tarjeta de ejemplo para ver cómo funciona.</p>` : `<details class="clave"><summary>🔑 Crear mi usuario y clave</summary>
+    ${esEjemplo ? `<p class="nota">Esta es una tarjeta de ejemplo para ver cómo funciona.</p>` : `<details class="clave" ${c.ced4 ? "" : "open"}><summary>🔑 ${c.ced4 ? "Crear mi usuario y clave" : "Activá tu tarjeta"}</summary>
       <form class="form" id="fClave" novalidate>
-        <span class="nota">Así podés entrar desde cualquier celular con tu cédula y tu clave.</span>
+        <span class="nota">${c.ced4 ? "Así podés entrar desde cualquier celular con tu cédula y tu clave." : "👋 ¡Bienvenido! Pasamos los sellos de tu tarjeta anterior. Poné tu cédula y elegí una clave: así tu tarjeta queda a tu nombre y entrás desde cualquier celular."}</span>
         <label>Tu cédula<input id="cCed" inputmode="numeric" autocomplete="username" maxlength="15" placeholder="Ej.: 1 1234 5678"></label>
         <label>Elegí una clave de 4 dígitos<input id="cPin" type="password" inputmode="numeric" autocomplete="new-password" maxlength="4" placeholder="••••"></label>
-        <p class="err" id="cErr"></p><button class="btn pri" type="submit">Guardar mi clave</button>
+        <p class="err" id="cErr"></p><button class="btn pri" type="submit">${c.ced4 ? "Guardar mi clave" : "Activar mi tarjeta"}</button>
       </form></details>`}
     <div class="bloque" id="avisosC" hidden></div>
     ${esEjemplo ? "" : `<details class="clave" id="dMail"><summary>✉️ ${c.correo ? "Mi correo: " + esc(c.correo) : "Agregar mi correo"}</summary>
@@ -290,8 +291,8 @@ function pintar(c) {
     if (ced.length < 9) { err.textContent = "Escribí tu cédula completa."; return; }
     if (pin.length !== 4) { err.textContent = "La clave debe tener 4 dígitos."; return; }
     err.textContent = "";
-    try { await Tarjetas.crearAcceso(token, ced, pin); fc.closest("details").outerHTML = `<p class="nota">✅ Listo. Ya podés entrar con tu cédula y tu clave.</p>`; aviso("Clave guardada"); }
-    catch (x) { err.textContent = x.message === "cedula" ? "Esa cédula no es la de esta tarjeta." : "No se pudo guardar. Revisá tu conexión."; }
+    try { await Tarjetas.crearAcceso(token, ced, pin); fc.closest("details").outerHTML = `<p class="nota">✅ Listo, tu tarjeta quedó a tu nombre. Ya podés entrar con tu cédula y tu clave.</p>`; aviso("Clave guardada"); }
+    catch (x) { err.textContent = x.message === "otra" ? "Esa cédula ya tiene otra tarjeta. Pedí ayuda en la barra para unirlas." : x.message === "cedula" ? "Esa cédula no es la de esta tarjeta." : "No se pudo guardar. Revisá tu conexión."; }
   });
   try { new QRCode($("#qr"), {text: Tarjetas.link(token), width: 240, height: 240, colorDark: "#0b0a12", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.M}); }
   catch { $("#qr").innerHTML = `<p class="nota">No se pudo dibujar el QR.</p>`; }

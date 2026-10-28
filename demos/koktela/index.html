@@ -353,6 +353,9 @@ let catSel = "todo", admin = lsGet("kk-admin", false);
 let confirmarBorrado = false, cliCanje = 1, top = null;
 let cli = null, cliPend = 0, cliMsg = "", cliOcupado = false, cliUnsub = null, cliNuevo = null;
 let recientes = lsGet(Tarjetas.prueba ? "kk-recientes-prueba" : "kk-recientes", []);
+// Traer clientes de otra tarjeta: imp = lista leída del archivo (antes de importar); importados = los ya traídos, para mandarles su link.
+const KIMP = Tarjetas.prueba ? "kk-importados-prueba" : "kk-importados";
+let imp = null, impOcupado = false, importados = lsGet(KIMP, []);
 const recordar = (token, nombre) => { recientes = [{token, nombre}, ...recientes.filter(r => r.token !== token)].slice(0, 12); lsSet(Tarjetas.prueba ? "kk-recientes-prueba" : "kk-recientes", recientes); };
 const guardarD = () => lsSet("kk-datos", D);
 const guardarP = () => { lsSet("kk-pedido", pedido); pintarCarrito(); };
@@ -568,7 +571,7 @@ function vistaSellos() {
   if (cli && cli.cargando) h += `<div class="ficha"><span class="nota">Cargando tarjeta…</span></div>`;
   else if (cli) {
     const suma = cli.sellos + cliPend, ganaria = Math.floor(suma / 10);
-    h += `<div class="ficha"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><b style="font-size:19px">${esc(cli.nombre)}</b><span class="nota">Cédula ****${esc(cli.ced4)}${cli.correo ? ` · ✉️ ${esc(cli.correo)}` : ""}</span></div>
+    h += `<div class="ficha"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><b style="font-size:19px">${esc(cli.nombre)}</b><span class="nota">${cli.ced4 ? `Cédula ****${esc(cli.ced4)}` : "📥 Traído de otra tarjeta · falta activar"}${cli.tel ? ` · 📱 ${esc(cli.tel)}` : ""}${cli.correo ? ` · ✉️ ${esc(cli.correo)}` : ""}</span></div>
       ${statsHTML(cli, true)}
       ${cli.gratis ? `<div class="grupo" style="border:1px solid var(--oro);border-radius:8px;padding:12px"><b>🎁 Canjear cócteles gratis</b>
         <div class="ajuste"><div class="cant"><button type="button" data-canje="-1" aria-label="Uno menos" ${cliCanje <= 1 ? "disabled" : ""}>−</button><b>${cliCanje}</b><button type="button" data-canje="1" aria-label="Uno más" ${cliCanje >= cli.gratis ? "disabled" : ""}>+</button></div>
@@ -605,17 +608,114 @@ function vistaSellos() {
       <div class="ejs">${Tarjetas.EJEMPLOS.map(e => `<div><span>${esc(e.nombre)} · ${e.sellos} de 10 · ${e.gratis} gratis</span><span>${e.ced} · clave ${e.pin}</span></div>`).join("")}</div>
       <div class="fila-btn"><button class="btn sm pri" type="button" data-pr-cargar ${cliOcupado ? "disabled" : ""}>Cargar clientes de ejemplo</button>
         <button class="btn sm" type="button" data-pr-borrar ${cliOcupado ? "disabled" : ""}>Borrar todo y empezar de cero</button></div></div>`;
+  h += vistaImportar();
   h += `<div class="grupo"><b>Registrar cliente nuevo</b>
       <label class="c">Nombre completo<input id="rNom" maxlength="60" autocomplete="off" placeholder="Ej.: Daniela Mora"></label>
       <label class="c">Cédula<input id="rCed" inputmode="numeric" maxlength="15" autocomplete="off" placeholder="Ej.: 1 1234 5678"></label>
       <label class="c">Clave del cliente, 4 dígitos (opcional)<input id="rPin" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="Ej.: 4821"></label>
       <label class="c">Correo (opcional)<input id="rCorreo" type="email" maxlength="100" autocomplete="off" placeholder="Ej.: daniela@correo.com"></label>
       <label class="c">Celular para mandarle el QR (opcional)<input id="rTel" inputmode="tel" maxlength="12" autocomplete="off" placeholder="Ej.: 8888 7777"></label>
+      <label class="c">Sellos que ya traía de su tarjeta vieja (opcional)<input id="rPrev" type="number" inputmode="numeric" min="0" max="99" autocomplete="off" placeholder="0"></label>
       <p class="err" id="rErr"></p><div><button class="btn pri" type="button" data-registrar ${cliOcupado ? "disabled" : ""}>Crear tarjeta y QR</button></div>
       <p class="nota">De la cédula solo se guardan los últimos 4 dígitos y una huella para poder buscarla.</p></div>`;
   if (recientes.length) h += `<div class="grupo"><b>Vistos en este celular</b>${recientes.map(r => `<div class="cli"><span><b>${esc(r.nombre)}</b></span><button class="btn sm" type="button" data-ficha="${esc(r.token)}">Abrir</button></div>`).join("")}</div>`;
   return h;
 }
+/* ----- Traer clientes de otra tarjeta (Loopy, Devotio, Excel o tarjetas de papel) ----- */
+function vistaImportar() {
+  let h = `<div class="grupo" id="gImp"><b>📥 Traer clientes de otra tarjeta</b>`;
+  if (!imp) h += `<p class="nota">Si el negocio ya usaba tarjeta de sellos (Loopy, Devotio, un Excel o tarjetas de papel), subí la lista y cada cliente queda con los sellos que ya tenía. Columnas: nombre, celular, correo, cédula y sellos. Solo el nombre es obligatorio.</p>
+      <div class="fila-btn"><label class="btn sm pri" style="cursor:pointer">📄 Subir Excel o CSV<input type="file" id="impArchivo" accept=".csv,.txt,.xlsx,.xls" hidden></label>
+        <button class="btn sm" type="button" data-imp-plantilla>Descargar plantilla</button>
+        ${Tarjetas.prueba ? `<button class="btn sm" type="button" data-imp-ejemplo>Probar con una lista de ejemplo</button>` : ""}</div>`;
+  else if (imp.cargando) h += `<p class="nota">Leyendo ${esc(imp.archivo)}…</p>`;
+  else {
+    const f = imp.filas, mas = f.length - 8;
+    h += `<p>Encontramos <b>${f.length} cliente${f.length === 1 ? "" : "s"}</b> en <b>${esc(imp.archivo)}</b>.</p>
+      <div class="ejs">${f.slice(0, 8).map(x => `<div><span><b>${esc(x.nombre)}</b>${x.tel ? ` · ${esc(x.tel)}` : ""}</span><span>${x.sellos} sello${x.sellos === 1 ? "" : "s"}${x.gratis ? ` · ${x.gratis} gratis` : ""}</span></div>`).join("")}</div>
+      ${mas > 0 ? `<p class="nota">y ${mas} más.</p>` : ""}
+      ${imp.omitidas ? `<p class="nota">Se omitieron ${imp.omitidas} fila${imp.omitidas === 1 ? "" : "s"} sin nombre.</p>` : ""}
+      ${imp.sinSellos ? `<p class="nota" style="color:var(--oro)">No encontramos una columna de sellos: todos entrarían en 0. Revisá que la columna se llame "sellos".</p>` : ""}
+      <div class="fila-btn"><button class="btn pri" type="button" data-imp-confirmar ${impOcupado || !f.length ? "disabled" : ""}>${impOcupado ? "Importando…" : `Importar ${f.length} cliente${f.length === 1 ? "" : "s"}`}</button>
+        <button class="btn sm" type="button" data-imp-cancelar ${impOcupado ? "disabled" : ""}>Cancelar</button></div>`;
+  }
+  if (importados.length) {
+    const faltan = importados.filter(x => !x.enviado).length;
+    h += `<b style="margin-top:8px">Clientes traídos · ${importados.length}${faltan ? ` · faltan ${faltan} de avisar` : " · todos avisados ✅"}</b>
+      <p class="nota">Mandale a cada uno su link. La primera vez que lo abra, crea su usuario con su cédula y una clave, y ya ve sus sellos.</p>
+      <div>${importados.map((x, i) => `<div style="display:grid;gap:8px;padding:10px 0;border-bottom:1px dashed var(--linea)"><span><b>${esc(x.nombre)}</b> ${x.enviado ? "✅" : ""} <span class="nota">· ${x.sellos} de 10${x.gratis ? ` · ${x.gratis} gratis` : ""}</span></span>
+        <span class="fila-btn">${x.tel ? `<a class="btn sm verde" target="_blank" rel="noopener" data-imp-enviado="${i}" href="https://wa.me/506${x.tel}?text=${encodeURIComponent(msjImportado(x))}">WhatsApp</a>` : ""}
+          <button class="btn sm" type="button" data-copiar-link="${esc(Tarjetas.link(x.token))}" data-imp-copiado="${i}">Copiar link</button>
+          <button class="btn sm" type="button" data-ficha="${esc(x.token)}">Abrir</button></span></div>`).join("")}</div>
+      <div><button class="btn sm" type="button" data-imp-limpiar>Quitar esta lista del celular</button></div>`;
+  }
+  return h + `</div>`;
+}
+function msjImportado(x) {
+  const g = x.gratis ? ` y ${x.gratis} cóctel${x.gratis === 1 ? "" : "es"} gratis` : "";
+  return `¡Hola ${x.nombre.split(" ")[0]}! 🏛️ ${D.negocio.nombre} estrenó página y ya pasamos tu tarjeta de sellos: tenés ${x.sellos} sello${x.sellos === 1 ? "" : "s"}${g}. Abrila aquí:\n${Tarjetas.link(x.token)}\n\nLa primera vez, creá tu usuario con tu cédula y una clave de 4 dígitos. Así entrás desde cualquier celular.`;
+}
+// Lee CSV (coma o punto y coma, con comillas).
+function leerCSV(txt) {
+  txt = txt.replace(/^\uFEFF/, "");
+  const linea1 = txt.split(/\r?\n/)[0] || "", sep = (linea1.match(/;/g) || []).length > (linea1.match(/,/g) || []).length ? ";" : linea1.includes("\t") && !linea1.includes(",") ? "\t" : ",";
+  const filas = []; let fila = [], campo = "", q = false;
+  for (let i = 0; i < txt.length; i++) {
+    const c = txt[i];
+    if (q) { if (c === '"') { if (txt[i + 1] === '"') { campo += '"'; i++; } else q = false; } else campo += c; }
+    else if (c === '"') q = true;
+    else if (c === sep) { fila.push(campo); campo = ""; }
+    else if (c === "\n" || c === "\r") { if (c === "\r" && txt[i + 1] === "\n") i++; fila.push(campo); filas.push(fila); fila = []; campo = ""; }
+    else campo += c;
+  }
+  if (campo || fila.length) { fila.push(campo); filas.push(fila); }
+  return filas.filter(f => f.some(x => String(x).trim()));
+}
+// Reconoce las columnas aunque vengan en inglés o con otro nombre (como las exporta Loopy, Devotio o un Excel).
+const COLS = {
+  nombre: ["nombre", "nombrecompleto", "cliente", "name", "fullname", "customer", "customername"],
+  pnombre: ["primernombre", "firstname", "first"], apellido: ["apellido", "apellidos", "lastname", "last", "surname"],
+  tel: ["celular", "telefono", "tel", "movil", "whatsapp", "phone", "phonenumber", "mobile", "mobilenumber", "cel"],
+  correo: ["correo", "correoelectronico", "email", "mail", "emailaddress", "e-mail"],
+  cedula: ["cedula", "identificacion", "documento", "dni", "numerodecedula"],
+  sellos: ["sellos", "sellosactuales", "stamps", "currentstamps", "stampsbalance", "stampcount", "puntos", "visitas"],
+  gratis: ["gratis", "premios", "premiosdisponibles", "recompensas", "rewards", "rewardsavailable", "availablerewards", "unredeemedrewards"]
+};
+function filasDeTabla(tabla) {
+  const norm = x => String(x || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9-]/g, "");
+  const cab = (tabla[0] || []).map(norm), col = k => cab.findIndex(c => COLS[k].includes(c));
+  const ix = Object.fromEntries(Object.keys(COLS).map(k => [k, col(k)]));
+  const v = (f, k) => ix[k] >= 0 ? String(f[ix[k]] ?? "").trim() : "";
+  const num = x => Math.max(0, Math.floor(parseFloat(String(x).replace(",", ".")) || 0));
+  let omitidas = 0; const vistos = new Set(), filas = [];
+  for (const f of tabla.slice(1)) {
+    const nombre = (v(f, "nombre") || [v(f, "pnombre"), v(f, "apellido")].filter(Boolean).join(" ")).replace(/\s+/g, " ").slice(0, 60);
+    if (nombre.length < 2) { omitidas++; continue; }
+    const tel = Tarjetas.limpiarTel(v(f, "tel")), cedula = Tarjetas.soloDigitos(v(f, "cedula"));
+    const llave = cedula || tel || nombre.toLowerCase(); if (vistos.has(llave)) continue; vistos.add(llave);
+    filas.push({nombre, tel, correo: Tarjetas.limpiarCorreo(v(f, "correo")), cedula, sellos: Math.min(99, num(v(f, "sellos"))), gratis: Math.min(20, num(v(f, "gratis")))});
+  }
+  return {filas: filas.slice(0, 500), omitidas, sinSellos: ix.sellos < 0};
+}
+function cargarScript(src) { return new Promise((ok, mal) => { const e = document.createElement("script"); e.src = src; e.onload = ok; e.onerror = mal; document.head.appendChild(e); }); }
+async function leerArchivo(file) {
+  imp = {cargando: true, archivo: file.name}; pintarAdmin();
+  try {
+    let tabla;
+    if (/\.xlsx?$/i.test(file.name)) {
+      if (!window.XLSX) await cargarScript("https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js");
+      const wb = XLSX.read(await file.arrayBuffer(), {type: "array"});
+      tabla = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {header: 1, raw: false, defval: ""});
+    } else tabla = leerCSV(await file.text());
+    imp = {archivo: file.name, ...filasDeTabla(tabla)};
+    if (!imp.filas.length) { imp = null; aviso("No encontramos clientes. Revisá que la primera fila tenga los títulos (nombre, celular, sellos)."); }
+  } catch { imp = null; aviso("No se pudo leer el archivo. Probá guardarlo como CSV."); }
+  pintarAdmin(); const g = $("#gImp"); if (g) g.scrollIntoView({block: "nearest"});
+}
+function guardarImportados() { lsSet(KIMP, importados.slice(0, 500)); }
+document.addEventListener("change", e => { if (e.target.id === "impArchivo" && e.target.files[0]) leerArchivo(e.target.files[0]); });
+document.addEventListener("click", e => { const a = e.target.closest("a[data-imp-enviado]"); if (!a) return; const x = importados[+a.dataset.impEnviado]; if (x) { x.enviado = true; guardarImportados(); setTimeout(pintarAdmin, 300); } });
+
 /* Escáner de QR con la cámara (dentro de la página) */
 let camStream = null, camLoop = 0;
 function cerrarCamara() { cancelAnimationFrame(camLoop); if (camStream) camStream.getTracks().forEach(t => t.stop()); camStream = null; }
@@ -765,19 +865,34 @@ document.addEventListener("click", async e => {
     return;
   }
   if (b.hasAttribute("data-registrar")) {
-    const nombre = $("#rNom").value.trim(), ced = Tarjetas.soloDigitos($("#rCed").value), tel = Tarjetas.soloDigitos($("#rTel").value), pin = Tarjetas.soloDigitos($("#rPin").value), correo = $("#rCorreo").value.trim();
+    const nombre = $("#rNom").value.trim(), ced = Tarjetas.soloDigitos($("#rCed").value), tel = Tarjetas.soloDigitos($("#rTel").value), pin = Tarjetas.soloDigitos($("#rPin").value), correo = $("#rCorreo").value.trim(), previos = Math.max(0, Math.min(99, Math.floor(+$("#rPrev").value || 0)));
     if (nombre.length < 2) { $("#rErr").textContent = "Escribí el nombre del cliente."; $("#rNom").focus(); return; }
     if (ced.length < 9) { $("#rErr").textContent = "Escribí la cédula completa (9 dígitos o más)."; $("#rCed").focus(); return; }
     if (correo && !Tarjetas.limpiarCorreo(correo)) { $("#rErr").textContent = "Revisá el correo, o dejalo vacío."; $("#rCorreo").focus(); return; }
     if (pin && pin.length !== 4) { $("#rErr").textContent = "La clave debe tener 4 dígitos, o dejala vacía."; $("#rPin").focus(); return; }
     if (tel && tel.length !== 8) { $("#rErr").textContent = "El celular debe tener 8 dígitos, o dejalo vacío."; $("#rTel").focus(); return; }
     cliOcupado = true; b.disabled = true;
-    try { const r = await Tarjetas.crear({nombre, cedula: ced, correo});
+    try { const r = await Tarjetas.crear({nombre, cedula: ced, correo, tel, previos});
       if (pin) await Tarjetas.crearAcceso(r.token, ced, pin);
       cliNuevo = {token: r.token, nombre, tel, existia: r.existia, ced, pin}; cliOcupado = false; abrirFicha(r.token); aviso(r.existia ? "Esa cédula ya tenía tarjeta" : "Tarjeta creada"); }
     catch { cliOcupado = false; $("#rErr").textContent = "No se pudo crear la tarjeta. Revisá la conexión."; b.disabled = false; }
     return;
   }
+  if (b.hasAttribute("data-imp-plantilla")) {
+    const csv = "\uFEFFnombre,celular,correo,cedula,sellos,gratis\nAna Solís,88887777,ana@correo.com,101110111,4,0\nLuis Mora,87776666,,,9,1\n";
+    const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], {type: "text/csv"})); a.download = "plantilla-clientes.csv"; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); return;
+  }
+  if (b.hasAttribute("data-imp-ejemplo")) { imp = {archivo: "lista de ejemplo (como la exporta otra plataforma)", filas: Tarjetas.LISTA_EJEMPLO.map(x => ({...x, tel: Tarjetas.limpiarTel(x.tel)})), omitidas: 0}; pintarAdmin(); return; }
+  if (b.hasAttribute("data-imp-cancelar")) { imp = null; pintarAdmin(); return; }
+  if (b.hasAttribute("data-imp-confirmar")) {
+    if (!imp || !imp.filas) return; impOcupado = true; pintarAdmin();
+    try { const r = await Tarjetas.importar(imp.filas);
+      importados = [...r.hechos.map(x => ({...x, enviado: false})), ...importados]; guardarImportados(); imp = null; top = null;
+      aviso(`📥 ${r.hechos.length} cliente${r.hechos.length === 1 ? "" : "s"} traído${r.hechos.length === 1 ? "" : "s"} con sus sellos${r.repetidos.length ? `. ${r.repetidos.length} ya existía${r.repetidos.length === 1 ? "" : "n"}.` : ""}`); }
+    catch { aviso(Tarjetas.prueba ? "No se pudo importar. Revisá la conexión." : "No se pudo importar. Revisá la conexión, o probalo en el modo prueba."); }
+    impOcupado = false; pintarAdmin(); return;
+  }
+  if (b.hasAttribute("data-imp-limpiar")) { importados = []; guardarImportados(); pintarAdmin(); return; }
   if (b.hasAttribute("data-pr-cargar") || b.hasAttribute("data-pr-borrar")) {
     const borrar = b.hasAttribute("data-pr-borrar");
     if (borrar && !confirmarBorrado) { confirmarBorrado = true; b.textContent = "Tocá otra vez para borrar todo"; setTimeout(() => confirmarBorrado = false, 4000); return; }
@@ -795,6 +910,7 @@ document.addEventListener("click", async e => {
     return;
   }
   if (b.dataset.quitarPromo) { try { await Tarjetas.borrarPromo(b.dataset.quitarPromo); aviso("Promo quitada"); } catch { aviso("No se pudo quitar. Revisá la conexión."); } return; }
+  if (b.dataset.impCopiado) { const x = importados[+b.dataset.impCopiado]; if (x) { x.enviado = true; guardarImportados(); } }
   if (b.dataset.copiarLink) { const l = b.dataset.copiarLink; try { await navigator.clipboard.writeText(l); aviso("Link copiado"); } catch { aviso(l); } return; }
   if (b.dataset.tab) { tabAdm = b.dataset.tab; pintarAdmin(); return; }
   if (b.dataset.borrar) { D.productos = D.productos.filter(p => p.id !== b.dataset.borrar); guardarD(); pintarMenu(); pintarAdmin(); aviso("Producto borrado"); return; }
