@@ -119,6 +119,16 @@ section h2 .p{font:600 16px var(--f-txt);color:var(--oro)}
 .cli small{color:var(--suave)}
 .ficha{background:var(--panel2);border:1px solid var(--oro);border-radius:8px;padding:16px;display:grid;gap:12px;margin-top:12px}
 .sellos i.pend{background:var(--cian);border-color:var(--cian);color:#04212a}
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.stats div{background:var(--fondo);border:1px solid var(--linea);border-radius:8px;padding:10px;display:grid;gap:2px;text-align:center}
+.stats b{font:800 24px/1.1 var(--f-logo);color:var(--oro)}
+.stats span{font-size:12.5px;color:var(--suave);font-weight:700}
+.stats .dest{border-color:var(--oro);background:rgba(140,196,255,.1)}
+.top10{display:grid;gap:0;counter-reset:pos}
+.top10 button{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:2px 10px;align-items:center;text-align:left;border:0;border-bottom:1px dashed var(--linea);background:none;color:var(--texto);padding:9px 2px;cursor:pointer;font:inherit}
+.top10 .pos{font:800 18px var(--f-logo);color:var(--oro);grid-row:span 2}
+.top10 small{grid-column:2;color:var(--suave);font-size:12.5px}
+.top10 .n{grid-row:span 2;grid-column:3;text-align:right;font-weight:800}
 .ajuste{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .ajuste b{font-size:16px}
 .camara{position:relative;border-radius:8px;overflow:hidden;background:#000;aspect-ratio:1;max-width:360px;width:100%;margin:12px auto 0}
@@ -330,7 +340,7 @@ let pedido = []; try { localStorage.removeItem("kk-pedido"); } catch {}
 // Todo se guarda en Firebase: el cliente ve sus sellos al instante en su tarjeta (tarjeta.html).
 let miToken = lsGet(Tarjetas.KEY, null);
 let catSel = "todo", admin = lsGet("kk-admin", false);
-let confirmarBorrado = false;
+let confirmarBorrado = false, cliCanje = 1, top = null;
 let cli = null, cliPend = 0, cliMsg = "", cliOcupado = false, cliUnsub = null, cliNuevo = null;
 let recientes = lsGet(Tarjetas.prueba ? "kk-recientes-prueba" : "kk-recientes", []);
 const recordar = (token, nombre) => { recientes = [{token, nombre}, ...recientes.filter(r => r.token !== token)].slice(0, 12); lsSet(Tarjetas.prueba ? "kk-recientes-prueba" : "kk-recientes", recientes); };
@@ -452,6 +462,14 @@ function selloHTML(n, pend = 0) {
     if (i === 9) return `<i class="${lleno ? "si" : nuevo ? "pend" : "gratis"}">${lleno || nuevo ? "★" : "GRATIS"}</i>`;
     return `<i class="${lleno ? "si" : nuevo ? "pend" : ""}">${lleno || nuevo ? "⚡" : ""}</i>`; }).join("")}</div>`;
 }
+// Cuadritos con los números de la tarjeta
+function statsHTML(c, dueña) {
+  return `<div class="stats">
+    <div class="dest"><b>${c.gratis}</b><span>🎁 Cóctel${c.gratis === 1 ? "" : "es"} gratis ${dueña ? "por canjear" : "disponible" + (c.gratis === 1 ? "" : "s")}</span></div>
+    <div><b>${10 - c.sellos}</b><span>Sello${10 - c.sellos === 1 ? "" : "s"} para el próximo gratis</span></div>
+    <div><b>${c.total}</b><span>⚡ Sellos acumulados en total</span></div>
+    <div><b>${c.canjes}</b><span>✅ Gratis ya canjeado${c.canjes === 1 ? "" : "s"}</span></div></div>`;
+}
 function dibujarQR(el, texto, tam = 220) {
   if (!el) return;
   try { el.innerHTML = ""; new QRCode(el, {text: texto, width: tam, height: tam, colorDark: "#0b0a12", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.M}); }
@@ -463,7 +481,7 @@ function pintarSellos() {
   const t = $("#tarjeta");
   if (!miToken) {
     t.innerHTML = `<p>Pedí tu tarjeta gratis en la barra: te registramos con tu nombre y cédula y te mandamos tu QR por WhatsApp.</p>
-      ${selloHTML(0)}<p class="nota">Cada cóctel suma un sello y <b>la décima es gratis</b>. </p>
+      ${selloHTML(0)}<p class="nota">Cada cóctel suma un sello. Al juntar 10 <b>ganás un cóctel gratis</b> y tu tarjeta empieza de cero.</p>
       <div class="fila-btn"><a class="btn sm pri" href="${Tarjetas.url('tarjeta.html#ingresar')}">Ya tengo tarjeta: ingresar con mi cédula</a></div>`;
     return;
   }
@@ -476,7 +494,8 @@ function pintarSellos() {
         <div style="display:grid;gap:6px"><span class="nota">Tarjeta de</span><span class="codigo" style="letter-spacing:0">${esc(c.nombre)}</span>
         <span class="nota">Mostrá este QR en la barra y te sumamos los sellos.</span><a class="btn sm" href="${Tarjetas.link(miToken)}">Abrir mi tarjeta</a></div></div>
       ${selloHTML(c.sellos)}
-      <p class="nota">${c.sellos >= 10 ? "<b>¡Tu próximo cóctel es gratis!</b> Mostrá tu QR para canjearla." : `Llevás ${c.sellos} de 10. Te faltan ${10 - c.sellos} para tu cóctel gratis.`}</p>`;
+      ${c.gratis ? `<p><b>🎁 Tenés ${c.gratis} cóctel${c.gratis === 1 ? "" : "es"} gratis.</b> Mostrá tu QR en la barra para canjear${c.gratis === 1 ? "lo" : "los"}.</p>` : ""}
+      ${statsHTML(c)}`;
     dibujarQR($("#qr"), Tarjetas.link(miToken));
   }, fallo).then(u => miUnsub = u).catch(fallo);
 }
@@ -487,7 +506,7 @@ function abrirFicha(token) {
   cli = {token, cargando: true}; cliPend = 0; cliMsg = ""; tabAdm = "cli"; pintarAdmin();
   Tarjetas.escuchar(token, c => {
     if (!c) { cli = null; cliMsg = "No encontramos esa tarjeta. Puede que el QR no sea de este negocio."; }
-    else { cli = c; recordar(token, c.nombre); if (cliPend > 10 - c.sellos) cliPend = Math.max(0, 10 - c.sellos); }
+    else { cli = c; recordar(token, c.nombre); cliCanje = Math.max(1, Math.min(cliCanje, c.gratis || 1)); }
     if ($("#hoja").classList.contains("on") && tabAdm === "cli" && !camStream) { const sc = $("#hoja").scrollTop; pintarAdmin(); $("#hoja").scrollTop = sc; }
   }, () => { cliMsg = "No se pudo cargar la tarjeta. Revisá la conexión."; cli = null; pintarAdmin(); })
     .then(u => cliUnsub = u).catch(() => { cliMsg = "No se pudo conectar. Revisá la conexión."; cli = null; pintarAdmin(); });
@@ -499,12 +518,17 @@ function vistaSellos() {
     ${cliMsg ? `<p class="err" role="alert">${esc(cliMsg)}</p>` : ""}`;
   if (cli && cli.cargando) h += `<div class="ficha"><span class="nota">Cargando tarjeta…</span></div>`;
   else if (cli) {
-    const libres = 10 - cli.sellos;
+    const suma = cli.sellos + cliPend, ganaria = Math.floor(suma / 10);
     h += `<div class="ficha"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><b style="font-size:19px">${esc(cli.nombre)}</b><span class="nota">Cédula ****${esc(cli.ced4)}</span></div>
+      ${statsHTML(cli, true)}
+      ${cli.gratis ? `<div class="grupo" style="border:1px solid var(--oro);border-radius:8px;padding:12px"><b>🎁 Canjear cócteles gratis</b>
+        <div class="ajuste"><div class="cant"><button type="button" data-canje="-1" aria-label="Uno menos" ${cliCanje <= 1 ? "disabled" : ""}>−</button><b>${cliCanje}</b><button type="button" data-canje="1" aria-label="Uno más" ${cliCanje >= cli.gratis ? "disabled" : ""}>+</button></div>
+          <span>de ${cli.gratis} disponible${cli.gratis === 1 ? "" : "s"}</span></div>
+        <div><button class="btn pri" type="button" data-canjear ${cliOcupado ? "disabled" : ""}>Canjear ${cliCanje} gratis</button></div></div>` : ""}
+      <b style="font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--suave)">Sumar sellos · lleva ${cli.sellos} de 10</b>
       ${selloHTML(cli.sellos, cliPend)}
-      <span class="nota">Tiene <b>${cli.sellos} de 10</b> sellos${cli.canjes ? ` · ${cli.canjes} cóctel${cli.canjes === 1 ? "" : "s"} gratis canjeada${cli.canjes === 1 ? "" : "s"}` : ""}</span>
-      ${cli.sellos >= 10 ? `<p><b>Tarjeta llena:</b> le toca una cóctel gratis.</p><div><button class="btn pri" type="button" data-canjear ${cliOcupado ? "disabled" : ""}>Canjear cóctel gratis</button></div>`
-      : `<div class="ajuste"><div class="cant"><button type="button" data-pend="-1" aria-label="Quitar uno" ${cliPend <= 0 ? "disabled" : ""}>−</button><b>${cliPend}</b><button type="button" data-pend="1" aria-label="Agregar uno" ${cliPend >= libres ? "disabled" : ""}>+</button></div>
+      ${ganaria ? `<p class="nota" style="color:var(--oro)">🎉 Con estos sellos gana <b>${ganaria} cóctel${ganaria === 1 ? "" : "es"} gratis</b> y la tarjeta queda en ${suma % 10} de 10.</p>` : ""}
+      ${`<div class="ajuste"><div class="cant"><button type="button" data-pend="-1" aria-label="Quitar uno" ${cliPend <= 0 ? "disabled" : ""}>−</button><b>${cliPend}</b><button type="button" data-pend="1" aria-label="Agregar uno" ${cliPend >= 30 ? "disabled" : ""}>+</button></div>
           <span>sello${cliPend === 1 ? "" : "s"} por agregar</span></div>
         <button class="btn pri" type="button" data-guardar-sellos ${cliPend < 1 || cliOcupado ? "disabled" : ""}>${cliPend ? `Guardar ${cliPend} sello${cliPend === 1 ? "" : "s"}` : "Elegí cuántos sellos agregar"}</button>
         <p class="nota">Podés corregir con − antes de guardar. Una vez guardados, los sellos ya no se pueden quitar.</p>`}
@@ -519,9 +543,17 @@ function vistaSellos() {
         <div class="fila-btn">${cliNuevo.tel ? `<a class="btn sm verde" target="_blank" rel="noopener" href="https://wa.me/506${cliNuevo.tel}?text=${encodeURIComponent(msj)}">Enviar por WhatsApp</a>` : ""}
           <button class="btn sm" type="button" data-copiar-link="${esc(Tarjetas.link(cliNuevo.token))}">Copiar link</button></div></div></div></div>`;
   }
+  h += `<div class="grupo"><b>🏆 Top 10 clientes</b>
+    ${top === null ? `<div><button class="btn sm" type="button" data-top>Ver los que más sellos tienen</button></div>`
+    : top === "cargando" ? `<span class="nota">Cargando…</span>`
+    : top === "error" ? `<p class="nota">${Tarjetas.prueba ? "No se pudo cargar. Revisá la conexión." : "En la versión real, el top 10 solo lo ve la dueña con su acceso seguro (correo y contraseña). Probalo en el <a href='./?prueba' style='color:var(--oro)'>modo prueba</a>."}</p>`
+    : !top.length ? `<span class="nota">Todavía no hay clientes.</span>`
+    : `<div class="top10">${top.map((c, i) => `<button type="button" data-ficha="${esc(c.token)}"><span class="pos">${i + 1}</span><b>${esc(c.nombre)}</b><span class="n">${c.total} ⚡</span>
+        <small>${c.gratis} gratis por canjear · ${c.canjes} canjeado${c.canjes === 1 ? "" : "s"} · ${c.sellos} de 10</small></button>`).join("")}</div>
+      <div><button class="btn sm" type="button" data-top>Actualizar</button></div>`}</div>`;
   if (Tarjetas.prueba) h += `<div class="grupo"><b>🧪 Base de datos de prueba</b>
       <p class="nota">Clientes de ejemplo para practicar o enseñar la demo. Entran en la tarjeta con su cédula y su clave.</p>
-      <div class="ejs">${Tarjetas.EJEMPLOS.map(e => `<div><span>${esc(e.nombre)} · ${e.sellos} sellos</span><span>${e.ced} · clave ${e.pin}</span></div>`).join("")}</div>
+      <div class="ejs">${Tarjetas.EJEMPLOS.map(e => `<div><span>${esc(e.nombre)} · ${e.sellos} de 10 · ${e.gratis} gratis</span><span>${e.ced} · clave ${e.pin}</span></div>`).join("")}</div>
       <div class="fila-btn"><button class="btn sm pri" type="button" data-pr-cargar ${cliOcupado ? "disabled" : ""}>Cargar clientes de ejemplo</button>
         <button class="btn sm" type="button" data-pr-borrar ${cliOcupado ? "disabled" : ""}>Borrar todo y empezar de cero</button></div></div>`;
   h += `<div class="grupo"><b>Registrar cliente nuevo</b>
@@ -652,16 +684,19 @@ document.addEventListener("click", async e => {
   if (b.hasAttribute("data-cerrar-cam")) { cerrarCamara(); tabAdm = "cli"; pintarAdmin(); return; }
   if (b.dataset.ficha) { cliNuevo = null; abrirFicha(b.dataset.ficha); return; }
   if (b.hasAttribute("data-cerrar-ficha")) { if (cliUnsub) { cliUnsub(); cliUnsub = null; } cli = null; cliPend = 0; cliMsg = ""; cliNuevo = null; pintarAdmin(); return; }
-  if (b.dataset.pend) { const libres = cli ? 10 - cli.sellos : 0; cliPend = Math.max(0, Math.min(libres, cliPend + +b.dataset.pend)); const sc = $("#hoja").scrollTop; pintarAdmin(); $("#hoja").scrollTop = sc; return; }
+  if (b.dataset.canje) { cliCanje = Math.max(1, Math.min(cli ? cli.gratis : 1, cliCanje + +b.dataset.canje)); const sc = $("#hoja").scrollTop; pintarAdmin(); $("#hoja").scrollTop = sc; return; }
+  if (b.hasAttribute("data-top")) { top = "cargando"; pintarAdmin(); try { top = await Tarjetas.top10(); } catch { top = "error"; } pintarAdmin(); return; }
+  if (b.dataset.pend) { cliPend = Math.max(0, Math.min(30, cliPend + +b.dataset.pend)); const sc = $("#hoja").scrollTop; pintarAdmin(); $("#hoja").scrollTop = sc; return; }
   if (b.hasAttribute("data-guardar-sellos")) {
     if (!cli || cliPend < 1) return; const n = cliPend, nombre = cli.nombre, token = cli.token; cliOcupado = true; pintarAdmin();
-    try { const total = await Tarjetas.sumar(token, n); cliPend = 0; aviso(total >= 10 ? `${nombre} completó su tarjeta: le toca una cóctel gratis` : `Listo: ${n} sello${n === 1 ? "" : "s"} para ${nombre} (${total} de 10)`); }
+    try { const r = await Tarjetas.sumar(token, n); cliPend = 0; aviso(r.ganados ? `🎉 ${nombre} ganó ${r.ganados} cóctel${r.ganados === 1 ? "" : "es"} gratis. Tarjeta en ${r.sellos} de 10.` : `Listo: ${n} sello${n === 1 ? "" : "s"} para ${nombre} (${r.sellos} de 10)`); }
     catch { aviso("No se pudo guardar. Revisá la conexión e intentá de nuevo."); }
     cliOcupado = false; pintarAdmin(); return;
   }
   if (b.hasAttribute("data-canjear")) {
-    if (!cli) return; const nombre = cli.nombre; cliOcupado = true; pintarAdmin();
-    try { await Tarjetas.canjear(cli.token); aviso(`Bebida gratis canjeada para ${nombre}. La tarjeta vuelve a cero.`); } catch { aviso("No se pudo canjear. Revisá la conexión."); }
+    if (!cli || !cli.gratis) return; const nombre = cli.nombre, k = Math.min(cliCanje, cli.gratis); cliOcupado = true; pintarAdmin();
+    try { const r = await Tarjetas.canjear(cli.token, k); cliCanje = 1; aviso(`${k} cóctel${k === 1 ? "" : "es"} gratis canjeado${k === 1 ? "" : "s"} para ${nombre}. Le quedan ${r.gratis}.`); }
+    catch (x) { aviso(x.message === "insuficientes" ? "No tiene tantos gratis." : "No se pudo canjear. Revisá la conexión."); }
     cliOcupado = false; pintarAdmin(); return;
   }
   if (b.hasAttribute("data-buscar")) {
@@ -724,7 +759,7 @@ $("#soyMayor").addEventListener("click", () => { lsSet("kk-mayor", true); $("#ed
 $("#maps").href = `https://www.google.com/maps/search/?api=1&query=${q}`;
 $("#waze").href = `https://waze.com/ul?q=${q}&navigate=yes`;
 if (Tarjetas.prueba) { $("#bPrueba").hidden = false;
-  Tarjetas.buscarPorCedula(Tarjetas.EJEMPLOS[0].ced).then(t => t ? null : Tarjetas.cargarEjemplos()).catch(() => {}); }
+  Tarjetas.asegurarEjemplos().catch(() => {}); }
 pintarCats(); pintarMenu(); pintarHorario(); pintarCarrito(); pintarSellos();
 // #sellos-TOKEN: la dueña escaneó con la cámara normal del celular y tocó "Sumar sellos" en la tarjeta del cliente.
 function leerHash() {

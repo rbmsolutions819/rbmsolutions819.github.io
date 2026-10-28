@@ -56,7 +56,7 @@ window.Tarjetas = (() => {
   async function obtener(token) {
     await iniciar();
     const s = await F.getDoc(F.doc(db, COL, token));
-    return s.exists() ? { token, ...s.data() } : null;
+    return s.exists() ? normal({ token, ...s.data() }) : null;
   }
   // Registra un cliente nuevo. Si la cédula ya existe, devuelve la tarjeta que ya tenía.
   async function crear({ nombre, cedula }) {
@@ -65,7 +65,7 @@ window.Tarjetas = (() => {
     const ya = await F.getDoc(F.doc(db, IDX, h));
     if (ya.exists()) return { token: ya.data().t, existia: true };
     const token = nuevoToken(), w = F.writeBatch(db);
-    w.set(F.doc(db, COL, token), { nombre: String(nombre).trim().slice(0, 60), ced4: ced.slice(-4), sellos: 0, canjes: 0,
+    w.set(F.doc(db, COL, token), { nombre: String(nombre).trim().slice(0, 60), ced4: ced.slice(-4), sellos: 0, gratis: 0, canjes: 0, total: 0,
       creado: F.serverTimestamp(), actualizado: F.serverTimestamp() });
     w.set(F.doc(db, IDX, h), { t: token });
     await w.commit();
@@ -89,24 +89,43 @@ window.Tarjetas = (() => {
     return s.exists() ? s.data().t : null;
   }
   // ----- Solo en modo prueba -----
+  // total = sellos de toda la vida = sellos + 10 × (gratis + canjeados)
   const EJEMPLOS = [
-    {nombre: "Ana Solís", ced: "101110111", pin: "1111", sellos: 3, canjes: 0},
-    {nombre: "Carlos Mora", ced: "202220222", pin: "2222", sellos: 6, canjes: 1},
-    {nombre: "María Vargas", ced: "303330333", pin: "3333", sellos: 9, canjes: 0},
-    {nombre: "José Rojas", ced: "404440444", pin: "4444", sellos: 10, canjes: 2},
-    {nombre: "Laura Jiménez", ced: "505550555", pin: "5555", sellos: 0, canjes: 0}
-  ];
+    {nombre: "Ana Solís", ced: "101110111", pin: "1111", sellos: 3, gratis: 0, canjes: 0},
+    {nombre: "Carlos Mora", ced: "202220222", pin: "2222", sellos: 6, gratis: 1, canjes: 1},
+    {nombre: "María Vargas", ced: "303330333", pin: "3333", sellos: 9, gratis: 0, canjes: 0},
+    {nombre: "José Rojas", ced: "404440444", pin: "4444", sellos: 2, gratis: 5, canjes: 2},
+    {nombre: "Laura Jiménez", ced: "505550555", pin: "5555", sellos: 0, gratis: 0, canjes: 0},
+    {nombre: "Diego Castro", ced: "606660666", pin: "6666", sellos: 5, gratis: 2, canjes: 3},
+    {nombre: "Sofía Chaves", ced: "707770777", pin: "7777", sellos: 8, gratis: 1, canjes: 0},
+    {nombre: "Andrés Quesada", ced: "808880888", pin: "8888", sellos: 1, gratis: 0, canjes: 4},
+    {nombre: "Valeria Núñez", ced: "909990999", pin: "9999", sellos: 4, gratis: 3, canjes: 1},
+    {nombre: "Pablo Arias", ced: "112223334", pin: "1212", sellos: 7, gratis: 0, canjes: 1}
+  ].map(e => ({...e, total: e.sellos + 10 * (e.gratis + e.canjes)}));
   async function cargarEjemplos() {
     if (!PRUEBA) throw new Error("solo-prueba");
     await iniciar();
     for (const e of EJEMPLOS) {
       const h = await huella(e.ced), ya = await F.getDoc(F.doc(db, IDX, h));
       const token = ya.exists() ? ya.data().t : nuevoToken(), w = F.writeBatch(db);
-      w.set(F.doc(db, COL, token), { nombre: e.nombre, ced4: e.ced.slice(-4), sellos: e.sellos, canjes: e.canjes, creado: F.serverTimestamp(), actualizado: F.serverTimestamp() });
+      w.set(F.doc(db, COL, token), { nombre: e.nombre, ced4: e.ced.slice(-4), sellos: e.sellos, gratis: e.gratis, canjes: e.canjes, total: e.total, creado: F.serverTimestamp(), actualizado: F.serverTimestamp() });
       w.set(F.doc(db, IDX, h), { t: token });
       w.set(F.doc(db, ACC, await huellaAcceso(e.ced, e.pin)), { t: token });
       await w.commit();
     }
+  }
+  // Si faltan los clientes de ejemplo (o son de una versión vieja), se vuelven a cargar.
+  async function asegurarEjemplos() {
+    if (!PRUEBA) return;
+    await iniciar();
+    const ult = EJEMPLOS[EJEMPLOS.length - 1], s = await F.getDoc(F.doc(db, IDX, await huella(ult.ced)));
+    if (!s.exists()) await cargarEjemplos();
+  }
+  // Top 10 de clientes por sellos acumulados (en la versión real, solo la dueña con su acceso seguro).
+  async function top10() {
+    await iniciar();
+    const s = await F.getDocs(F.query(F.collection(db, COL), F.orderBy("total", "desc"), F.limit(10)));
+    return s.docs.map(d => normal({ token: d.id, ...d.data() }));
   }
   async function borrarPrueba() {
     if (!PRUEBA) throw new Error("solo-prueba");
@@ -116,32 +135,41 @@ window.Tarjetas = (() => {
       for (let i = 0; i < s.docs.length; i += 400) { const w = F.writeBatch(db); s.docs.slice(i, i + 400).forEach(d => w.delete(d.ref)); await w.commit(); }
     }
   }
-  // Suma sellos (máximo 10 en la tarjeta). No existe la opción de restar.
+  // Deja la tarjeta en su forma normal: sellos de 0 a 9; cada 10 sellos es un cóctel gratis guardado.
+  function normal(d) {
+    let sellos = d.sellos || 0, gratis = d.gratis || 0; const canjes = d.canjes || 0;
+    gratis += Math.floor(sellos / 10); sellos %= 10;
+    const total = d.total ?? ((d.sellos || 0) + 10 * ((d.gratis || 0) + canjes));
+    return { ...d, sellos, gratis, canjes, total };
+  }
+  // Suma sellos. Al llegar a 10 gana un cóctel gratis y la tarjeta vuelve a cero. No existe la opción de restar.
   async function sumar(token, n) {
     await iniciar();
-    const ref = F.doc(db, COL, token);
+    const ref = F.doc(db, COL, token), k = Math.max(1, Math.min(50, Math.floor(n)));
     return F.runTransaction(db, async tx => {
       const s = await tx.get(ref); if (!s.exists()) throw new Error("no-existe");
-      const actual = s.data().sellos || 0, nuevo = Math.min(10, actual + Math.max(1, Math.floor(n)));
-      if (nuevo <= actual) throw new Error("llena");
-      tx.update(ref, { sellos: nuevo, actualizado: F.serverTimestamp() });
-      return nuevo;
+      const d = normal(s.data()), suma = d.sellos + k, ganados = Math.floor(suma / 10);
+      const nuevo = { sellos: suma % 10, gratis: d.gratis + ganados, canjes: d.canjes, total: d.total + k };
+      tx.update(ref, { ...nuevo, actualizado: F.serverTimestamp() });
+      return { ...nuevo, ganados };
     });
   }
-  // Con la tarjeta llena (10 sellos), entrega la bebida gratis y la tarjeta vuelve a cero.
-  async function canjear(token) {
+  // Entrega cócteles gratis: la dueña escoge cuántos (hasta los que tenga guardados).
+  async function canjear(token, cuantos = 1) {
     await iniciar();
-    const ref = F.doc(db, COL, token);
+    const ref = F.doc(db, COL, token), k = Math.max(1, Math.floor(cuantos));
     return F.runTransaction(db, async tx => {
       const s = await tx.get(ref); if (!s.exists()) throw new Error("no-existe");
-      const d = s.data(); if ((d.sellos || 0) < 10) throw new Error("incompleta");
-      tx.update(ref, { sellos: 0, canjes: (d.canjes || 0) + 1, actualizado: F.serverTimestamp() });
+      const d = normal(s.data()); if (d.gratis < k) throw new Error("insuficientes");
+      const nuevo = { sellos: d.sellos, gratis: d.gratis - k, canjes: d.canjes + k, total: d.total };
+      tx.update(ref, { ...nuevo, actualizado: F.serverTimestamp() });
+      return nuevo;
     });
   }
   // Escucha la tarjeta y avisa cada vez que cambia (así el cliente ve sus sellos al instante).
   async function escuchar(token, alCambiar, alFallar) {
     await iniciar();
-    return F.onSnapshot(F.doc(db, COL, token), s => alCambiar(s.exists() ? { token, ...s.data() } : null), e => alFallar && alFallar(e));
+    return F.onSnapshot(F.doc(db, COL, token), s => alCambiar(s.exists() ? normal({ token, ...s.data() }) : null), e => alFallar && alFallar(e));
   }
-  return { prueba: PRUEBA, KEY, url, EJEMPLOS, cargarEjemplos, borrarPrueba, iniciar, buscarPorCedula, obtener, crear, crearAcceso, ingresar, sumar, canjear, escuchar, link, tokenDeTexto, soloDigitos };
+  return { prueba: PRUEBA, KEY, url, EJEMPLOS, cargarEjemplos, asegurarEjemplos, borrarPrueba, top10, normal, iniciar, buscarPorCedula, obtener, crear, crearAcceso, ingresar, sumar, canjear, escuchar, link, tokenDeTexto, soloDigitos };
 })();
