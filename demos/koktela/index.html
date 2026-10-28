@@ -136,6 +136,9 @@ section h2 .p{font:600 16px var(--f-txt);color:var(--oro)}
 .pn small{color:var(--suave);font-weight:700;font-size:12.5px}
 .pn.hoy small{color:var(--oro)}
 .dias{display:flex;flex-wrap:wrap;gap:6px}
+.prods{max-height:220px;overflow-y:auto;border:1px solid var(--linea);border-radius:12px;padding:8px}
+.prods .dias label:has(input:checked){border-color:currentColor;background:rgba(255,255,255,.08)}
+.pn .aplica,.promoC .aplica{display:block;font-weight:700;font-size:13px;margin-top:2px}
 .dias label{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--linea);border-radius:999px;padding:6px 10px;font-weight:700;font-size:13.5px;cursor:pointer}
 .ajuste{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .ajuste b{font-size:16px}
@@ -418,7 +421,7 @@ function pintarPromosNube() {
   const el = $("#promosNube"), hoy = ahoraCR().getUTCDay(), act = promosNube.filter(promoActiva);
   el.hidden = !act.length;
   el.innerHTML = act.map(p => { const rep = p.dias && p.dias.length, esHoy = rep && p.dias.includes(hoy);
-    return `<div class="pn${esHoy || !rep ? " hoy" : ""}"><span class="ic">📣</span><div><b>${esc(p.titulo)}${p.producto ? ` · ${esc(p.producto)}` : ""}</b>${p.texto ? `<span>${esc(p.texto)}</span>` : ""}<small>${rep ? textoDias(p.dias) + (esHoy ? " · ¡Hoy!" : "") : "Nueva"}</small></div></div>`; }).join("");
+    return `<div class="pn${esHoy || !rep ? " hoy" : ""}"><span class="ic">📣</span><div><b>${esc(p.titulo)}</b>${p.texto ? `<span>${esc(p.texto)}</span>` : ""}${p.producto ? `<span class="aplica">🍹 ${esc(p.producto)}</span>` : ""}<small>${rep ? textoDias(p.dias) + (esHoy ? " · ¡Hoy!" : "") : "Nueva"}</small></div></div>`; }).join("");
 }
 function vistaPromos() {
   const real = !Tarjetas.prueba;
@@ -427,7 +430,9 @@ function vistaPromos() {
   h += `<div class="grupo"><b>Nueva promoción</b>
     <label class="c">Título<input id="pTit" maxlength="60" placeholder="Ej.: Miércoles de 2x1" ${real ? "disabled" : ""}></label>
     <label class="c">Detalle<textarea id="pTxt" maxlength="200" rows="2" placeholder="Ej.: Todos los miércoles, bebidas seleccionadas al 2x1." ${real ? "disabled" : ""}></textarea></label>
-    <label class="c">Producto (opcional)<select id="pProd" ${real ? "disabled" : ""}><option value="">— Ninguno —</option>${D.productos.filter(x => !x.oculto).map(x => `<option>${esc(x.nombre)}</option>`).join("")}</select></label>
+    <b style="font-size:13px;color:var(--suave);text-transform:uppercase;letter-spacing:.04em">Productos de la promo (podés marcar varios)</b>
+    <div class="prods"><div class="dias">${D.productos.filter(x => !x.oculto).map(x => `<label><input type="checkbox" data-pprod="${esc(x.nombre)}" ${real ? "disabled" : ""}> ${esc(x.nombre)}</label>`).join("")}</div></div>
+    <span class="nota" id="pCuenta">Ninguno marcado (opcional).</span>
     <b style="font-size:13px;color:var(--suave);text-transform:uppercase;letter-spacing:.04em">¿Se repite cada semana?</b>
     <div class="dias">${DIAS_CORTOS.map((x, i) => `<label><input type="checkbox" data-pdia="${i}" ${real ? "disabled" : ""}> ${x}</label>`).join("")}</div>
     <span class="nota">Sin días marcados se avisa una sola vez, ahora mismo.</span>
@@ -902,7 +907,7 @@ document.addEventListener("click", async e => {
     cliOcupado = false; if (cliUnsub) { cliUnsub(); cliUnsub = null; } cli = null; cliNuevo = null; pintarAdmin(); return;
   }
   if (b.hasAttribute("data-publicar")) {
-    const titulo = $("#pTit").value.trim(), texto = $("#pTxt").value.trim(), producto = $("#pProd").value, dias = [...document.querySelectorAll("[data-pdia]:checked")].map(x => +x.dataset.pdia);
+    const titulo = $("#pTit").value.trim(), texto = $("#pTxt").value.trim(), producto = [...document.querySelectorAll("[data-pprod]:checked")].map(x => x.dataset.pprod), dias = [...document.querySelectorAll("[data-pdia]:checked")].map(x => +x.dataset.pdia);
     if (titulo.length < 2) { $("#pErr").textContent = "Escribí un título para la promo."; $("#pTit").focus(); return; }
     promoOcupado = true; b.disabled = true;
     try { await Tarjetas.publicarPromo({titulo, texto, producto, dias}); promoOcupado = false; pintarAdmin(); aviso("📣 Promo publicada: ya les llega a los clientes"); }
@@ -929,6 +934,7 @@ document.addEventListener("click", async e => {
   if (b.hasAttribute("data-reset")) { D = JSON.parse(JSON.stringify(BASE)); guardarD(); pintarMenu(); pintarHorario(); pintarAdmin(); aviso("Datos de ejemplo restaurados"); return; }
 });
 document.addEventListener("change", e => {
+  if (e.target.dataset && "pprod" in e.target.dataset) { const n = document.querySelectorAll("[data-pprod]:checked").length, c = $("#pCuenta"); if (c) c.textContent = n ? `${n} marcado${n > 1 ? "s" : ""}` : "Ninguno marcado (opcional)."; }
   const t = e.target;
   if (t.dataset.precio) { const p = D.productos.find(x => x.id === t.dataset.precio); p.precio = Math.max(0, +t.value || 0); guardarD(); pintarMenu(); aviso("Precio actualizado"); }
   if (t.dataset.flag) { const p = D.productos.find(x => x.id === t.dataset.id); p[t.dataset.flag] = t.checked; guardarD(); pintarMenu(); }

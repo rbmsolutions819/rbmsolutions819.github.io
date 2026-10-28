@@ -168,7 +168,7 @@ window.Tarjetas = (() => {
     await iniciar();
     const ult = EJEMPLOS[EJEMPLOS.length - 1], s = await F.getDoc(F.doc(db, IDX, await huella(ult.ced)));
     if (!s.exists()) await cargarEjemplos();
-    else if (!(await F.getDoc(F.doc(db, PRO, PROMOS_EJEMPLO[0].id))).exists()) await cargarPromosEjemplo();
+    else { const e = await F.getDoc(F.doc(db, PRO, PROMOS_EJEMPLO[0].id)); if (!e.exists() || e.data().producto !== PROMOS_EJEMPLO[0].producto) await cargarPromosEjemplo(); }
   }
   // Top 10 de clientes por sellos acumulados (en la versión real, solo la dueña con su acceso seguro).
   async function top10() {
@@ -202,14 +202,14 @@ window.Tarjetas = (() => {
   // ----- Promociones: la dueña las publica y les llegan a todos los clientes que tengan la página -----
   // dias: [] = una sola vez (se avisa al publicarla); [3] = se repite todos los miércoles (0 = domingo).
   const PROMOS_EJEMPLO = [
-    {id: "ej-miercoles", titulo: "Miércoles de 2x1", texto: "Todos los miércoles, cócteles seleccionados al 2x1. ¡Doble es mejor!", producto: "Hades", dias: [3]},
+    {id: "ej-miercoles", titulo: "Miércoles de 2x1", texto: "Todos los miércoles, estos cócteles al 2x1. ¡Doble es mejor!", producto: "Cíclope, Artemisa, Afrodita, Zeus, Ninfa, Sirena", dias: [3]},
     {id: "ej-domingo", titulo: "Domingo: 3 por ₡10.000", texto: "De 2 a 8 p. m., armá tu combo de 3 cócteles.", producto: "", dias: [0]},
     {id: "ej-nuevo", titulo: "¡Nuevo! Ajax", texto: "Arándano, naranja, soda, Aperol y vodka. Probalo esta semana.", producto: "Ajax", dias: []}
   ];
   async function publicarPromo({ titulo, texto, producto = "", dias = [] }) {
     await iniciar();
     const r = await F.addDoc(F.collection(db, PRO), { titulo: String(titulo).trim().slice(0, 60), texto: String(texto).trim().slice(0, 200),
-      producto: String(producto || "").slice(0, 60), dias: [...new Set(dias.map(Number))].filter(n => n >= 0 && n <= 6).sort(), creado: F.serverTimestamp() });
+      producto: (Array.isArray(producto) ? producto.join(", ") : String(producto || "")).slice(0, 400), dias: [...new Set(dias.map(Number))].filter(n => n >= 0 && n <= 6).sort(), creado: F.serverTimestamp() });
     return r.id;
   }
   async function borrarPromo(id) { await iniciar(); await F.deleteDoc(F.doc(db, PRO, id)); }

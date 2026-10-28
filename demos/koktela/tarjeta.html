@@ -214,7 +214,7 @@ function pintarPromos() {
   const hoy = ahoraCR().getUTCDay();
   el.hidden = !promos.length;
   el.innerHTML = `<b>📣 Promociones</b>` + promos.map(p => { const rep = p.dias && p.dias.length, esHoy = rep && p.dias.includes(hoy);
-    return `<div class="promoC${esHoy || !rep ? " hoy" : ""}"><b>${esc(p.titulo)}${p.producto ? ` · ${esc(p.producto)}` : ""}</b>${p.texto ? `<span>${esc(p.texto)}</span>` : ""}<small>${rep ? textoDias(p.dias) + (esHoy ? " · ¡Hoy!" : "") : "Nueva"}</small></div>`; }).join("");
+    return `<div class="promoC${esHoy || !rep ? " hoy" : ""}"><b>${esc(p.titulo)}</b>${p.texto ? `<span>${esc(p.texto)}</span>` : ""}${p.producto ? `<span style="font-weight:700">🍹 ${esc(p.producto)}</span>` : ""}<small>${rep ? textoDias(p.dias) + (esHoy ? " · ¡Hoy!" : "") : "Nueva"}</small></div>`; }).join("");
 }
 function iniciarPromos() {
   Tarjetas.escucharPromos(lista => {
