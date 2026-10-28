@@ -178,6 +178,17 @@ service cloud.firestore {
       allow delete: if esAdmin();
     }
 
+    // Usuario del cliente de Koktela: la llave es una huella de cédula + clave; apunta a su tarjeta.
+    match /demo_koktela_acceso/{h} {
+      allow get: if true;
+      allow list, update: if false;
+      allow create: if h.size() == 64
+        && request.resource.data.keys().hasOnly(['t'])
+        && request.resource.data.t is string
+        && exists(/databases/$(database)/documents/demo_koktela_clientes/$(request.resource.data.t));
+      allow delete: if esAdmin();
+    }
+
     match /{path=**} { allow read, write: if false; }
   }
 }

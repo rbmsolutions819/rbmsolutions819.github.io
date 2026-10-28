@@ -11,7 +11,7 @@ window.Tarjetas = (() => {
     messagingSenderId: "602522235911",
     appId: "1:602522235911:web:bd4fe58dcecb79edefe6a2"
   };
-  const COL = "demo_koktela_clientes", IDX = "demo_koktela_ced";
+  const COL = "demo_koktela_clientes", IDX = "demo_koktela_ced", ACC = "demo_koktela_acceso";
   const BASE = "https://www.gstatic.com/firebasejs/10.12.2/";
   let listo = null, F = null, db = null;
 
@@ -27,6 +27,12 @@ window.Tarjetas = (() => {
   const soloDigitos = s => String(s || "").replace(/\D/g, "");
   async function huella(cedula) {
     const datos = new TextEncoder().encode("koktela:" + soloDigitos(cedula));
+    const h = await crypto.subtle.digest("SHA-256", datos);
+    return [...new Uint8Array(h)].map(b => b.toString(16).padStart(2, "0")).join("");
+  }
+  // Usuario del cliente: cédula + clave de 4 dígitos. Se guarda solo una huella de las dos juntas, nunca la clave.
+  async function huellaAcceso(cedula, clave) {
+    const datos = new TextEncoder().encode("koktela-acceso:" + soloDigitos(cedula) + ":" + soloDigitos(clave));
     const h = await crypto.subtle.digest("SHA-256", datos);
     return [...new Uint8Array(h)].map(b => b.toString(16).padStart(2, "0")).join("");
   }
@@ -60,6 +66,23 @@ window.Tarjetas = (() => {
     await w.commit();
     return { token, existia: false };
   }
+  // Crea el usuario del cliente (cédula + clave). Solo funciona si esa cédula es la de esta tarjeta.
+  async function crearAcceso(token, cedula, clave) {
+    await iniciar();
+    if (soloDigitos(clave).length !== 4) throw new Error("clave");
+    const t = await buscarPorCedula(cedula);
+    if (t !== token) throw new Error("cedula");
+    const ref = F.doc(db, ACC, await huellaAcceso(cedula, clave));
+    const ya = await F.getDoc(ref);
+    if (!ya.exists()) await F.setDoc(ref, { t: token });
+    return true;
+  }
+  // Ingreso del cliente: con cédula y clave devuelve el código de su tarjeta (o null si no coincide).
+  async function ingresar(cedula, clave) {
+    await iniciar();
+    const s = await F.getDoc(F.doc(db, ACC, await huellaAcceso(cedula, clave)));
+    return s.exists() ? s.data().t : null;
+  }
   // Suma sellos (máximo 10 en la tarjeta). No existe la opción de restar.
   async function sumar(token, n) {
     await iniciar();
@@ -87,5 +110,5 @@ window.Tarjetas = (() => {
     await iniciar();
     return F.onSnapshot(F.doc(db, COL, token), s => alCambiar(s.exists() ? { token, ...s.data() } : null), e => alFallar && alFallar(e));
   }
-  return { iniciar, buscarPorCedula, obtener, crear, sumar, canjear, escuchar, link, tokenDeTexto, soloDigitos };
+  return { iniciar, buscarPorCedula, obtener, crear, crearAcceso, ingresar, sumar, canjear, escuchar, link, tokenDeTexto, soloDigitos };
 })();
