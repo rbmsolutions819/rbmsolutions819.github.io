@@ -723,7 +723,8 @@ if (!lsGet("kk-mayor", false)) { $("#edad").hidden = false; }
 $("#soyMayor").addEventListener("click", () => { lsSet("kk-mayor", true); $("#edad").hidden = true; });
 $("#maps").href = `https://www.google.com/maps/search/?api=1&query=${q}`;
 $("#waze").href = `https://waze.com/ul?q=${q}&navigate=yes`;
-if (Tarjetas.prueba) $("#bPrueba").hidden = false;
+if (Tarjetas.prueba) { $("#bPrueba").hidden = false;
+  Tarjetas.buscarPorCedula(Tarjetas.EJEMPLOS[0].ced).then(t => t ? null : Tarjetas.cargarEjemplos()).catch(() => {}); }
 pintarCats(); pintarMenu(); pintarHorario(); pintarCarrito(); pintarSellos();
 // #sellos-TOKEN: la dueña escaneó con la cámara normal del celular y tocó "Sumar sellos" en la tarjeta del cliente.
 function leerHash() {

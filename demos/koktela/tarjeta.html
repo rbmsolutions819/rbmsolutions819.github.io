@@ -61,6 +61,10 @@ body{margin:0;background:radial-gradient(700px 400px at 80% -10%,rgba(31,91,181,
 .err{color:var(--magenta);font-weight:700;font-size:14px;min-height:1em;margin:0}
 .ejemplo{border:1px dashed var(--linea);border-radius:8px;padding:10px 12px;font-size:13.5px;color:var(--suave);text-align:left}
 .ejemplo b{color:var(--texto)}
+.ejs{display:grid;gap:6px;margin-top:8px}
+.ejs button{display:grid;gap:1px;text-align:left;border:1px solid var(--linea);background:var(--fondo);border-radius:6px;padding:8px 10px;color:var(--texto);font:600 14px var(--f-txt);cursor:pointer}
+.ejs button:hover{border-color:var(--oro)}
+.ejs small{color:var(--suave);font-size:12.5px}
 .salir{border:0;background:none;color:var(--suave);text-decoration:underline;cursor:pointer;font-size:13px;justify-self:center}
 details.clave{border:1px dashed var(--linea);border-radius:8px;padding:10px 12px;text-align:left}
 details.clave summary{cursor:pointer;font-weight:800;font-size:14.5px}
@@ -112,24 +116,38 @@ function pintarIngreso() {
       <p class="err" id="iErr"></p>
       <button class="btn pri" type="submit" id="iBtn">Ver mis sellos</button>
     </form>
-    <div class="ejemplo"><b>Usuario de ejemplo</b><br>Cédula <b>1 1111 1111</b> · clave <b>1234</b></div>
+    <div class="ejemplo"><b>🧪 Usuarios de prueba</b> · tocá uno para entrar
+      <div class="ejs">${Tarjetas.EJEMPLOS.map((e, i) => `<button type="button" data-ej="${i}"><span><b>${esc(e.nombre)}</b> · ${e.sellos} sello${e.sellos === 1 ? "" : "s"}</span><small>cédula ${e.ced} · clave ${e.pin}</small></button>`).join("")}</div></div>
     <p class="nota">¿No tenés clave? Pedila en la barra, o abrí el link que te mandamos por WhatsApp y creala desde ahí.</p>
     <a class="btn" href="${Tarjetas.url('./')}">Ver el menú</a>`;
+  t.querySelectorAll("[data-ej]").forEach(b => b.addEventListener("click", () => {
+    const e = Tarjetas.EJEMPLOS[+b.dataset.ej]; $("#iCed").value = e.ced; $("#iPin").value = e.pin; $("#fIng").requestSubmit();
+  }));
   $("#fIng").addEventListener("submit", async e => {
     e.preventDefault();
     const ced = Tarjetas.soloDigitos($("#iCed").value), pin = Tarjetas.soloDigitos($("#iPin").value), err = $("#iErr");
     if (ced.length < 9) { err.textContent = "Escribí tu cédula completa."; $("#iCed").focus(); return; }
     if (pin.length !== 4) { err.textContent = "La clave tiene 4 dígitos."; $("#iPin").focus(); return; }
     if (ced === EJEMPLO.ced && pin === EJEMPLO.pin) return entrar(EJEMPLO.token);
-    $("#iBtn").disabled = true; err.textContent = "";
+    const ej = Tarjetas.EJEMPLOS.find(x => x.ced === ced && x.pin === pin);
+    // Un usuario de prueba siempre entra al modo prueba (base de datos aparte).
+    if (ej && !Tarjetas.prueba) { try { sessionStorage.setItem("kk-auto", JSON.stringify({ced, pin})); } catch {} location.href = new URL("tarjeta.html?prueba#ingresar", location.href).href; return; }
+    $("#iBtn").disabled = true; $("#iBtn").textContent = "Entrando…"; err.textContent = "";
     try {
-      const tk = await Tarjetas.ingresar(ced, pin);
-      if (!tk) { err.textContent = "La cédula o la clave no coinciden."; $("#iBtn").disabled = false; return; }
+      let tk = await Tarjetas.ingresar(ced, pin);
+      // Si la base de prueba está vacía, se crean los clientes de ejemplo en ese momento.
+      if (!tk && ej) { await Tarjetas.cargarEjemplos(); tk = await Tarjetas.ingresar(ced, pin); }
+      if (!tk) { err.textContent = "La cédula o la clave no coinciden."; $("#iBtn").disabled = false; $("#iBtn").textContent = "Ver mis sellos"; return; }
       entrar(tk);
-    } catch { err.textContent = "No se pudo ingresar. Revisá tu conexión."; $("#iBtn").disabled = false; }
+    } catch { err.textContent = "No se pudo ingresar. Revisá tu conexión."; $("#iBtn").disabled = false; $("#iBtn").textContent = "Ver mis sellos"; }
   });
 }
-if (!token) { pintarIngreso(); return; }
+if (!token) {
+  pintarIngreso();
+  let auto = null; try { auto = JSON.parse(sessionStorage.getItem("kk-auto")); sessionStorage.removeItem("kk-auto"); } catch {}
+  if (auto && Tarjetas.prueba) { $("#iCed").value = auto.ced; $("#iPin").value = auto.pin; $("#fIng").requestSubmit(); }
+  return;
+}
 const esEjemplo = token === EJEMPLO.token;
 lsSet(Tarjetas.KEY, token);
 if (!location.hash.includes(token)) history.replaceState(null, "", "#t=" + token);
