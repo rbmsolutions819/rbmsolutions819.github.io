@@ -116,6 +116,37 @@ service cloud.firestore {
         && request.resource.data.publicadas is list && request.resource.data.publicadas.size() <= 40;
     }
 
+    // Demo Matcha Mía: tarjetas de sellos. Se abren solo con su código secreto (no se pueden listar).
+    // Solo se puede SUMAR sellos (hasta 10) o canjear una tarjeta llena (vuelve a 0 y suma un canje). Nunca restar.
+    match /demo_matcha_clientes/{t} {
+      allow get: if true;
+      allow list: if false;
+      allow create: if t.size() >= 16 && t.size() <= 40
+        && request.resource.data.keys().hasOnly(['nombre','ced4','sellos','canjes','creado','actualizado'])
+        && request.resource.data.nombre is string && request.resource.data.nombre.size() >= 2 && request.resource.data.nombre.size() <= 60
+        && request.resource.data.ced4 is string && request.resource.data.ced4.size() == 4
+        && request.resource.data.sellos == 0 && request.resource.data.canjes == 0
+        && request.resource.data.creado == request.time && request.resource.data.actualizado == request.time;
+      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['sellos','canjes','actualizado'])
+        && request.resource.data.actualizado == request.time
+        && request.resource.data.sellos is int && request.resource.data.sellos <= 10
+        && (
+          (request.resource.data.sellos > resource.data.sellos && request.resource.data.canjes == resource.data.canjes)
+          || (resource.data.sellos == 10 && request.resource.data.sellos == 0 && request.resource.data.canjes == resource.data.canjes + 1)
+        );
+      allow delete: if esAdmin();
+    }
+    // Índice para buscar por cédula: la llave es una huella (hash) de la cédula, no la cédula.
+    match /demo_matcha_ced/{h} {
+      allow get: if true;
+      allow list, update: if false;
+      allow create: if h.size() == 64
+        && request.resource.data.keys().hasOnly(['t'])
+        && request.resource.data.t is string
+        && existsAfter(/databases/$(database)/documents/demo_matcha_clientes/$(request.resource.data.t));
+      allow delete: if esAdmin();
+    }
+
     match /{path=**} { allow read, write: if false; }
   }
 }
