@@ -34,6 +34,20 @@ a{color:var(--fucsia2)}
 .wrap{max-width:980px;margin:0 auto;padding-left:var(--gl);padding-right:var(--gr)}
 .demo{background:var(--tinta);color:#fff;font-size:12.5px;text-align:center;padding:6px var(--gr) 6px var(--gl);padding-top:calc(6px + env(safe-area-inset-top,0px))}
 .demo b{color:var(--rosa2)}
+.prueba{background:#f6c90e;color:#1a1400;font-size:13px;font-weight:700;text-align:center;padding:6px var(--gr) 6px var(--gl)}
+.prueba a{color:#1a1400;font-weight:800}
+.ejs{display:grid;gap:4px;font-size:13.5px}
+.ejs div{display:flex;justify-content:space-between;gap:8px;border-bottom:1px dashed var(--linea);padding:4px 0}
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.stats div{background:#fff;border:2px solid var(--linea);border-radius:14px;padding:10px;display:grid;gap:2px;text-align:center}
+.stats b{font:400 24px/1.1 var(--f-logo);color:var(--fucsia)}
+.stats span{font-size:12.5px;color:var(--suave);font-weight:800}
+.stats .dest{border-color:var(--fucsia);background:var(--rosa)}
+.top10{display:grid}
+.top10 button{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:2px 10px;align-items:center;text-align:left;border:0;border-bottom:1px dashed var(--linea);background:none;color:var(--tinta);padding:9px 2px;cursor:pointer;font:inherit}
+.top10 .pos{font:400 20px var(--f-logo);color:var(--fucsia);grid-row:span 2}
+.top10 small{grid-column:2;color:var(--suave);font-size:12.5px}
+.top10 .n{grid-row:span 2;grid-column:3;text-align:right;font-weight:800}
 
 /* portada */
 .top{background:var(--rosa);border-bottom:2px solid var(--rosa2)}
@@ -171,6 +185,7 @@ label.c textarea{min-height:64px;resize:vertical}
 <body>
 
 <div class="demo">Demo de <b>RBM Solutions</b> · menú, precios y horario de ejemplo</div>
+<div class="prueba" id="bPrueba" hidden>🧪 <b>Modo prueba</b> · los clientes y sellos son de ejemplo, no son reales · <a href="./">Salir</a></div>
 
 <header class="top">
   <div class="wrap">
@@ -268,11 +283,12 @@ let D = lsGet("mm-datos", null) || JSON.parse(JSON.stringify(BASE));
 let pedido = lsGet("mm-pedido", []);
 // Tarjeta de sellos: la dueña registra a cada cliente (nombre y cédula) y se genera su QR.
 // Todo se guarda en Firebase: el cliente ve sus sellos al instante en su tarjeta (tarjeta.html).
-let miToken = lsGet("mm-token", null);
+let miToken = lsGet(Tarjetas.KEY, null);
 let catSel = "todo", admin = lsGet("mm-admin", false);
+let confirmarBorrado = false, cliCanje = 1, top = null;
 let cli = null, cliPend = 0, cliMsg = "", cliOcupado = false, cliUnsub = null, cliNuevo = null;
-let recientes = lsGet("mm-recientes", []);
-const recordar = (token, nombre) => { recientes = [{token, nombre}, ...recientes.filter(r => r.token !== token)].slice(0, 12); lsSet("mm-recientes", recientes); };
+let recientes = lsGet(Tarjetas.prueba ? "mm-recientes-prueba" : "mm-recientes", []);
+const recordar = (token, nombre) => { recientes = [{token, nombre}, ...recientes.filter(r => r.token !== token)].slice(0, 12); lsSet(Tarjetas.prueba ? "mm-recientes-prueba" : "mm-recientes", recientes); };
 const guardarD = () => lsSet("mm-datos", D);
 const guardarP = () => { lsSet("mm-pedido", pedido); pintarCarrito(); };
 
@@ -382,8 +398,16 @@ function selloHTML(n, pend = 0) {
   const s = Math.min(n, 10);
   return `<div class="sellos">${Array.from({length: 10}, (_, i) => {
     const lleno = i < s, nuevo = !lleno && i < s + pend;
-    if (i === 9) return `<i class="${lleno ? "si" : nuevo ? "pend" : "gratis"}">${lleno || nuevo ? "★" : "GRATIS"}</i>`;
+    if (i === 9) return `<i class="${lleno ? "si" : nuevo ? "pend" : "gratis"}">${lleno || nuevo ? "🐾" : "GRATIS"}</i>`;
     return `<i class="${lleno ? "si" : nuevo ? "pend" : ""}">${lleno || nuevo ? "🐾" : ""}</i>`; }).join("")}</div>`;
+}
+// Cuadritos con los números de la tarjeta
+function statsHTML(c, dueña) {
+  return `<div class="stats">
+    <div class="dest"><b>${c.gratis}</b><span>🎁 Bebida${c.gratis === 1 ? "" : "s"} gratis ${dueña ? "por canjear" : "disponible" + (c.gratis === 1 ? "" : "s")}</span></div>
+    <div><b>${10 - c.sellos}</b><span>Sello${10 - c.sellos === 1 ? "" : "s"} para la próxima gratis</span></div>
+    <div><b>${c.total}</b><span>🐾 Sellos acumulados en total</span></div>
+    <div><b>${c.canjes}</b><span>✅ Gratis ya canjeada${c.canjes === 1 ? "" : "s"}</span></div></div>`;
 }
 function dibujarQR(el, texto, tam = 220) {
   if (!el) return;
@@ -396,19 +420,21 @@ function pintarSellos() {
   const t = $("#tarjeta");
   if (!miToken) {
     t.innerHTML = `<p>Pedí tu tarjeta gratis en la barra: te registramos con tu nombre y cédula y te mandamos tu QR por WhatsApp.</p>
-      ${selloHTML(0)}<p class="nota">Cada bebida suma un sello y <b>la décima es gratis</b>. Si ya tenés tu tarjeta, abrí el link que te mandamos.</p>`;
+      ${selloHTML(0)}<p class="nota">Cada bebida suma un sello. Al juntar 10 <b>ganás una bebida gratis</b> y tu tarjeta empieza de cero.</p>
+      <div class="fila-btn"><a class="btn sm pri" href="${Tarjetas.url('tarjeta.html#ingresar')}">Ya tengo tarjeta: ingresar con mi cédula</a></div>`;
     return;
   }
   t.innerHTML = `<p class="nota">Cargando tu tarjeta…</p>`;
   if (miUnsub) return;
   const fallo = () => { t.innerHTML = `<p class="nota">No se pudo cargar tu tarjeta. Revisá tu conexión.</p>`; };
   Tarjetas.escuchar(miToken, c => {
-    if (!c) { miToken = null; lsSet("mm-token", null); pintarSellos(); return; }
+    if (!c) { miToken = null; lsSet(Tarjetas.KEY, null); pintarSellos(); return; }
     t.innerHTML = `<div class="miTarj"><div class="qr" id="qr" aria-label="Código QR de tu tarjeta"></div>
         <div style="display:grid;gap:6px"><span class="nota">Tarjeta de</span><span class="codigo" style="letter-spacing:0">${esc(c.nombre)}</span>
         <span class="nota">Mostrá este QR en la barra y te sumamos los sellos.</span><a class="btn sm" href="${Tarjetas.link(miToken)}">Abrir mi tarjeta</a></div></div>
       ${selloHTML(c.sellos)}
-      <p class="nota">${c.sellos >= 10 ? "<b>¡Tu próxima bebida es gratis!</b> Mostrá tu QR para canjearla." : `Llevás ${c.sellos} de 10. Te faltan ${10 - c.sellos} para tu bebida gratis.`}</p>`;
+      ${c.gratis ? `<p><b>🎁 Tenés ${c.gratis} bebida${c.gratis === 1 ? "" : "s"} gratis.</b> Mostrá tu QR en la barra para canjear${c.gratis === 1 ? "la" : "las"}.</p>` : ""}
+      ${statsHTML(c)}`;
     dibujarQR($("#qr"), Tarjetas.link(miToken));
   }, fallo).then(u => miUnsub = u).catch(fallo);
 }
@@ -419,7 +445,7 @@ function abrirFicha(token) {
   cli = {token, cargando: true}; cliPend = 0; cliMsg = ""; tabAdm = "cli"; pintarAdmin();
   Tarjetas.escuchar(token, c => {
     if (!c) { cli = null; cliMsg = "No encontramos esa tarjeta. Puede que el QR no sea de esta cafetería."; }
-    else { cli = c; recordar(token, c.nombre); if (cliPend > 10 - c.sellos) cliPend = Math.max(0, 10 - c.sellos); }
+    else { cli = c; recordar(token, c.nombre); cliCanje = Math.max(1, Math.min(cliCanje, c.gratis || 1)); }
     if ($("#hoja").classList.contains("on") && tabAdm === "cli" && !camStream) { const sc = $("#hoja").scrollTop; pintarAdmin(); $("#hoja").scrollTop = sc; }
   }, () => { cliMsg = "No se pudo cargar la tarjeta. Revisá la conexión."; cli = null; pintarAdmin(); })
     .then(u => cliUnsub = u).catch(() => { cliMsg = "No se pudo conectar. Revisá la conexión."; cli = null; pintarAdmin(); });
@@ -431,28 +457,48 @@ function vistaSellos() {
     ${cliMsg ? `<p class="err" role="alert">${esc(cliMsg)}</p>` : ""}`;
   if (cli && cli.cargando) h += `<div class="ficha"><span class="nota">Cargando tarjeta…</span></div>`;
   else if (cli) {
-    const libres = 10 - cli.sellos;
+    const suma = cli.sellos + cliPend, ganaria = Math.floor(suma / 10);
     h += `<div class="ficha"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><b style="font-size:19px">${esc(cli.nombre)}</b><span class="nota">Cédula ****${esc(cli.ced4)}</span></div>
+      ${statsHTML(cli, true)}
+      ${cli.gratis ? `<div class="grupo" style="border:2px solid var(--fucsia);border-radius:14px;padding:12px;background:var(--rosa)"><b>🎁 Canjear bebidas gratis</b>
+        <div class="ajuste"><div class="cant"><button type="button" data-canje="-1" aria-label="Una menos" ${cliCanje <= 1 ? "disabled" : ""}>−</button><b>${cliCanje}</b><button type="button" data-canje="1" aria-label="Una más" ${cliCanje >= cli.gratis ? "disabled" : ""}>+</button></div>
+          <span>de ${cli.gratis} disponible${cli.gratis === 1 ? "" : "s"}</span></div>
+        <div><button class="btn pri" type="button" data-canjear ${cliOcupado ? "disabled" : ""}>Canjear ${cliCanje} gratis</button></div></div>` : ""}
+      <b style="font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--suave)">Sumar sellos · lleva ${cli.sellos} de 10</b>
       ${selloHTML(cli.sellos, cliPend)}
-      <span class="nota">Tiene <b>${cli.sellos} de 10</b> sellos${cli.canjes ? ` · ${cli.canjes} bebida${cli.canjes === 1 ? "" : "s"} gratis canjeada${cli.canjes === 1 ? "" : "s"}` : ""}</span>
-      ${cli.sellos >= 10 ? `<p><b>Tarjeta llena:</b> le toca una bebida gratis.</p><div><button class="btn pri" type="button" data-canjear ${cliOcupado ? "disabled" : ""}>Canjear bebida gratis</button></div>`
-      : `<div class="ajuste"><div class="cant"><button type="button" data-pend="-1" aria-label="Quitar uno" ${cliPend <= 0 ? "disabled" : ""}>−</button><b>${cliPend}</b><button type="button" data-pend="1" aria-label="Agregar uno" ${cliPend >= libres ? "disabled" : ""}>+</button></div>
+      ${ganaria ? `<p class="nota" style="color:var(--fucsia2)">🎉 Con estos sellos gana <b>${ganaria} bebida${ganaria === 1 ? "" : "s"} gratis</b> y la tarjeta queda en ${suma % 10} de 10.</p>` : ""}
+      ${`<div class="ajuste"><div class="cant"><button type="button" data-pend="-1" aria-label="Quitar uno" ${cliPend <= 0 ? "disabled" : ""}>−</button><b>${cliPend}</b><button type="button" data-pend="1" aria-label="Agregar uno" ${cliPend >= 30 ? "disabled" : ""}>+</button></div>
           <span>sello${cliPend === 1 ? "" : "s"} por agregar</span></div>
         <button class="btn pri" type="button" data-guardar-sellos ${cliPend < 1 || cliOcupado ? "disabled" : ""}>${cliPend ? `Guardar ${cliPend} sello${cliPend === 1 ? "" : "s"}` : "Elegí cuántos sellos agregar"}</button>
         <p class="nota">Podés corregir con − antes de guardar. Una vez guardados, los sellos ya no se pueden quitar.</p>`}
       <div class="fila-btn"><button class="btn sm" type="button" data-cerrar-ficha>Listo, otro cliente</button></div></div>`;
   }
   if (cliNuevo) {
-    const msj = `¡Hola ${cliNuevo.nombre.split(" ")[0]}! 💚 Esta es tu tarjeta de sellos de ${D.negocio.nombre}. Abrila y guardala en tu pantalla de inicio:\n${Tarjetas.link(cliNuevo.token)}`;
+    const msj = `¡Hola ${cliNuevo.nombre.split(" ")[0]}! 💚 Esta es tu tarjeta de sellos de ${D.negocio.nombre}. Abrila y guardala en tu pantalla de inicio:\n${Tarjetas.link(cliNuevo.token)}${cliNuevo.pin ? `\n\nTambién podés entrar con tu usuario:\nCédula: ${cliNuevo.ced}\nClave: ${cliNuevo.pin}` : ""}`;
     h += `<div class="grupo"><b>${cliNuevo.existia ? "Esa cédula ya tenía tarjeta" : "Tarjeta creada"}</b><div class="compartir"><div class="qr" id="qrNuevo"></div>
       <div style="display:grid;gap:8px"><span><b>${esc(cliNuevo.nombre)}</b> ya tiene su tarjeta.</span>
+        ${cliNuevo.pin ? `<span class="nota">Usuario: <b>cédula ${esc(cliNuevo.ced)}</b> · clave <b>${esc(cliNuevo.pin)}</b></span>` : ""}
         <span class="nota">Mandale el link para que vea su QR y sus sellos. Lo puede guardar en la pantalla de inicio de su celular.</span>
         <div class="fila-btn">${cliNuevo.tel ? `<a class="btn sm verde" target="_blank" rel="noopener" href="https://wa.me/506${cliNuevo.tel}?text=${encodeURIComponent(msj)}">Enviar por WhatsApp</a>` : ""}
           <button class="btn sm" type="button" data-copiar-link="${esc(Tarjetas.link(cliNuevo.token))}">Copiar link</button></div></div></div></div>`;
   }
+  h += `<div class="grupo"><b>🏆 Top 10 clientes</b>
+    ${top === null ? `<div><button class="btn sm" type="button" data-top>Ver los que más sellos tienen</button></div>`
+    : top === "cargando" ? `<span class="nota">Cargando…</span>`
+    : top === "error" ? `<p class="nota">${Tarjetas.prueba ? "No se pudo cargar. Revisá la conexión." : "En la versión real, el top 10 solo lo ve la dueña con su acceso seguro (correo y contraseña). Probalo en el <a href='./?prueba'>modo prueba</a>."}</p>`
+    : !top.length ? `<span class="nota">Todavía no hay clientes.</span>`
+    : `<div class="top10">${top.map((c, i) => `<button type="button" data-ficha="${esc(c.token)}"><span class="pos">${i + 1}</span><b>${esc(c.nombre)}</b><span class="n">${c.total} 🐾</span>
+        <small>${c.gratis} gratis por canjear · ${c.canjes} canjeada${c.canjes === 1 ? "" : "s"} · ${c.sellos} de 10</small></button>`).join("")}</div>
+      <div><button class="btn sm" type="button" data-top>Actualizar</button></div>`}</div>`;
+  if (Tarjetas.prueba) h += `<div class="grupo"><b>🧪 Base de datos de prueba</b>
+      <p class="nota">Clientes de ejemplo para practicar o enseñar la demo. Entran en la tarjeta con su cédula y su clave.</p>
+      <div class="ejs">${Tarjetas.EJEMPLOS.map(e => `<div><span>${esc(e.nombre)} · ${e.sellos} de 10 · ${e.gratis} gratis</span><span>${e.ced} · clave ${e.pin}</span></div>`).join("")}</div>
+      <div class="fila-btn"><button class="btn sm pri" type="button" data-pr-cargar ${cliOcupado ? "disabled" : ""}>Cargar clientes de ejemplo</button>
+        <button class="btn sm" type="button" data-pr-borrar ${cliOcupado ? "disabled" : ""}>Borrar todo y empezar de cero</button></div></div>`;
   h += `<div class="grupo"><b>Registrar cliente nuevo</b>
       <label class="c">Nombre completo<input id="rNom" maxlength="60" autocomplete="off" placeholder="Ej.: Daniela Mora"></label>
       <label class="c">Cédula<input id="rCed" inputmode="numeric" maxlength="15" autocomplete="off" placeholder="Ej.: 1 1234 5678"></label>
+      <label class="c">Clave del cliente, 4 dígitos (opcional)<input id="rPin" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="Ej.: 4821"></label>
       <label class="c">Celular para mandarle el QR (opcional)<input id="rTel" inputmode="tel" maxlength="12" autocomplete="off" placeholder="Ej.: 8888 7777"></label>
       <p class="err" id="rErr"></p><div><button class="btn pri" type="button" data-registrar ${cliOcupado ? "disabled" : ""}>Crear tarjeta y QR</button></div>
       <p class="nota">De la cédula solo se guardan los últimos 4 dígitos y una huella para poder buscarla.</p></div>`;
@@ -536,7 +582,8 @@ function _pintarAdmin() {
       <button class="btn sm" type="button" data-reset>Volver a los datos de ejemplo</button></div>`;
   }
   abrirHoja(`<div class="asa"></div><button class="x" type="button" data-cerrar aria-label="Cerrar">×</button>
-    <h2 id="hojaT">Administrar menú</h2><p class="nota">${tabAdm === "cli" ? "Las tarjetas se guardan en la nube: el cliente ve sus sellos al instante." : "En la demo, los cambios del menú se guardan solo en este celular."} <button type="button" data-salir style="border:0;background:none;color:var(--fucsia2);text-decoration:underline;cursor:pointer">Salir</button></p>${tabs}${cuerpo}`);
+    <h2 id="hojaT">Administrar menú</h2><p class="nota">${tabAdm === "cli" ? (Tarjetas.prueba ? "🧪 Estás en el <b>modo prueba</b>: nada de esto toca los clientes reales." : "Las tarjetas se guardan en la nube: el cliente ve sus sellos al instante.") : "En la demo, los cambios del menú se guardan solo en este celular."}
+      <a href="${Tarjetas.prueba ? "./" : "./?prueba"}">${Tarjetas.prueba ? "Volver a los datos reales" : "🧪 Abrir modo prueba"}</a> <button type="button" data-salir style="border:0;background:none;color:var(--fucsia2);text-decoration:underline;cursor:pointer">Salir</button></p>${tabs}${cuerpo}`);
 }
 
 /* ===== Acciones ===== */
@@ -576,16 +623,27 @@ document.addEventListener("click", async e => {
   if (b.hasAttribute("data-cerrar-cam")) { cerrarCamara(); tabAdm = "cli"; pintarAdmin(); return; }
   if (b.dataset.ficha) { cliNuevo = null; abrirFicha(b.dataset.ficha); return; }
   if (b.hasAttribute("data-cerrar-ficha")) { if (cliUnsub) { cliUnsub(); cliUnsub = null; } cli = null; cliPend = 0; cliMsg = ""; cliNuevo = null; pintarAdmin(); return; }
-  if (b.dataset.pend) { const libres = cli ? 10 - cli.sellos : 0; cliPend = Math.max(0, Math.min(libres, cliPend + +b.dataset.pend)); const sc = $("#hoja").scrollTop; pintarAdmin(); $("#hoja").scrollTop = sc; return; }
+  if (b.dataset.canje) { cliCanje = Math.max(1, Math.min(cli ? cli.gratis : 1, cliCanje + +b.dataset.canje)); const sc = $("#hoja").scrollTop; pintarAdmin(); $("#hoja").scrollTop = sc; return; }
+  if (b.hasAttribute("data-top")) { top = "cargando"; pintarAdmin(); try { top = await Tarjetas.top10(); } catch { top = "error"; } pintarAdmin(); return; }
+  if (b.hasAttribute("data-pr-cargar") || b.hasAttribute("data-pr-borrar")) {
+    const borrar = b.hasAttribute("data-pr-borrar");
+    if (borrar && !confirmarBorrado) { confirmarBorrado = true; b.textContent = "Tocá otra vez para borrar todo"; setTimeout(() => confirmarBorrado = false, 4000); return; }
+    confirmarBorrado = false; cliOcupado = true; pintarAdmin();
+    try { if (borrar) await Tarjetas.borrarPrueba(); else await Tarjetas.cargarEjemplos(); aviso(borrar ? "Base de prueba vacía" : "Clientes de ejemplo cargados"); }
+    catch { aviso("No se pudo. Revisá la conexión."); }
+    cliOcupado = false; top = null; if (cliUnsub) { cliUnsub(); cliUnsub = null; } cli = null; cliNuevo = null; pintarAdmin(); return;
+  }
+  if (b.dataset.pend) { cliPend = Math.max(0, Math.min(30, cliPend + +b.dataset.pend)); const sc = $("#hoja").scrollTop; pintarAdmin(); $("#hoja").scrollTop = sc; return; }
   if (b.hasAttribute("data-guardar-sellos")) {
     if (!cli || cliPend < 1) return; const n = cliPend, nombre = cli.nombre, token = cli.token; cliOcupado = true; pintarAdmin();
-    try { const total = await Tarjetas.sumar(token, n); cliPend = 0; aviso(total >= 10 ? `${nombre} completó su tarjeta: le toca una bebida gratis` : `Listo: ${n} sello${n === 1 ? "" : "s"} para ${nombre} (${total} de 10)`); }
+    try { const r = await Tarjetas.sumar(token, n); cliPend = 0; aviso(r.ganados ? `🎉 ${nombre} ganó ${r.ganados} bebida${r.ganados === 1 ? "" : "s"} gratis. Tarjeta en ${r.sellos} de 10.` : `Listo: ${n} sello${n === 1 ? "" : "s"} para ${nombre} (${r.sellos} de 10)`); }
     catch { aviso("No se pudo guardar. Revisá la conexión e intentá de nuevo."); }
     cliOcupado = false; pintarAdmin(); return;
   }
   if (b.hasAttribute("data-canjear")) {
-    if (!cli) return; const nombre = cli.nombre; cliOcupado = true; pintarAdmin();
-    try { await Tarjetas.canjear(cli.token); aviso(`Bebida gratis canjeada para ${nombre}. La tarjeta vuelve a cero.`); } catch { aviso("No se pudo canjear. Revisá la conexión."); }
+    if (!cli || !cli.gratis) return; const nombre = cli.nombre, k = Math.min(cliCanje, cli.gratis); cliOcupado = true; pintarAdmin();
+    try { const r = await Tarjetas.canjear(cli.token, k); cliCanje = 1; aviso(`${k} bebida${k === 1 ? "" : "s"} gratis canjeada${k === 1 ? "" : "s"} para ${nombre}. Le quedan ${r.gratis}.`); }
+    catch (x) { aviso(x.message === "insuficientes" ? "No tiene tantas gratis." : "No se pudo canjear. Revisá la conexión."); }
     cliOcupado = false; pintarAdmin(); return;
   }
   if (b.hasAttribute("data-buscar")) {
@@ -597,12 +655,15 @@ document.addEventListener("click", async e => {
     return;
   }
   if (b.hasAttribute("data-registrar")) {
-    const nombre = $("#rNom").value.trim(), ced = Tarjetas.soloDigitos($("#rCed").value), tel = Tarjetas.soloDigitos($("#rTel").value);
+    const nombre = $("#rNom").value.trim(), ced = Tarjetas.soloDigitos($("#rCed").value), tel = Tarjetas.soloDigitos($("#rTel").value), pin = Tarjetas.soloDigitos($("#rPin").value);
     if (nombre.length < 2) { $("#rErr").textContent = "Escribí el nombre del cliente."; $("#rNom").focus(); return; }
     if (ced.length < 9) { $("#rErr").textContent = "Escribí la cédula completa (9 dígitos o más)."; $("#rCed").focus(); return; }
+    if (pin && pin.length !== 4) { $("#rErr").textContent = "La clave debe tener 4 dígitos, o dejala vacía."; $("#rPin").focus(); return; }
     if (tel && tel.length !== 8) { $("#rErr").textContent = "El celular debe tener 8 dígitos, o dejalo vacío."; $("#rTel").focus(); return; }
     cliOcupado = true; b.disabled = true;
-    try { const r = await Tarjetas.crear({nombre, cedula: ced}); cliNuevo = {token: r.token, nombre, tel, existia: r.existia}; cliOcupado = false; abrirFicha(r.token); aviso(r.existia ? "Esa cédula ya tenía tarjeta" : "Tarjeta creada"); }
+    try { const r = await Tarjetas.crear({nombre, cedula: ced});
+      if (pin) await Tarjetas.crearAcceso(r.token, ced, pin);
+      cliNuevo = {token: r.token, nombre, tel, existia: r.existia, ced, pin}; cliOcupado = false; abrirFicha(r.token); aviso(r.existia ? "Esa cédula ya tenía tarjeta" : "Tarjeta creada"); }
     catch { cliOcupado = false; $("#rErr").textContent = "No se pudo crear la tarjeta. Revisá la conexión."; b.disabled = false; }
     return;
   }
@@ -633,6 +694,7 @@ document.addEventListener("change", e => {
 const q = encodeURIComponent("Parque Morazán, Barrio Amón, San José, Costa Rica");
 $("#maps").href = `https://www.google.com/maps/search/?api=1&query=${q}`;
 $("#waze").href = `https://waze.com/ul?q=${q}&navigate=yes`;
+if (Tarjetas.prueba) { $("#bPrueba").hidden = false; Tarjetas.asegurarEjemplos().catch(() => {}); }
 pintarCats(); pintarMenu(); pintarHorario(); pintarCarrito(); pintarSellos();
 // #sellos-TOKEN: la dueña escaneó con la cámara normal del celular y tocó "Sumar sellos" en la tarjeta del cliente.
 function leerHash() {

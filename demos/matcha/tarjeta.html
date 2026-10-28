@@ -51,6 +51,27 @@ body{margin:0;background:radial-gradient(circle at 20% 0%,#f05a95,var(--fondo) 5
 .nota{font-size:13px;color:var(--suave)}
 .dueña{font-size:12.5px;color:var(--suave)}
 .dueña a{color:var(--suave)}
+.form{display:grid;gap:10px;text-align:left}
+.form label{display:grid;gap:5px;font-size:13px;font-weight:800;color:var(--suave)}
+.form input{border:2px solid var(--linea);border-radius:12px;background:#fff;padding:12px;font:700 17px var(--f-txt);color:var(--tinta);width:100%;min-width:0;letter-spacing:.04em}
+.err{color:var(--fucsia2);font-weight:800;font-size:14px;min-height:1em;margin:0}
+.ejemplo{border:2px dashed var(--rosa2);border-radius:14px;padding:10px 12px;font-size:13.5px;color:var(--suave);text-align:left}
+.ejemplo b{color:var(--tinta)}
+.ejs{display:grid;gap:6px;margin-top:8px}
+.ejs button{display:grid;gap:1px;text-align:left;border:2px solid var(--linea);background:#fff;border-radius:12px;padding:8px 10px;color:var(--tinta);font:600 14px var(--f-txt);cursor:pointer}
+.ejs button:hover{border-color:var(--fucsia)}
+.ejs small{color:var(--suave);font-size:12.5px}
+.salir{border:0;background:none;color:var(--suave);text-decoration:underline;cursor:pointer;font-size:13px;justify-self:center}
+details.clave{border:2px dashed var(--rosa2);border-radius:14px;padding:10px 12px;text-align:left}
+details.clave summary{cursor:pointer;font-weight:800;font-size:14.5px}
+details.clave .form{margin-top:10px}
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.stats div{background:#fff;border:2px solid var(--linea);border-radius:14px;padding:10px;display:grid;gap:2px}
+.stats b{font:400 26px/1.1 var(--f-logo);color:var(--fucsia)}
+.stats span{font-size:12.5px;color:var(--suave);font-weight:800}
+.stats .dest{border-color:var(--fucsia);background:var(--rosa)}
+.premio{border:2px solid var(--fucsia);border-radius:16px;padding:12px;background:var(--rosa);font-size:16px}
+.prueba{position:fixed;top:0;left:0;right:0;z-index:70;background:#f6c90e;color:#1a1400;font:800 13px var(--f-txt);text-align:center;padding:5px 10px;padding-top:calc(5px + env(safe-area-inset-top,0px))}
 .toast{position:fixed;left:50%;transform:translate(-50%,20px);bottom:calc(24px + env(safe-area-inset-bottom,0px));background:var(--tinta);color:#fff;padding:12px 18px;border-radius:14px;font-weight:800;opacity:0;pointer-events:none;transition:.25s;max-width:calc(100% - 32px)}
 .toast.on{opacity:1;transform:translate(-50%,0)}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
@@ -63,6 +84,7 @@ body{margin:0;background:radial-gradient(circle at 20% 0%,#f05a95,var(--fondo) 5
   <p class="nota" id="carga">Cargando tu tarjeta…</p>
 </main>
 <div class="toast" id="toast" role="status"></div>
+<div class="prueba" id="bPrueba" hidden>🧪 Modo prueba · datos de ejemplo</div>
 
 <script src="qrcode.min.js"></script>
 <script src="tarjetas.js"></script>
@@ -79,27 +101,72 @@ let tAviso; const aviso = t => { const el = $("#toast"); el.textContent = t; el.
 
 // El código de la tarjeta viene en el link (#t=...). Se recuerda en este celular para abrirla aunque falte el link.
 addEventListener("hashchange", () => { const n = Tarjetas.tokenDeTexto(location.hash); if (n && n !== token) location.reload(); });
-const token = Tarjetas.tokenDeTexto(location.hash) || lsGet("mm-token", null);
+if (Tarjetas.prueba) { $("#bPrueba").hidden = false; document.body.style.paddingTop = "48px"; }
+// Usuario de ejemplo para mostrar la demo (no usa la base de datos).
+const EJEMPLO = {ced: "111111111", pin: "1234", token: "ejemplomatcha00000", tarjeta: {nombre: "Cliente de ejemplo", sellos: 7, gratis: 2, canjes: 1, total: 37}};
+const token = location.hash === "#ingresar" ? null : (Tarjetas.tokenDeTexto(location.hash) || lsGet(Tarjetas.KEY, null));
 const t = $("#t");
+const LOGO = `<div class="marca">Matcha Mía</div>`;
+const entrar = tk => { lsSet(Tarjetas.KEY, tk); location.replace(Tarjetas.link(tk)); location.reload(); };
+
+// ---- Ingreso con cédula y clave ----
+function pintarIngreso() {
+  t.innerHTML = `${LOGO}<div class="sub">Ingresá a tu tarjeta</div>
+    <form class="form" id="fIng" novalidate>
+      <label>Cédula<input id="iCed" inputmode="numeric" autocomplete="username" maxlength="15" placeholder="Ej.: 1 1234 5678"></label>
+      <label>Clave (4 dígitos)<input id="iPin" type="password" inputmode="numeric" autocomplete="current-password" maxlength="4" placeholder="••••"></label>
+      <p class="err" id="iErr"></p>
+      <button class="btn pri" type="submit" id="iBtn">Ver mis sellos</button>
+    </form>
+    <div class="ejemplo"><b>🧪 Usuarios de prueba</b> · tocá uno para entrar
+      <div class="ejs">${Tarjetas.EJEMPLOS.slice(0, 5).map((e, i) => `<button type="button" data-ej="${i}"><span><b>${esc(e.nombre)}</b> · ${e.sellos} de 10${e.gratis ? ` · ${e.gratis} gratis` : ""}</span><small>cédula ${e.ced} · clave ${e.pin}</small></button>`).join("")}</div></div>
+    <p class="nota">¿No tenés clave? Pedila en la barra, o abrí el link que te mandamos por WhatsApp y creala desde ahí.</p>
+    <a class="btn" href="${Tarjetas.url('./')}">Ver el menú</a>`;
+  t.querySelectorAll("[data-ej]").forEach(b => b.addEventListener("click", () => {
+    const e = Tarjetas.EJEMPLOS[+b.dataset.ej]; $("#iCed").value = e.ced; $("#iPin").value = e.pin; $("#fIng").requestSubmit();
+  }));
+  $("#fIng").addEventListener("submit", async e => {
+    e.preventDefault();
+    const ced = Tarjetas.soloDigitos($("#iCed").value), pin = Tarjetas.soloDigitos($("#iPin").value), err = $("#iErr");
+    if (ced.length < 9) { err.textContent = "Escribí tu cédula completa."; $("#iCed").focus(); return; }
+    if (pin.length !== 4) { err.textContent = "La clave tiene 4 dígitos."; $("#iPin").focus(); return; }
+    if (ced === EJEMPLO.ced && pin === EJEMPLO.pin) return entrar(EJEMPLO.token);
+    const ej = Tarjetas.EJEMPLOS.find(x => x.ced === ced && x.pin === pin);
+    // Un usuario de prueba siempre entra al modo prueba (base de datos aparte).
+    if (ej && !Tarjetas.prueba) { try { sessionStorage.setItem("mm-auto", JSON.stringify({ced, pin})); } catch {} location.href = new URL("tarjeta.html?prueba#ingresar", location.href).href; return; }
+    $("#iBtn").disabled = true; $("#iBtn").textContent = "Entrando…"; err.textContent = "";
+    try {
+      if (ej) await Tarjetas.asegurarEjemplos();
+      let tk = await Tarjetas.ingresar(ced, pin);
+      // Si la base de prueba está vacía, se crean los clientes de ejemplo en ese momento.
+      if (!tk && ej) { await Tarjetas.cargarEjemplos(); tk = await Tarjetas.ingresar(ced, pin); }
+      if (!tk) { err.textContent = "La cédula o la clave no coinciden."; $("#iBtn").disabled = false; $("#iBtn").textContent = "Ver mis sellos"; return; }
+      entrar(tk);
+    } catch { err.textContent = "No se pudo ingresar. Revisá tu conexión."; $("#iBtn").disabled = false; $("#iBtn").textContent = "Ver mis sellos"; }
+  });
+}
 if (!token) {
-  t.innerHTML = `<div class="marca">Matcha Mía</div><div class="sub">Tarjeta de sellos</div>
-    <p>No encontramos tu tarjeta en este celular.</p><p class="nota">Abrí el link que te mandamos por WhatsApp, o pedí tu tarjeta en la barra.</p>
-    <a class="btn" href="./">Ver el menú</a>`;
+  pintarIngreso();
+  let auto = null; try { auto = JSON.parse(sessionStorage.getItem("mm-auto")); sessionStorage.removeItem("mm-auto"); } catch {}
+  if (auto && Tarjetas.prueba) { $("#iCed").value = auto.ced; $("#iPin").value = auto.pin; $("#fIng").requestSubmit(); }
   return;
 }
-lsSet("mm-token", token);
+const esEjemplo = token === EJEMPLO.token;
+lsSet(Tarjetas.KEY, token);
 if (!location.hash.includes(token)) history.replaceState(null, "", "#t=" + token);
 
 let antes = null;
 function pintar(c) {
   if (!c) {
     t.innerHTML = `<div class="marca">Matcha Mía</div><div class="sub">Tarjeta de sellos</div><p>Esta tarjeta ya no existe.</p><p class="nota">Pedí una nueva en la barra.</p>`;
-    lsSet("mm-token", null); return;
+    lsSet(Tarjetas.KEY, null); return;
   }
-  const s = Math.min(c.sellos || 0, 10), sube = antes != null && s > antes;
+  c = Tarjetas.normal(c);
+  const s = c.sellos, g = c.gratis, prev = antes, sube = prev && c.total > prev.total;
+  const ganó = prev && g > prev.gratis, canjeó = prev && c.canjes > prev.canjes;
   const sellos = Array.from({length: 10}, (_, i) => {
-    const cls = (i < s ? "si" : i === 9 ? "gratis" : "") + (sube && i >= antes && i < s ? " nuevo" : "");
-    return `<i class="${cls}">${i < s ? (i === 9 ? "★" : "🐾") : i === 9 ? "GRATIS" : ""}</i>`;
+    const cls = (i < s ? "si" : i === 9 ? "gratis" : "") + (sube && i < s && (ganó || i >= prev.sellos) ? " nuevo" : "");
+    return `<i class="${cls}">${i < s ? "🐾" : i === 9 ? "GRATIS" : ""}</i>`;
   }).join("");
   const pasos = esIOS ? `<li>Tocá <b>Compartir</b> (el cuadro con la flecha).</li><li>Tocá <b>Agregar a inicio</b>.</li>` : `<li>Tocá el menú <b>⋮</b> del navegador.</li><li>Tocá <b>Agregar a pantalla principal</b>.</li>`;
   t.innerHTML = `<div class="marca">Matcha Mía</div><div class="sub">Tarjeta de sellos</div>
@@ -107,18 +174,45 @@ function pintar(c) {
     <div class="qr" id="qr" aria-label="Tu código QR"></div>
     <p class="nota">Mostrá este QR en la barra para sumar sellos.</p>
     <div class="sellos" aria-label="${s} de 10 sellos">${sellos}</div>
-    <p class="estado">${s >= 10 ? "<b>¡Tu próxima bebida es gratis!</b><br>Mostrá tu QR para canjearla." : `Llevás <b>${s} de 10</b>. Te falta${10 - s === 1 ? "" : "n"} ${10 - s} para tu bebida gratis.`}</p>
-    ${c.canjes ? `<p class="nota">Ya canjeaste ${c.canjes} bebida${c.canjes === 1 ? "" : "s"} gratis 💚</p>` : ""}
+    ${g ? `<div class="premio">🎁 <b>¡Tenés ${g} bebida${g === 1 ? "" : "s"} gratis!</b><br><span class="nota">Mostrá tu QR en la barra para canjear${g === 1 ? "la" : "las"}.</span></div>` : ""}
+    <p class="estado">Llevás <b>${s} de 10</b>. Te falta${10 - s === 1 ? "" : "n"} ${10 - s} para tu próxima bebida gratis.</p>
+    <div class="stats">
+      <div class="dest"><b>${g}</b><span>🎁 Gratis disponible${g === 1 ? "" : "s"}</span></div>
+      <div><b>${10 - s}</b><span>Sello${10 - s === 1 ? "" : "s"} para la próxima</span></div>
+      <div><b>${c.total}</b><span>🐾 Sellos acumulados</span></div>
+      <div><b>${c.canjes}</b><span>✅ Gratis canjeado${c.canjes === 1 ? "" : "s"}</span></div>
+    </div>
     <span class="vivo"><i></i>Se actualiza sola</span>
     ${instalada() ? "" : `<div class="guardar"><b>Guardala en tu celular</b><span>Así la abrís como una app, sin buscar el link:</span><ol>${pasos}</ol></div>`}
-    <div class="links"><a class="btn" href="./">Ver el menú y pedir</a></div>
-    <p class="dueña">¿Sos del personal? <a href="./#sellos-${token}">Sumar sellos</a></p>`;
+    <div class="links"><a class="btn" href="${Tarjetas.url('./')}">Ver el menú</a></div>
+    ${esEjemplo ? `<p class="nota">Esta es una tarjeta de ejemplo para ver cómo funciona.</p>` : `<details class="clave"><summary>🔑 Crear mi usuario y clave</summary>
+      <form class="form" id="fClave" novalidate>
+        <span class="nota">Así podés entrar desde cualquier celular con tu cédula y tu clave.</span>
+        <label>Tu cédula<input id="cCed" inputmode="numeric" autocomplete="username" maxlength="15" placeholder="Ej.: 1 1234 5678"></label>
+        <label>Elegí una clave de 4 dígitos<input id="cPin" type="password" inputmode="numeric" autocomplete="new-password" maxlength="4" placeholder="••••"></label>
+        <p class="err" id="cErr"></p><button class="btn pri" type="submit">Guardar mi clave</button>
+      </form></details>`}
+    <button class="salir" type="button" id="salir">Salir de esta tarjeta</button>
+    ${esEjemplo ? "" : `<p class="dueña">¿Sos del personal? <a href="${Tarjetas.url('./#sellos-' + token)}">Sumar sellos</a></p>`}`;
+  $("#salir").addEventListener("click", () => { lsSet(Tarjetas.KEY, null); location.replace(Tarjetas.url("tarjeta.html#ingresar")); location.reload(); });
+  const fc = $("#fClave");
+  if (fc) fc.addEventListener("submit", async e => {
+    e.preventDefault();
+    const ced = Tarjetas.soloDigitos($("#cCed").value), pin = Tarjetas.soloDigitos($("#cPin").value), err = $("#cErr");
+    if (ced.length < 9) { err.textContent = "Escribí tu cédula completa."; return; }
+    if (pin.length !== 4) { err.textContent = "La clave debe tener 4 dígitos."; return; }
+    err.textContent = "";
+    try { await Tarjetas.crearAcceso(token, ced, pin); fc.closest("details").outerHTML = `<p class="nota">✅ Listo. Ya podés entrar con tu cédula y tu clave.</p>`; aviso("Clave guardada"); }
+    catch (x) { err.textContent = x.message === "cedula" ? "Esa cédula no es la de esta tarjeta." : "No se pudo guardar. Revisá tu conexión."; }
+  });
   try { new QRCode($("#qr"), {text: Tarjetas.link(token), width: 240, height: 240, colorDark: "#3a1424", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.M}); }
   catch { $("#qr").innerHTML = `<p class="nota">No se pudo dibujar el QR.</p>`; }
-  if (sube) { aviso(s >= 10 ? "¡Completaste tu tarjeta! 🎉" : `¡Sumaste ${s - antes} sello${s - antes === 1 ? "" : "s"}! 💚`); if (navigator.vibrate) navigator.vibrate([60, 40, 60]); }
-  else if (antes === 10 && s === 0) aviso("¡Disfrutá tu bebida gratis! Tu tarjeta empieza de nuevo.");
-  antes = s;
+  if (ganó) { aviso(`🎉 ¡Ganaste ${g - prev.gratis === 1 ? "una bebida gratis" : (g - prev.gratis) + " bebidas gratis"}! Tu tarjeta empieza de cero.`); if (navigator.vibrate) navigator.vibrate([80, 50, 80, 50, 120]); }
+  else if (sube) { const n = c.total - prev.total; aviso(`¡Sumaste ${n} sello${n === 1 ? "" : "s"}! 💚`); if (navigator.vibrate) navigator.vibrate([60, 40, 60]); }
+  else if (canjeó) { const n = c.canjes - prev.canjes; aviso(`¡Disfrutá tu${n === 1 ? "" : "s"} ${n === 1 ? "bebida" : n + " bebidas"} gratis! 🍵`); }
+  antes = c;
 }
+if (esEjemplo) { pintar(EJEMPLO.tarjeta); return; }
 Tarjetas.escuchar(token, pintar, () => { $("#carga") && ($("#carga").textContent = "No se pudo cargar tu tarjeta. Revisá tu conexión."); })
   .catch(() => { t.innerHTML = `<div class="marca">Matcha Mía</div><div class="sub">Tarjeta de sellos</div><p>No se pudo cargar tu tarjeta.</p><p class="nota">Revisá tu conexión e intentá de nuevo.</p>`; });
 })();

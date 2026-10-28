@@ -8,6 +8,9 @@ service cloud.firestore {
     function esAdmin() {
       return request.auth != null && request.auth.token.email == 'rbmsolutions819@gmail.com';
     }
+    // Tarjetas de sellos (demos): valor en sellos (sellos + 10 × gratis) y total de toda la vida.
+    function kkVal(d) { return d.get('sellos', 0) + 10 * d.get('gratis', 0); }
+    function kkTotal(d) { return d.get('total', d.get('sellos', 0) + 10 * (d.get('gratis', 0) + d.get('canjes', 0))); }
     function fechaOk(f) { return f is string && f.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$'); }
 
     // Citas: cualquiera puede agendar; solo el administrador las ve, las cancela y les agrega apuntes.
@@ -116,23 +119,30 @@ service cloud.firestore {
         && request.resource.data.publicadas is list && request.resource.data.publicadas.size() <= 40;
     }
 
-    // Demo Matcha Mía: tarjetas de sellos. Se abren solo con su código secreto (no se pueden listar).
-    // Solo se puede SUMAR sellos (hasta 10) o canjear una tarjeta llena (vuelve a 0 y suma un canje). Nunca restar.
+    // Demo Matcha Mía: mismas reglas que Koktela (sellos 0 a 9 + gratis guardados; nunca restar sellos).
     match /demo_matcha_clientes/{t} {
       allow get: if true;
-      allow list: if false;
+      allow list: if esAdmin();
       allow create: if t.size() >= 16 && t.size() <= 40
-        && request.resource.data.keys().hasOnly(['nombre','ced4','sellos','canjes','creado','actualizado'])
+        && request.resource.data.keys().hasOnly(['nombre','ced4','sellos','gratis','canjes','total','creado','actualizado'])
         && request.resource.data.nombre is string && request.resource.data.nombre.size() >= 2 && request.resource.data.nombre.size() <= 60
         && request.resource.data.ced4 is string && request.resource.data.ced4.size() == 4
         && request.resource.data.sellos == 0 && request.resource.data.canjes == 0
+        && request.resource.data.get('gratis', 0) == 0 && request.resource.data.get('total', 0) == 0
         && request.resource.data.creado == request.time && request.resource.data.actualizado == request.time;
-      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['sellos','canjes','actualizado'])
+      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['sellos','gratis','canjes','total','actualizado'])
         && request.resource.data.actualizado == request.time
-        && request.resource.data.sellos is int && request.resource.data.sellos <= 10
+        && request.resource.data.sellos is int && request.resource.data.sellos >= 0 && request.resource.data.sellos <= 9
+        && request.resource.data.gratis is int && request.resource.data.gratis >= 0
+        && request.resource.data.canjes is int && request.resource.data.total is int
         && (
-          (request.resource.data.sellos > resource.data.sellos && request.resource.data.canjes == resource.data.canjes)
-          || (resource.data.sellos == 10 && request.resource.data.sellos == 0 && request.resource.data.canjes == resource.data.canjes + 1)
+          (request.resource.data.canjes == resource.data.get('canjes', 0)
+            && request.resource.data.total > kkTotal(resource.data)
+            && request.resource.data.total - kkTotal(resource.data) <= 50
+            && kkVal(request.resource.data) == kkVal(resource.data) + (request.resource.data.total - kkTotal(resource.data)))
+          || (request.resource.data.total == kkTotal(resource.data)
+            && request.resource.data.canjes > resource.data.get('canjes', 0)
+            && kkVal(request.resource.data) == kkVal(resource.data) - 10 * (request.resource.data.canjes - resource.data.get('canjes', 0)))
         );
       allow delete: if esAdmin();
     }
@@ -150,8 +160,6 @@ service cloud.firestore {
     // Demo Koktela: tarjetas de sellos. Se abren solo con su código secreto (no se pueden listar).
     // sellos (0 a 9) + 10 × gratis guardados. total = sellos de toda la vida.
     // Solo se puede SUMAR sellos (cada 10 se vuelven un gratis) o canjear gratis que ya tenga. Nunca restar sellos.
-    function kkVal(d) { return d.get('sellos', 0) + 10 * d.get('gratis', 0); }
-    function kkTotal(d) { return d.get('total', d.get('sellos', 0) + 10 * (d.get('gratis', 0) + d.get('canjes', 0))); }
     match /demo_koktela_clientes/{t} {
       allow get: if true;
       allow list: if esAdmin();
@@ -216,6 +224,37 @@ service cloud.firestore {
       allow create, update: if h.size() == 64 && request.resource.data.keys().hasOnly(['t']) && request.resource.data.t is string && request.resource.data.t.size() <= 40;
     }
     match /prueba_koktela_acceso/{h} {
+      allow read, delete: if true;
+      allow create, update: if h.size() == 64 && request.resource.data.keys().hasOnly(['t']) && request.resource.data.t is string && request.resource.data.t.size() <= 40;
+    }
+
+    // Usuario del cliente de Matcha Mía: la llave es una huella de cédula + clave; apunta a su tarjeta.
+    match /demo_matcha_acceso/{h} {
+      allow get: if true;
+      allow list, update: if false;
+      allow create: if h.size() == 64
+        && request.resource.data.keys().hasOnly(['t'])
+        && request.resource.data.t is string
+        && exists(/databases/$(database)/documents/demo_matcha_clientes/$(request.resource.data.t));
+      allow delete: if esAdmin();
+    }
+
+    // MODO PRUEBA de Matcha Mía: base de datos aparte, con datos de ejemplo. Cualquiera la puede reiniciar.
+    match /prueba_matcha_clientes/{t} {
+      allow read, delete: if true;
+      allow create, update: if t.size() >= 16 && t.size() <= 40
+        && request.resource.data.keys().hasOnly(['nombre','ced4','sellos','gratis','canjes','total','creado','actualizado'])
+        && request.resource.data.nombre is string && request.resource.data.nombre.size() <= 60
+        && request.resource.data.sellos is int && request.resource.data.sellos >= 0 && request.resource.data.sellos <= 10
+        && request.resource.data.get('gratis', 0) is int && request.resource.data.get('gratis', 0) >= 0 && request.resource.data.get('gratis', 0) <= 1000
+        && request.resource.data.get('total', 0) is int && request.resource.data.get('total', 0) >= 0
+        && request.resource.data.canjes is int && request.resource.data.canjes >= 0 && request.resource.data.canjes <= 1000;
+    }
+    match /prueba_matcha_ced/{h} {
+      allow read, delete: if true;
+      allow create, update: if h.size() == 64 && request.resource.data.keys().hasOnly(['t']) && request.resource.data.t is string && request.resource.data.t.size() <= 40;
+    }
+    match /prueba_matcha_acceso/{h} {
       allow read, delete: if true;
       allow create, update: if h.size() == 64 && request.resource.data.keys().hasOnly(['t']) && request.resource.data.t is string && request.resource.data.t.size() <= 40;
     }
