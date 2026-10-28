@@ -74,6 +74,10 @@ details.clave .form{margin-top:10px}
 .stats span{font-size:12.5px;color:var(--suave);font-weight:800}
 .stats .dest{border-color:var(--fucsia);background:var(--rosa)}
 .premio{border:2px solid var(--fucsia);border-radius:16px;padding:12px;background:var(--rosa);font-size:16px}
+.form select{border:2px solid var(--linea);border-radius:12px;background:#fff;padding:11px;font:700 16px var(--f-txt);color:var(--tinta);width:100%}
+.misPed{display:grid;gap:6px;margin-top:10px}
+.misPed div{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;background:#fff;border:2px solid var(--linea);border-radius:12px;padding:8px 10px;font-size:14px}
+.misPed .ok{color:#3f7a14;font-weight:800}.misPed .no{color:var(--fucsia2);font-weight:800}.misPed .esp{color:var(--suave);font-weight:800}
 .prueba{position:fixed;top:0;left:0;right:0;z-index:70;background:#f6c90e;color:#1a1400;font:800 13px var(--f-txt);text-align:center;padding:5px 10px;padding-top:calc(5px + env(safe-area-inset-top,0px))}
 .toast{position:fixed;left:50%;transform:translate(-50%,20px);bottom:calc(24px + env(safe-area-inset-bottom,0px));background:var(--tinta);color:#fff;padding:12px 18px;border-radius:14px;font-weight:800;opacity:0;pointer-events:none;transition:.25s;max-width:calc(100% - 32px)}
 .toast.on{opacity:1;transform:translate(-50%,0)}
@@ -158,7 +162,16 @@ const esEjemplo = token === EJEMPLO.token;
 lsSet(Tarjetas.KEY, token);
 if (!location.hash.includes(token)) history.replaceState(null, "", "#t=" + token);
 
-let antes = null;
+let antes = null, abiertoDom = false;
+const KEY_PED = Tarjetas.KEY + "-pedidos-" + token;
+let misPedidos = lsGet(KEY_PED, []);
+async function pintarMisPedidos() {
+  const el = $("#misPed"); if (!el || !misPedidos.length) return;
+  const nombreApp = k => (Tarjetas.APPS.find(a => a[0] === k) || [k, k])[1];
+  const lista = await Promise.all(misPedidos.map(id => Tarjetas.verReclamo(id).catch(() => null)));
+  el.innerHTML = `<b style="font-size:13px;color:var(--suave)">Mis pedidos a domicilio</b>` + lista.filter(Boolean).map(r => `<div><span>${nombreApp(r.app)} · #${esc(r.orden)}</span>${
+    r.estado === "aprobado" ? `<span class="ok">✅ +${r.sellos} sello${r.sellos === 1 ? "" : "s"}</span>` : r.estado === "rechazado" ? `<span class="no">No se pudo confirmar</span>` : `<span class="esp">⏳ Esperando confirmación</span>`}</div>`).join("");
+}
 function pintar(c) {
   if (!c) {
     t.innerHTML = `<img class="logo" src="logo.png" alt="" width="104" height="104"><div class="marca">Matcha Mía</div><div class="sub">Tarjeta de sellos</div><p>Esta tarjeta ya no existe.</p><p class="nota">Pedí una nueva en la barra.</p>`;
@@ -195,8 +208,34 @@ function pintar(c) {
         <label>Elegí una clave de 4 dígitos<input id="cPin" type="password" inputmode="numeric" autocomplete="new-password" maxlength="4" placeholder="••••"></label>
         <p class="err" id="cErr"></p><button class="btn pri" type="submit">Guardar mi clave</button>
       </form></details>`}
+    ${esEjemplo ? "" : `<details class="clave" id="dDom"${abiertoDom ? " open" : ""}><summary>🛵 ¿Pediste por Uber Eats o DiDi? Sumá tu sello</summary>
+      <form class="form" id="fDom" novalidate>
+        <span class="nota">Escribí el número de orden que te da la app. Cuando Matcha Mía lo confirme, el sello aparece aquí solito.</span>
+        <label>¿Por cuál app pediste?<select id="dApp">${Tarjetas.APPS.map(([k, n]) => `<option value="${k}">${n}</option>`).join("")}</select></label>
+        <label>Número de orden<input id="dOrden" autocomplete="off" autocapitalize="characters" maxlength="30" placeholder="Ej.: 4F2A1"></label>
+        <p class="err" id="dErr"></p><button class="btn pri" type="submit">Enviar mi número de orden</button>
+      </form>
+      <div class="misPed" id="misPed"></div></details>`}
     <button class="salir" type="button" id="salir">Salir de esta tarjeta</button>
     ${esEjemplo ? "" : `<p class="dueña">¿Sos del personal? <a href="${Tarjetas.url('./#sellos-' + token)}">Sumar sellos</a></p>`}`;
+  // ---- Pedidos a domicilio: el cliente manda su número de orden ----
+  const fd = $("#fDom");
+  if (fd) {
+    $("#dDom").addEventListener("toggle", e => abiertoDom = e.target.open);
+    pintarMisPedidos();
+    fd.addEventListener("submit", async e => {
+      e.preventDefault();
+      const app = $("#dApp").value, orden = Tarjetas.ordenLimpia($("#dOrden").value), err = $("#dErr"), btn = fd.querySelector("button");
+      if (orden.length < 3) { err.textContent = "Escribí el número de orden completo."; $("#dOrden").focus(); return; }
+      err.textContent = ""; btn.disabled = true;
+      try {
+        const id = await Tarjetas.reclamar(token, c.nombre, app, orden);
+        misPedidos = [id, ...misPedidos.filter(x => x !== id)].slice(0, 20); lsSet(KEY_PED, misPedidos);
+        $("#dOrden").value = ""; aviso("¡Listo! Te avisamos cuando se confirme 🛵"); pintarMisPedidos();
+      } catch (x) { err.textContent = x.message === "ya-reclamada" ? "Esa orden ya fue reclamada." : x.message === "orden" ? "Revisá el número de orden." : "No se pudo enviar. Revisá tu conexión."; }
+      btn.disabled = false;
+    });
+  }
   $("#salir").addEventListener("click", () => { lsSet(Tarjetas.KEY, null); location.replace(Tarjetas.url("tarjeta.html#ingresar")); location.reload(); });
   const fc = $("#fClave");
   if (fc) fc.addEventListener("submit", async e => {

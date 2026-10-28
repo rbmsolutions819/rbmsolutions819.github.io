@@ -259,6 +259,33 @@ service cloud.firestore {
       allow create, update: if h.size() == 64 && request.resource.data.keys().hasOnly(['t']) && request.resource.data.t is string && request.resource.data.t.size() <= 40;
     }
 
+    // Matcha Mía: sellos de pedidos a domicilio. El id es la app + el número de orden, así una orden se reclama una sola vez.
+    // La dueña la busca con el número que ve en su tablet de Uber/DiDi y la aprueba (suma sellos) o la rechaza.
+    match /demo_matcha_reclamos/{id} {
+      allow get: if true;
+      allow list: if esAdmin();
+      allow create: if id.size() >= 6 && id.size() <= 40
+        && request.resource.data.keys().hasOnly(['t','nombre','app','orden','estado','creado'])
+        && request.resource.data.app in ['UBER', 'DIDI', 'RAPPI']
+        && id == request.resource.data.app + '-' + request.resource.data.orden
+        && request.resource.data.orden is string && request.resource.data.orden.size() >= 3 && request.resource.data.orden.size() <= 30
+        && request.resource.data.nombre is string && request.resource.data.nombre.size() <= 60
+        && request.resource.data.t is string && exists(/databases/$(database)/documents/demo_matcha_clientes/$(request.resource.data.t))
+        && request.resource.data.estado == 'pendiente' && request.resource.data.creado == request.time;
+      allow update: if resource.data.estado == 'pendiente'
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['estado','sellos','revisado'])
+        && request.resource.data.estado in ['aprobado', 'rechazado']
+        && request.resource.data.sellos is int && request.resource.data.sellos >= 0 && request.resource.data.sellos <= 20
+        && request.resource.data.revisado == request.time;
+      allow delete: if esAdmin();
+    }
+    match /prueba_matcha_reclamos/{id} {
+      allow read, delete: if true;
+      allow create, update: if id.size() <= 40
+        && request.resource.data.keys().hasOnly(['t','nombre','app','orden','estado','creado','sellos','revisado'])
+        && request.resource.data.estado in ['pendiente', 'aprobado', 'rechazado'];
+    }
+
     match /{path=**} { allow read, write: if false; }
   }
 }

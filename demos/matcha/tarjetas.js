@@ -14,7 +14,7 @@ window.Tarjetas = (() => {
   // Modo prueba: con ?prueba en la dirección todo va a una base de datos aparte, con clientes de ejemplo.
   const PRUEBA = /[?&]prueba\b/.test(location.search);
   const PRE = PRUEBA ? "prueba_matcha_" : "demo_matcha_";
-  const COL = PRE + "clientes", IDX = PRE + "ced", ACC = PRE + "acceso";
+  const COL = PRE + "clientes", IDX = PRE + "ced", ACC = PRE + "acceso", RCL = PRE + "reclamos";
   const KEY = PRUEBA ? "mm-token-prueba" : "mm-token";
   const url = ruta => { const u = new URL(ruta, location.href); if (PRUEBA) u.search = "?prueba"; return u.href; };
   const BASE = "https://www.gstatic.com/firebasejs/10.12.2/";
@@ -111,6 +111,8 @@ window.Tarjetas = (() => {
       w.set(F.doc(db, COL, token), { nombre: e.nombre, ced4: e.ced.slice(-4), sellos: e.sellos, gratis: e.gratis, canjes: e.canjes, total: e.total, creado: F.serverTimestamp(), actualizado: F.serverTimestamp() });
       w.set(F.doc(db, IDX, h), { t: token });
       w.set(F.doc(db, ACC, await huellaAcceso(e.ced, e.pin)), { t: token });
+      const rp = RECLAMOS_PRUEBA.find(r => r[2] === EJEMPLOS.indexOf(e));
+      if (rp) w.set(F.doc(db, RCL, idReclamo(rp[0], rp[1])), { t: token, nombre: e.nombre, app: rp[0], orden: rp[1], estado: "pendiente", creado: F.serverTimestamp() });
       await w.commit();
     }
   }
@@ -119,7 +121,8 @@ window.Tarjetas = (() => {
     if (!PRUEBA) return;
     await iniciar();
     const ult = EJEMPLOS[EJEMPLOS.length - 1], s = await F.getDoc(F.doc(db, IDX, await huella(ult.ced)));
-    if (!s.exists()) await cargarEjemplos();
+    const r = await F.getDoc(F.doc(db, RCL, idReclamo(RECLAMOS_PRUEBA[0][0], RECLAMOS_PRUEBA[0][1])));
+    if (!s.exists() || !r.exists()) await cargarEjemplos();
   }
   // Top 10 de clientes por sellos acumulados (en la versión real, solo la dueña con su acceso seguro).
   async function top10() {
@@ -127,10 +130,50 @@ window.Tarjetas = (() => {
     const s = await F.getDocs(F.query(F.collection(db, COL), F.orderBy("total", "desc"), F.limit(10)));
     return s.docs.map(d => normal({ token: d.id, ...d.data() }));
   }
+  // ----- Pedidos a domicilio (Uber Eats, DiDi, Rappi) -----
+  // El cliente reclama su sello con el número de orden; la dueña busca ese número en su panel y lo confirma.
+  const APPS = [["UBER", "Uber Eats"], ["DIDI", "DiDi Food"], ["RAPPI", "Rappi"]];
+  const ordenLimpia = o => String(o || "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 30);
+  const idReclamo = (app, orden) => app + "-" + ordenLimpia(orden);
+  async function reclamar(token, nombre, app, orden) {
+    await iniciar();
+    const o = ordenLimpia(orden); if (o.length < 3) throw new Error("orden");
+    const ref = F.doc(db, RCL, idReclamo(app, o));
+    await F.runTransaction(db, async tx => {
+      const s = await tx.get(ref); if (s.exists()) throw new Error("ya-reclamada");
+      tx.set(ref, { t: token, nombre: String(nombre).slice(0, 60), app, orden: o, estado: "pendiente", creado: F.serverTimestamp() });
+    });
+    return idReclamo(app, o);
+  }
+  async function verReclamo(id) {
+    await iniciar();
+    const s = await F.getDoc(F.doc(db, RCL, id));
+    return s.exists() ? { id, ...s.data() } : null;
+  }
+  // La dueña confirma la orden: se suman los sellos y el reclamo queda aprobado (todo junto).
+  async function aprobarReclamo(id, n) {
+    await iniciar();
+    const k = Math.max(1, Math.min(20, Math.floor(n))), rRef = F.doc(db, RCL, id);
+    return F.runTransaction(db, async tx => {
+      const r = await tx.get(rRef); if (!r.exists()) throw new Error("no-existe");
+      const rd = r.data(); if (rd.estado !== "pendiente") throw new Error("ya-revisada");
+      const cRef = F.doc(db, COL, rd.t), c = await tx.get(cRef); if (!c.exists()) throw new Error("sin-tarjeta");
+      const d = normal(c.data()), suma = d.sellos + k, ganados = Math.floor(suma / 10);
+      const nuevo = { sellos: suma % 10, gratis: d.gratis + ganados, canjes: d.canjes, total: d.total + k };
+      tx.update(cRef, { ...nuevo, actualizado: F.serverTimestamp() });
+      tx.update(rRef, { estado: "aprobado", sellos: k, revisado: F.serverTimestamp() });
+      return { ...nuevo, ganados, nombre: c.data().nombre };
+    });
+  }
+  async function rechazarReclamo(id) {
+    await iniciar();
+    await F.updateDoc(F.doc(db, RCL, id), { estado: "rechazado", sellos: 0, revisado: F.serverTimestamp() });
+  }
+  const RECLAMOS_PRUEBA = [["UBER", "UE1001", 0], ["DIDI", "DD2002", 2], ["RAPPI", "RP3003", 3]];
   async function borrarPrueba() {
     if (!PRUEBA) throw new Error("solo-prueba");
     await iniciar();
-    for (const c of [ACC, IDX, COL]) {
+    for (const c of [RCL, ACC, IDX, COL]) {
       const s = await F.getDocs(F.collection(db, c));
       for (let i = 0; i < s.docs.length; i += 400) { const w = F.writeBatch(db); s.docs.slice(i, i + 400).forEach(d => w.delete(d.ref)); await w.commit(); }
     }
@@ -171,5 +214,5 @@ window.Tarjetas = (() => {
     await iniciar();
     return F.onSnapshot(F.doc(db, COL, token), s => alCambiar(s.exists() ? normal({ token, ...s.data() }) : null), e => alFallar && alFallar(e));
   }
-  return { prueba: PRUEBA, KEY, url, EJEMPLOS, cargarEjemplos, asegurarEjemplos, borrarPrueba, top10, normal, iniciar, buscarPorCedula, obtener, crear, crearAcceso, ingresar, sumar, canjear, escuchar, link, tokenDeTexto, soloDigitos };
+  return { APPS, idReclamo, ordenLimpia, reclamar, verReclamo, aprobarReclamo, rechazarReclamo, RECLAMOS_PRUEBA, prueba: PRUEBA, KEY, url, EJEMPLOS, cargarEjemplos, asegurarEjemplos, borrarPrueba, top10, normal, iniciar, buscarPorCedula, obtener, crear, crearAcceso, ingresar, sumar, canjear, escuchar, link, tokenDeTexto, soloDigitos };
 })();
