@@ -129,6 +129,14 @@ section h2 .p{font:600 16px var(--f-txt);color:var(--oro)}
 .top10 .pos{font:800 18px var(--f-logo);color:var(--oro);grid-row:span 2}
 .top10 small{grid-column:2;color:var(--suave);font-size:12.5px}
 .top10 .n{grid-row:span 2;grid-column:3;text-align:right;font-weight:800}
+.promosNube{display:grid;gap:8px;margin-bottom:12px}
+.pn{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:start;border:1px solid var(--linea);border-left:4px solid var(--oro);border-radius:8px;padding:10px 12px;background:var(--panel)}
+.pn .ic{font-size:20px;line-height:1.2}
+.pn div{display:grid;gap:2px}
+.pn small{color:var(--suave);font-weight:700;font-size:12.5px}
+.pn.hoy small{color:var(--oro)}
+.dias{display:flex;flex-wrap:wrap;gap:6px}
+.dias label{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--linea);border-radius:999px;padding:6px 10px;font-weight:700;font-size:13.5px;cursor:pointer}
 .ajuste{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .ajuste b{font-size:16px}
 .camara{position:relative;border-radius:8px;overflow:hidden;background:#000;aspect-ratio:1;max-width:360px;width:100%;margin:12px auto 0}
@@ -212,6 +220,7 @@ label.c textarea{min-height:64px;resize:vertical}
 
 <main>
   <div class="wrap">
+    <div class="promosNube" id="promosNube" hidden></div>
     <div class="promo" id="promo"></div>
     <div id="menu"></div>
     <p class="nota" style="text-align:center">Todos los cócteles vienen en presentación de un litro y se pueden preparar sin licor.</p>
@@ -229,6 +238,7 @@ label.c textarea{min-height:64px;resize:vertical}
           <p id="dir">Barrio La California, San José. Frente a la estación del tren al Atlántico.</p>
           <div class="fila-btn"><a class="btn sm" id="waze" target="_blank" rel="noopener">Waze</a><a class="btn sm" id="maps" target="_blank" rel="noopener">Google Maps</a></div>
         </div>
+        <div class="caja"><h3>Encontranos</h3><p class="nota">Seguinos y escribinos por donde te quede más fácil.</p><div class="fila-btn" id="redes"></div></div>
       </div>
     </section>
   </div>
@@ -267,7 +277,7 @@ const COLORES = [["blue curacao","#1f8bff"],["granadina","#d7263d"],["arándano"
 const CATS = [["especiales","Especiales"],["ron","Ron"],["vodka","Vodka"],["guaro","Guaro"],["tequila","Tequila"],["ginebra","Ginebra"],["whisky","Whisky"],["jagger","Jagger"],["cerveza","Cerveza"],["casa","Hacelo en casa"]];
 const P = (id, cat, nombre, desc, precio, extra = {}) => ({id, cat, nombre, desc, precio, ...extra});
 const BASE = {
-  negocio: {nombre:"Koktela", lema:"El ride para llevar", whatsapp:"50661572339",
+  negocio: {nombre:"Koktela", lema:"El ride para llevar", whatsapp:"50661572339", redes: {instagram: "koktelaelride", facebook: "", tiktok: ""},
     promos:{0:"Domingos: 3 cócteles por ₡10.000, de 2 a 8 p. m.", 3:"Miércoles de 2x1, porque doble es mejor."},
     promoGeneral:"Celebrá tu cumple en Koktela: escribinos y armamos la previa.",
     horario:[["Lunes","",""],["Martes","16:00","23:00"],["Miércoles","16:00","23:00"],["Jueves","16:00","23:00"],["Viernes","16:00","23:30"],["Sábado","14:00","23:30"],["Domingo","14:00","20:00"]]},
@@ -385,7 +395,46 @@ function horasRetiro() {
 function pintarCats() {
   $("#cats").innerHTML = [["todo","Todo"], ...CATS].map(([k, l]) => `<button type="button" data-cat="${k}" aria-pressed="${catSel === k}">${l}</button>`).join("");
 }
+// ----- Redes sociales (la dueña las cambia en Administrar → Negocio) -----
+const urlRed = (tipo, v) => { v = String(v || "").trim(); if (!v) return ""; if (/^https?:\/\//i.test(v)) return v; v = v.replace(/^@/, "");
+  return {instagram: "https://www.instagram.com/" + v, facebook: "https://www.facebook.com/" + v, tiktok: "https://www.tiktok.com/@" + v}[tipo]; };
+function pintarRedes() {
+  const r = D.negocio.redes || BASE.negocio.redes || {}, wa = String(D.negocio.whatsapp || "").replace(/\D/g, "");
+  const ls = [["instagram", "📸 Instagram"], ["facebook", "👍 Facebook"], ["tiktok", "🎵 TikTok"]].map(([k, l]) => [l, urlRed(k, r[k])]).filter(x => x[1]);
+  if (wa) ls.splice(Math.min(1, ls.length), 0, ["💬 WhatsApp", "https://wa.me/" + wa]);
+  $("#redes").innerHTML = ls.map(([l, u]) => `<a class="btn sm" href="${esc(u)}" target="_blank" rel="noopener">${l}</a>`).join("") || `<span class="nota">Pronto.</span>`;
+  const ig = urlRed("instagram", r.instagram), chip = $("#ig"); if (chip) { if (ig) chip.href = ig; chip.hidden = !ig; }
+}
+// ----- Promociones en la nube: la dueña las publica y les llegan a todos los clientes -----
+let promosNube = [], promoErr = false, promoOcupado = false;
+const DIAS_CORTOS = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"], DIAS_PL = ["domingos", "lunes", "martes", "miércoles", "jueves", "viernes", "sábados"];
+const fechaPromo = p => p.creado && p.creado.toDate ? p.creado.toDate().getTime() : Date.now();
+const promoActiva = p => (p.dias && p.dias.length) || Date.now() - fechaPromo(p) < 14 * 864e5;
+const textoDias = d => d.length === 7 ? "Todos los días" : "Todos los " + d.map(x => DIAS_PL[x]).join(", ").replace(/, ([^,]*)$/, " y $1");
+function pintarPromosNube() {
+  const el = $("#promosNube"), hoy = ahoraCR().getUTCDay(), act = promosNube.filter(promoActiva);
+  el.hidden = !act.length;
+  el.innerHTML = act.map(p => { const rep = p.dias && p.dias.length, esHoy = rep && p.dias.includes(hoy);
+    return `<div class="pn${esHoy || !rep ? " hoy" : ""}"><span class="ic">📣</span><div><b>${esc(p.titulo)}${p.producto ? ` · ${esc(p.producto)}` : ""}</b>${p.texto ? `<span>${esc(p.texto)}</span>` : ""}<small>${rep ? textoDias(p.dias) + (esHoy ? " · ¡Hoy!" : "") : "Nueva"}</small></div></div>`; }).join("");
+}
+function vistaPromos() {
+  const real = !Tarjetas.prueba;
+  let h = `<p class="nota" style="margin-top:12px">Publicá una promo y les llega al instante a los clientes que tengan su tarjeta abierta o guardada en el celular. Si escogés días, se les recuerda cada semana ese día.</p>`;
+  if (real) h += `<p class="nota">🔒 Con clientes reales, las promos las publica la dueña con su acceso seguro (correo y contraseña). Probalo en el <a href="./?prueba">modo prueba</a>.</p>`;
+  h += `<div class="grupo"><b>Nueva promoción</b>
+    <label class="c">Título<input id="pTit" maxlength="60" placeholder="Ej.: Miércoles de 2x1" ${real ? "disabled" : ""}></label>
+    <label class="c">Detalle<textarea id="pTxt" maxlength="200" rows="2" placeholder="Ej.: Todos los miércoles, bebidas seleccionadas al 2x1." ${real ? "disabled" : ""}></textarea></label>
+    <label class="c">Producto (opcional)<select id="pProd" ${real ? "disabled" : ""}><option value="">— Ninguno —</option>${D.productos.filter(x => !x.oculto).map(x => `<option>${esc(x.nombre)}</option>`).join("")}</select></label>
+    <b style="font-size:13px;color:var(--suave);text-transform:uppercase;letter-spacing:.04em">¿Se repite cada semana?</b>
+    <div class="dias">${DIAS_CORTOS.map((x, i) => `<label><input type="checkbox" data-pdia="${i}" ${real ? "disabled" : ""}> ${x}</label>`).join("")}</div>
+    <span class="nota">Sin días marcados se avisa una sola vez, ahora mismo.</span>
+    <p class="err" id="pErr"></p><div><button class="btn pri" type="button" data-publicar ${promoOcupado || real ? "disabled" : ""}>📣 Publicar y avisar</button></div></div>`;
+  h += `<div class="grupo"><b>Publicadas</b>${promoErr ? `<p class="nota">No se pudieron cargar. Revisá la conexión.</p>` : !promosNube.length ? `<p class="nota">Todavía no hay promociones publicadas.</p>`
+    : promosNube.map(x => `<div class="cli"><span><b>${esc(x.titulo)}</b>${x.producto ? " · " + esc(x.producto) : ""}<br><small>${x.dias && x.dias.length ? "Se repite: " + x.dias.map(i => DIAS_CORTOS[i]).join(", ") : "Una vez · " + new Date(fechaPromo(x)).toLocaleDateString("es-CR", {day: "numeric", month: "short"})}</small></span>${real ? "" : `<button class="btn sm" type="button" data-quitar-promo="${esc(x.id)}">Quitar</button>`}</div>`).join("")}</div>`;
+  return h;
+}
 function pintarMenu() {
+  pintarRedes();
   const visibles = D.productos.filter(p => !p.oculto);
   $("#menu").innerHTML = CATS.filter(([k]) => catSel === "todo" || catSel === k).map(([k, l]) => {
     const ps = visibles.filter(p => p.cat === k); if (!ps.length) return "";
@@ -519,7 +568,7 @@ function vistaSellos() {
   if (cli && cli.cargando) h += `<div class="ficha"><span class="nota">Cargando tarjeta…</span></div>`;
   else if (cli) {
     const suma = cli.sellos + cliPend, ganaria = Math.floor(suma / 10);
-    h += `<div class="ficha"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><b style="font-size:19px">${esc(cli.nombre)}</b><span class="nota">Cédula ****${esc(cli.ced4)}</span></div>
+    h += `<div class="ficha"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><b style="font-size:19px">${esc(cli.nombre)}</b><span class="nota">Cédula ****${esc(cli.ced4)}${cli.correo ? ` · ✉️ ${esc(cli.correo)}` : ""}</span></div>
       ${statsHTML(cli, true)}
       ${cli.gratis ? `<div class="grupo" style="border:1px solid var(--oro);border-radius:8px;padding:12px"><b>🎁 Canjear cócteles gratis</b>
         <div class="ajuste"><div class="cant"><button type="button" data-canje="-1" aria-label="Uno menos" ${cliCanje <= 1 ? "disabled" : ""}>−</button><b>${cliCanje}</b><button type="button" data-canje="1" aria-label="Uno más" ${cliCanje >= cli.gratis ? "disabled" : ""}>+</button></div>
@@ -560,6 +609,7 @@ function vistaSellos() {
       <label class="c">Nombre completo<input id="rNom" maxlength="60" autocomplete="off" placeholder="Ej.: Daniela Mora"></label>
       <label class="c">Cédula<input id="rCed" inputmode="numeric" maxlength="15" autocomplete="off" placeholder="Ej.: 1 1234 5678"></label>
       <label class="c">Clave del cliente, 4 dígitos (opcional)<input id="rPin" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="Ej.: 4821"></label>
+      <label class="c">Correo (opcional)<input id="rCorreo" type="email" maxlength="100" autocomplete="off" placeholder="Ej.: daniela@correo.com"></label>
       <label class="c">Celular para mandarle el QR (opcional)<input id="rTel" inputmode="tel" maxlength="12" autocomplete="off" placeholder="Ej.: 8888 7777"></label>
       <p class="err" id="rErr"></p><div><button class="btn pri" type="button" data-registrar ${cliOcupado ? "disabled" : ""}>Crear tarjeta y QR</button></div>
       <p class="nota">De la cédula solo se guardan los últimos 4 dígitos y una huella para poder buscarla.</p></div>`;
@@ -611,8 +661,11 @@ function _pintarAdmin() {
       <p class="nota">Versión de prueba · contraseña: <b style="user-select:all">${CLAVE_DEMO}</b></p></div>`);
     return;
   }
-  const tabs = `<div class="tabs"><button type="button" data-tab="cli" aria-pressed="${tabAdm === "cli"}">Sellos clientes</button><button type="button" data-tab="prod" aria-pressed="${tabAdm === "prod"}">Productos</button><button type="button" data-tab="neg" aria-pressed="${tabAdm === "neg"}">Negocio</button></div>`;
+  const tabs = `<div class="tabs"><button type="button" data-tab="cli" aria-pressed="${tabAdm === "cli"}">Sellos clientes</button><button type="button" data-tab="promo" aria-pressed="${tabAdm === "promo"}">📣 Promos</button><button type="button" data-tab="prod" aria-pressed="${tabAdm === "prod"}">Productos</button><button type="button" data-tab="neg" aria-pressed="${tabAdm === "neg"}">Negocio</button></div>`;
   let cuerpo;
+  if (tabAdm === "promo") {
+    cuerpo = vistaPromos();
+  } else
   if (tabAdm === "cli") {
     cuerpo = vistaSellos();
   } else
@@ -636,6 +689,10 @@ function _pintarAdmin() {
       <label class="c">Frase<input id="gLema" maxlength="80" value="${esc(n.lema)}"></label>
       <label class="c">WhatsApp para pedidos<input id="gWa" inputmode="tel" maxlength="20" value="${esc(n.whatsapp)}"></label>
       <label class="c">Promo de los días sin promo especial<input id="gPromo" maxlength="120" value="${esc(n.promoGeneral || "")}"></label>
+      <b style="font-size:14px;color:var(--suave);text-transform:uppercase;letter-spacing:.04em">Redes sociales</b>
+      <label class="c">Instagram (usuario o link)<input id="gIg" maxlength="120" placeholder="@usuario" value="${esc((n.redes || BASE.negocio.redes).instagram || "")}"></label>
+      <label class="c">Facebook (usuario o link)<input id="gFb" maxlength="120" placeholder="usuario" value="${esc((n.redes || BASE.negocio.redes).facebook || "")}"></label>
+      <label class="c">TikTok (usuario o link)<input id="gTk" maxlength="120" placeholder="@usuario" value="${esc((n.redes || BASE.negocio.redes).tiktok || "")}"></label>
       <b style="font-size:14px;color:var(--suave);text-transform:uppercase;letter-spacing:.04em">Horario (vacío = cerrado)</b>
       ${n.horario.map(([d, a, b], i) => `<div style="display:grid;grid-template-columns:96px 1fr 1fr;gap:8px;align-items:center"><span>${d}</span>
         <label class="c"><input data-h="${i}:1" value="${a}" placeholder="8:00" aria-label="${d} abre"></label><label class="c"><input data-h="${i}:2" value="${b}" placeholder="19:00" aria-label="${d} cierra"></label></div>`).join("")}
@@ -643,7 +700,7 @@ function _pintarAdmin() {
       <button class="btn sm" type="button" data-reset>Volver a los datos de ejemplo</button></div>`;
   }
   abrirHoja(`<div class="asa"></div><button class="x" type="button" data-cerrar aria-label="Cerrar">×</button>
-    <h2 id="hojaT">Administrar menú</h2><p class="nota">${tabAdm === "cli" ? (Tarjetas.prueba ? "🧪 Estás en el <b>modo prueba</b>: nada de esto toca los clientes reales." : "Las tarjetas se guardan en la nube: el cliente ve sus sellos al instante.") : "En la demo, los cambios del menú se guardan solo en este celular."}
+    <h2 id="hojaT">Administrar menú</h2><p class="nota">${tabAdm === "cli" || tabAdm === "promo" ? (Tarjetas.prueba ? "🧪 Estás en el <b>modo prueba</b>: nada de esto toca los clientes reales." : "Las tarjetas se guardan en la nube: el cliente ve sus sellos al instante.") : "En la demo, los cambios del menú se guardan solo en este celular."}
       <a href="${Tarjetas.prueba ? "./" : "./?prueba"}" style="color:var(--oro)">${Tarjetas.prueba ? "Volver a los datos reales" : "🧪 Abrir modo prueba"}</a> <button type="button" data-salir style="border:0;background:none;color:var(--fucsia2);text-decoration:underline;cursor:pointer">Salir</button></p>${tabs}${cuerpo}`);
 }
 
@@ -708,13 +765,14 @@ document.addEventListener("click", async e => {
     return;
   }
   if (b.hasAttribute("data-registrar")) {
-    const nombre = $("#rNom").value.trim(), ced = Tarjetas.soloDigitos($("#rCed").value), tel = Tarjetas.soloDigitos($("#rTel").value), pin = Tarjetas.soloDigitos($("#rPin").value);
+    const nombre = $("#rNom").value.trim(), ced = Tarjetas.soloDigitos($("#rCed").value), tel = Tarjetas.soloDigitos($("#rTel").value), pin = Tarjetas.soloDigitos($("#rPin").value), correo = $("#rCorreo").value.trim();
     if (nombre.length < 2) { $("#rErr").textContent = "Escribí el nombre del cliente."; $("#rNom").focus(); return; }
     if (ced.length < 9) { $("#rErr").textContent = "Escribí la cédula completa (9 dígitos o más)."; $("#rCed").focus(); return; }
+    if (correo && !Tarjetas.limpiarCorreo(correo)) { $("#rErr").textContent = "Revisá el correo, o dejalo vacío."; $("#rCorreo").focus(); return; }
     if (pin && pin.length !== 4) { $("#rErr").textContent = "La clave debe tener 4 dígitos, o dejala vacía."; $("#rPin").focus(); return; }
     if (tel && tel.length !== 8) { $("#rErr").textContent = "El celular debe tener 8 dígitos, o dejalo vacío."; $("#rTel").focus(); return; }
     cliOcupado = true; b.disabled = true;
-    try { const r = await Tarjetas.crear({nombre, cedula: ced});
+    try { const r = await Tarjetas.crear({nombre, cedula: ced, correo});
       if (pin) await Tarjetas.crearAcceso(r.token, ced, pin);
       cliNuevo = {token: r.token, nombre, tel, existia: r.existia, ced, pin}; cliOcupado = false; abrirFicha(r.token); aviso(r.existia ? "Esa cédula ya tenía tarjeta" : "Tarjeta creada"); }
     catch { cliOcupado = false; $("#rErr").textContent = "No se pudo crear la tarjeta. Revisá la conexión."; b.disabled = false; }
@@ -728,6 +786,15 @@ document.addEventListener("click", async e => {
     catch { aviso("No se pudo. Revisá la conexión."); }
     cliOcupado = false; if (cliUnsub) { cliUnsub(); cliUnsub = null; } cli = null; cliNuevo = null; pintarAdmin(); return;
   }
+  if (b.hasAttribute("data-publicar")) {
+    const titulo = $("#pTit").value.trim(), texto = $("#pTxt").value.trim(), producto = $("#pProd").value, dias = [...document.querySelectorAll("[data-pdia]:checked")].map(x => +x.dataset.pdia);
+    if (titulo.length < 2) { $("#pErr").textContent = "Escribí un título para la promo."; $("#pTit").focus(); return; }
+    promoOcupado = true; b.disabled = true;
+    try { await Tarjetas.publicarPromo({titulo, texto, producto, dias}); promoOcupado = false; pintarAdmin(); aviso("📣 Promo publicada: ya les llega a los clientes"); }
+    catch { promoOcupado = false; b.disabled = false; $("#pErr").textContent = Tarjetas.prueba ? "No se pudo publicar. Revisá la conexión." : "Con clientes reales, solo la dueña con su acceso seguro puede publicar promos."; }
+    return;
+  }
+  if (b.dataset.quitarPromo) { try { await Tarjetas.borrarPromo(b.dataset.quitarPromo); aviso("Promo quitada"); } catch { aviso("No se pudo quitar. Revisá la conexión."); } return; }
   if (b.dataset.copiarLink) { const l = b.dataset.copiarLink; try { await navigator.clipboard.writeText(l); aviso("Link copiado"); } catch { aviso(l); } return; }
   if (b.dataset.tab) { tabAdm = b.dataset.tab; pintarAdmin(); return; }
   if (b.dataset.borrar) { D.productos = D.productos.filter(p => p.id !== b.dataset.borrar); guardarD(); pintarMenu(); pintarAdmin(); aviso("Producto borrado"); return; }
@@ -739,7 +806,7 @@ document.addEventListener("click", async e => {
     D.productos.push(p); guardarD(); pintarMenu(); pintarAdmin(); aviso(`${nombre} ya está en el menú`); return;
   }
   if (b.hasAttribute("data-gneg")) {
-    const n = D.negocio; n.nombre = $("#gNom").value.trim() || n.nombre; n.lema = $("#gLema").value.trim(); n.whatsapp = $("#gWa").value.trim(); n.promoGeneral = $("#gPromo").value.trim();
+    const n = D.negocio; n.nombre = $("#gNom").value.trim() || n.nombre; n.lema = $("#gLema").value.trim(); n.whatsapp = $("#gWa").value.trim(); n.redes = {instagram: $("#gIg").value.trim(), facebook: $("#gFb").value.trim(), tiktok: $("#gTk").value.trim()}; n.promoGeneral = $("#gPromo").value.trim();
     document.querySelectorAll("[data-h]").forEach(i => { const [d, k] = i.dataset.h.split(":"); n.horario[+d][+k] = i.value.trim(); });
     guardarD(); pintarMenu(); pintarHorario(); aviso("Cambios guardados"); return;
   }
@@ -761,6 +828,8 @@ $("#waze").href = `https://waze.com/ul?q=${q}&navigate=yes`;
 if (Tarjetas.prueba) { $("#bPrueba").hidden = false;
   Tarjetas.asegurarEjemplos().catch(() => {}); }
 pintarCats(); pintarMenu(); pintarHorario(); pintarCarrito(); pintarSellos();
+Tarjetas.escucharPromos(l => { promosNube = l; promoErr = false; pintarPromosNube();
+  if (tabAdm === "promo" && admin && $("#hoja").classList.contains("on") && ($("#hojaT") || {}).textContent === "Administrar menú") { const sc = $("#hoja").scrollTop; pintarAdmin(); $("#hoja").scrollTop = sc; } }, () => { promoErr = true; }).catch(() => { promoErr = true; });
 // #sellos-TOKEN: la dueña escaneó con la cámara normal del celular y tocó "Sumar sellos" en la tarjeta del cliente.
 function leerHash() {
   const m = location.hash.match(/^#sellos-([a-z0-9]{16,40})$/i);

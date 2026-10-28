@@ -14,7 +14,7 @@ window.Tarjetas = (() => {
   // Modo prueba: con ?prueba en la dirección todo va a una base de datos aparte, con clientes de ejemplo.
   const PRUEBA = /[?&]prueba\b/.test(location.search);
   const PRE = PRUEBA ? "prueba_matcha_" : "demo_matcha_";
-  const COL = PRE + "clientes", IDX = PRE + "ced", ACC = PRE + "acceso", RCL = PRE + "reclamos", PEN = PRE + "pendientes";
+  const COL = PRE + "clientes", IDX = PRE + "ced", ACC = PRE + "acceso", RCL = PRE + "reclamos", PEN = PRE + "pendientes", PRO = PRE + "promos";
   const KEY = PRUEBA ? "mm-token-prueba" : "mm-token";
   const url = ruta => { const u = new URL(ruta, location.href); if (PRUEBA) u.search = "?prueba"; return u.href; };
   const BASE = "https://www.gstatic.com/firebasejs/10.12.2/";
@@ -59,13 +59,13 @@ window.Tarjetas = (() => {
     return s.exists() ? normal({ token, ...s.data() }) : null;
   }
   // Registra un cliente nuevo. Si la cédula ya existe, devuelve la tarjeta que ya tenía.
-  async function crear({ nombre, cedula }) {
+  async function crear({ nombre, cedula, correo = "" }) {
     await iniciar();
     const ced = soloDigitos(cedula), h = await huella(ced);
     const ya = await F.getDoc(F.doc(db, IDX, h));
     if (ya.exists()) return { token: ya.data().t, existia: true };
     const token = nuevoToken(), w = F.writeBatch(db);
-    w.set(F.doc(db, COL, token), { nombre: String(nombre).trim().slice(0, 60), ced4: ced.slice(-4), sellos: 0, gratis: 0, canjes: 0, total: 0,
+    w.set(F.doc(db, COL, token), { nombre: String(nombre).trim().slice(0, 60), ced4: ced.slice(-4), correo: limpiarCorreo(correo), sellos: 0, gratis: 0, canjes: 0, total: 0,
       creado: F.serverTimestamp(), actualizado: F.serverTimestamp() });
     w.set(F.doc(db, IDX, h), { t: token });
     await w.commit();
@@ -105,6 +105,7 @@ window.Tarjetas = (() => {
   async function cargarEjemplos() {
     if (!PRUEBA) throw new Error("solo-prueba");
     await iniciar();
+    await cargarPromosEjemplo();
     for (const e of EJEMPLOS) {
       const h = await huella(e.ced), ya = await F.getDoc(F.doc(db, IDX, h));
       const token = ya.exists() ? ya.data().t : nuevoToken(), w = F.writeBatch(db);
@@ -128,6 +129,7 @@ window.Tarjetas = (() => {
     const r = await F.getDoc(F.doc(db, RCL, id0)), p = await F.getDoc(F.doc(db, PEN, id0));
     // Se recarga si falta algo (o si quedó de una versión vieja sin la lista de pendientes).
     if (!s.exists() || !r.exists() || (r.data().estado === "pendiente" && !p.exists())) await cargarEjemplos();
+    else if (!(await F.getDoc(F.doc(db, PRO, PROMOS_EJEMPLO[0].id))).exists()) await cargarPromosEjemplo();
   }
   // Top 10 de clientes por sellos acumulados (en la versión real, solo la dueña con su acceso seguro).
   async function top10() {
@@ -191,7 +193,7 @@ window.Tarjetas = (() => {
   async function borrarPrueba() {
     if (!PRUEBA) throw new Error("solo-prueba");
     await iniciar();
-    for (const c of [PEN, RCL, ACC, IDX, COL]) {
+    for (const c of [PRO, PEN, RCL, ACC, IDX, COL]) {
       const s = await F.getDocs(F.collection(db, c));
       for (let i = 0; i < s.docs.length; i += 400) { const w = F.writeBatch(db); s.docs.slice(i, i + 400).forEach(d => w.delete(d.ref)); await w.commit(); }
     }
@@ -202,6 +204,37 @@ window.Tarjetas = (() => {
     gratis += Math.floor(sellos / 10); sellos %= 10;
     const total = d.total ?? ((d.sellos || 0) + 10 * ((d.gratis || 0) + canjes));
     return { ...d, sellos, gratis, canjes, total };
+  }
+  // ----- Correo del cliente (opcional) -----
+  const limpiarCorreo = c => { const v = String(c || "").trim().toLowerCase().slice(0, 100); return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v) ? v : ""; };
+  async function guardarCorreo(token, correo) {
+    await iniciar();
+    const v = limpiarCorreo(correo); if (correo && !v) throw new Error("correo");
+    await F.updateDoc(F.doc(db, COL, token), { correo: v });
+    return v;
+  }
+  // ----- Promociones: la dueña las publica y les llegan a todos los clientes que tengan la página -----
+  // dias: [] = una sola vez (se avisa al publicarla); [3] = se repite todos los miércoles (0 = domingo).
+  const PROMOS_EJEMPLO = [
+    {id: "ej-martes", titulo: "Martes de fresa", texto: "El Matcha fresa en 16 oz al precio de 12 oz.", producto: "Matcha fresa", dias: [2]},
+    {id: "ej-nuevo", titulo: "¡Nuevo sabor esta semana!", texto: "Vení a probar el matcha del mes antes de que se acabe.", producto: "", dias: []}
+  ];
+  async function publicarPromo({ titulo, texto, producto = "", dias = [] }) {
+    await iniciar();
+    const r = await F.addDoc(F.collection(db, PRO), { titulo: String(titulo).trim().slice(0, 60), texto: String(texto).trim().slice(0, 200),
+      producto: String(producto || "").slice(0, 60), dias: [...new Set(dias.map(Number))].filter(n => n >= 0 && n <= 6).sort(), creado: F.serverTimestamp() });
+    return r.id;
+  }
+  async function borrarPromo(id) { await iniciar(); await F.deleteDoc(F.doc(db, PRO, id)); }
+  async function escucharPromos(alCambiar, alFallar) {
+    await iniciar();
+    return F.onSnapshot(F.query(F.collection(db, PRO), F.orderBy("creado", "desc"), F.limit(30)),
+      s => alCambiar(s.docs.map(x => ({ id: x.id, ...x.data({ serverTimestamps: "estimate" }) }))), e => alFallar && alFallar(e));
+  }
+  async function cargarPromosEjemplo() {
+    const w = F.writeBatch(db);
+    PROMOS_EJEMPLO.forEach(({ id, ...p }) => w.set(F.doc(db, PRO, id), { ...p, creado: F.serverTimestamp() }));
+    await w.commit();
   }
   // Suma sellos. Al llegar a 10 gana un cóctel gratis y la tarjeta vuelve a cero. No existe la opción de restar.
   async function sumar(token, n) {
@@ -232,5 +265,5 @@ window.Tarjetas = (() => {
     await iniciar();
     return F.onSnapshot(F.doc(db, COL, token), s => alCambiar(s.exists() ? normal({ token, ...s.data() }) : null), e => alFallar && alFallar(e));
   }
-  return { APPS, idReclamo, ordenLimpia, escucharPendientes, reclamar, verReclamo, aprobarReclamo, rechazarReclamo, RECLAMOS_PRUEBA, prueba: PRUEBA, KEY, url, EJEMPLOS, cargarEjemplos, asegurarEjemplos, borrarPrueba, top10, normal, iniciar, buscarPorCedula, obtener, crear, crearAcceso, ingresar, sumar, canjear, escuchar, link, tokenDeTexto, soloDigitos };
+  return { guardarCorreo, limpiarCorreo, publicarPromo, borrarPromo, escucharPromos, APPS, idReclamo, ordenLimpia, escucharPendientes, reclamar, verReclamo, aprobarReclamo, rechazarReclamo, RECLAMOS_PRUEBA, prueba: PRUEBA, KEY, url, EJEMPLOS, cargarEjemplos, asegurarEjemplos, borrarPrueba, top10, normal, iniciar, buscarPorCedula, obtener, crear, crearAcceso, ingresar, sumar, canjear, escuchar, link, tokenDeTexto, soloDigitos };
 })();

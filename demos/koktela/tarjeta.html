@@ -12,6 +12,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Koktela">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.json">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -76,6 +77,17 @@ details.clave{border:1px dashed var(--linea);border-radius:8px;padding:10px 12px
 details.clave summary{cursor:pointer;font-weight:800;font-size:14.5px}
 details.clave .form{margin-top:10px}
 .prueba{position:fixed;top:0;left:0;right:0;z-index:70;background:#f6c90e;color:#1a1400;font:800 13px var(--f-txt);text-align:center;padding:5px 10px;padding-top:calc(5px + env(safe-area-inset-top,0px))}
+.bloque{border:1px solid var(--linea);border-radius:8px;padding:12px;text-align:left;display:grid;gap:8px;background:var(--fondo)}
+.bloque>b{font-size:14.5px}
+.promoC{border-left:4px solid var(--oro);padding:4px 0 4px 10px;display:grid;gap:2px}
+.promoC small{color:var(--suave);font-weight:700;font-size:12.5px}
+.promoC.hoy small{color:var(--oro)}
+.promoC span{font-size:14.5px}
+.lista-av{display:grid;gap:6px;margin:0;padding:0;list-style:none}
+.lista-av li{display:grid;gap:1px;border-bottom:1px dashed var(--linea);padding-bottom:6px;font-size:14px}
+.lista-av small{color:var(--suave);font-size:12px}
+.notif{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:14px}
+.notif .ok{font-weight:800;color:var(--oro)}
 .toast{position:fixed;left:50%;transform:translate(-50%,20px);bottom:calc(24px + env(safe-area-inset-bottom,0px));background:var(--texto);color:var(--fondo);padding:12px 18px;border-radius:8px;font-weight:800;opacity:0;pointer-events:none;transition:.25s;max-width:calc(100% - 32px)}
 .toast.on{opacity:1;transform:translate(-50%,0)}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
@@ -159,6 +171,63 @@ const esEjemplo = token === EJEMPLO.token;
 lsSet(Tarjetas.KEY, token);
 if (!location.hash.includes(token)) history.replaceState(null, "", "#t=" + token);
 
+// ---------- Avisos en el celular (sellos, gratis y promociones) ----------
+let swReg = null;
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").then(r => swReg = r).catch(() => {});
+const KEY_AV = Tarjetas.KEY + "-avisos", KEY_VISTAS = Tarjetas.KEY + "-promos-vistas";
+let misAvisos = lsGet(KEY_AV, []), promos = [];
+const puedeNotificar = () => "Notification" in window && Notification.permission === "granted";
+function avisar(titulo, cuerpo = "") {
+  aviso(titulo);
+  misAvisos = [{titulo, cuerpo, f: Date.now()}, ...misAvisos].slice(0, 15); lsSet(KEY_AV, misAvisos); pintarAvisos();
+  if (!puedeNotificar()) return;
+  const op = {body: cuerpo, icon: "logo.png", badge: "logo.png", tag: "av-" + Date.now(), data: {url: location.href}};
+  const sistema = swReg ? swReg.showNotification(titulo, op) : Promise.reject();
+  sistema.catch(() => { try { new Notification(titulo, op); } catch {} });
+}
+const haceRato = f => { const m = Math.round((Date.now() - f) / 60000); return m < 1 ? "recién" : m < 60 ? `hace ${m} min` : m < 1440 ? `hace ${Math.floor(m / 60)} h` : new Date(f).toLocaleDateString("es-CR", {day: "numeric", month: "short"}); };
+function pintarAvisos() {
+  const el = $("#avisosC"); if (!el) return;
+  el.innerHTML = misAvisos.length ? `<details><summary><b>🔔 Mis avisos (${misAvisos.length})</b></summary><ul class="lista-av" style="margin-top:8px">${misAvisos.map(a => `<li><b>${esc(a.titulo)}</b>${a.cuerpo ? `<span>${esc(a.cuerpo)}</span>` : ""}<small>${haceRato(a.f)}</small></li>`).join("")}</ul></details>` : "";
+  el.hidden = !misAvisos.length;
+}
+function pintarNotif() {
+  const el = $("#notifC"); if (!el) return;
+  const iOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+  if (!("Notification" in window)) { el.innerHTML = `<span class="nota">${iOS ? "En iPhone, agregá esta página a tu pantalla de inicio para recibir avisos." : "En este navegador los avisos salen dentro de la página."}</span>`; return; }
+  if (Notification.permission === "granted") { el.innerHTML = `<span class="ok">🔔 Avisos activados</span><span class="nota">Te avisamos de sellos, gratis y promos.</span>`; return; }
+  if (Notification.permission === "denied") { el.innerHTML = `<span class="nota">Los avisos están bloqueados. Activalos en los permisos del navegador para esta página.</span>`; return; }
+  el.innerHTML = `<span>¿Querés que te avisemos de tus sellos y promos?</span><button class="btn pri" type="button" id="activarAv">🔔 Activar avisos</button>`;
+  $("#activarAv").addEventListener("click", async () => {
+    try { await Notification.requestPermission(); } catch {}
+    pintarNotif(); if (puedeNotificar()) avisar("¡Listo! Avisos activados 🔔", "Te vamos a avisar cuando sumés sellos, ganés gratis o haya promos.");
+  });
+}
+// Promociones: las de una vez se avisan al salir; las que se repiten, cada día que les toca.
+const DIAS_PL = ["domingos", "lunes", "martes", "miércoles", "jueves", "viernes", "sábados"];
+const ahoraCR = () => new Date(Date.now() - 6 * 3600e3);
+const fechaPromo = p => p.creado && p.creado.toDate ? p.creado.toDate().getTime() : Date.now();
+const promoActiva = p => (p.dias && p.dias.length) || Date.now() - fechaPromo(p) < 14 * 864e5;
+const textoDias = d => d.length === 7 ? "Todos los días" : "Todos los " + d.map(x => DIAS_PL[x]).join(", ").replace(/, ([^,]*)$/, " y $1");
+function pintarPromos() {
+  const el = $("#promosC"); if (!el) return;
+  const hoy = ahoraCR().getUTCDay();
+  el.hidden = !promos.length;
+  el.innerHTML = `<b>📣 Promociones</b>` + promos.map(p => { const rep = p.dias && p.dias.length, esHoy = rep && p.dias.includes(hoy);
+    return `<div class="promoC${esHoy || !rep ? " hoy" : ""}"><b>${esc(p.titulo)}${p.producto ? ` · ${esc(p.producto)}` : ""}</b>${p.texto ? `<span>${esc(p.texto)}</span>` : ""}<small>${rep ? textoDias(p.dias) + (esHoy ? " · ¡Hoy!" : "") : "Nueva"}</small></div>`; }).join("");
+}
+function iniciarPromos() {
+  Tarjetas.escucharPromos(lista => {
+    promos = lista.filter(promoActiva); pintarPromos();
+    const vistas = lsGet(KEY_VISTAS, []), hoy = ahoraCR().getUTCDay(), f = ahoraCR().toISOString().slice(0, 10), nuevas = [];
+    for (const p of promos) {
+      const clave = p.dias && p.dias.length ? (p.dias.includes(hoy) ? p.id + "@" + f : null) : (Date.now() - fechaPromo(p) < 3 * 864e5 ? p.id : null);
+      if (clave && !vistas.includes(clave)) { nuevas.push(p); vistas.push(clave); }
+    }
+    lsSet(KEY_VISTAS, vistas.slice(-80));
+    nuevas.slice(0, 3).forEach(p => avisar("📣 " + p.titulo, [p.producto, p.texto].filter(Boolean).join(" · ")));
+  }).catch(() => {});
+}
 let antes = null;
 function pintar(c) {
   if (!c) {
@@ -186,6 +255,8 @@ function pintar(c) {
       <div><b>${c.total}</b><span>⚡ Sellos acumulados</span></div>
       <div><b>${c.canjes}</b><span>✅ Gratis canjeado${c.canjes === 1 ? "" : "s"}</span></div>
     </div>
+    <div class="bloque" id="promosC" hidden></div>
+    <div class="bloque notif" id="notifC"></div>
     <span class="vivo"><i></i>Se actualiza sola</span>
     ${instalada() ? "" : `<div class="guardar"><b>Guardala en tu celular</b><span>Así la abrís como una app, sin buscar el link:</span><ol>${pasos}</ol></div>`}
     <div class="links"><a class="btn" href="${Tarjetas.url('./')}">Ver el menú</a></div>
@@ -196,8 +267,21 @@ function pintar(c) {
         <label>Elegí una clave de 4 dígitos<input id="cPin" type="password" inputmode="numeric" autocomplete="new-password" maxlength="4" placeholder="••••"></label>
         <p class="err" id="cErr"></p><button class="btn pri" type="submit">Guardar mi clave</button>
       </form></details>`}
+    <div class="bloque" id="avisosC" hidden></div>
+    ${esEjemplo ? "" : `<details class="clave" id="dMail"><summary>✉️ ${c.correo ? "Mi correo: " + esc(c.correo) : "Agregar mi correo"}</summary>
+      <form class="form" id="fMail" novalidate><span class="nota">Para mandarte promos y novedades. No lo compartimos con nadie.</span>
+        <label>Correo electrónico<input id="mCorreo" type="email" autocomplete="email" maxlength="100" placeholder="tu@correo.com" value="${esc(c.correo || "")}"></label>
+        <p class="err" id="mErr"></p><button class="btn pri" type="submit">Guardar correo</button></form></details>`}
     <button class="salir" type="button" id="salir">Salir de esta tarjeta</button>
     ${esEjemplo ? "" : `<p class="dueña">¿Sos del personal? <a href="${Tarjetas.url('./#sellos-' + token)}">Sumar sellos</a></p>`}`;
+  pintarPromos(); pintarNotif(); pintarAvisos();
+  const fm = $("#fMail");
+  if (fm) fm.addEventListener("submit", async e => {
+    e.preventDefault(); const v = $("#mCorreo").value.trim(), err = $("#mErr");
+    if (v && !Tarjetas.limpiarCorreo(v)) { err.textContent = "Revisá el correo."; return; }
+    err.textContent = "";
+    try { await Tarjetas.guardarCorreo(token, v); aviso(v ? "Correo guardado ✉️" : "Correo borrado"); } catch { err.textContent = "No se pudo guardar. Revisá tu conexión."; }
+  });
   $("#salir").addEventListener("click", () => { lsSet(Tarjetas.KEY, null); location.replace(Tarjetas.url("tarjeta.html#ingresar")); location.reload(); });
   const fc = $("#fClave");
   if (fc) fc.addEventListener("submit", async e => {
@@ -211,11 +295,12 @@ function pintar(c) {
   });
   try { new QRCode($("#qr"), {text: Tarjetas.link(token), width: 240, height: 240, colorDark: "#0b0a12", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.M}); }
   catch { $("#qr").innerHTML = `<p class="nota">No se pudo dibujar el QR.</p>`; }
-  if (ganó) { aviso(`🎉 ¡Ganaste ${g - prev.gratis === 1 ? "un cóctel gratis" : (g - prev.gratis) + " cócteles gratis"}! Tu tarjeta empieza de cero.`); if (navigator.vibrate) navigator.vibrate([80, 50, 80, 50, 120]); }
-  else if (sube) { const n = c.total - prev.total; aviso(`¡Sumaste ${n} sello${n === 1 ? "" : "s"}! 🏛️`); if (navigator.vibrate) navigator.vibrate([60, 40, 60]); }
-  else if (canjeó) { const n = c.canjes - prev.canjes; aviso(`¡Disfrutá tu${n === 1 ? "" : "s"} ${n === 1 ? "cóctel" : n + " cócteles"} gratis! 🍹`); }
+  if (ganó) { avisar(`🎉 ¡Ganaste ${g - prev.gratis === 1 ? "un cóctel gratis" : (g - prev.gratis) + " cócteles gratis"}! Tu tarjeta empieza de cero.`); if (navigator.vibrate) navigator.vibrate([80, 50, 80, 50, 120]); }
+  else if (sube) { const n = c.total - prev.total; avisar(`¡Sumaste ${n} sello${n === 1 ? "" : "s"}! 🏛️`); if (navigator.vibrate) navigator.vibrate([60, 40, 60]); }
+  else if (canjeó) { const n = c.canjes - prev.canjes; avisar(`¡Disfrutá tu${n === 1 ? "" : "s"} ${n === 1 ? "cóctel" : n + " cócteles"} gratis! 🍹`); }
   antes = c;
 }
+iniciarPromos();
 if (esEjemplo) { pintar(EJEMPLO.tarjeta); return; }
 Tarjetas.escuchar(token, pintar, () => { $("#carga") && ($("#carga").textContent = "No se pudo cargar tu tarjeta. Revisá tu conexión."); })
   .catch(() => { t.innerHTML = `<img class="logo" src="logo.png" alt="Koktela" width="110" height="110"><div class="sub">Tarjeta de sellos</div><p>No se pudo cargar tu tarjeta.</p><p class="nota">Revisá tu conexión e intentá de nuevo.</p>`; });
