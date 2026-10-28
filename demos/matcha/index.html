@@ -1,0 +1,471 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Matcha Mía · Menú (demo)</title>
+<meta name="description" content="Demo de menú digital con pedidos para recoger, hecha por RBM Solutions.">
+<meta name="theme-color" content="#fbe3ee">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shrikhand&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* Diseño: menú de barra de matcha. Un solo look claro y deliberado: rosado chicle de la marca, verde matcha como acento de producto.
+   Cada bebida se dibuja como un vaso con sus capas (leche, matcha, fresa…), así el menú funciona aunque todavía no haya fotos. */
+:root{
+  --fondo:#fff6fa; --rosa:#fbe3ee; --rosa2:#f6c4d9; --fucsia:#d6246e; --fucsia2:#b0185a;
+  --matcha:#7aa33b; --matcha-osc:#4f7322; --tinta:#3a1424; --suave:#8a5a6e; --linea:#f0cfdd; --blanco:#ffffff;
+  --ok:#2f8a4e; --gl:max(16px,env(safe-area-inset-left,0px)); --gr:max(16px,env(safe-area-inset-right,0px));
+  --f-logo:"Shrikhand","Arial Rounded MT Bold",system-ui,sans-serif;
+  --f-txt:"Nunito",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--fondo);color:var(--tinta);font:400 16px/1.5 var(--f-txt);-webkit-font-smoothing:antialiased;overflow-x:hidden;padding-bottom:env(safe-area-inset-bottom,0px)}
+[hidden]{display:none!important}
+button,input,select,textarea{font:inherit;color:inherit}
+h1,h2,h3{margin:0;line-height:1.1;text-wrap:balance}
+p{margin:0}
+a{color:var(--fucsia2)}
+:focus-visible{outline:3px solid var(--matcha);outline-offset:2px;border-radius:8px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}html{scroll-behavior:auto}}
+.wrap{max-width:980px;margin:0 auto;padding-left:var(--gl);padding-right:var(--gr)}
+.demo{background:var(--tinta);color:#fff;font-size:12.5px;text-align:center;padding:6px var(--gr) 6px var(--gl);padding-top:calc(6px + env(safe-area-inset-top,0px))}
+.demo b{color:var(--rosa2)}
+
+/* portada */
+.top{background:var(--rosa);border-bottom:2px solid var(--rosa2)}
+.top .wrap{display:grid;grid-template-columns:auto minmax(0,1fr);gap:16px;align-items:center;padding-block:22px 20px}
+.sello{width:86px;height:86px;border-radius:50%;background:#fff;border:3px solid var(--fucsia);display:grid;place-items:center;box-shadow:0 0 0 5px var(--rosa2)}
+.sello svg{width:60px;height:60px}
+.top h1{font:400 clamp(34px,8vw,52px)/1 var(--f-logo);color:var(--fucsia);letter-spacing:.01em}
+.top .lema{color:var(--suave);font-weight:600;margin-top:4px}
+.chips-info{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chips-info span,.chips-info a{font-size:13px;font-weight:700;background:#fff;border:1px solid var(--linea);border-radius:999px;padding:4px 10px;color:var(--tinta);text-decoration:none}
+.abierto{color:var(--ok)!important}
+.cerrado{color:var(--fucsia2)!important}
+
+/* navegación de categorías */
+.cats{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--fondo) 92%,transparent);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid var(--linea)}
+.cats .wrap{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-block:10px}
+.cats .wrap::-webkit-scrollbar{display:none}
+.cats button{flex:none;border:2px solid var(--rosa2);background:#fff;border-radius:999px;padding:7px 14px;font-weight:800;font-size:14px;cursor:pointer;color:var(--suave)}
+.cats button[aria-pressed="true"]{background:var(--fucsia);border-color:var(--fucsia);color:#fff}
+
+main .wrap{display:grid;gap:30px;padding-block:22px 120px}
+.promo{background:linear-gradient(120deg,var(--matcha),var(--matcha-osc));color:#fff;border-radius:22px;padding:18px 20px;display:grid;gap:4px}
+.promo b{font:400 22px var(--f-logo)}
+section h2{font:400 26px var(--f-logo);color:var(--fucsia);margin-bottom:12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
+.prod{background:#fff;border:2px solid var(--linea);border-radius:22px;padding:14px;display:grid;grid-template-rows:auto auto 1fr auto;gap:8px;text-align:left;cursor:pointer;min-width:0;transition:transform .15s,border-color .15s;position:relative}
+.prod:hover{transform:translateY(-2px);border-color:var(--rosa2)}
+.prod h3{font-size:17px;font-weight:800}
+.prod p{font-size:14px;color:var(--suave)}
+.prod .pie{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.precio{font-weight:800;font-variant-numeric:tabular-nums}
+.mas{width:36px;height:36px;border-radius:50%;background:var(--fucsia);color:#fff;display:grid;place-items:center;font-size:22px;font-weight:800;line-height:1}
+.prod.agotado{opacity:.55;cursor:not-allowed}
+.prod .etq{position:absolute;top:12px;left:12px;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;background:var(--tinta);color:#fff;border-radius:6px;padding:2px 7px}
+.prod .etq.nuevo{background:var(--matcha)}
+.lienzo{height:150px;border-radius:16px;background:var(--rosa);display:grid;place-items:center;overflow:hidden}
+
+/* vaso dibujado */
+.vaso{position:relative;width:72px;height:112px;clip-path:polygon(0 0,100% 0,88% 100%,12% 100%);border-radius:0 0 10px 10px}
+.vaso::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(255,255,255,.45),transparent 30%,transparent 70%,rgba(255,255,255,.25))}
+.vaso::after{content:"";position:absolute;left:0;right:0;top:0;height:6px;background:rgba(255,255,255,.7)}
+.vaso.cal{width:84px;height:84px;clip-path:none;border-radius:6px 6px 26px 26px;box-shadow:inset 0 -6px 0 rgba(0,0,0,.08)}
+.taza{position:relative}
+.taza.cal::after{content:"";position:absolute;right:-18px;top:18px;width:22px;height:34px;border:7px solid #fff;border-left:0;border-radius:0 18px 18px 0}
+.pajilla{position:absolute;width:7px;height:52px;background:var(--fucsia);left:58%;top:-36px;border-radius:4px;transform:rotate(12deg)}
+.galleta{width:86px;height:86px;border-radius:50%;background:radial-gradient(circle at 30% 35%,#5a3424 0 6px,transparent 7px),radial-gradient(circle at 62% 58%,#5a3424 0 7px,transparent 8px),radial-gradient(circle at 45% 72%,#5a3424 0 5px,transparent 6px),radial-gradient(circle at 70% 30%,#5a3424 0 5px,transparent 6px),#d9a066;box-shadow:inset 0 -6px 0 rgba(0,0,0,.08)}
+.queque{width:100px;height:64px;border-radius:12px 12px 6px 6px;background:linear-gradient(#fff6c9 0 22%,#f3d36b 22%);box-shadow:inset 0 -6px 0 rgba(0,0,0,.06)}
+
+/* lealtad, horario */
+.tarjeta{background:#fff;border:2px dashed var(--fucsia);border-radius:22px;padding:18px;display:grid;gap:12px}
+.sellos{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;max-width:360px}
+.sellos i{aspect-ratio:1;border-radius:50%;border:2px solid var(--rosa2);display:grid;place-items:center;font-style:normal;font-size:20px;background:var(--fondo)}
+.sellos i.si{background:var(--fucsia);border-color:var(--fucsia);color:#fff}
+.sellos i.gratis{border-style:dashed;font-size:11px;font-weight:800;color:var(--fucsia2)}
+.dos{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.caja{background:#fff;border:2px solid var(--linea);border-radius:22px;padding:18px;display:grid;gap:10px;align-content:start}
+.caja h3{font-size:18px;font-weight:800}
+.horas{display:grid;gap:6px;font-size:15px}
+.horas div{display:flex;justify-content:space-between;gap:10px;border-bottom:1px dashed var(--linea);padding-bottom:6px}
+.horas div.hoy{font-weight:800;color:var(--fucsia2)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:2px solid var(--fucsia);background:#fff;color:var(--fucsia2);font-weight:800;border-radius:14px;padding:11px 16px;cursor:pointer;text-decoration:none}
+.btn.pri{background:var(--fucsia);color:#fff}
+.btn.verde{background:#25d366;border-color:#25d366;color:#05300f}
+.btn.sm{padding:7px 12px;font-size:14px;border-radius:10px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.fila-btn{display:flex;gap:8px;flex-wrap:wrap}
+footer{text-align:center;color:var(--suave);font-size:13px;padding:10px var(--gr) 30px var(--gl)}
+footer button{border:0;background:none;color:var(--suave);text-decoration:underline;cursor:pointer;font-size:13px}
+
+/* botón flotante del pedido */
+.carrito{position:fixed;z-index:30;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));width:min(560px,calc(100% - 32px));display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--tinta);color:#fff;border:0;border-radius:18px;padding:14px 18px;font-weight:800;cursor:pointer;box-shadow:0 14px 34px -12px rgba(58,20,36,.6)}
+.carrito .n{background:var(--fucsia);border-radius:999px;padding:2px 10px;margin-right:8px}
+
+/* hojas (personalizar, pedido, panel) */
+.velo{position:fixed;inset:0;z-index:40;background:rgba(58,20,36,.45);opacity:0;pointer-events:none;transition:opacity .2s}
+.velo.on{opacity:1;pointer-events:auto}
+.hoja{position:fixed;z-index:50;left:0;right:0;bottom:0;margin:0 auto;max-width:600px;max-height:92vh;overflow-y:auto;background:var(--fondo);border-radius:26px 26px 0 0;padding:10px var(--gr) calc(22px + env(safe-area-inset-bottom,0px)) var(--gl);transform:translateY(105%);transition:transform .28s cubic-bezier(.2,.8,.2,1)}
+.hoja.on{transform:none}
+.asa{width:46px;height:5px;border-radius:9px;background:var(--rosa2);margin:0 auto 14px}
+.hoja h2{font:400 26px var(--f-logo);color:var(--fucsia)}
+.hoja .x{float:right;width:38px;height:38px;border-radius:50%;border:2px solid var(--rosa2);background:#fff;font-size:20px;cursor:pointer;line-height:1}
+.grupo{display:grid;gap:8px;margin-top:16px}
+.grupo>b{font-size:14px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--suave)}
+.ops{display:flex;flex-wrap:wrap;gap:8px}
+.ops button{border:2px solid var(--linea);background:#fff;border-radius:12px;padding:8px 12px;font-weight:700;cursor:pointer;font-size:14px}
+.ops button small{color:var(--suave);font-weight:600;margin-left:4px}
+.ops button[aria-pressed="true"]{border-color:var(--fucsia);background:var(--rosa);color:var(--fucsia2)}
+.cant{display:flex;align-items:center;gap:12px}
+.cant button{width:40px;height:40px;border-radius:50%;border:2px solid var(--fucsia);background:#fff;font-size:22px;font-weight:800;color:var(--fucsia);cursor:pointer;line-height:1}
+.cant b{min-width:28px;text-align:center;font-size:18px;font-variant-numeric:tabular-nums}
+.pie-hoja{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:20px;flex-wrap:wrap}
+.item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;padding:12px 0;border-bottom:1px dashed var(--linea)}
+.item small{grid-column:1;color:var(--suave);font-size:13.5px}
+.item .acc{grid-column:2;grid-row:1/3;display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.item .acc button{border:0;background:none;color:var(--fucsia2);font-size:13px;cursor:pointer;text-decoration:underline}
+.total{display:flex;justify-content:space-between;font-size:20px;font-weight:800;margin-top:12px}
+label.c{display:grid;gap:5px;font-size:14px;font-weight:800;color:var(--suave)}
+label.c input,label.c select,label.c textarea{border:2px solid var(--linea);border-radius:12px;background:#fff;padding:10px 12px;font-weight:600;color:var(--tinta);width:100%;min-width:0}
+label.c textarea{min-height:64px;resize:vertical}
+.err{color:var(--fucsia2);font-weight:700;font-size:14px;min-height:1em}
+.nota{font-size:13px;color:var(--suave)}
+.tabs{display:flex;gap:6px;margin:14px 0}
+.tabs button{border:2px solid var(--linea);background:#fff;border-radius:999px;padding:6px 14px;font-weight:800;cursor:pointer}
+.tabs button[aria-pressed="true"]{background:var(--tinta);border-color:var(--tinta);color:#fff}
+.adm{display:grid;grid-template-columns:minmax(0,1fr) 92px;gap:6px 10px;align-items:center;padding:10px 0;border-bottom:1px dashed var(--linea)}
+.adm b{font-size:15px}
+.adm input[type=number]{border:2px solid var(--linea);border-radius:10px;padding:6px 8px;width:100%;font-weight:700}
+.adm .flags{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:12px;font-size:13.5px;color:var(--suave)}
+.adm .flags label{display:flex;gap:5px;align-items:center;cursor:pointer}
+.adm .flags button{border:0;background:none;color:var(--fucsia2);text-decoration:underline;cursor:pointer;margin-left:auto;font-size:13.5px}
+.toast{position:fixed;z-index:60;left:50%;transform:translate(-50%,20px);bottom:calc(86px + env(safe-area-inset-bottom,0px));background:var(--tinta);color:#fff;padding:10px 16px;border-radius:12px;font-weight:700;opacity:0;pointer-events:none;transition:.2s;max-width:calc(100% - 32px);text-align:center}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+@media (max-width:520px){.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.prod{padding:10px;border-radius:18px}.lienzo{height:124px}.prod h3{font-size:15px}.prod p{display:none}.top .wrap{grid-template-columns:1fr;justify-items:start}}
+</style>
+</head>
+<body>
+
+<div class="demo">Demo de <b>RBM Solutions</b> · menú, precios y horario de ejemplo</div>
+
+<header class="top">
+  <div class="wrap">
+    <div class="sello" aria-hidden="true">
+      <svg viewBox="0 0 64 64" fill="none" stroke="#d6246e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 34c0-6 5-9 11-9h17c6 0 9 3 11 6l5-3c2 3 1 7-2 8l-4 1c-1 4-5 6-10 6H22c-6 0-10-3-10-9z"/>
+        <path d="M18 43v6M26 43v6M38 43v6M45 41v6M12 32l-5-3"/><circle cx="50" cy="31" r="1.4" fill="#d6246e"/>
+        <path d="M27 20c0-5 6-5 6 0 0-5 6-5 6 0 0 4-6 7-6 7s-6-3-6-7z" fill="#7aa33b" stroke="#7aa33b" stroke-width="1"/>
+      </svg>
+    </div>
+    <div>
+      <h1 id="nombre">Matcha Mía</h1>
+      <p class="lema" id="lema">Matcha bar, inspirado en una salchichita</p>
+      <div class="chips-info"><span id="estado">Cargando horario…</span><a href="#info">📍 Barrio Amón</a><a id="ig" href="https://www.instagram.com/matchamia.cr" target="_blank" rel="noopener">Instagram</a></div>
+    </div>
+  </div>
+</header>
+
+<nav class="cats" aria-label="Categorías"><div class="wrap" id="cats"></div></nav>
+
+<main>
+  <div class="wrap">
+    <div class="promo" id="promo"></div>
+    <div id="menu"></div>
+
+    <section id="lealtad" aria-labelledby="h-leal">
+      <h2 id="h-leal">Tu tarjeta de sellos</h2>
+      <div class="tarjeta">
+        <p>Cada bebida que pedís desde aquí suma un sello. <b>La décima es gratis.</b></p>
+        <div class="sellos" id="sellos"></div>
+        <p class="nota" id="sellos-txt"></p>
+      </div>
+    </section>
+
+    <section id="info" aria-labelledby="h-info">
+      <h2 id="h-info">Horario y ubicación</h2>
+      <div class="dos">
+        <div class="caja"><h3>Horario</h3><div class="horas" id="horas"></div></div>
+        <div class="caja"><h3>Dónde estamos</h3>
+          <p id="dir">Barrio Amón, San José. Del Parque Morazán 125 metros norte, frente a Casa Protocolo.</p>
+          <div class="fila-btn"><a class="btn sm" id="waze" target="_blank" rel="noopener">Waze</a><a class="btn sm" id="maps" target="_blank" rel="noopener">Google Maps</a></div>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer>Hecho por RBM Solutions · <button type="button" id="abrirAdmin">🔒 Administrar menú</button></footer>
+
+<button class="carrito" id="carrito" type="button" hidden><span><span class="n" id="carN">0</span>Ver mi pedido</span><span id="carT">₡0</span></button>
+
+<div class="velo" id="velo"></div>
+<div class="hoja" id="hoja" role="dialog" aria-modal="true" aria-labelledby="hojaT"><div id="hojaC"></div></div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(() => {
+"use strict";
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const crc = n => "₡" + Math.round(n).toLocaleString("es-CR").replace(/\s/g, ".");
+const lsGet = (k, d) => { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch { return d; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
+
+/* ===== Datos de ejemplo (la dueña los cambia desde "Administrar menú") ===== */
+const CLAVE_DEMO = "demo1234";
+const C = {leche:"#f7f2ea", matcha:"#7aa33b", matchaClaro:"#a9c96a", fresa:"#e2507a", mango:"#f2a33a", caramelo:"#c98a3e", choco:"#6b4030", coco:"#fffaf2", cafe:"#5a3a26", chai:"#c99a6b"};
+const CATS = [["frios","Matchas fríos"],["especiales","De la casa"],["calientes","Calientes"],["sin","Sin matcha"],["comer","Para acompañar"]];
+const BASE = {
+  negocio: {nombre:"Matcha Mía", lema:"Matcha bar, inspirado en una salchichita", whatsapp:"50661572339",
+    promo:"Martes de fresa: el Matcha fresa en 16 oz al precio de 12 oz.",
+    horario:[["Lunes","8:00","19:00"],["Martes","8:00","19:00"],["Miércoles","8:00","19:00"],["Jueves","8:00","19:00"],["Viernes","8:00","20:00"],["Sábado","9:00","20:00"],["Domingo","9:00","17:00"]]},
+  productos: [
+    {id:"p1", cat:"frios", nombre:"Matcha latte", desc:"Matcha ceremonial batido a mano sobre leche fría.", precio:2800, capas:[["leche",45],["matcha",55]]},
+    {id:"p2", cat:"frios", nombre:"Matcha fresa", desc:"Puré de fresa natural, leche y matcha en tres capas.", precio:3400, capas:[["fresa",30],["leche",30],["matcha",40]], nuevo:true},
+    {id:"p3", cat:"frios", nombre:"Matcha mango", desc:"Mango maduro abajo, leche y matcha arriba.", precio:3400, capas:[["mango",30],["leche",28],["matcha",42]]},
+    {id:"p4", cat:"especiales", nombre:"Caramelo salado", desc:"Matcha con leche y una corona de caramelo salado.", precio:3700, capas:[["leche",40],["matcha",44],["caramelo",16]]},
+    {id:"p5", cat:"especiales", nombre:"Matcha moka", desc:"Chocolate oscuro, leche y matcha. Lo mejor de los dos mundos.", precio:3700, capas:[["choco",30],["leche",26],["matcha",44]]},
+    {id:"p6", cat:"especiales", nombre:"Coco cold foam", desc:"Matcha frío con espuma de coco cremosa.", precio:3900, capas:[["matcha",68],["coco",32]], nuevo:true},
+    {id:"p7", cat:"calientes", nombre:"Matcha latte caliente", desc:"El clásico, con leche texturizada.", precio:2700, capas:[["matchaClaro",100]], caliente:true},
+    {id:"p8", cat:"calientes", nombre:"Chai latte", desc:"Especias, té negro y leche.", precio:2600, capas:[["chai",100]], caliente:true},
+    {id:"p9", cat:"sin", nombre:"Fresa con leche", desc:"Para quien todavía no se anima con el matcha.", precio:2800, capas:[["fresa",38],["leche",62]]},
+    {id:"p10", cat:"sin", nombre:"Café helado", desc:"Espresso doble sobre hielo, con o sin leche.", precio:2300, capas:[["leche",30],["cafe",70]]},
+    {id:"p11", cat:"comer", nombre:"Galleta de chocolate", desc:"Grande, suave por dentro.", precio:1500, dibujo:"galleta"},
+    {id:"p12", cat:"comer", nombre:"Queque de limón", desc:"Con glaseado de limón.", precio:1800, dibujo:"queque"}
+  ]
+};
+const OPC = {
+  tam: [["12 oz",0],["16 oz",600]],
+  leche: [["Entera",0],["Deslactosada",0],["Almendra",500],["Avena",500],["Coco",500]],
+  dulce: [["Normal",0],["Poco dulce",0],["Sin azúcar",0]],
+  extras: [["Cold foam",700],["Shot extra de matcha",800],["Sirope de vainilla",400]]
+};
+
+let D = lsGet("mm-datos", null) || JSON.parse(JSON.stringify(BASE));
+let pedido = lsGet("mm-pedido", []);
+let sellos = lsGet("mm-sellos", 6);
+let catSel = "todo", admin = false;
+const guardarD = () => lsSet("mm-datos", D);
+const guardarP = () => { lsSet("mm-pedido", pedido); pintarCarrito(); };
+
+/* ===== Dibujo de cada producto ===== */
+function dibujo(p) {
+  if (p.dibujo === "galleta") return `<div class="galleta"></div>`;
+  if (p.dibujo === "queque") return `<div class="queque"></div>`;
+  let acc = 0; const stops = [];
+  (p.capas || [["matcha",100]]).forEach(([c, pct]) => { const col = C[c] || c; stops.push(`${col} ${acc}% ${acc + pct}%`); acc += pct; });
+  const fondo = `linear-gradient(to top, ${stops.join(",")})`;
+  return p.caliente ? `<div class="taza cal"><div class="vaso cal" style="background:${fondo}"></div></div>`
+    : `<div class="taza"><span class="pajilla"></span><div class="vaso" style="background:${fondo}"></div></div>`;
+}
+
+/* ===== Horario ===== */
+const aMin = h => { const [a, b] = h.split(":").map(Number); return a * 60 + (b || 0); };
+const h12 = m => { let a = Math.floor(m / 60), b = m % 60; const pm = a >= 12; a = a % 12 || 12; return `${a}:${String(b).padStart(2, "0")} ${pm ? "p. m." : "a. m."}`; };
+const ahoraCR = () => new Date(Date.now() - 6 * 3600e3);
+function hoyHorario() { const d = ahoraCR().getUTCDay(); return D.negocio.horario[(d + 6) % 7]; }
+function pintarHorario() {
+  const n = ahoraCR(), min = n.getUTCHours() * 60 + n.getUTCMinutes(), h = hoyHorario();
+  const abierto = h && h[1] && min >= aMin(h[1]) && min < aMin(h[2]);
+  const e = $("#estado");
+  e.textContent = abierto ? `● Abierto · cierra ${h12(aMin(h[2]))}` : h && h[1] && min < aMin(h[1]) ? `Abre hoy ${h12(aMin(h[1]))}` : "Cerrado ahora";
+  e.className = abierto ? "abierto" : "cerrado";
+  const hoyI = (n.getUTCDay() + 6) % 7;
+  $("#horas").innerHTML = D.negocio.horario.map(([d, a, b], i) => `<div class="${i === hoyI ? "hoy" : ""}"><span>${d}${i === hoyI ? " (hoy)" : ""}</span><span>${a ? `${h12(aMin(a))} – ${h12(aMin(b))}` : "Cerrado"}</span></div>`).join("");
+}
+function horasRetiro() {
+  const n = ahoraCR(), min = n.getUTCHours() * 60 + n.getUTCMinutes(), h = hoyHorario(), out = [];
+  if (h && h[1]) { for (let m = Math.max(aMin(h[1]), Math.ceil((min + 15) / 15) * 15); m <= aMin(h[2]) - 15; m += 15) out.push(h12(m)); }
+  return out;
+}
+
+/* ===== Menú ===== */
+function pintarCats() {
+  $("#cats").innerHTML = [["todo","Todo"], ...CATS].map(([k, l]) => `<button type="button" data-cat="${k}" aria-pressed="${catSel === k}">${l}</button>`).join("");
+}
+function pintarMenu() {
+  const visibles = D.productos.filter(p => !p.oculto);
+  $("#menu").innerHTML = CATS.filter(([k]) => catSel === "todo" || catSel === k).map(([k, l]) => {
+    const ps = visibles.filter(p => p.cat === k); if (!ps.length) return "";
+    return `<section id="cat-${k}"><h2>${l}</h2><div class="grid">${ps.map(p => `
+      <button type="button" class="prod${p.agotado ? " agotado" : ""}" data-p="${p.id}" ${p.agotado ? 'aria-disabled="true"' : ""}>
+        ${p.agotado ? '<span class="etq">Agotado hoy</span>' : p.nuevo ? '<span class="etq nuevo">Nuevo</span>' : ""}
+        <div class="lienzo">${dibujo(p)}</div>
+        <h3>${esc(p.nombre)}</h3><p>${esc(p.desc)}</p>
+        <div class="pie"><span class="precio">${crc(p.precio)}</span>${p.agotado ? "" : '<span class="mas" aria-hidden="true">+</span>'}</div>
+      </button>`).join("")}</div></section>`;
+  }).join("") || `<p class="nota">No hay productos en esta categoría.</p>`;
+  $("#promo").hidden = !D.negocio.promo;
+  $("#promo").innerHTML = `<b>Promo de la semana</b><span>${esc(D.negocio.promo)}</span>`;
+  $("#nombre").textContent = D.negocio.nombre; $("#lema").textContent = D.negocio.lema;
+}
+
+/* ===== Hoja (personalizar / pedido / panel) ===== */
+function abrirHoja(html) { $("#hojaC").innerHTML = html; $("#hoja").classList.add("on"); $("#velo").classList.add("on"); $("#hoja").scrollTop = 0; }
+function cerrarHoja() { $("#hoja").classList.remove("on"); $("#velo").classList.remove("on"); }
+$("#velo").addEventListener("click", cerrarHoja);
+document.addEventListener("keydown", e => { if (e.key === "Escape") cerrarHoja(); });
+
+let arm = null;   // bebida que se está armando
+const esBebida = p => p.cat !== "comer";
+function precioArm() {
+  const p = D.productos.find(x => x.id === arm.id); let u = p.precio;
+  if (esBebida(p)) { u += OPC.tam.find(x => x[0] === arm.tam)[1] + OPC.leche.find(x => x[0] === arm.leche)[1]; arm.extras.forEach(e => u += OPC.extras.find(x => x[0] === e)[1]); }
+  return u * arm.cant;
+}
+function pintarArmar() {
+  const p = D.productos.find(x => x.id === arm.id);
+  const grupo = (titulo, k, lista, multi) => `<div class="grupo"><b>${titulo}</b><div class="ops">${lista.map(([n, extra]) => {
+    const on = multi ? arm[k].includes(n) : arm[k] === n;
+    return `<button type="button" data-op="${k}" data-v="${esc(n)}" data-multi="${multi ? 1 : ""}" aria-pressed="${on}">${esc(n)}${extra ? `<small>+${crc(extra)}</small>` : ""}</button>`; }).join("")}</div></div>`;
+  abrirHoja(`<div class="asa"></div><button class="x" type="button" data-cerrar aria-label="Cerrar">×</button>
+    <h2 id="hojaT">${esc(p.nombre)}</h2><p class="nota" style="margin-top:4px">${esc(p.desc)}</p>
+    <div class="lienzo" style="margin-top:14px;height:170px">${dibujo(p)}</div>
+    ${esBebida(p) ? grupo("Tamaño", "tam", OPC.tam) + grupo("Leche", "leche", OPC.leche) + grupo("Dulzor", "dulce", OPC.dulce) + grupo("Extras", "extras", OPC.extras, true) : ""}
+    <div class="pie-hoja"><div class="cant"><button type="button" data-cant="-1" aria-label="Menos">−</button><b>${arm.cant}</b><button type="button" data-cant="1" aria-label="Más">+</button></div>
+      <button class="btn pri" type="button" data-agregar>Agregar · ${crc(precioArm())}</button></div>`);
+}
+function detalle(it) {
+  const p = D.productos.find(x => x.id === it.id); if (!p || !esBebida(p)) return "";
+  return [it.tam, it.leche !== "Entera" ? "leche " + it.leche.toLowerCase() : "", it.dulce !== "Normal" ? it.dulce.toLowerCase() : "", ...it.extras.map(e => e.toLowerCase())].filter(Boolean).join(", ");
+}
+function pintarPedido() {
+  if (!pedido.length) { cerrarHoja(); return; }
+  const total = pedido.reduce((a, it) => a + it.total, 0), horas = horasRetiro();
+  abrirHoja(`<div class="asa"></div><button class="x" type="button" data-cerrar aria-label="Cerrar">×</button>
+    <h2 id="hojaT">Mi pedido</h2>
+    <div>${pedido.map((it, i) => `<div class="item"><b>${it.cant} × ${esc(it.nombre)}</b><small>${esc(detalle(it))}</small>
+      <div class="acc"><span class="precio">${crc(it.total)}</span><button type="button" data-quitar="${i}">Quitar</button></div></div>`).join("")}</div>
+    <div class="total"><span>Total</span><span>${crc(total)}</span></div>
+    <div class="grupo"><label class="c">Tu nombre<input id="pNom" maxlength="40" autocomplete="name" placeholder="Para llamarte cuando esté listo"></label>
+      <label class="c">¿A qué hora pasás?<select id="pHora">${horas.length ? horas.map(h => `<option>${h}</option>`).join("") : `<option>Mañana, apenas abran</option>`}</select></label>
+      <label class="c">Nota (opcional)<textarea id="pNota" maxlength="200" placeholder="Ej.: sin pajilla, por favor"></textarea></label>
+      <p class="err" id="pErr"></p>
+      <button class="btn verde" type="button" data-enviar>Enviar pedido por WhatsApp</button>
+      <p class="nota">Se abre WhatsApp con tu pedido listo. Pagás al recoger, en efectivo, tarjeta o SINPE.</p>
+      <a class="btn sm" id="waLink" target="_blank" rel="noopener" hidden>¿No se abrió WhatsApp? Tocá aquí</a></div>`);
+  try { $("#pNom").value = lsGet("mm-nombre", ""); } catch {}
+}
+function pintarCarrito() {
+  const n = pedido.reduce((a, it) => a + it.cant, 0);
+  $("#carrito").hidden = !n; $("#carN").textContent = n; $("#carT").textContent = crc(pedido.reduce((a, it) => a + it.total, 0));
+}
+function pintarSellos() {
+  const s = Math.min(sellos, 10);
+  $("#sellos").innerHTML = Array.from({length: 10}, (_, i) => i === 9 ? `<i class="${s >= 10 ? "si" : "gratis"}">${s >= 10 ? "★" : "GRATIS"}</i>` : `<i class="${i < s ? "si" : ""}">${i < s ? "🐾" : ""}</i>`).join("");
+  $("#sellos-txt").textContent = s >= 10 ? "¡Tu próxima bebida es gratis! Mostrá esta pantalla en la barra." : `Llevás ${s} de 10. Te faltan ${10 - s} para tu bebida gratis. (En la demo empezás con 6 sellos.)`;
+}
+
+/* ===== Panel de la dueña ===== */
+let tabAdm = "prod";
+function pintarAdmin() {
+  if (!admin) {
+    abrirHoja(`<div class="asa"></div><button class="x" type="button" data-cerrar aria-label="Cerrar">×</button>
+      <h2 id="hojaT">Administrar menú</h2><p class="nota" style="margin-top:6px">Aquí la dueña cambia precios, marca lo agotado y agrega bebidas nuevas.</p>
+      <div class="grupo"><label class="c">Contraseña<input id="aClave" type="password" autocomplete="current-password"></label><p class="err" id="aErr"></p>
+      <button class="btn pri" type="button" data-entrar>Entrar</button>
+      <p class="nota">Versión de prueba · contraseña: <b style="user-select:all">${CLAVE_DEMO}</b></p></div>`);
+    return;
+  }
+  const tabs = `<div class="tabs"><button type="button" data-tab="prod" aria-pressed="${tabAdm === "prod"}">Productos</button><button type="button" data-tab="neg" aria-pressed="${tabAdm === "neg"}">Negocio</button></div>`;
+  let cuerpo;
+  if (tabAdm === "prod") {
+    cuerpo = D.productos.map(p => `<div class="adm"><b>${esc(p.nombre)} <small style="color:var(--suave);font-weight:600">· ${CATS.find(c => c[0] === p.cat)?.[1] || ""}</small></b>
+      <input type="number" min="0" step="100" value="${p.precio}" data-precio="${p.id}" aria-label="Precio de ${esc(p.nombre)}">
+      <div class="flags"><label><input type="checkbox" data-flag="agotado" data-id="${p.id}" ${p.agotado ? "checked" : ""}> Agotado hoy</label>
+        <label><input type="checkbox" data-flag="nuevo" data-id="${p.id}" ${p.nuevo ? "checked" : ""}> Nuevo</label>
+        <label><input type="checkbox" data-flag="oculto" data-id="${p.id}" ${p.oculto ? "checked" : ""}> Ocultar</label>
+        <button type="button" data-borrar="${p.id}">Borrar</button></div></div>`).join("")
+      + `<div class="grupo"><b>Agregar producto</b>
+        <label class="c">Nombre<input id="nNom" maxlength="40" placeholder="Ej.: Matcha maracuyá"></label>
+        <label class="c">Descripción<input id="nDesc" maxlength="90" placeholder="Ej.: Pulpa de maracuyá, leche y matcha"></label>
+        <label class="c">Categoría<select id="nCat">${CATS.map(([k, l]) => `<option value="${k}">${l}</option>`).join("")}</select></label>
+        <label class="c">Precio (₡)<input id="nPre" type="number" min="0" step="100" value="3500"></label>
+        <label class="c">Color de la capa de abajo<select id="nCapa"><option value="leche">Solo leche y matcha</option><option value="fresa">Fresa</option><option value="mango">Mango</option><option value="choco">Chocolate</option><option value="caramelo">Caramelo</option></select></label>
+        <p class="err" id="nErr"></p><button class="btn pri" type="button" data-nuevo>Agregar al menú</button></div>`;
+  } else {
+    const n = D.negocio;
+    cuerpo = `<div class="grupo"><label class="c">Nombre<input id="gNom" maxlength="40" value="${esc(n.nombre)}"></label>
+      <label class="c">Frase<input id="gLema" maxlength="80" value="${esc(n.lema)}"></label>
+      <label class="c">WhatsApp para pedidos<input id="gWa" inputmode="tel" maxlength="20" value="${esc(n.whatsapp)}"></label>
+      <label class="c">Promo de la semana (vacío para ocultarla)<input id="gPromo" maxlength="120" value="${esc(n.promo)}"></label>
+      <b style="font-size:14px;color:var(--suave);text-transform:uppercase;letter-spacing:.04em">Horario (vacío = cerrado)</b>
+      ${n.horario.map(([d, a, b], i) => `<div style="display:grid;grid-template-columns:96px 1fr 1fr;gap:8px;align-items:center"><span>${d}</span>
+        <label class="c"><input data-h="${i}:1" value="${a}" placeholder="8:00" aria-label="${d} abre"></label><label class="c"><input data-h="${i}:2" value="${b}" placeholder="19:00" aria-label="${d} cierra"></label></div>`).join("")}
+      <button class="btn pri" type="button" data-gneg>Guardar cambios</button>
+      <button class="btn sm" type="button" data-reset>Volver a los datos de ejemplo</button></div>`;
+  }
+  abrirHoja(`<div class="asa"></div><button class="x" type="button" data-cerrar aria-label="Cerrar">×</button>
+    <h2 id="hojaT">Administrar menú</h2><p class="nota">En la demo, los cambios se guardan solo en este celular.</p>${tabs}${cuerpo}`);
+}
+
+/* ===== Acciones ===== */
+let tAviso; function aviso(t) { const el = $("#toast"); el.textContent = t; el.classList.add("on"); clearTimeout(tAviso); tAviso = setTimeout(() => el.classList.remove("on"), 2400); }
+document.addEventListener("click", e => {
+  const b = e.target.closest("button,[data-cat]"); if (!b) return;
+  if (b.dataset.cat) { catSel = b.dataset.cat; pintarCats(); pintarMenu(); return; }
+  if (b.dataset.p) { const p = D.productos.find(x => x.id === b.dataset.p); if (!p || p.agotado) return;
+    arm = {id: p.id, tam: "12 oz", leche: "Entera", dulce: "Normal", extras: [], cant: 1}; pintarArmar(); return; }
+  if (b.hasAttribute("data-cerrar")) return cerrarHoja();
+  if (b.dataset.op) { const k = b.dataset.op, v = b.dataset.v;
+    if (b.dataset.multi) arm[k] = arm[k].includes(v) ? arm[k].filter(x => x !== v) : [...arm[k], v]; else arm[k] = v;
+    const sc = $("#hoja").scrollTop; pintarArmar(); $("#hoja").scrollTop = sc; return; }
+  if (b.dataset.cant) { arm.cant = Math.max(1, Math.min(20, arm.cant + +b.dataset.cant)); const sc = $("#hoja").scrollTop; pintarArmar(); $("#hoja").scrollTop = sc; return; }
+  if (b.hasAttribute("data-agregar")) { const p = D.productos.find(x => x.id === arm.id);
+    pedido.push({...arm, nombre: p.nombre, total: precioArm()}); guardarP(); cerrarHoja(); aviso(`${p.nombre} agregado a tu pedido`); return; }
+  if (b.id === "carrito") return pintarPedido();
+  if (b.dataset.quitar !== undefined) { pedido.splice(+b.dataset.quitar, 1); guardarP(); pintarPedido(); return; }
+  if (b.hasAttribute("data-enviar")) {
+    const nom = $("#pNom").value.trim();
+    if (nom.length < 2) { $("#pErr").textContent = "Escribí tu nombre para llamarte cuando esté listo."; $("#pNom").focus(); return; }
+    lsSet("mm-nombre", nom);
+    const total = pedido.reduce((a, it) => a + it.total, 0);
+    const lineas = [`Hola ${D.negocio.nombre} 💚 quiero pedir para recoger:`, ...pedido.map(it => `• ${it.cant} × ${it.nombre}${detalle(it) ? ` (${detalle(it)})` : ""} — ${crc(it.total)}`),
+      `Total: ${crc(total)}`, `A nombre de: ${nom}`, `Paso a las: ${$("#pHora").value}`];
+    if ($("#pNota").value.trim()) lineas.push(`Nota: ${$("#pNota").value.trim()}`);
+    const url = `https://wa.me/${String(D.negocio.whatsapp).replace(/\D/g, "")}?text=${encodeURIComponent(lineas.join("\n"))}`;
+    const a = $("#waLink"); a.href = url; a.hidden = false; try { a.click(); } catch {}
+    const bebidas = pedido.filter(it => esBebida(D.productos.find(x => x.id === it.id) || {})).reduce((s, it) => s + it.cant, 0);
+    sellos = sellos >= 10 ? bebidas : sellos + bebidas; lsSet("mm-sellos", sellos); pintarSellos();
+    pedido = []; guardarP(); aviso(bebidas ? `¡Pedido listo! Sumaste ${bebidas} sello${bebidas === 1 ? "" : "s"}` : "¡Pedido listo!");
+    return;
+  }
+  if (b.id === "abrirAdmin") return pintarAdmin();
+  if (b.hasAttribute("data-entrar")) { if ($("#aClave").value === CLAVE_DEMO) { admin = true; pintarAdmin(); } else $("#aErr").textContent = "Contraseña incorrecta."; return; }
+  if (b.dataset.tab) { tabAdm = b.dataset.tab; pintarAdmin(); return; }
+  if (b.dataset.borrar) { D.productos = D.productos.filter(p => p.id !== b.dataset.borrar); guardarD(); pintarMenu(); pintarAdmin(); aviso("Producto borrado"); return; }
+  if (b.hasAttribute("data-nuevo")) {
+    const nombre = $("#nNom").value.trim(); if (!nombre) { $("#nErr").textContent = "Escribí el nombre del producto."; return; }
+    const cat = $("#nCat").value, capa = $("#nCapa").value;
+    const p = {id: "p" + Date.now().toString(36), cat, nombre, desc: $("#nDesc").value.trim(), precio: +$("#nPre").value || 0, nuevo: true};
+    if (cat === "comer") p.dibujo = "galleta"; else p.capas = capa === "leche" ? [["leche",45],["matcha",55]] : [[capa,30],["leche",28],["matcha",42]];
+    D.productos.push(p); guardarD(); pintarMenu(); pintarAdmin(); aviso(`${nombre} ya está en el menú`); return;
+  }
+  if (b.hasAttribute("data-gneg")) {
+    const n = D.negocio; n.nombre = $("#gNom").value.trim() || n.nombre; n.lema = $("#gLema").value.trim(); n.whatsapp = $("#gWa").value.trim(); n.promo = $("#gPromo").value.trim();
+    document.querySelectorAll("[data-h]").forEach(i => { const [d, k] = i.dataset.h.split(":"); n.horario[+d][+k] = i.value.trim(); });
+    guardarD(); pintarMenu(); pintarHorario(); aviso("Cambios guardados"); return;
+  }
+  if (b.hasAttribute("data-reset")) { D = JSON.parse(JSON.stringify(BASE)); guardarD(); pintarMenu(); pintarHorario(); pintarAdmin(); aviso("Datos de ejemplo restaurados"); return; }
+});
+document.addEventListener("change", e => {
+  const t = e.target;
+  if (t.dataset.precio) { const p = D.productos.find(x => x.id === t.dataset.precio); p.precio = Math.max(0, +t.value || 0); guardarD(); pintarMenu(); aviso("Precio actualizado"); }
+  if (t.dataset.flag) { const p = D.productos.find(x => x.id === t.dataset.id); p[t.dataset.flag] = t.checked; guardarD(); pintarMenu(); }
+});
+
+/* ===== Arranque ===== */
+const q = encodeURIComponent("Parque Morazán, Barrio Amón, San José, Costa Rica");
+$("#maps").href = `https://www.google.com/maps/search/?api=1&query=${q}`;
+$("#waze").href = `https://waze.com/ul?q=${q}&navigate=yes`;
+pintarCats(); pintarMenu(); pintarHorario(); pintarCarrito(); pintarSellos();
+setInterval(pintarHorario, 60000);
+})();
+</script>
+</body>
+</html>

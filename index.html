@@ -807,31 +807,10 @@ footer.pie-g .wrap{display:block}
     </div>
   </section>
 
-  <section class="banda" id="demos">
+  <section class="banda" id="demos" hidden>
     <div class="wrap">
       <div class="cab-s revela"><p class="etq">Demos</p><h2>Así podría quedar tu página</h2><p>Ejemplos de prueba para que veas cómo funciona antes de hacer la tuya. Los datos y precios son de ejemplo.</p></div>
-      <div class="trabajos revela">
-        <a class="trab" href="demos/spa/" target="_blank" rel="noopener">
-          <span class="tipo">Spa, salón o barbería · Citas en línea</span><h3>Negocio con citas</h3>
-          <p>Servicios con precios, calendario para agendar, galería, horario, encuestas y panel para ver las citas.</p>
-          <span class="url">Ver demo ↗</span></a>
-        <a class="trab" href="demos/candelas/" target="_blank" rel="noopener">
-          <span class="tipo">Tienda · Catálogo</span><h3>Catálogo de productos</h3>
-          <p>Catálogo con fotos y precios, pedidos por WhatsApp y panel para editar los productos.</p>
-          <span class="url">Ver demo ↗</span></a>
-        <a class="trab" href="demos/service-desk/" target="_blank" rel="noopener">
-          <span class="tipo">Empresas · Mesa de ayuda</span><h3>Service Desk para soporte</h3>
-          <p>Registro de casos con catálogo de servicios, prioridades y tiempos de respuesta, agentes, conversación con el cliente y tablero de indicadores.</p>
-          <span class="url">Ver demo ↗</span></a>
-        <a class="trab" href="demos/mesa-compras/" target="_blank" rel="noopener">
-          <span class="tipo">Compras por encargo · Herramienta interna</span><h3>Mesa de Compras</h3>
-          <p>Búsqueda en tiendas de EE. UU., cotización en colones con casillero, impuestos y comisión, y control de cada pedido.</p>
-          <span class="url">Ver demo ↗</span></a>
-        <a class="trab" href="demos/compras/" target="_blank" rel="noopener">
-          <span class="tipo">Compras por encargo · Vitrina</span><h3>Página de asesora de compras</h3>
-          <p>Cómo funciona el servicio, categorías más pedidas y formulario de cotización que llega directo por WhatsApp.</p>
-          <span class="url">Ver demo ↗</span></a>
-      </div>
+      <div class="trabajos" id="demos-lista"></div>
     </div>
   </section>
 
@@ -930,13 +909,11 @@ footer.pie-g .wrap{display:block}
   <button class="it" data-reservar style="margin-top:8px"><svg><use href="#i-cal"/></svg>Agendar cita</button>
   <h4>Servicios</h4>
   <div id="menu-serv"></div>
-  <h4>Demos para clientes</h4>
-  <a class="it" href="demos/service-desk/" target="_blank" rel="noopener"><svg><use href="#i-chat"/></svg>Service Desk (mesa de ayuda)</a>
-  <a class="it" href="demos/spa/" target="_blank" rel="noopener"><svg><use href="#i-cal"/></svg>Negocio con citas</a>
-  <a class="it" href="demos/candelas/" target="_blank" rel="noopener"><svg><use href="#i-precio"/></svg>Catálogo de productos</a>
-  <a class="it" href="demos/mesa-compras/" target="_blank" rel="noopener"><svg><use href="#i-caja"/></svg>Mesa de Compras</a>
-  <a class="it" href="demos/compras/" target="_blank" rel="noopener"><svg><use href="#i-web"/></svg>Página de asesora de compras</a>
-  <button class="it" data-ir="#demos"><svg><use href="#i-lupa"/></svg>Ver todos los demos</button>
+  <div id="menu-demos" hidden>
+    <h4>Demos para clientes</h4>
+    <div id="menu-demos-l"></div>
+    <button class="it" data-ir="#demos"><svg><use href="#i-lupa"/></svg>Ver todos los demos</button>
+  </div>
   <h4>Más</h4>
   <button class="it" data-ir="#precios"><svg><use href="#i-precio"/></svg>Precios</button>
   <button class="it" data-abrir="p-galeria"><svg><use href="#i-foto"/></svg>Galería</button>
@@ -1268,6 +1245,8 @@ const ReservasPrueba = (() => {
     async guardarApuntes(id, txt){ const l = leer(); const c = l.find(x => x.id === id); if (c) { c.apuntes = txt; guardar(l); } else throw new Error("ejemplo"); },
     encuestas(){ return lsGet(KEY + "_enc", encMem); },
     resenas(){ return lsGet(KEY + "_res", resMem); },
+    demosPub(){ return lsGet(KEY + "_demos", DEMOS_INICIALES); },
+    async guardarDemos(l){ lsSet(KEY + "_demos", l); pintarDemos(); },
     async publicarResena(r){ const l = this.resenas().filter(x => x.id !== r.id); l.push(r); resMem = l; lsSet(KEY + "_res", l); },
     async quitarResena(id){ const l = this.resenas().filter(x => x.id !== id); resMem = l; lsSet(KEY + "_res", l); },
     async enviarEncuesta(id, x){ const l = this.encuestas(); if (l.some(e => e.id === id)) throw new Error("repetida"); l.unshift({ ...x, id, fecha: Date.now() }); encMem = l; lsSet(KEY + "_enc", l); },
@@ -1327,6 +1306,8 @@ async function crearReservasFirebase(){
     sugerencias: () => sugs,
     encuestas: () => encs,
     resenas: () => res,
+    demosPub: () => demosPub,
+    async guardarDemos(l){ await F.setDoc(F.doc(db, "ajustes", "demos"), { publicadas: l }); },
     async publicarResena(r){ const { id, ...d } = r; await F.setDoc(F.doc(db, "resenas", id), d); },
     async quitarResena(id){ await F.deleteDoc(F.doc(db, "resenas", id)); },
     async enviarEncuesta(id, x){ try { await F.setDoc(F.doc(db, "encuestas", id), { ...x, fecha: F.serverTimestamp() }); } catch (e) { console.warn(e); throw new Error("repetida"); } },
@@ -1344,6 +1325,11 @@ async function crearReservasFirebase(){
     async entrar(clave){ await A.signInWithEmailAndPassword(auth, ADMIN_EMAIL, clave); },
     salir(){ A.signOut(auth); }
   };
+  let demosPub = null;
+  F.onSnapshot(F.doc(db, "ajustes", "demos"), d => {
+    demosPub = d.exists() ? (d.data().publicadas || []) : DEMOS_INICIALES;
+    pintarDemos(); if (pila.includes("p-admin") && nVista === "demos") pintarAdmin();
+  }, e => { console.warn("demos", e); demosPub = DEMOS_INICIALES; pintarDemos(); });
   F.onSnapshot(F.collection(db, "resenas"), snap => {
     res = snap.docs.map(d => ({ id:d.id, ...d.data() }));
     pintarResenas(); if (pila.includes("p-admin") && nVista === "sug") pintarAdmin();
@@ -1392,7 +1378,7 @@ async function crearReservasFirebase(){
   return R;
 }
 // Mientras Firebase carga, el calendario muestra todo libre pero no deja confirmar.
-const ReservasCargando = { prueba:false, admin:false, ocupados:() => new Set(), todas:() => [], sugerencias:() => [], galeria:() => null, encuestas:() => [], boletas:() => [], resenas:() => [],
+const ReservasCargando = { prueba:false, admin:false, ocupados:() => new Set(), todas:() => [], sugerencias:() => [], galeria:() => null, encuestas:() => [], boletas:() => [], resenas:() => [], demosPub:() => null, async guardarDemos(){ throw new Error("cargando"); },
   async guardarBol(){ throw new Error("cargando"); }, async borrarBol(){ throw new Error("cargando"); }, async fotosBol(){ return []; },
   async subirFotoBol(){ throw new Error("cargando"); }, async borrarFotoBol(){ throw new Error("cargando"); },
   async enviarEncuesta(){ throw new Error("cargando"); }, async enviarSug(){ throw new Error("cargando"); }, async borrarSug(){},
@@ -2403,10 +2389,11 @@ function pintarAdmin(){
   const sinAvisos = (soportaAvisos && Notification.permission === "default") || (esIOS && !soportaAvisos);
   const pest = `<div class="n-fila"><span>Hola 👋</span><button class="chip${nVista === "conf" ? " si" : ""}" data-nv="conf">⚙️ Ajustes</button><button class="chip" id="n-salir">Salir</button></div>`
     + (sinAvisos && nVista !== "conf" ? `<button class="aviso-mini" data-nv="conf">🔔 Activá las notificaciones de citas nuevas ›</button>` : "")
-    + `<div class="n-tabs">${[["citas", "Citas"], ["bol", `Boletas${nProc ? ` (${nProc})` : ""}`], ["ing", "Ingresos"], ["sug", `Opiniones${nOp ? ` (${nOp})` : ""}`], ["gal", "Galería"], ["env", `Enviar encuesta${pe ? ` (${pe})` : ""}`]].map(([k2, t]) => `<button class="chip${nVista === k2 ? " si" : ""}" data-nv="${k2}">${t}</button>`).join("")}</div>`;
+    + `<div class="n-tabs">${[["citas", "Citas"], ["bol", `Boletas${nProc ? ` (${nProc})` : ""}`], ["ing", "Ingresos"], ["sug", `Opiniones${nOp ? ` (${nOp})` : ""}`], ["gal", "Galería"], ["demos", "Demos"], ["env", `Enviar encuesta${pe ? ` (${pe})` : ""}`]].map(([k2, t]) => `<button class="chip${nVista === k2 ? " si" : ""}" data-nv="${k2}">${t}</button>`).join("")}</div>`;
   if (nVista === "conf") { box.innerHTML = pest + pintarConfig(); return; }
   if (nVista === "env") { box.innerHTML = pest + pintarEnvioEncuestas(); return; }
   if (nVista === "ing") { box.innerHTML = pest + pintarIngresos(); return; }
+  if (nVista === "demos") { box.innerHTML = pest + pintarDemosAdmin(); return; }
   if (nVista === "bol") {
     // Se repinta cuando llegan datos nuevos: se conserva el campo donde estabas escribiendo.
     const a = document.activeElement, id = a && box.contains(a) && a.id ? a.id : null, sel = id ? [a.selectionStart, a.selectionEnd] : null;
@@ -2481,6 +2468,15 @@ $("#admin").addEventListener("click", async e => {
     marcarCal(c); setTimeout(pintarAdmin, 400); return; }
   if (a?.dataset.enviarEnc) { envMarcar(a.dataset.enviarEnc); setTimeout(pintarAdmin, 600); return; }
   const b = e.target.closest("button"); if (!b) return;
+  if (b.dataset.demoPub) {
+    const id = b.dataset.demoPub, pub = Reservas.demosPub() || [], on = pub.includes(id);
+    const nueva = on ? pub.filter(x => x !== id) : [...pub, id];
+    b.disabled = true;
+    try { await Reservas.guardarDemos(nueva); toast(on ? "Demo oculta: ya no sale en la página" : "Demo publicada en la página"); pintarAdmin(); }
+    catch { toast("No se pudo guardar. Revisá tu conexión."); b.disabled = false; }
+    return;
+  }
+  if (b.dataset.copiarDemo) { await copiar(b.dataset.copiarDemo, "Link copiado. Mandáselo al cliente."); return; }
   if (b.id === "n-ok") {
     b.disabled = true;
     try { await Reservas.entrar($("#n-clave").value); pintarAdmin(); }
@@ -2600,6 +2596,47 @@ function pintarGaleria(){
     : `<a class="vid${i === 0 ? " ancha" : ""}" href="${esc(x.url)}" target="_blank" rel="noopener" aria-label="Ver video ${esc(x.titulo || "")}">${miniVideo(x)}</a>`).join("");
 }
 pintarGaleria();
+
+// ================== DEMOS ==================
+// Todas las demos que existen. Solo se muestran al público las que se publican desde el administrador → Demos.
+const DEMOS = [
+  { id:"spa", url:"demos/spa/", ic:"cal", menu:"Negocio con citas", tipo:"Spa, salón o barbería · Citas en línea", nombre:"Negocio con citas",
+    desc:"Servicios con precios, calendario para agendar, galería, horario, encuestas y panel para ver las citas." },
+  { id:"candelas", url:"demos/candelas/", ic:"precio", menu:"Catálogo de productos", tipo:"Tienda · Catálogo", nombre:"Catálogo de productos",
+    desc:"Catálogo con fotos y precios, pedidos por WhatsApp y panel para editar los productos." },
+  { id:"service-desk", url:"demos/service-desk/", ic:"chat", menu:"Service Desk (mesa de ayuda)", tipo:"Empresas · Mesa de ayuda", nombre:"Service Desk para soporte",
+    desc:"Registro de casos con catálogo de servicios, prioridades y tiempos de respuesta, agentes, portal para usuarios y tablero de indicadores." },
+  { id:"mesa-compras", url:"demos/mesa-compras/", ic:"caja", menu:"Mesa de Compras", tipo:"Compras por encargo · Herramienta interna", nombre:"Mesa de Compras",
+    desc:"Búsqueda en tiendas de EE. UU., cotización en colones con casillero, impuestos y comisión, y control de cada pedido." },
+  { id:"compras", url:"demos/compras/", ic:"web", menu:"Página de asesora de compras", tipo:"Compras por encargo · Vitrina", nombre:"Página de asesora de compras",
+    desc:"Cómo funciona el servicio, categorías más pedidas y formulario de cotización que llega directo por WhatsApp." },
+  { id:"matcha", url:"demos/matcha/", ic:"precio", menu:"Menú digital de cafetería", tipo:"Cafetería · Menú y pedidos", nombre:"Menú digital con pedidos",
+    desc:"Menú con fotos, bebidas personalizables, pedido para recoger por WhatsApp, tarjeta de lealtad y panel para la dueña." }
+];
+// Las que se ven si todavía no se ha guardado nada desde el administrador
+const DEMOS_INICIALES = ["spa", "candelas", "service-desk", "mesa-compras", "compras"];
+function pintarDemos(){
+  const pub = Reservas.demosPub();
+  const l = pub ? DEMOS.filter(d => pub.includes(d.id)) : [];
+  $("#demos").hidden = !l.length; $("#menu-demos").hidden = !l.length;
+  $("#demos-lista").innerHTML = l.map(d => `<a class="trab" href="${d.url}" target="_blank" rel="noopener">
+      <span class="tipo">${esc(d.tipo)}</span><h3>${esc(d.nombre)}</h3><p>${esc(d.desc)}</p><span class="url">Ver demo ↗</span></a>`).join("");
+  $("#menu-demos-l").innerHTML = l.map(d => `<a class="it" href="${d.url}" target="_blank" rel="noopener"><svg><use href="#i-${d.ic}"/></svg>${esc(d.menu)}</a>`).join("");
+  const nav = document.querySelector('.nav a[href="#demos"]'); if (nav) nav.hidden = !l.length;
+}
+pintarDemos();
+function pintarDemosAdmin(){
+  const pub = Reservas.demosPub();
+  if (!pub) return `<div class="vacio">Cargando…</div>`;
+  const base = location.href.split("#")[0].replace(/index\.html$/, "");
+  return `<p class="conf-p" style="margin-bottom:12px">Aquí están todas tus demos. Solo las <b>publicadas</b> salen en el menú y en la sección Demos de la página. Las ocultas las podés abrir vos desde aquí, o mandarle el link solo al cliente que querás.</p>`
+    + DEMOS.map(d => { const on = pub.includes(d.id); return `<div class="cita-a">
+      <div class="h"><b>${esc(d.nombre)}</b><span style="color:${on ? "var(--ok)" : "var(--gris)"}">${on ? "● Publicada" : "○ Oculta"}</span></div>
+      <p>${esc(d.tipo)}</p>
+      <div class="acc"><a href="${d.url}" target="_blank" rel="noopener">Abrir ↗</a>
+        <button data-copiar-demo="${base + d.url}">Copiar link</button>
+        <button class="${on ? "rojo" : "ya"}" data-demo-pub="${d.id}">${on ? "Ocultar de la página" : "Publicar en la página"}</button></div></div>`; }).join("");
+}
 pintarResenas();
 $("#gal").addEventListener("click", e => {
   const b = e.target.closest("button"); if (!b) return; const x = itemsGal[b.dataset.i];
@@ -2666,7 +2703,7 @@ function estado(){
 estado(); setInterval(estado, 60000);
 
 if (FIREBASE) crearReservasFirebase().then(r => {
-  Reservas = r; pintarResenas();
+  Reservas = r; pintarResenas(); pintarDemos();
   if (pila.includes("p-agenda") && !ag.hecho) pintarAgenda();
   if (pila.includes("p-admin")) pintarAdmin();
 }).catch(e => { console.warn("Firebase no cargó", e); toast("Sin conexión. Intentá de nuevo en un momento."); });

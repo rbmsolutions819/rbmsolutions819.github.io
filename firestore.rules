@@ -108,6 +108,14 @@ service cloud.firestore {
         && request.resource.data.servicio is string && request.resource.data.servicio.size() <= 80;
     }
 
+    // Qué demos se muestran en la página: todos lo leen, solo el administrador lo cambia.
+    match /ajustes/demos {
+      allow read: if true;
+      allow write: if esAdmin()
+        && request.resource.data.keys().hasOnly(['publicadas'])
+        && request.resource.data.publicadas is list && request.resource.data.publicadas.size() <= 40;
+    }
+
     match /{path=**} { allow read, write: if false; }
   }
 }
