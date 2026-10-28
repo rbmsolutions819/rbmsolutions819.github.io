@@ -7,6 +7,8 @@
 <title>Koktela · Menú (demo)</title>
 <meta name="description" content="Demo de menú digital con pedidos y tarjeta de sellos, hecha por RBM Solutions.">
 <meta name="theme-color" content="#0b0a12">
+<link rel="icon" href="logo.png">
+<link rel="apple-touch-icon" href="logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -42,7 +44,8 @@ a{color:var(--cian)}
 .top{position:relative;overflow:hidden;text-align:center;border-bottom:1px solid var(--linea)}
 .top::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(255,61,129,.12) 0 3px,transparent 3px 9px,rgba(63,224,255,.10) 9px 12px,transparent 12px 18px);mask-image:linear-gradient(90deg,#000 0 18%,transparent 30% 70%,#000 82%);-webkit-mask-image:linear-gradient(90deg,#000 0 18%,transparent 30% 70%,#000 82%)}
 .top .wrap{position:relative;display:grid;justify-items:center;gap:10px;padding-block:26px 24px}
-.columna{width:64px;height:64px}
+.logo{width:min(200px,52vw);height:auto;aspect-ratio:1;border-radius:50%;box-shadow:0 0 0 2px rgba(224,184,90,.5),0 0 60px rgba(70,90,255,.55)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .top h1{font:800 clamp(40px,11vw,72px)/1 var(--f-logo);letter-spacing:.16em;color:var(--texto);text-shadow:0 0 24px rgba(63,224,255,.35)}
 .top .lema{font:600 clamp(15px,3.6vw,18px) var(--f-logo);color:var(--oro);letter-spacing:.14em;text-transform:uppercase}
 .chips-info{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-top:6px}
@@ -183,11 +186,8 @@ label.c textarea{min-height:64px;resize:vertical}
 <header class="top">
   <div class="greca" aria-hidden="true"></div>
   <div class="wrap">
-    <svg class="columna" viewBox="0 0 64 64" aria-hidden="true" fill="none" stroke="#e0b85a" stroke-width="2.2" stroke-linecap="round">
-      <path d="M10 14h44M14 10h36l4 4H10z"/><path d="M16 18h32M20 18v32M28 18v32M36 18v32M44 18v32"/><path d="M14 50h36M10 54h44"/>
-      <path d="M50 26c4-2 6-7 4-12M14 26c-4-2-6-7-4-12" stroke="#3fe0ff"/>
-    </svg>
-    <h1 id="nombre">Koktela</h1>
+    <img class="logo" src="logo.png" alt="Koktela" width="200" height="200">
+    <h1 id="nombre" class="sr">Koktela</h1>
     <p class="lema" id="lema">El ride para llevar</p>
     <div class="chips-info"><span id="estado">Cargando horario…</span><a href="#lealtad">⚡ Mi tarjeta</a><a href="#info">📍 La California</a><a id="ig" href="https://www.instagram.com/koktelaelride" target="_blank" rel="noopener">Instagram</a></div>
   </div>
