@@ -1,0 +1,714 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Koktela · Menú (demo)</title>
+<meta name="description" content="Demo de menú digital con pedidos y tarjeta de sellos, hecha por RBM Solutions.">
+<meta name="theme-color" content="#0b0a12">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* Diseño: el Olimpo de noche. Fondo de mármol negro, inscripciones en mayúsculas romanas doradas y la greca griega como borde,
+   con el cian y el magenta de las franjas de Koktela como luces de neón. Cada cóctel se dibuja con el color de sus ingredientes. */
+:root{
+  --fondo:#0b0a12; --panel:#15131f; --panel2:#1d1a2b; --oro:#e0b85a; --oro2:#a8833a; --cian:#3fe0ff; --magenta:#ff3d81; --violeta:#8b6cff;
+  --texto:#f4f1ea; --suave:#a9a3bd; --linea:rgba(224,184,90,.22); --ok:#4fe39a;
+  --gl:max(16px,env(safe-area-inset-left,0px)); --gr:max(16px,env(safe-area-inset-right,0px));
+  --f-logo:"Cinzel","Trajan Pro","Times New Roman",serif;
+  --f-txt:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --greca:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='20' viewBox='0 0 40 20'%3E%3Cpath d='M0 18h8V6h16v8h-8v-4h-4v8h20V2H0' fill='none' stroke='%23e0b85a' stroke-width='2'/%3E%3C/svg%3E");
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:radial-gradient(1200px 600px at 80% -10%,rgba(139,108,255,.18),transparent 60%),radial-gradient(900px 500px at -10% 30%,rgba(63,224,255,.08),transparent 60%),var(--fondo);
+  color:var(--texto);font:400 16px/1.55 var(--f-txt);-webkit-font-smoothing:antialiased;overflow-x:hidden;padding-bottom:env(safe-area-inset-bottom,0px)}
+[hidden]{display:none!important}
+button,input,select,textarea{font:inherit;color:inherit}
+h1,h2,h3{margin:0;line-height:1.1;text-wrap:balance}
+p{margin:0}
+a{color:var(--cian)}
+:focus-visible{outline:2px solid var(--cian);outline-offset:2px;border-radius:6px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}html{scroll-behavior:auto}}
+.wrap{max-width:1000px;margin:0 auto;padding-left:var(--gl);padding-right:var(--gr)}
+.demo{background:#000;color:var(--suave);font-size:12.5px;text-align:center;padding:6px var(--gr) 6px var(--gl);padding-top:calc(6px + env(safe-area-inset-top,0px));border-bottom:1px solid var(--linea)}
+.demo b{color:var(--oro)}
+.greca{height:20px;background:var(--greca) repeat-x center/40px 20px;opacity:.8}
+
+/* portada */
+.top{position:relative;overflow:hidden;text-align:center;border-bottom:1px solid var(--linea)}
+.top::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(255,61,129,.12) 0 3px,transparent 3px 9px,rgba(63,224,255,.10) 9px 12px,transparent 12px 18px);mask-image:linear-gradient(90deg,#000 0 18%,transparent 30% 70%,#000 82%);-webkit-mask-image:linear-gradient(90deg,#000 0 18%,transparent 30% 70%,#000 82%)}
+.top .wrap{position:relative;display:grid;justify-items:center;gap:10px;padding-block:26px 24px}
+.columna{width:64px;height:64px}
+.top h1{font:800 clamp(40px,11vw,72px)/1 var(--f-logo);letter-spacing:.16em;color:var(--texto);text-shadow:0 0 24px rgba(63,224,255,.35)}
+.top .lema{font:600 clamp(15px,3.6vw,18px) var(--f-logo);color:var(--oro);letter-spacing:.14em;text-transform:uppercase}
+.chips-info{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-top:6px}
+.chips-info span,.chips-info a{font-size:13px;font-weight:700;background:rgba(255,255,255,.04);border:1px solid var(--linea);border-radius:999px;padding:5px 11px;color:var(--texto);text-decoration:none}
+.abierto{color:var(--ok)!important}
+.cerrado{color:var(--magenta)!important}
+
+/* categorías */
+.cats{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--fondo) 90%,transparent);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid var(--linea)}
+.cats .wrap{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-block:10px}
+.cats .wrap::-webkit-scrollbar{display:none}
+.cats button{flex:none;border:1px solid var(--linea);background:transparent;border-radius:4px;padding:7px 14px;font:700 13px var(--f-logo);letter-spacing:.1em;text-transform:uppercase;cursor:pointer;color:var(--suave)}
+.cats button[aria-pressed="true"]{background:var(--oro);border-color:var(--oro);color:#1a1405}
+
+main .wrap{display:grid;gap:34px;padding-block:24px 120px}
+.promo{border:1px solid var(--magenta);background:linear-gradient(120deg,rgba(255,61,129,.18),rgba(139,108,255,.14));border-radius:6px;padding:16px 18px;display:grid;gap:4px;text-align:center}
+.promo b{font:800 20px var(--f-logo);letter-spacing:.08em;color:var(--texto)}
+.promo span{color:var(--texto)}
+section h2{display:grid;justify-items:center;gap:4px;margin-bottom:16px;text-align:center}
+section h2 .t{font:800 22px var(--f-logo);letter-spacing:.18em;text-transform:uppercase;border:2px solid var(--texto);padding:4px 18px}
+section h2 .p{font:600 16px var(--f-txt);color:var(--oro)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+.prod{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--linea);border-radius:8px;padding:12px;display:grid;grid-template-rows:auto auto 1fr auto;gap:8px;text-align:left;cursor:pointer;min-width:0;transition:transform .15s,border-color .15s,box-shadow .15s;position:relative;color:var(--texto)}
+.prod:hover{transform:translateY(-2px);border-color:var(--oro);box-shadow:0 10px 30px -14px rgba(224,184,90,.5)}
+.prod h3{font:800 17px var(--f-logo);letter-spacing:.06em}
+.prod p{font-size:13.5px;color:var(--suave)}
+.prod .pie{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.precio{font-weight:800;font-variant-numeric:tabular-nums;color:var(--oro)}
+.mas{width:34px;height:34px;border-radius:50%;border:1px solid var(--oro);color:var(--oro);display:grid;place-items:center;font-size:20px;font-weight:800;line-height:1}
+.prod.agotado{opacity:.5;cursor:not-allowed}
+.prod .etq{position:absolute;top:10px;left:10px;font-size:10.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;background:#000;color:var(--texto);border:1px solid var(--linea);border-radius:3px;padding:2px 7px;z-index:1}
+.prod .etq.nuevo{background:var(--magenta);border-color:var(--magenta)}
+.lienzo{height:150px;border-radius:6px;background:radial-gradient(circle at 50% 70%,rgba(139,108,255,.22),transparent 60%),#0d0c16;display:grid;place-items:center;overflow:hidden;border:1px solid rgba(255,255,255,.04)}
+
+/* vaso dibujado */
+.taza{position:relative}
+.vaso{position:relative;width:70px;height:116px;clip-path:polygon(0 0,100% 0,88% 100%,12% 100%);border-radius:0 0 10px 10px;box-shadow:0 0 28px rgba(63,224,255,.25)}
+.vaso::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(255,255,255,.35),transparent 30%,transparent 70%,rgba(255,255,255,.18))}
+.vaso::after{content:"K";position:absolute;left:0;right:0;top:44%;text-align:center;font:800 15px var(--f-logo);color:rgba(255,255,255,.75);letter-spacing:.1em}
+.tapa{position:absolute;left:-4px;right:-4px;top:-8px;height:10px;border-radius:6px 6px 2px 2px;background:rgba(255,255,255,.75)}
+.pajilla{position:absolute;width:6px;height:52px;background:var(--cian);left:60%;top:-46px;border-radius:4px;transform:rotate(10deg);box-shadow:0 0 10px var(--cian)}
+.kit{width:96px;height:96px;border:2px solid var(--oro);border-radius:8px;display:grid;place-items:center;text-align:center;font:800 13px/1.15 var(--f-logo);letter-spacing:.08em;color:var(--oro);background:repeating-linear-gradient(45deg,rgba(224,184,90,.06) 0 6px,transparent 6px 12px)}
+
+/* sellos, horario */
+.tarjeta{border:1px solid var(--oro);border-radius:8px;padding:18px;display:grid;gap:12px;background:linear-gradient(180deg,rgba(224,184,90,.07),transparent)}
+.sellos{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;max-width:360px}
+.sellos i{aspect-ratio:1;border-radius:50%;border:1px solid var(--linea);display:grid;place-items:center;font-style:normal;font-size:20px;background:var(--panel)}
+.sellos i.si{background:radial-gradient(circle at 35% 30%,#ffe3a0,var(--oro) 60%,var(--oro2));border-color:var(--oro);color:#1a1405}
+.sellos i.gratis{border-style:dashed;border-color:var(--oro);font-size:10px;font-weight:800;color:var(--oro)}
+.dos{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.caja{background:var(--panel);border:1px solid var(--linea);border-radius:8px;padding:18px;display:grid;gap:10px;align-content:start}
+.caja h3{font:800 17px var(--f-logo);letter-spacing:.08em}
+.horas{display:grid;gap:6px;font-size:15px}
+.horas div{display:flex;justify-content:space-between;gap:10px;border-bottom:1px dashed var(--linea);padding-bottom:6px}
+.horas div.hoy{font-weight:800;color:var(--oro)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--oro);background:transparent;color:var(--oro);font-weight:800;border-radius:6px;padding:11px 16px;cursor:pointer;text-decoration:none}
+.btn.pri{background:var(--oro);color:#1a1405}
+.btn.verde{background:#25d366;border-color:#25d366;color:#05300f}
+.btn.sm{padding:7px 12px;font-size:14px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.fila-btn{display:flex;gap:8px;flex-wrap:wrap}
+.miTarj{display:grid;grid-template-columns:auto minmax(0,1fr);gap:16px;align-items:center}
+.qr{width:150px;height:150px;background:#fff;border-radius:8px;padding:8px;display:grid;place-items:center}
+.qr img,.qr canvas{width:100%!important;height:auto!important}
+.codigo{font:800 24px/1.1 var(--f-logo);letter-spacing:.06em;color:var(--oro)}
+.cli{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;align-items:center;padding:10px 0;border-bottom:1px dashed var(--linea)}
+.cli small{color:var(--suave)}
+.ficha{background:var(--panel2);border:1px solid var(--oro);border-radius:8px;padding:16px;display:grid;gap:12px;margin-top:12px}
+.sellos i.pend{background:var(--cian);border-color:var(--cian);color:#04212a}
+.ajuste{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.ajuste b{font-size:16px}
+.camara{position:relative;border-radius:8px;overflow:hidden;background:#000;aspect-ratio:1;max-width:360px;width:100%;margin:12px auto 0}
+.camara video{width:100%;height:100%;object-fit:cover;display:block}
+.camara::after{content:"";position:absolute;inset:18%;border:2px solid var(--oro);border-radius:8px;box-shadow:0 0 0 999px rgba(0,0,0,.4)}
+.compartir{display:grid;grid-template-columns:auto minmax(0,1fr);gap:14px;align-items:center;background:var(--panel);border:1px solid var(--linea);border-radius:8px;padding:12px}
+.compartir .qr{width:120px;height:120px}
+footer{text-align:center;color:var(--suave);font-size:13px;padding:14px var(--gr) 30px var(--gl)}
+footer button{border:0;background:none;color:var(--suave);text-decoration:underline;cursor:pointer;font-size:13px}
+
+.carrito{position:fixed;z-index:30;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));width:min(560px,calc(100% - 32px));display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--oro);color:#1a1405;border:0;border-radius:8px;padding:14px 18px;font-weight:800;cursor:pointer;box-shadow:0 14px 34px -12px rgba(224,184,90,.6)}
+.carrito .n{background:#1a1405;color:var(--oro);border-radius:999px;padding:2px 10px;margin-right:8px}
+
+.velo{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.6);opacity:0;pointer-events:none;transition:opacity .2s}
+.velo.on{opacity:1;pointer-events:auto}
+.hoja{position:fixed;z-index:50;left:0;right:0;bottom:0;margin:0 auto;max-width:600px;max-height:92vh;overflow-y:auto;background:var(--panel);border:1px solid var(--linea);border-bottom:0;border-radius:14px 14px 0 0;padding:10px var(--gr) calc(22px + env(safe-area-inset-bottom,0px)) var(--gl);transform:translateY(105%);transition:transform .28s cubic-bezier(.2,.8,.2,1)}
+.hoja.on{transform:none}
+.asa{width:46px;height:4px;border-radius:9px;background:var(--linea);margin:0 auto 14px}
+.hoja h2{font:800 24px var(--f-logo);letter-spacing:.08em;color:var(--oro)}
+.hoja .x{float:right;width:36px;height:36px;border-radius:50%;border:1px solid var(--linea);background:transparent;font-size:20px;cursor:pointer;line-height:1;color:var(--texto)}
+.grupo{display:grid;gap:8px;margin-top:16px}
+.grupo>b{font-size:13px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--suave)}
+.ops{display:flex;flex-wrap:wrap;gap:8px}
+.ops button{border:1px solid var(--linea);background:var(--panel2);border-radius:6px;padding:8px 12px;font-weight:700;cursor:pointer;font-size:14px;color:var(--texto)}
+.ops button small{color:var(--suave);font-weight:600;margin-left:4px}
+.ops button[aria-pressed="true"]{border-color:var(--oro);background:rgba(224,184,90,.14);color:var(--oro)}
+.cant{display:flex;align-items:center;gap:12px}
+.cant button{width:40px;height:40px;border-radius:50%;border:1px solid var(--oro);background:transparent;font-size:22px;font-weight:800;color:var(--oro);cursor:pointer;line-height:1}
+.cant button:disabled{opacity:.35}
+.cant b{min-width:28px;text-align:center;font-size:18px;font-variant-numeric:tabular-nums}
+.pie-hoja{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:20px;flex-wrap:wrap}
+.item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;padding:12px 0;border-bottom:1px dashed var(--linea)}
+.item small{grid-column:1;color:var(--suave);font-size:13.5px}
+.item .acc{grid-column:2;grid-row:1/3;display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.item .acc button{border:0;background:none;color:var(--magenta);font-size:13px;cursor:pointer;text-decoration:underline}
+.total{display:flex;justify-content:space-between;font-size:20px;font-weight:800;margin-top:12px}
+label.c{display:grid;gap:5px;font-size:13px;font-weight:800;color:var(--suave)}
+label.c input,label.c select,label.c textarea{border:1px solid var(--linea);border-radius:6px;background:var(--fondo);padding:10px 12px;font-weight:600;color:var(--texto);width:100%;min-width:0}
+label.c textarea{min-height:64px;resize:vertical}
+.err{color:var(--magenta);font-weight:700;font-size:14px;min-height:1em}
+.nota{font-size:13px;color:var(--suave)}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin:14px 0}
+.tabs button{border:1px solid var(--linea);background:transparent;border-radius:4px;padding:6px 14px;font-weight:800;cursor:pointer;white-space:nowrap;color:var(--texto)}
+.tabs button[aria-pressed="true"]{background:var(--oro);border-color:var(--oro);color:#1a1405}
+.adm{display:grid;grid-template-columns:minmax(0,1fr) 92px;gap:6px 10px;align-items:center;padding:10px 0;border-bottom:1px dashed var(--linea)}
+.adm b{font-size:15px}
+.adm input[type=number]{border:1px solid var(--linea);border-radius:6px;padding:6px 8px;width:100%;font-weight:700;background:var(--fondo)}
+.adm .flags{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:12px;font-size:13.5px;color:var(--suave)}
+.adm .flags label{display:flex;gap:5px;align-items:center;cursor:pointer}
+.adm .flags button{border:0;background:none;color:var(--magenta);text-decoration:underline;cursor:pointer;margin-left:auto;font-size:13.5px}
+.edad{position:fixed;inset:0;z-index:70;background:rgba(5,4,10,.94);display:grid;place-items:center;padding:20px}
+.edad div{max-width:380px;text-align:center;display:grid;gap:14px;border:1px solid var(--oro);border-radius:10px;padding:26px 22px;background:var(--panel)}
+.edad h2{font:800 26px var(--f-logo);letter-spacing:.1em;color:var(--oro)}
+.toast{position:fixed;z-index:60;left:50%;transform:translate(-50%,20px);bottom:calc(86px + env(safe-area-inset-bottom,0px));background:var(--texto);color:var(--fondo);padding:10px 16px;border-radius:8px;font-weight:700;opacity:0;pointer-events:none;transition:.2s;max-width:calc(100% - 32px);text-align:center}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+@media (max-width:520px){.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.prod{padding:10px}.lienzo{height:128px}.prod h3{font-size:15px}.prod p{font-size:12.5px}.miTarj,.compartir{grid-template-columns:1fr;justify-items:center;text-align:center}}
+</style>
+</head>
+<body>
+
+<div class="demo">Demo de <b>RBM Solutions</b> · precios tomados del menú publicado; horario de ejemplo</div>
+
+<div class="edad" id="edad" hidden><div>
+  <h2>¿Mayor de 18?</h2><p>Para ver el menú de cócteles confirmá que sos mayor de edad.</p>
+  <button class="btn pri" type="button" id="soyMayor">Sí, soy mayor de 18</button>
+  <p class="nota">Los cócteles también se pueden preparar sin licor.</p>
+</div></div>
+
+<header class="top">
+  <div class="greca" aria-hidden="true"></div>
+  <div class="wrap">
+    <svg class="columna" viewBox="0 0 64 64" aria-hidden="true" fill="none" stroke="#e0b85a" stroke-width="2.2" stroke-linecap="round">
+      <path d="M10 14h44M14 10h36l4 4H10z"/><path d="M16 18h32M20 18v32M28 18v32M36 18v32M44 18v32"/><path d="M14 50h36M10 54h44"/>
+      <path d="M50 26c4-2 6-7 4-12M14 26c-4-2-6-7-4-12" stroke="#3fe0ff"/>
+    </svg>
+    <h1 id="nombre">Koktela</h1>
+    <p class="lema" id="lema">El ride para llevar</p>
+    <div class="chips-info"><span id="estado">Cargando horario…</span><a href="#lealtad">⚡ Mi tarjeta</a><a href="#info">📍 La California</a><a id="ig" href="https://www.instagram.com/koktelaelride" target="_blank" rel="noopener">Instagram</a></div>
+  </div>
+  <div class="greca" aria-hidden="true"></div>
+</header>
+
+<nav class="cats" aria-label="Categorías"><div class="wrap" id="cats"></div></nav>
+
+<main>
+  <div class="wrap">
+    <div class="promo" id="promo"></div>
+    <div id="menu"></div>
+    <p class="nota" style="text-align:center">Todos los cócteles vienen en presentación de un litro y se pueden preparar sin licor.</p>
+
+    <section id="lealtad" aria-labelledby="h-leal">
+      <h2 id="h-leal"><span class="t">Tus sellos</span><span class="p">La décima corre por cuenta de los dioses</span></h2>
+      <div class="tarjeta" id="tarjeta"></div>
+    </section>
+
+    <section id="info" aria-labelledby="h-info">
+      <h2 id="h-info"><span class="t">Horario y ubicación</span></h2>
+      <div class="dos">
+        <div class="caja"><h3>Horario</h3><div class="horas" id="horas"></div></div>
+        <div class="caja"><h3>Dónde estamos</h3>
+          <p id="dir">Barrio La California, San José. Frente a la estación del tren al Atlántico.</p>
+          <div class="fila-btn"><a class="btn sm" id="waze" target="_blank" rel="noopener">Waze</a><a class="btn sm" id="maps" target="_blank" rel="noopener">Google Maps</a></div>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<div class="greca" aria-hidden="true"></div>
+<footer>Hecho por RBM Solutions · Tomá con moderación · <button type="button" id="abrirAdmin">🔒 Administrar menú</button></footer>
+
+<button class="carrito" id="carrito" type="button" hidden><span><span class="n" id="carN">0</span>Ver mi pedido</span><span id="carT">₡0</span></button>
+
+<div class="velo" id="velo"></div>
+<div class="hoja" id="hoja" role="dialog" aria-modal="true" aria-labelledby="hojaT"><div id="hojaC"></div></div>
+<div class="toast" id="toast" role="status"></div>
+
+<script src="../matcha/qrcode.min.js"></script>
+<script src="../matcha/jsQR.js"></script>
+<script src="tarjetas.js"></script>
+
+<script>
+(() => {
+"use strict";
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const crc = n => "₡" + Math.round(n).toLocaleString("es-CR").replace(/\s/g, ".");
+const lsGet = (k, d) => { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch { return d; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
+
+/* ===== Datos (precios del menú publicado; la dueña los cambia desde "Administrar menú") ===== */
+const CLAVE_DEMO = "demo1234";
+// Color de cada ingrediente para dibujar el cóctel
+const COLORES = [["blue curacao","#1f8bff"],["granadina","#d7263d"],["arándano","#9b1d4a"],["sandía","#ff5a73"],["maracuy","#f6c90e"],["naranja","#f7931e"],
+  ["piña","#f9d56e"],["melocotón","#ffb07a"],["menta","#33d6a0"],["hierbabuena","#7ed957"],["melón","#a6e35d"],["café","#4a2c1d"],["cola","#4a2414"],["coca","#4a2414"],
+  ["té","#b5651d"],["chile","#c0392b"],["michelada","#c0392b"],["cerveza","#e8b923"],["imperial","#e8b923"],["aperol","#ff6b2c"],["sangría","#8e1b3a"],["baileys","#c9a27e"],
+  ["amaretto","#c58b4a"],["leche","#f3efe6"],["coco","#f6f1e6"],["helado","#f8f3ea"],["vermouth","#d9c47a"],["ginger","#e9d38b"],["agua de pipa","#e8f4d9"],
+  ["limonada","#e3f58a"],["limón","#d4ef6a"],["triple sec","#f2e6b8"],["7up","#e6f7ff"],["soda","#e6f7ff"],["tónica","#e9f9ff"]];
+const CATS = [["especiales","Especiales"],["ron","Ron"],["vodka","Vodka"],["guaro","Guaro"],["tequila","Tequila"],["ginebra","Ginebra"],["whisky","Whisky"],["jagger","Jagger"],["cerveza","Cerveza"],["casa","Hacelo en casa"]];
+const P = (id, cat, nombre, desc, precio, extra = {}) => ({id, cat, nombre, desc, precio, ...extra});
+const BASE = {
+  negocio: {nombre:"Koktela", lema:"El ride para llevar", whatsapp:"50661572339",
+    promos:{0:"Domingos: 3 cócteles por ₡10.000, de 2 a 8 p. m.", 3:"Miércoles de 2x1, porque doble es mejor."},
+    promoGeneral:"Celebrá tu cumple en Koktela: escribinos y armamos la previa.",
+    horario:[["Lunes","",""],["Martes","16:00","23:00"],["Miércoles","16:00","23:00"],["Jueves","16:00","23:00"],["Viernes","16:00","23:30"],["Sábado","14:00","23:30"],["Domingo","14:00","20:00"]]},
+  productos: [
+    P("hades","especiales","Hades","Blue curacao, limonada, ron, tequila y vodka.",5000),
+    P("zeus","especiales","Zeus","Crema de menta, soda, tequila, triple sec y vodka.",5000),
+    P("ares","especiales","Ares","Jugo de naranja, limón, ron, tequila y vodka.",5000),
+    P("poseidon","especiales","Poseidón","Blue curacao, jugo de piña y Malibú.",5000),
+    P("iris","especiales","Iris","Crema de menta, vodka y leche evaporada.",5000),
+    P("triton","especiales","Tritón","Cacique, tequila, ron, agua de pipa y crema de coco.",5000),
+    P("prometeo","especiales","Prometeo","Jugo de maracuyá, piña, ron, blue curacao y licor de melón.",5000),
+    P("odiseo","especiales","Odiseo","Leche evaporada, licor de café y vodka.",5000),
+    P("atlas","especiales","Átlas","Jugo de maracuyá, hierbabuena y aguardiente.",5000),
+    P("andromeda","especiales","Andrómeda","Crema de coco, leche evaporada y Cacique.",5000),
+    P("circe","especiales","Circe","Jarabe de sandía, licor de sandía, hierbabuena, soda y Cacique.",5000),
+    P("urano","especiales","Urano","Ginger beer, vodka y limón.",5000),
+    P("calipso","especiales","Calipso","Jugo de piña, crema de coco, licor de coco y blue curacao.",5000),
+    P("ajax","especiales","Ajax","Arándano, naranja, soda, Aperol y vodka.",5000,{nuevo:true}),
+    P("pegaso","especiales","Pegaso","Chiliguaro de la casa.",4500,{tamanos:[["½ litro",0],["1 litro",4500]]}),
+    P("sileno","especiales","Sileno","Sangría de la casa.",4500),
+    P("artemisa","ron","Artemisa","Crema de coco y jugo de piña.",4500),
+    P("apolo","ron","Apolo","Limón, soda, azúcar y hierbabuena.",4500),
+    P("aquiles","ron","Aquiles","Granadina, jugo de naranja, jugo de maracuyá y limón.",4500),
+    P("ninfa","ron","Ninfa","Limonada y jugo de maracuyá.",4500),
+    P("centauro","vodka","Centauro","Blue curacao y limonada.",4500),
+    P("afrodita","vodka","Afrodita","Granadina, jugo de naranja y licor de melocotón.",4500),
+    P("icaro","vodka","Ícaro","Limonada, jugo de naranja y jugo de piña.",4500),
+    P("heros","vodka","Heros","Granadina y 7up.",4500),
+    P("persefone","vodka","Perséfone","Triple sec, limón y arándano.",4500),
+    P("satiro","guaro","Sátiro","Sirope de cola, leche evaporada, leche en polvo y leche condensada.",4500),
+    P("dionisio","guaro","Dionisio","Jugo de piña, limón, hierbabuena y soda.",4500),
+    P("ciclope","guaro","Cíclope","Crema de menta, granadina, crema de coco y leche evaporada.",4500),
+    P("hermes","guaro","Hermes","Soda, limón y sal.",4500),
+    P("sirena","tequila","Sirena","Limonada y triple sec.",5000),
+    P("hefesto","tequila","Hefesto","Granadina y jugo de naranja.",5000),
+    P("edipo","tequila","Edipo","Jugo de arándano y jugo de naranja.",5000),
+    P("selene","tequila","Selene","Limonada, blue curacao y triple sec.",5000),
+    P("perseo","ginebra","Perseo","Agua tónica y limón.",4500),
+    P("aura","ginebra","Aura","Limón, soda y hierbabuena.",4500),
+    P("medusa","ginebra","Medusa","Jugo de arándano, granadina y limón.",4500),
+    P("grifo","whisky","Grifo","Vermouth seco y jugo de arándano.",5000),
+    P("atenea","whisky","Atenea","Limón, soda y azúcar.",5000),
+    P("menelao","whisky","Menelao","Granadina, jugo de arándano y jugo de piña.",5000),
+    P("morfeo","jagger","Morfeo","Cacique y té frío.",5000),
+    P("hera","jagger","Hera","Blue curacao y 7up.",5000),
+    P("orion","jagger","Orión","Coca cola y helado de vainilla.",5000),
+    P("cronos","jagger","Cronos","Baileys, amaretto y leche.",5000),
+    P("hercules","cerveza","Hércules","Mezcla de chile, Cacique y cerveza.",4500),
+    P("fenix","cerveza","Fénix","Blue curacao, cerveza, 7up y limón.",4500),
+    P("hidra","cerveza","Hidra","Deliciosa cerveza michelada.",2500),
+    P("cerveza","cerveza","Cerveza","Imperial, Imperial Light, Imperial Silver o Pilsen.",2000,{marcas:["Imperial","Imperial Light","Imperial Silver","Pilsen"]}),
+    P("m-ciclope","casa","Mezcla de Cíclope","Cacique, crema de menta, granadina, crema de coco y leche evaporada.",8500,{kit:true}),
+    P("m-poseidon","casa","Mezcla de Poseidón","Blue curacao, jugo de piña y Malibú.",8500,{kit:true}),
+    P("m-afrodita","casa","Mezcla de Afrodita","Granadina, jugo de naranja y licor de melocotón.",8500,{kit:true}),
+    P("m-sirena","casa","Mezcla de Sirena","Limonada y triple sec.",8500,{kit:true}),
+    P("m-prometeo","casa","Mezcla de Prometeo","Jugo de maracuyá, jugo de piña, ron, blue curacao y licor de melón.",8500,{kit:true}),
+    P("m-perseo","casa","Mezcla de Perseo","Agua tónica y limón.",8500,{kit:true}),
+    P("m-artemisa","casa","Mezcla de Artemisa","Crema de coco y jugo de piña.",8500,{kit:true})
+  ]
+};
+const PRECIO_CAT = {especiales:"₡5.000", ron:"₡4.500", vodka:"₡4.500", guaro:"₡4.500", tequila:"₡5.000", ginebra:"₡4.500", whisky:"₡5.000", jagger:"₡5.000", cerveza:"", casa:"₡8.500 · incluye mezcla, portavasos y decoración"};
+const OPC = {
+  licor: [["Con licor",0],["Sin licor",0]],
+  hielo: [["Hielo normal",0],["Poco hielo",0],["Sin hielo",0]]
+};
+
+let D = lsGet("kk-datos", null) || JSON.parse(JSON.stringify(BASE));
+let pedido = lsGet("kk-pedido", []);
+// Tarjeta de sellos: la dueña registra a cada cliente (nombre y cédula) y se genera su QR.
+// Todo se guarda en Firebase: el cliente ve sus sellos al instante en su tarjeta (tarjeta.html).
+let miToken = lsGet("kk-token", null);
+let catSel = "todo", admin = lsGet("kk-admin", false);
+let cli = null, cliPend = 0, cliMsg = "", cliOcupado = false, cliUnsub = null, cliNuevo = null;
+let recientes = lsGet("kk-recientes", []);
+const recordar = (token, nombre) => { recientes = [{token, nombre}, ...recientes.filter(r => r.token !== token)].slice(0, 12); lsSet("kk-recientes", recientes); };
+const guardarD = () => lsSet("kk-datos", D);
+const guardarP = () => { lsSet("kk-pedido", pedido); pintarCarrito(); };
+
+/* ===== Dibujo de cada producto ===== */
+function colores(txt) {
+  const t = txt.toLowerCase(), out = [];
+  COLORES.forEach(([k, c]) => { const i = t.indexOf(k); if (i >= 0 && !out.some(o => o[1] === c)) out.push([i, c]); });
+  return out.sort((a, b) => a[0] - b[0]).map(o => o[1]).slice(0, 3);
+}
+function dibujo(p) {
+  if (p.kit) return `<div class="kit">HACELO<br>EN CASA<br><span style="font-size:22px">⚱</span></div>`;
+  const cs = colores(p.desc + " " + p.nombre); if (!cs.length) cs.push("#f2e6b8");
+  const fondo = cs.length === 1 ? `linear-gradient(to top, ${cs[0]}, color-mix(in srgb, ${cs[0]} 70%, #fff))`
+    : `linear-gradient(to top, ${cs.map((c, i) => `${c} ${Math.round(i * 100 / cs.length)}% ${Math.round((i + 1) * 100 / cs.length)}%`).join(",")})`;
+  return `<div class="taza"><span class="pajilla"></span><span class="tapa"></span><div class="vaso" style="background:${fondo}"></div></div>`;
+}
+
+/* ===== Horario ===== */
+const aMin = h => { const [a, b] = h.split(":").map(Number); return a * 60 + (b || 0); };
+const h12 = m => { let a = Math.floor(m / 60), b = m % 60; const pm = a >= 12; a = a % 12 || 12; return `${a}:${String(b).padStart(2, "0")} ${pm ? "p. m." : "a. m."}`; };
+const ahoraCR = () => new Date(Date.now() - 6 * 3600e3);
+function hoyHorario() { const d = ahoraCR().getUTCDay(); return D.negocio.horario[(d + 6) % 7]; }
+function pintarHorario() {
+  const n = ahoraCR(), min = n.getUTCHours() * 60 + n.getUTCMinutes(), h = hoyHorario();
+  const abierto = h && h[1] && min >= aMin(h[1]) && min < aMin(h[2]);
+  const e = $("#estado");
+  e.textContent = abierto ? `● Abierto · cierra ${h12(aMin(h[2]))}` : h && h[1] && min < aMin(h[1]) ? `Abre hoy ${h12(aMin(h[1]))}` : "Cerrado ahora";
+  e.className = abierto ? "abierto" : "cerrado";
+  const hoyI = (n.getUTCDay() + 6) % 7;
+  $("#horas").innerHTML = D.negocio.horario.map(([d, a, b], i) => `<div class="${i === hoyI ? "hoy" : ""}"><span>${d}${i === hoyI ? " (hoy)" : ""}</span><span>${a ? `${h12(aMin(a))} – ${h12(aMin(b))}` : "Cerrado"}</span></div>`).join("");
+}
+function horasRetiro() {
+  const n = ahoraCR(), min = n.getUTCHours() * 60 + n.getUTCMinutes(), h = hoyHorario(), out = [];
+  if (h && h[1]) { for (let m = Math.max(aMin(h[1]), Math.ceil((min + 15) / 15) * 15); m <= aMin(h[2]) - 15; m += 15) out.push(h12(m)); }
+  return out;
+}
+
+/* ===== Menú ===== */
+function pintarCats() {
+  $("#cats").innerHTML = [["todo","Todo"], ...CATS].map(([k, l]) => `<button type="button" data-cat="${k}" aria-pressed="${catSel === k}">${l}</button>`).join("");
+}
+function pintarMenu() {
+  const visibles = D.productos.filter(p => !p.oculto);
+  $("#menu").innerHTML = CATS.filter(([k]) => catSel === "todo" || catSel === k).map(([k, l]) => {
+    const ps = visibles.filter(p => p.cat === k); if (!ps.length) return "";
+    return `<section id="cat-${k}"><h2><span class="t">${l}</span>${PRECIO_CAT[k] ? `<span class="p">${PRECIO_CAT[k]}</span>` : ""}</h2><div class="grid">${ps.map(p => `
+      <button type="button" class="prod${p.agotado ? " agotado" : ""}" data-p="${p.id}" ${p.agotado ? 'aria-disabled="true"' : ""}>
+        ${p.agotado ? '<span class="etq">Agotado hoy</span>' : p.nuevo ? '<span class="etq nuevo">Nuevo</span>' : ""}
+        <div class="lienzo">${dibujo(p)}</div>
+        <h3>${esc(p.nombre)}</h3><p>${esc(p.desc)}</p>
+        <div class="pie"><span class="precio">${crc(p.precio)}</span>${p.agotado ? "" : '<span class="mas" aria-hidden="true">+</span>'}</div>
+      </button>`).join("")}</div></section>`;
+  }).join("") || `<p class="nota">No hay productos en esta categoría.</p>`;
+  const dia = ahoraCR().getUTCDay(), promo = (D.negocio.promos || {})[dia];
+  $("#promo").innerHTML = promo ? `<b>Hoy en el Olimpo</b><span>${esc(promo)}</span>` : `<b>Koktela</b><span>${esc(D.negocio.promoGeneral || "")}</span>`;
+  $("#promo").hidden = !promo && !D.negocio.promoGeneral;
+  $("#nombre").textContent = D.negocio.nombre; $("#lema").textContent = D.negocio.lema;
+}
+
+/* ===== Hoja (personalizar / pedido / panel) ===== */
+function abrirHoja(html) { $("#hojaC").innerHTML = html; $("#hoja").classList.add("on"); $("#velo").classList.add("on"); $("#hoja").scrollTop = 0; }
+function cerrarHoja() { if (typeof cerrarCamara === "function") cerrarCamara(); $("#hoja").classList.remove("on"); $("#velo").classList.remove("on"); }
+$("#velo").addEventListener("click", cerrarHoja);
+document.addEventListener("keydown", e => { if (e.key === "Escape") cerrarHoja(); });
+
+let arm = null;   // bebida que se está armando
+const esBebida = p => !p.kit;
+function precioArm() {
+  const p = D.productos.find(x => x.id === arm.id); let u = p.precio;
+  if (p.tamanos) u += (p.tamanos.find(x => x[0] === arm.tam) || [0, 0])[1];
+  return u * arm.cant;
+}
+function pintarArmar() {
+  const p = D.productos.find(x => x.id === arm.id);
+  const grupo = (titulo, k, lista, multi) => `<div class="grupo"><b>${titulo}</b><div class="ops">${lista.map(([n, extra]) => {
+    const on = multi ? arm[k].includes(n) : arm[k] === n;
+    return `<button type="button" data-op="${k}" data-v="${esc(n)}" data-multi="${multi ? 1 : ""}" aria-pressed="${on}">${esc(n)}${extra ? `<small>+${crc(extra)}</small>` : ""}</button>`; }).join("")}</div></div>`;
+  abrirHoja(`<div class="asa"></div><button class="x" type="button" data-cerrar aria-label="Cerrar">×</button>
+    <h2 id="hojaT">${esc(p.nombre)}</h2><p class="nota" style="margin-top:4px">${esc(p.desc)}</p>
+    <div class="lienzo" style="margin-top:14px;height:170px">${dibujo(p)}</div>
+    ${p.tamanos ? grupo("Tamaño", "tam", p.tamanos) : ""}${p.marcas ? grupo("Marca", "marca", p.marcas.map(m => [m, 0])) : ""}
+    ${esBebida(p) && p.cat !== "cerveza" ? grupo("Preparación", "licor", OPC.licor) : ""}${esBebida(p) ? grupo("Hielo", "hielo", OPC.hielo) : ""}
+    ${p.kit ? `<p class="nota" style="margin-top:12px">Incluye mezcla para cóctel, portavasos y decoración. Vos ponés el licor.</p>` : ""}
+    <div class="pie-hoja"><div class="cant"><button type="button" data-cant="-1" aria-label="Menos">−</button><b>${arm.cant}</b><button type="button" data-cant="1" aria-label="Más">+</button></div>
+      <button class="btn pri" type="button" data-agregar>Agregar · ${crc(precioArm())}</button></div>`);
+}
+function detalle(it) {
+  const p = D.productos.find(x => x.id === it.id); if (!p || !esBebida(p)) return "";
+  return [p.tamanos ? it.tam : "", p.marcas ? it.marca : "", it.licor === "Sin licor" ? "sin licor" : "", it.hielo && it.hielo !== "Hielo normal" ? it.hielo.toLowerCase() : ""].filter(Boolean).join(", ");
+}
+function pintarPedido() {
+  if (!pedido.length) { cerrarHoja(); return; }
+  const total = pedido.reduce((a, it) => a + it.total, 0), horas = horasRetiro();
+  abrirHoja(`<div class="asa"></div><button class="x" type="button" data-cerrar aria-label="Cerrar">×</button>
+    <h2 id="hojaT">Mi pedido</h2>
+    <div>${pedido.map((it, i) => `<div class="item"><b>${it.cant} × ${esc(it.nombre)}</b><small>${esc(detalle(it))}</small>
+      <div class="acc"><span class="precio">${crc(it.total)}</span><button type="button" data-quitar="${i}">Quitar</button></div></div>`).join("")}</div>
+    <div class="total"><span>Total</span><span>${crc(total)}</span></div>
+    <div class="grupo"><label class="c">Tu nombre<input id="pNom" maxlength="40" autocomplete="name" placeholder="Para llamarte cuando esté listo"></label>
+      <label class="c">¿A qué hora pasás?<select id="pHora">${horas.length ? horas.map(h => `<option>${h}</option>`).join("") : `<option>Mañana, apenas abran</option>`}</select></label>
+      <label class="c">Nota (opcional)<textarea id="pNota" maxlength="200" placeholder="Ej.: con escarchado, por favor"></textarea></label>
+      <p class="err" id="pErr"></p>
+      <button class="btn verde" type="button" data-enviar>Enviar pedido por WhatsApp</button>
+      <p class="nota">Se abre WhatsApp con tu pedido listo. Pagás al recoger, en efectivo, tarjeta o SINPE.</p>
+      <a class="btn sm" id="waLink" target="_blank" rel="noopener" hidden>¿No se abrió WhatsApp? Tocá aquí</a></div>`);
+  try { $("#pNom").value = lsGet("kk-nombre", ""); } catch {}
+}
+function pintarCarrito() {
+  const n = pedido.reduce((a, it) => a + it.cant, 0);
+  $("#carrito").hidden = !n; $("#carN").textContent = n; $("#carT").textContent = crc(pedido.reduce((a, it) => a + it.total, 0));
+}
+function selloHTML(n, pend = 0) {
+  const s = Math.min(n, 10);
+  return `<div class="sellos">${Array.from({length: 10}, (_, i) => {
+    const lleno = i < s, nuevo = !lleno && i < s + pend;
+    if (i === 9) return `<i class="${lleno ? "si" : nuevo ? "pend" : "gratis"}">${lleno || nuevo ? "★" : "GRATIS"}</i>`;
+    return `<i class="${lleno ? "si" : nuevo ? "pend" : ""}">${lleno || nuevo ? "⚡" : ""}</i>`; }).join("")}</div>`;
+}
+function dibujarQR(el, texto, tam = 220) {
+  if (!el) return;
+  try { el.innerHTML = ""; new QRCode(el, {text: texto, width: tam, height: tam, colorDark: "#0b0a12", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.M}); }
+  catch { el.innerHTML = `<span class="nota">QR no disponible</span>`; }
+}
+// Sección "Tu tarjeta de sellos" del menú
+let miUnsub = null;
+function pintarSellos() {
+  const t = $("#tarjeta");
+  if (!miToken) {
+    t.innerHTML = `<p>Pedí tu tarjeta gratis en la barra: te registramos con tu nombre y cédula y te mandamos tu QR por WhatsApp.</p>
+      ${selloHTML(0)}<p class="nota">Cada cóctel suma un sello y <b>la décima es gratis</b>. Si ya tenés tu tarjeta, abrí el link que te mandamos.</p>`;
+    return;
+  }
+  t.innerHTML = `<p class="nota">Cargando tu tarjeta…</p>`;
+  if (miUnsub) return;
+  const fallo = () => { t.innerHTML = `<p class="nota">No se pudo cargar tu tarjeta. Revisá tu conexión.</p>`; };
+  Tarjetas.escuchar(miToken, c => {
+    if (!c) { miToken = null; lsSet("kk-token", null); pintarSellos(); return; }
+    t.innerHTML = `<div class="miTarj"><div class="qr" id="qr" aria-label="Código QR de tu tarjeta"></div>
+        <div style="display:grid;gap:6px"><span class="nota">Tarjeta de</span><span class="codigo" style="letter-spacing:0">${esc(c.nombre)}</span>
+        <span class="nota">Mostrá este QR en la barra y te sumamos los sellos.</span><a class="btn sm" href="${Tarjetas.link(miToken)}">Abrir mi tarjeta</a></div></div>
+      ${selloHTML(c.sellos)}
+      <p class="nota">${c.sellos >= 10 ? "<b>¡Tu próximo cóctel es gratis!</b> Mostrá tu QR para canjearla." : `Llevás ${c.sellos} de 10. Te faltan ${10 - c.sellos} para tu cóctel gratis.`}</p>`;
+    dibujarQR($("#qr"), Tarjetas.link(miToken));
+  }, fallo).then(u => miUnsub = u).catch(fallo);
+}
+
+/* ----- Sellos de clientes (panel de la dueña) ----- */
+function abrirFicha(token) {
+  if (cliUnsub) { cliUnsub(); cliUnsub = null; }
+  cli = {token, cargando: true}; cliPend = 0; cliMsg = ""; tabAdm = "cli"; pintarAdmin();
+  Tarjetas.escuchar(token, c => {
+    if (!c) { cli = null; cliMsg = "No encontramos esa tarjeta. Puede que el QR no sea de este negocio."; }
+    else { cli = c; recordar(token, c.nombre); if (cliPend > 10 - c.sellos) cliPend = Math.max(0, 10 - c.sellos); }
+    if ($("#hoja").classList.contains("on") && tabAdm === "cli" && !camStream) { const sc = $("#hoja").scrollTop; pintarAdmin(); $("#hoja").scrollTop = sc; }
+  }, () => { cliMsg = "No se pudo cargar la tarjeta. Revisá la conexión."; cli = null; pintarAdmin(); })
+    .then(u => cliUnsub = u).catch(() => { cliMsg = "No se pudo conectar. Revisá la conexión."; cli = null; pintarAdmin(); });
+}
+function vistaSellos() {
+  let h = `<div class="fila-btn"><button class="btn pri" type="button" data-escanear>📷 Escanear QR</button></div>
+    <div class="grupo"><label class="c">Buscar por cédula<input id="sCed" inputmode="numeric" maxlength="15" placeholder="Ej.: 1 1234 5678"></label>
+      <div><button class="btn sm" type="button" data-buscar>Buscar</button></div></div>
+    ${cliMsg ? `<p class="err" role="alert">${esc(cliMsg)}</p>` : ""}`;
+  if (cli && cli.cargando) h += `<div class="ficha"><span class="nota">Cargando tarjeta…</span></div>`;
+  else if (cli) {
+    const libres = 10 - cli.sellos;
+    h += `<div class="ficha"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><b style="font-size:19px">${esc(cli.nombre)}</b><span class="nota">Cédula ****${esc(cli.ced4)}</span></div>
+      ${selloHTML(cli.sellos, cliPend)}
+      <span class="nota">Tiene <b>${cli.sellos} de 10</b> sellos${cli.canjes ? ` · ${cli.canjes} cóctel${cli.canjes === 1 ? "" : "s"} gratis canjeada${cli.canjes === 1 ? "" : "s"}` : ""}</span>
+      ${cli.sellos >= 10 ? `<p><b>Tarjeta llena:</b> le toca una cóctel gratis.</p><div><button class="btn pri" type="button" data-canjear ${cliOcupado ? "disabled" : ""}>Canjear cóctel gratis</button></div>`
+      : `<div class="ajuste"><div class="cant"><button type="button" data-pend="-1" aria-label="Quitar uno" ${cliPend <= 0 ? "disabled" : ""}>−</button><b>${cliPend}</b><button type="button" data-pend="1" aria-label="Agregar uno" ${cliPend >= libres ? "disabled" : ""}>+</button></div>
+          <span>sello${cliPend === 1 ? "" : "s"} por agregar</span></div>
+        <button class="btn pri" type="button" data-guardar-sellos ${cliPend < 1 || cliOcupado ? "disabled" : ""}>${cliPend ? `Guardar ${cliPend} sello${cliPend === 1 ? "" : "s"}` : "Elegí cuántos sellos agregar"}</button>
+        <p class="nota">Podés corregir con − antes de guardar. Una vez guardados, los sellos ya no se pueden quitar.</p>`}
+      <div class="fila-btn"><button class="btn sm" type="button" data-cerrar-ficha>Listo, otro cliente</button></div></div>`;
+  }
+  if (cliNuevo) {
+    const msj = `¡Hola ${cliNuevo.nombre.split(" ")[0]}! 🏛️ Esta es tu tarjeta de sellos de ${D.negocio.nombre}. Abrila y guardala en tu pantalla de inicio:\n${Tarjetas.link(cliNuevo.token)}`;
+    h += `<div class="grupo"><b>${cliNuevo.existia ? "Esa cédula ya tenía tarjeta" : "Tarjeta creada"}</b><div class="compartir"><div class="qr" id="qrNuevo"></div>
+      <div style="display:grid;gap:8px"><span><b>${esc(cliNuevo.nombre)}</b> ya tiene su tarjeta.</span>
+        <span class="nota">Mandale el link para que vea su QR y sus sellos. Lo puede guardar en la pantalla de inicio de su celular.</span>
+        <div class="fila-btn">${cliNuevo.tel ? `<a class="btn sm verde" target="_blank" rel="noopener" href="https://wa.me/506${cliNuevo.tel}?text=${encodeURIComponent(msj)}">Enviar por WhatsApp</a>` : ""}
+          <button class="btn sm" type="button" data-copiar-link="${esc(Tarjetas.link(cliNuevo.token))}">Copiar link</button></div></div></div></div>`;
+  }
+  h += `<div class="grupo"><b>Registrar cliente nuevo</b>
+      <label class="c">Nombre completo<input id="rNom" maxlength="60" autocomplete="off" placeholder="Ej.: Daniela Mora"></label>
+      <label class="c">Cédula<input id="rCed" inputmode="numeric" maxlength="15" autocomplete="off" placeholder="Ej.: 1 1234 5678"></label>
+      <label class="c">Celular para mandarle el QR (opcional)<input id="rTel" inputmode="tel" maxlength="12" autocomplete="off" placeholder="Ej.: 8888 7777"></label>
+      <p class="err" id="rErr"></p><div><button class="btn pri" type="button" data-registrar ${cliOcupado ? "disabled" : ""}>Crear tarjeta y QR</button></div>
+      <p class="nota">De la cédula solo se guardan los últimos 4 dígitos y una huella para poder buscarla.</p></div>`;
+  if (recientes.length) h += `<div class="grupo"><b>Vistos en este celular</b>${recientes.map(r => `<div class="cli"><span><b>${esc(r.nombre)}</b></span><button class="btn sm" type="button" data-ficha="${esc(r.token)}">Abrir</button></div>`).join("")}</div>`;
+  return h;
+}
+/* Escáner de QR con la cámara (dentro de la página) */
+let camStream = null, camLoop = 0;
+function cerrarCamara() { cancelAnimationFrame(camLoop); if (camStream) camStream.getTracks().forEach(t => t.stop()); camStream = null; }
+async function abrirCamara() {
+  abrirHoja(`<div class="asa"></div><button class="x" type="button" data-cerrar-cam aria-label="Cerrar">×</button>
+    <h2 id="hojaT">Escanear QR</h2><p class="nota" style="margin-top:4px">Apuntá al QR de la tarjeta del cliente.</p>
+    <div class="camara"><video id="cam" playsinline muted></video></div><p class="err" id="camErr" style="text-align:center;margin-top:10px"></p>
+    <div style="text-align:center"><button class="btn sm" type="button" data-cerrar-cam>Volver</button></div>`);
+  try {
+    camStream = await navigator.mediaDevices.getUserMedia({video: {facingMode: "environment"}, audio: false});
+    const v = $("#cam"); v.srcObject = camStream; await v.play();
+    const det = "BarcodeDetector" in window ? new BarcodeDetector({formats: ["qr_code"]}) : null;
+    const cv = document.createElement("canvas"), cx = cv.getContext("2d", {willReadFrequently: true});
+    const paso = async () => {
+      if (!camStream) return;
+      let txt = null;
+      try {
+        if (det) { const r = await det.detect(v); if (r[0]) txt = r[0].rawValue; }
+        else if (v.videoWidth) { cv.width = v.videoWidth; cv.height = v.videoHeight; cx.drawImage(v, 0, 0); const img = cx.getImageData(0, 0, cv.width, cv.height); const r = jsQR(img.data, img.width, img.height); if (r) txt = r.data; }
+      } catch {}
+      const token = txt && Tarjetas.tokenDeTexto(txt);
+      if (token) { cerrarCamara(); if (navigator.vibrate) navigator.vibrate(80); cliNuevo = null; abrirFicha(token); return; }
+      if (txt) $("#camErr").textContent = "Ese QR no es una tarjeta de sellos.";
+      camLoop = requestAnimationFrame(paso);
+    };
+    paso();
+  } catch { if ($("#camErr")) $("#camErr").textContent = "No se pudo abrir la cámara. Dale permiso al navegador, o buscá al cliente por su cédula."; }
+}
+
+/* ===== Panel de la dueña ===== */
+let tabAdm = "prod";
+let fichaPendiente = null;
+function pintarAdmin() {
+  _pintarAdmin();
+  if (admin && tabAdm === "cli" && cliNuevo) dibujarQR($("#qrNuevo"), Tarjetas.link(cliNuevo.token), 180);
+}
+function _pintarAdmin() {
+  if (!admin) {
+    abrirHoja(`<div class="asa"></div><button class="x" type="button" data-cerrar aria-label="Cerrar">×</button>
+      <h2 id="hojaT">Administrar menú</h2><p class="nota" style="margin-top:6px">Aquí se cambian precios, se marca lo agotado y se agregan cócteles nuevos.</p>
+      <div class="grupo"><label class="c">Contraseña<input id="aClave" type="password" autocomplete="current-password"></label><p class="err" id="aErr"></p>
+      <button class="btn pri" type="button" data-entrar>Entrar</button>
+      <p class="nota">Versión de prueba · contraseña: <b style="user-select:all">${CLAVE_DEMO}</b></p></div>`);
+    return;
+  }
+  const tabs = `<div class="tabs"><button type="button" data-tab="cli" aria-pressed="${tabAdm === "cli"}">Sellos clientes</button><button type="button" data-tab="prod" aria-pressed="${tabAdm === "prod"}">Productos</button><button type="button" data-tab="neg" aria-pressed="${tabAdm === "neg"}">Negocio</button></div>`;
+  let cuerpo;
+  if (tabAdm === "cli") {
+    cuerpo = vistaSellos();
+  } else
+  if (tabAdm === "prod") {
+    cuerpo = D.productos.map(p => `<div class="adm"><b>${esc(p.nombre)} <small style="color:var(--suave);font-weight:600">· ${CATS.find(c => c[0] === p.cat)?.[1] || ""}</small></b>
+      <input type="number" min="0" step="100" value="${p.precio}" data-precio="${p.id}" aria-label="Precio de ${esc(p.nombre)}">
+      <div class="flags"><label><input type="checkbox" data-flag="agotado" data-id="${p.id}" ${p.agotado ? "checked" : ""}> Agotado hoy</label>
+        <label><input type="checkbox" data-flag="nuevo" data-id="${p.id}" ${p.nuevo ? "checked" : ""}> Nuevo</label>
+        <label><input type="checkbox" data-flag="oculto" data-id="${p.id}" ${p.oculto ? "checked" : ""}> Ocultar</label>
+        <button type="button" data-borrar="${p.id}">Borrar</button></div></div>`).join("")
+      + `<div class="grupo"><b>Agregar producto</b>
+        <label class="c">Nombre<input id="nNom" maxlength="40" placeholder="Ej.: Narciso"></label>
+        <label class="c">Ingredientes<input id="nDesc" maxlength="120" placeholder="Ej.: Limón, soda, Cacique y sal"></label>
+        <label class="c">Categoría<select id="nCat">${CATS.map(([k, l]) => `<option value="${k}">${l}</option>`).join("")}</select></label>
+        <label class="c">Precio (₡)<input id="nPre" type="number" min="0" step="100" value="3500"></label>
+        <p class="nota">El color del vaso sale solo de los ingredientes.</p>
+        <p class="err" id="nErr"></p><button class="btn pri" type="button" data-nuevo>Agregar al menú</button></div>`;
+  } else {
+    const n = D.negocio;
+    cuerpo = `<div class="grupo"><label class="c">Nombre<input id="gNom" maxlength="40" value="${esc(n.nombre)}"></label>
+      <label class="c">Frase<input id="gLema" maxlength="80" value="${esc(n.lema)}"></label>
+      <label class="c">WhatsApp para pedidos<input id="gWa" inputmode="tel" maxlength="20" value="${esc(n.whatsapp)}"></label>
+      <label class="c">Promo de los días sin promo especial<input id="gPromo" maxlength="120" value="${esc(n.promoGeneral || "")}"></label>
+      <b style="font-size:14px;color:var(--suave);text-transform:uppercase;letter-spacing:.04em">Horario (vacío = cerrado)</b>
+      ${n.horario.map(([d, a, b], i) => `<div style="display:grid;grid-template-columns:96px 1fr 1fr;gap:8px;align-items:center"><span>${d}</span>
+        <label class="c"><input data-h="${i}:1" value="${a}" placeholder="8:00" aria-label="${d} abre"></label><label class="c"><input data-h="${i}:2" value="${b}" placeholder="19:00" aria-label="${d} cierra"></label></div>`).join("")}
+      <button class="btn pri" type="button" data-gneg>Guardar cambios</button>
+      <button class="btn sm" type="button" data-reset>Volver a los datos de ejemplo</button></div>`;
+  }
+  abrirHoja(`<div class="asa"></div><button class="x" type="button" data-cerrar aria-label="Cerrar">×</button>
+    <h2 id="hojaT">Administrar menú</h2><p class="nota">${tabAdm === "cli" ? "Las tarjetas se guardan en la nube: el cliente ve sus sellos al instante." : "En la demo, los cambios del menú se guardan solo en este celular."} <button type="button" data-salir style="border:0;background:none;color:var(--fucsia2);text-decoration:underline;cursor:pointer">Salir</button></p>${tabs}${cuerpo}`);
+}
+
+/* ===== Acciones ===== */
+let tAviso; function aviso(t) { const el = $("#toast"); el.textContent = t; el.classList.add("on"); clearTimeout(tAviso); tAviso = setTimeout(() => el.classList.remove("on"), 2400); }
+document.addEventListener("click", async e => {
+  const b = e.target.closest("button,[data-cat]"); if (!b) return;
+  if (b.dataset.cat) { catSel = b.dataset.cat; pintarCats(); pintarMenu(); return; }
+  if (b.dataset.p) { const p = D.productos.find(x => x.id === b.dataset.p); if (!p || p.agotado) return;
+    arm = {id: p.id, tam: p.tamanos ? p.tamanos[0][0] : "", marca: p.marcas ? p.marcas[0] : "", licor: "Con licor", hielo: "Hielo normal", extras: [], cant: 1}; pintarArmar(); return; }
+  if (b.hasAttribute("data-cerrar")) return cerrarHoja();
+  if (b.dataset.op) { const k = b.dataset.op, v = b.dataset.v;
+    if (b.dataset.multi) arm[k] = arm[k].includes(v) ? arm[k].filter(x => x !== v) : [...arm[k], v]; else arm[k] = v;
+    const sc = $("#hoja").scrollTop; pintarArmar(); $("#hoja").scrollTop = sc; return; }
+  if (b.dataset.cant) { arm.cant = Math.max(1, Math.min(20, arm.cant + +b.dataset.cant)); const sc = $("#hoja").scrollTop; pintarArmar(); $("#hoja").scrollTop = sc; return; }
+  if (b.hasAttribute("data-agregar")) { const p = D.productos.find(x => x.id === arm.id);
+    pedido.push({...arm, nombre: p.nombre, total: precioArm()}); guardarP(); cerrarHoja(); aviso(`${p.nombre} agregado a tu pedido`); return; }
+  if (b.id === "carrito") return pintarPedido();
+  if (b.dataset.quitar !== undefined) { pedido.splice(+b.dataset.quitar, 1); guardarP(); pintarPedido(); return; }
+  if (b.hasAttribute("data-enviar")) {
+    const nom = $("#pNom").value.trim();
+    if (nom.length < 2) { $("#pErr").textContent = "Escribí tu nombre para llamarte cuando esté listo."; $("#pNom").focus(); return; }
+    lsSet("kk-nombre", nom);
+    const total = pedido.reduce((a, it) => a + it.total, 0);
+    const lineas = [`Hola ${D.negocio.nombre} 🏛️ quiero pedir para recoger:`, ...pedido.map(it => `• ${it.cant} × ${it.nombre}${detalle(it) ? ` (${detalle(it)})` : ""} — ${crc(it.total)}`),
+      `Total: ${crc(total)}`, `A nombre de: ${nom}`, `Paso a las: ${$("#pHora").value}`];
+    if ($("#pNota").value.trim()) lineas.push(`Nota: ${$("#pNota").value.trim()}`);
+    const url = `https://wa.me/${String(D.negocio.whatsapp).replace(/\D/g, "")}?text=${encodeURIComponent(lineas.join("\n"))}`;
+    const a = $("#waLink"); a.href = url; a.hidden = false; try { a.click(); } catch {}
+    pedido = []; guardarP(); aviso(miToken ? "¡Pedido listo! Mostrá tu QR al recoger para sumar sellos" : "¡Pedido listo!");
+    return;
+  }
+  if (b.id === "abrirAdmin") return pintarAdmin();
+  if (b.hasAttribute("data-entrar")) { if ($("#aClave").value === CLAVE_DEMO) { admin = true; lsSet("kk-admin", true);
+      if (fichaPendiente) { const t = fichaPendiente; fichaPendiente = null; abrirFicha(t); } else pintarAdmin(); } else $("#aErr").textContent = "Contraseña incorrecta."; return; }
+  if (b.hasAttribute("data-salir")) { admin = false; lsSet("kk-admin", false); cerrarHoja(); aviso("Sesión cerrada"); return; }
+  if (b.hasAttribute("data-escanear")) { abrirCamara(); return; }
+  if (b.hasAttribute("data-cerrar-cam")) { cerrarCamara(); tabAdm = "cli"; pintarAdmin(); return; }
+  if (b.dataset.ficha) { cliNuevo = null; abrirFicha(b.dataset.ficha); return; }
+  if (b.hasAttribute("data-cerrar-ficha")) { if (cliUnsub) { cliUnsub(); cliUnsub = null; } cli = null; cliPend = 0; cliMsg = ""; cliNuevo = null; pintarAdmin(); return; }
+  if (b.dataset.pend) { const libres = cli ? 10 - cli.sellos : 0; cliPend = Math.max(0, Math.min(libres, cliPend + +b.dataset.pend)); const sc = $("#hoja").scrollTop; pintarAdmin(); $("#hoja").scrollTop = sc; return; }
+  if (b.hasAttribute("data-guardar-sellos")) {
+    if (!cli || cliPend < 1) return; const n = cliPend, nombre = cli.nombre, token = cli.token; cliOcupado = true; pintarAdmin();
+    try { const total = await Tarjetas.sumar(token, n); cliPend = 0; aviso(total >= 10 ? `${nombre} completó su tarjeta: le toca una cóctel gratis` : `Listo: ${n} sello${n === 1 ? "" : "s"} para ${nombre} (${total} de 10)`); }
+    catch { aviso("No se pudo guardar. Revisá la conexión e intentá de nuevo."); }
+    cliOcupado = false; pintarAdmin(); return;
+  }
+  if (b.hasAttribute("data-canjear")) {
+    if (!cli) return; const nombre = cli.nombre; cliOcupado = true; pintarAdmin();
+    try { await Tarjetas.canjear(cli.token); aviso(`Bebida gratis canjeada para ${nombre}. La tarjeta vuelve a cero.`); } catch { aviso("No se pudo canjear. Revisá la conexión."); }
+    cliOcupado = false; pintarAdmin(); return;
+  }
+  if (b.hasAttribute("data-buscar")) {
+    const ced = Tarjetas.soloDigitos($("#sCed").value);
+    if (ced.length < 9) { cliMsg = "Escribí la cédula completa (9 dígitos o más)."; pintarAdmin(); return; }
+    cliMsg = ""; b.disabled = true;
+    try { const t = await Tarjetas.buscarPorCedula(ced); if (t) { cliNuevo = null; abrirFicha(t); } else { cli = null; cliMsg = "No hay ninguna tarjeta con esa cédula. Podés registrarla abajo."; pintarAdmin(); } }
+    catch { cliMsg = "No se pudo buscar. Revisá la conexión."; pintarAdmin(); }
+    return;
+  }
+  if (b.hasAttribute("data-registrar")) {
+    const nombre = $("#rNom").value.trim(), ced = Tarjetas.soloDigitos($("#rCed").value), tel = Tarjetas.soloDigitos($("#rTel").value);
+    if (nombre.length < 2) { $("#rErr").textContent = "Escribí el nombre del cliente."; $("#rNom").focus(); return; }
+    if (ced.length < 9) { $("#rErr").textContent = "Escribí la cédula completa (9 dígitos o más)."; $("#rCed").focus(); return; }
+    if (tel && tel.length !== 8) { $("#rErr").textContent = "El celular debe tener 8 dígitos, o dejalo vacío."; $("#rTel").focus(); return; }
+    cliOcupado = true; b.disabled = true;
+    try { const r = await Tarjetas.crear({nombre, cedula: ced}); cliNuevo = {token: r.token, nombre, tel, existia: r.existia}; cliOcupado = false; abrirFicha(r.token); aviso(r.existia ? "Esa cédula ya tenía tarjeta" : "Tarjeta creada"); }
+    catch { cliOcupado = false; $("#rErr").textContent = "No se pudo crear la tarjeta. Revisá la conexión."; b.disabled = false; }
+    return;
+  }
+  if (b.dataset.copiarLink) { const l = b.dataset.copiarLink; try { await navigator.clipboard.writeText(l); aviso("Link copiado"); } catch { aviso(l); } return; }
+  if (b.dataset.tab) { tabAdm = b.dataset.tab; pintarAdmin(); return; }
+  if (b.dataset.borrar) { D.productos = D.productos.filter(p => p.id !== b.dataset.borrar); guardarD(); pintarMenu(); pintarAdmin(); aviso("Producto borrado"); return; }
+  if (b.hasAttribute("data-nuevo")) {
+    const nombre = $("#nNom").value.trim(); if (!nombre) { $("#nErr").textContent = "Escribí el nombre del producto."; return; }
+    const cat = $("#nCat").value;
+    const p = {id: "p" + Date.now().toString(36), cat, nombre, desc: $("#nDesc").value.trim(), precio: +$("#nPre").value || 0, nuevo: true};
+    if (cat === "casa") p.kit = true;
+    D.productos.push(p); guardarD(); pintarMenu(); pintarAdmin(); aviso(`${nombre} ya está en el menú`); return;
+  }
+  if (b.hasAttribute("data-gneg")) {
+    const n = D.negocio; n.nombre = $("#gNom").value.trim() || n.nombre; n.lema = $("#gLema").value.trim(); n.whatsapp = $("#gWa").value.trim(); n.promoGeneral = $("#gPromo").value.trim();
+    document.querySelectorAll("[data-h]").forEach(i => { const [d, k] = i.dataset.h.split(":"); n.horario[+d][+k] = i.value.trim(); });
+    guardarD(); pintarMenu(); pintarHorario(); aviso("Cambios guardados"); return;
+  }
+  if (b.hasAttribute("data-reset")) { D = JSON.parse(JSON.stringify(BASE)); guardarD(); pintarMenu(); pintarHorario(); pintarAdmin(); aviso("Datos de ejemplo restaurados"); return; }
+});
+document.addEventListener("change", e => {
+  const t = e.target;
+  if (t.dataset.precio) { const p = D.productos.find(x => x.id === t.dataset.precio); p.precio = Math.max(0, +t.value || 0); guardarD(); pintarMenu(); aviso("Precio actualizado"); }
+  if (t.dataset.flag) { const p = D.productos.find(x => x.id === t.dataset.id); p[t.dataset.flag] = t.checked; guardarD(); pintarMenu(); }
+});
+
+/* ===== Arranque ===== */
+const q = encodeURIComponent("Estación del tren al Atlántico, Barrio La California, San José, Costa Rica");
+// Aviso de mayoría de edad (bebidas con licor)
+if (!lsGet("kk-mayor", false)) { $("#edad").hidden = false; }
+$("#soyMayor").addEventListener("click", () => { lsSet("kk-mayor", true); $("#edad").hidden = true; });
+$("#maps").href = `https://www.google.com/maps/search/?api=1&query=${q}`;
+$("#waze").href = `https://waze.com/ul?q=${q}&navigate=yes`;
+pintarCats(); pintarMenu(); pintarHorario(); pintarCarrito(); pintarSellos();
+// #sellos-TOKEN: la dueña escaneó con la cámara normal del celular y tocó "Sumar sellos" en la tarjeta del cliente.
+function leerHash() {
+  const m = location.hash.match(/^#sellos-([a-z0-9]{16,40})$/i);
+  if (!m) return;
+  history.replaceState(null, "", location.pathname + location.search);
+  if (admin) abrirFicha(m[1].toLowerCase()); else { fichaPendiente = m[1].toLowerCase(); pintarAdmin(); }
+}
+leerHash(); addEventListener("hashchange", leerHash);
+setInterval(pintarHorario, 60000);
+})();
+</script>
+</body>
+</html>
