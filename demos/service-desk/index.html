@@ -1,0 +1,1052 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<style>:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;padding:0}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
+</head>
+<body>
+<title>RBM Service Desk</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+/* Layout: consola de soporte — riel de navegación a la izquierda (barra inferior en teléfono), tablero arriba, catálogo de servicios en columnas para crear casos y página de caso con conversación al centro y participantes a la derecha. */
+:root{
+  --bg:#0b1018; --panel:#121a26; --panel2:#18222f; --panel3:#1e2a3a; --line:rgba(140,170,210,.14); --line2:rgba(140,170,210,.26);
+  --fg:#e8eef6; --muted:#8fa0b5; --accent:#3b7bff; --accent-fg:#ffffff; --accent2:#7cc4ff;
+  --ok:#3fbf86; --warn:#e8a93a; --bad:#ef6a6a; --violet:#a497ff; --shadow:0 20px 60px -20px rgba(0,0,0,.7);
+  --f-disp:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --f-txt:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  --gl:max(16px,env(safe-area-inset-left,0px)); --gr:max(16px,env(safe-area-inset-right,0px));
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]){
+  --bg:#f2f5f9; --panel:#ffffff; --panel2:#eef2f7; --panel3:#e4eaf2; --line:rgba(20,40,80,.11); --line2:rgba(20,40,80,.2);
+  --fg:#0f1a2a; --muted:#5a6b80; --accent:#2563eb; --accent-fg:#ffffff; --accent2:#0b7fc9;
+  --ok:#17905c; --warn:#b06f12; --bad:#cf3f3f; --violet:#6352e0; --shadow:0 20px 50px -24px rgba(15,30,60,.35);
+  color-scheme:light}}
+:root[data-theme="light"]{
+  --bg:#f2f5f9; --panel:#ffffff; --panel2:#eef2f7; --panel3:#e4eaf2; --line:rgba(20,40,80,.11); --line2:rgba(20,40,80,.2);
+  --fg:#0f1a2a; --muted:#5a6b80; --accent:#2563eb; --accent-fg:#ffffff; --accent2:#0b7fc9;
+  --ok:#17905c; --warn:#b06f12; --bad:#cf3f3f; --violet:#6352e0; --shadow:0 20px 50px -24px rgba(15,30,60,.35);
+  color-scheme:light}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--fg);font:400 14.5px/1.5 var(--f-txt);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:40;background:var(--bg)}
+button,input,select,textarea{font:inherit;color:inherit}
+h1,h2,h3{font-family:var(--f-disp);margin:0;line-height:1.15;text-wrap:balance}
+p{margin:0}
+a{color:var(--accent2)}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.oculto{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+:focus-visible{outline:2px solid var(--accent2);outline-offset:2px;border-radius:6px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+
+/* estructura */
+.app{display:grid;grid-template-columns:220px minmax(0,1fr);min-height:100%}
+.rail{position:sticky;top:env(safe-area-inset-top,0px);height:calc(100vh - env(safe-area-inset-top,0px));display:flex;flex-direction:column;gap:6px;padding:18px 12px;border-right:1px solid var(--line);background:var(--panel)}
+.brand{display:flex;align-items:center;gap:10px;padding:4px 8px 18px}
+.logo{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font:800 13px var(--f-disp);letter-spacing:.02em}
+.brand b{display:block;font:800 16px var(--f-disp)}
+.brand small{display:block;color:var(--muted);font-size:12px}
+.nav{display:flex;flex-direction:column;gap:4px}
+.nav a{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;color:var(--muted);text-decoration:none;font-weight:600}
+.nav a svg{width:19px;height:19px;flex:none}
+.nav a:hover{color:var(--fg);background:var(--panel2)}
+.nav a[aria-current="page"]{color:var(--fg);background:var(--panel2);box-shadow:inset 0 0 0 1px var(--line2)}
+.nav a .n{margin-left:auto;font:500 12px var(--f-mono);color:var(--muted)}
+.rail .pie{margin-top:auto;font-size:12px;color:var(--muted);padding:8px}
+
+.main{min-width:0;display:flex;flex-direction:column}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;display:flex;align-items:center;gap:12px;padding:12px var(--gr) 12px var(--gl);background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.top h1{font-size:13px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;white-space:nowrap;font-family:var(--f-txt)}
+.top .emp{color:var(--muted);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.buscar{flex:1;min-width:0;max-width:460px;margin-left:auto;position:relative}
+.buscar input{width:100%;padding:9px 12px 9px 34px;border-radius:10px;border:1px solid var(--line);background:var(--panel);outline:0}
+.buscar input:focus{border-color:var(--accent)}
+.buscar svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--muted)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:1px solid var(--line2);background:var(--panel2);padding:9px 14px;border-radius:10px;font-weight:700;cursor:pointer;white-space:nowrap;text-decoration:none;color:var(--fg)}
+.btn:hover{border-color:var(--accent)}
+.btn svg{width:16px;height:16px;flex:none}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+.btn.pri:hover{filter:brightness(1.08)}
+.btn.verde{background:var(--ok);border-color:var(--ok);color:#06210f}
+.btn.peligro{color:var(--bad);border-color:color-mix(in srgb,var(--bad) 45%,transparent);background:transparent}
+.btn.sm{padding:6px 10px;font-size:13px;border-radius:8px}
+.btn.fant{background:transparent;border-color:transparent;color:var(--muted)}
+.btn.fant:hover{color:var(--fg);border-color:var(--line2)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+
+.vista{padding:20px var(--gr) 40px var(--gl);display:grid;gap:18px;align-content:start}
+.aviso{display:flex;gap:10px;align-items:flex-start;padding:10px 14px;border-radius:12px;border:1px dashed var(--line2);color:var(--muted);font-size:13.5px}
+.aviso b{color:var(--fg)}
+
+/* tablero */
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px 18px;min-width:0}
+.card h2{font-size:15px;font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.card h2 small{margin-left:auto;font:500 12px var(--f-txt);color:var(--muted)}
+.kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px 16px;display:grid;gap:4px;min-width:0;cursor:pointer;text-align:left}
+.kpi:hover{border-color:var(--line2)}
+.kpi span{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.kpi b{font:800 34px/1.05 var(--f-disp);font-variant-numeric:tabular-nums}
+.kpi small{font-size:12.5px;color:var(--muted)}
+.kpi.alerta b{color:var(--bad)}
+.kpi.bien b{color:var(--ok)}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:18px}
+.grid3{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px}
+.barras{display:grid;gap:10px}
+.fila-b{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;align-items:center;font-size:14px}
+.fila-b .pista{grid-column:1/-1;height:6px;border-radius:99px;background:var(--panel2);overflow:hidden}
+.fila-b .pista i{display:block;height:100%;border-radius:99px;background:var(--accent)}
+.fila-b b{font:500 13px var(--f-mono)}
+.vacio-mini{color:var(--muted);font-size:13.5px;padding:8px 0}
+svg.graf{width:100%;height:auto;display:block}
+svg.graf text{fill:var(--muted);font:500 11px var(--f-mono)}
+svg.graf .val{fill:var(--fg)}
+svg.graf .rejilla{stroke:var(--line);stroke-width:1}
+svg.graf .bar{fill:var(--accent)}
+svg.graf .bar.ult{fill:var(--accent2)}
+
+/* lista */
+.filtros{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.chip{border:1px solid var(--line);background:var(--panel);padding:6px 12px;border-radius:99px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer}
+.chip[aria-pressed="true"]{color:var(--fg);border-color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,var(--panel))}
+.chip .c{font:500 12px var(--f-mono);margin-left:4px}
+.sel{padding:6px 10px;border-radius:10px;border:1px solid var(--line);background:var(--panel);font-size:13px;font-weight:600}
+.filtros .der{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+.tabla-w{overflow-x:auto;border:1px solid var(--line);border-radius:16px;background:var(--panel)}
+table{width:100%;border-collapse:collapse;min-width:780px}
+th{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:left;font-weight:600;padding:12px 14px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:middle}
+tbody tr{cursor:pointer}
+tbody tr:hover td{background:var(--panel2)}
+tbody tr:last-child td{border-bottom:0}
+td.as{max-width:380px}
+td.as b{display:block;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+td.as small{color:var(--muted);font-size:12.5px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.num{font:500 13px var(--f-mono);color:var(--muted);white-space:nowrap}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;padding:3px 10px;border-radius:99px;white-space:nowrap}
+.pill::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.e-0{color:var(--accent2);background:color-mix(in srgb,var(--accent2) 13%,transparent)}
+.e-1{color:var(--violet);background:color-mix(in srgb,var(--violet) 14%,transparent)}
+.e-2{color:var(--warn);background:color-mix(in srgb,var(--warn) 14%,transparent)}
+.e-3{color:var(--ok);background:color-mix(in srgb,var(--ok) 14%,transparent)}
+.e-4{color:var(--muted);background:color-mix(in srgb,var(--muted) 14%,transparent)}
+.prio{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;white-space:nowrap}
+.prio i{width:4px;height:16px;border-radius:2px;background:currentColor}
+.p-Crítica{color:var(--bad)} .p-Alta{color:var(--warn)} .p-Media{color:var(--accent2)} .p-Baja{color:var(--muted)}
+.venc{font-size:11.5px;font-weight:700;color:var(--bad);border:1px solid color-mix(in srgb,var(--bad) 40%,transparent);border-radius:6px;padding:1px 6px;margin-left:6px;white-space:nowrap}
+.ej{font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border:1px solid var(--line2);border-radius:5px;padding:0 5px;margin-left:6px}
+.sin{color:var(--muted);font-style:italic}
+.tarjetas{display:none;gap:10px}
+.tk{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:grid;gap:8px;cursor:pointer;text-align:left;width:100%;text-decoration:none;color:var(--fg)}
+.tk .r{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.tk b{font-weight:600}
+.tk small{color:var(--muted);font-size:12.5px}
+.vacio{display:grid;place-items:center;text-align:center;gap:12px;padding:48px 20px;border:1px dashed var(--line2);border-radius:18px;background:var(--panel)}
+.vacio h2{font-size:22px}
+.vacio p{color:var(--muted);max-width:48ch}
+.vacio .acc{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+
+/* catálogo para crear */
+.catalogo{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:26px 26px 30px;display:grid;gap:22px}
+.catalogo .cab{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap}
+.catalogo h2{font:600 clamp(22px,3vw,28px) var(--f-disp)}
+.catalogo .cab a{margin-left:auto;font-weight:600;font-size:14px;cursor:pointer}
+.bcat{position:relative}
+.bcat input{width:100%;padding:13px 14px 13px 42px;border-radius:12px;border:1px solid var(--line2);background:var(--panel2);outline:0;font-size:15px}
+.bcat input:focus{border-color:var(--accent)}
+.bcat svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:18px;height:18px;color:var(--muted)}
+.cols{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid var(--line)}
+.col{padding:18px 16px 4px;border-right:1px solid var(--line);min-width:0;display:flex;flex-direction:column;gap:10px}
+.col:last-child{border-right:0}
+.col h3{font:600 17px var(--f-disp);color:var(--muted);display:flex;gap:8px;align-items:center}
+.col h3.act{color:var(--fg)}
+.col .d{color:var(--muted);font-size:13.5px}
+.col ul{list-style:none;margin:0;padding:0;display:grid}
+.col li button{width:100%;text-align:left;border:0;border-bottom:1px solid var(--line);background:none;padding:10px 12px;cursor:pointer;display:flex;align-items:center;gap:10px;font-size:14px;color:var(--fg)}
+.col li button:hover{background:var(--panel2)}
+.col li button[aria-current="true"]{background:var(--panel3);font-weight:700}
+.col li button .fl{margin-left:auto;color:var(--muted);font-size:13px}
+.col li button i{width:8px;height:8px;border-radius:2px;background:var(--line2);flex:none}
+.col li button[aria-current="true"] i{background:var(--accent2)}
+.final{display:grid;gap:14px;align-content:start}
+.final h3{color:var(--accent2)}
+.final .ruta{color:var(--muted);font-size:13px}
+.resultados{display:grid;gap:6px}
+.resultados button{text-align:left;border:1px solid var(--line);background:var(--panel2);border-radius:10px;padding:10px 14px;cursor:pointer;display:grid;gap:2px}
+.resultados button:hover{border-color:var(--accent)}
+.resultados small{color:var(--muted);font-size:12.5px}
+
+/* formulario de creación */
+.migas{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:13.5px;color:var(--muted)}
+.migas button{border:0;background:none;color:var(--muted);cursor:pointer;padding:0;font-weight:600}
+.migas button:hover{color:var(--accent2)}
+.migas b{color:var(--fg)}
+.forma{background:var(--panel);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.forma .banda{padding:14px 20px;border-bottom:1px solid var(--line);font-weight:700;background:var(--panel2)}
+.forma .sec{padding:18px 20px;display:grid;gap:16px;border-bottom:1px solid var(--line)}
+.fila{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));align-items:end}
+label.campo{display:grid;gap:6px;font-size:12px;font-weight:600;letter-spacing:.04em;color:var(--muted)}
+label.campo input,label.campo select,label.campo textarea,.ctl{font-size:14.5px;font-weight:500;color:var(--fg);padding:9px 11px;border-radius:10px;border:1px solid var(--line2);background:var(--panel2);outline:0;width:100%;min-width:0;letter-spacing:0}
+label.campo textarea{resize:vertical;min-height:150px;line-height:1.55}
+label.campo input:focus,label.campo select:focus,label.campo textarea:focus,.ctl:focus{border-color:var(--accent)}
+.seg{display:flex;flex-wrap:wrap;border:1px solid var(--line2);border-radius:10px;overflow:hidden;width:max-content;max-width:100%}
+.seg button{border:0;border-right:1px solid var(--line2);background:var(--panel2);padding:8px 12px;font-size:13px;font-weight:600;cursor:pointer;color:var(--muted)}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-fg)}
+.asig{border:1px solid var(--line2);border-radius:14px;padding:14px 16px;display:grid;gap:12px;background:var(--panel2)}
+.asig .t{font-size:13px;font-weight:700;color:var(--muted)}
+.asig label.campo select{background:var(--panel)}
+.info{display:flex;gap:10px;align-items:flex-start;border:1px solid color-mix(in srgb,var(--accent) 50%,transparent);background:color-mix(in srgb,var(--accent) 9%,transparent);border-radius:12px;padding:12px 14px;font-size:13.5px}
+.pie-f{display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;padding:16px 20px}
+.error{color:var(--bad);font-size:13.5px}
+
+/* página del caso */
+.caso{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:18px;align-items:start}
+.caso-main{background:var(--panel);border:1px solid var(--line);border-radius:18px;overflow:hidden;min-width:0}
+.barra{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--line);background:var(--panel2)}
+.barra .estado{font-weight:700;padding:7px 10px;border-radius:9px;border:1px solid var(--line2);background:var(--panel)}
+.barra .der{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap}
+.cab-caso{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;padding:20px 22px 16px;align-items:start}
+.cab-caso h2{font-size:clamp(19px,2.4vw,24px);font-weight:600}
+.cab-caso .ruta{color:var(--muted);font-size:13.5px;margin-top:6px}
+.badge-num{display:grid;gap:2px;text-align:right;border:1px solid var(--line2);border-radius:12px;padding:8px 12px;background:var(--panel2)}
+.badge-num small{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.badge-num b{font:500 17px var(--f-mono);color:var(--accent2)}
+.datos-caso{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--panel2) 60%,var(--panel))}
+.dato{padding:12px 18px;border-right:1px solid var(--line);display:grid;gap:3px;min-width:0}
+.dato:nth-child(4n){border-right:0}
+.dato.ancho{grid-column:1/-1;border-top:1px solid var(--line);border-right:0}
+.dato small{font-size:11.5px;color:var(--muted);font-weight:600}
+.dato b{font-weight:700;overflow-wrap:anywhere}
+.dato select{border:0;background:transparent;font-weight:700;padding:0;cursor:pointer;color:var(--fg);max-width:100%}
+.medidor{height:5px;border-radius:99px;background:var(--panel3);overflow:hidden;margin-top:4px}
+.medidor i{display:block;height:100%;background:var(--ok)}
+.conv{padding:20px 22px 26px;display:grid;gap:18px}
+.msj{display:grid;grid-template-columns:44px minmax(0,1fr);gap:14px;align-items:start}
+.av{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font:700 13px var(--f-txt);color:#fff;flex:none}
+.av-wrap{display:grid;gap:6px;justify-items:center}
+.av-wrap small{font-size:9.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);border:1px solid var(--line2);border-radius:5px;padding:1px 4px}
+.burbuja{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:grid;gap:8px;min-width:0}
+.burbuja .q{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.burbuja .q b{font-weight:700}
+.burbuja .q .der{margin-left:auto;display:flex;gap:6px;align-items:center}
+.tag{font-size:10.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;border-radius:6px;padding:2px 7px;background:var(--panel3);color:var(--muted)}
+.tag.azul{background:var(--accent);color:var(--accent-fg)}
+.tag.amar{background:color-mix(in srgb,var(--warn) 22%,transparent);color:var(--warn)}
+.burbuja p{white-space:pre-wrap;overflow-wrap:anywhere}
+.burbuja.interna{background:color-mix(in srgb,var(--warn) 7%,var(--panel2));border-style:dashed;border-color:color-mix(in srgb,var(--warn) 40%,transparent)}
+.burbuja.agente{background:color-mix(in srgb,var(--accent) 8%,var(--panel2))}
+.composer{border:1px solid var(--line2);border-radius:14px;background:var(--panel2);overflow:hidden}
+.composer textarea{width:100%;border:0;background:transparent;padding:12px 14px;min-height:92px;resize:vertical;outline:0;line-height:1.5}
+.composer .rap{display:flex;flex-wrap:wrap;gap:6px;padding:0 10px 10px}
+.composer .rap button{border:1px solid var(--line2);background:var(--panel);border-radius:8px;padding:5px 10px;font-size:12.5px;font-weight:600;cursor:pointer;color:var(--fg)}
+.composer .rap button:hover{border-color:var(--accent)}
+.composer .rap button[aria-pressed="true"]{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,var(--panel))}
+.composer .pie{display:flex;align-items:center;gap:12px;padding:10px 12px;border-top:1px solid var(--line);flex-wrap:wrap}
+.composer .pie label{display:flex;gap:6px;align-items:center;font-size:13px;color:var(--muted);cursor:pointer;margin-left:auto}
+.composer .pie .ayuda{font-size:12.5px;color:var(--muted)}
+.separa{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.separa::before,.separa::after{content:"";height:1px;flex:1;background:var(--line)}
+.evento{display:grid;grid-template-columns:44px minmax(0,1fr);gap:14px;align-items:center;color:var(--muted);font-size:13.5px}
+.evento i{justify-self:center;width:8px;height:8px;border-radius:50%;background:var(--line2)}
+.evento span small{margin-left:8px;font-size:12px}
+
+.lado{display:grid;gap:14px;position:sticky;top:calc(70px + env(safe-area-inset-top,0px))}
+.lado .card{padding:0;overflow:hidden}
+.lado .card h2{margin:0;padding:12px 16px;border-bottom:1px solid var(--line);font-size:14px;background:var(--panel2)}
+.lado .cnt{padding:14px 16px;display:grid;gap:14px}
+.part{display:grid;grid-template-columns:40px minmax(0,1fr);gap:12px;align-items:center}
+.part b{display:block;font-weight:700;overflow-wrap:anywhere}
+.part small{color:var(--muted);font-size:12.5px}
+.part select{width:100%;margin-top:4px}
+.ic-mesa{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:var(--panel3);color:var(--muted)}
+.ic-mesa svg{width:20px;height:20px}
+.kv{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px 14px;font-size:13.5px}
+.kv dt{color:var(--muted)}
+.kv dd{margin:0;overflow-wrap:anywhere;text-align:right}
+.confirmar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:12px;border-radius:12px;background:color-mix(in srgb,var(--bad) 10%,transparent);border:1px solid color-mix(in srgb,var(--bad) 35%,transparent)}
+
+/* ajustes */
+.lista-ed{display:grid;gap:8px}
+.lista-ed .it{display:flex;align-items:center;gap:10px;padding:8px 10px 8px 14px;border:1px solid var(--line);border-radius:10px;background:var(--panel2)}
+.lista-ed .it span{flex:1;min-width:0;overflow-wrap:anywhere}
+.agregar{display:flex;gap:8px;margin-top:10px}
+.agregar input{flex:1;min-width:0;padding:9px 11px;border-radius:10px;border:1px solid var(--line2);background:var(--panel2);outline:0}
+.agregar input:focus{border-color:var(--accent)}
+.ayuda{color:var(--muted);font-size:13.5px}
+textarea.arbol{width:100%;min-height:340px;font:500 13px/1.6 var(--f-mono);padding:12px;border-radius:12px;border:1px solid var(--line2);background:var(--panel2);outline:0;resize:vertical;tab-size:2}
+textarea.arbol:focus{border-color:var(--accent)}
+
+.toast{position:fixed;z-index:80;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:12px;font-weight:600;opacity:0;pointer-events:none;transition:.2s;max-width:calc(100% - 32px)}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+
+@media (max-width:1180px){.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.caso{grid-template-columns:minmax(0,1fr)}.lado{position:static;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}}
+@media (max-width:980px){.grid2,.grid3{grid-template-columns:minmax(0,1fr)}.cols{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.col:nth-child(2){border-right:0}.col:nth-child(n+3){border-top:1px solid var(--line)}}
+@media (max-width:820px){
+  .app{grid-template-columns:minmax(0,1fr)}
+  .rail{position:fixed;top:auto;bottom:0;left:0;right:0;height:auto;z-index:30;flex-direction:row;padding:6px var(--gr) calc(6px + env(safe-area-inset-bottom,0px)) var(--gl);border-right:0;border-top:1px solid var(--line)}
+  .brand,.rail .pie{display:none}
+  .nav{flex-direction:row;flex:1;justify-content:space-around}
+  .nav a{flex-direction:column;gap:2px;font-size:11.5px;padding:6px 10px}
+  .nav a .n{display:none}
+  .vista{padding-bottom:110px}
+  .top{flex-wrap:wrap}
+  .buscar{order:3;flex-basis:100%;max-width:none}
+  .top .btn.pri{margin-left:auto}
+  .tabla-w{display:none}
+  .tarjetas{display:grid}
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .datos-caso{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .dato:nth-child(2n){border-right:0}
+  .dato:nth-child(n+3){border-top:1px solid var(--line)}
+  .toast{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+  .catalogo{padding:18px 16px 20px}
+}
+@media (max-width:560px){.cols{grid-template-columns:minmax(0,1fr)}.col{border-right:0}.col+.col{border-top:1px solid var(--line)}.cab-caso{grid-template-columns:minmax(0,1fr)}.badge-num{text-align:left;width:max-content}.msj,.evento{grid-template-columns:34px minmax(0,1fr);gap:10px}.av{width:32px;height:32px;font-size:11px}}
+@media (max-width:420px){.top .emp{display:none}}
+</style>
+
+<div class="app">
+  <aside class="rail">
+    <div class="brand"><div class="logo">RBM</div><div><b>Service Desk</b><small>RBM Solutions IT</small></div></div>
+    <nav class="nav" aria-label="Secciones">
+      <a href="#tablero" data-r="tablero"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>Tablero</a>
+      <a href="#solicitudes" data-r="solicitudes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg>Solicitudes<span class="n" id="navN"></span></a>
+      <a href="#crear" data-r="crear"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>Crear</a>
+      <a href="#ajustes" data-r="ajustes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg>Ajustes</a>
+    </nav>
+    <div class="pie">Hecho por RBM Solutions IT<br>Heredia, Costa Rica</div>
+  </aside>
+
+  <div class="main">
+    <header class="top">
+      <h1 id="titulo">Tablero</h1>
+      <span class="emp" id="empresa"></span>
+      <div class="buscar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="q" type="search" placeholder="Buscar por número, asunto o solicitante" autocomplete="off">
+      </div>
+      <a class="btn pri" id="btnNueva" href="#crear"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Nueva solicitud</a>
+    </header>
+    <main class="vista" id="vista"></main>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(() => {
+"use strict";
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+const PRIORIDADES = {"Crítica":4, "Alta":8, "Media":24, "Baja":72};   // horas para resolver (SLA)
+const ESTADOS = ["Abierto","En proceso","Esperando al cliente","Resuelto","Cerrado"];
+const TIPOS = ["Incidente","Pedido de servicio","Pregunta","Problema"];
+const ORIGENES = ["Web","Teléfono","Correo","Chat","En persona"];
+const estIdx = e => Math.max(0, ESTADOS.indexOf(e));
+
+const CATALOGO_TXT = `Equipos y computadoras | Computadoras, laptops, monitores y periféricos
+  Computadora o laptop
+    Está lenta o se congela
+    No enciende
+    Pantalla o monitor
+    Teclado, mouse u otro periférico
+  Equipo nuevo
+    Solicitar un equipo
+    Configurar equipo nuevo
+  Respaldo de información
+Impresoras | Impresoras de oficina, etiquetas y tiquetes
+  Impresora de oficina
+    No imprime
+    Cambio de tóner o tinta
+    Atasco de papel
+  Instalar una impresora
+  Impresora de etiquetas
+Red e internet | Conexión, Wi-Fi y acceso remoto
+  Internet
+    Sin conexión
+    Conexión lenta
+  Wi-Fi
+  VPN o acceso remoto
+Correo y Office | Correo electrónico, Microsoft 365 y archivos compartidos
+  Correo
+    No puedo entrar
+    No envía o no recibe
+    Crear una cuenta
+  Office / Microsoft 365
+  Carpetas compartidas
+Colaboradores | Altas, bajas, permisos y contraseñas del personal
+  Nuevo colaborador
+  Permisos y accesos
+  Restablecer contraseña
+  Salida de colaborador
+  Traslado de área o departamento
+Sistemas | Facturación, contabilidad, planillas y otros programas
+  Facturación electrónica
+  Contabilidad
+  Planillas
+  Otro sistema
+Punto de venta | Cajas, datáfonos e impresoras de tiquetes
+  Caja o POS
+  Datáfono
+  Impresora de tiquetes
+Telefonía | Teléfonos fijos y celulares de la empresa
+  Teléfono fijo
+  Celular corporativo
+Otro | Lo que no encaje en las demás categorías
+  Consulta general`;
+
+/* ---------- catálogo (texto con sangría <-> árbol) ---------- */
+function parseCatalogo(txt) {
+  const raiz = []; const pila = [{nivel:-1, s:raiz}];
+  const lineas = txt.replace(/\t/g, "  ").split("\n");
+  for (let i = 0; i < lineas.length; i++) {
+    const l = lineas[i]; if (!l.trim()) continue;
+    const nivel = Math.floor((l.length - l.trimStart().length) / 2);
+    if (nivel > 2) throw new Error(`Línea ${i + 1}: el catálogo admite solo 3 niveles (categoría, servicio y caso).`);
+    while (pila[pila.length - 1].nivel >= nivel) pila.pop();
+    const padre = pila[pila.length - 1];
+    if (nivel - padre.nivel > 1) throw new Error(`Línea ${i + 1}: tiene más sangría de la cuenta. Usá 2 espacios por nivel.`);
+    const [n, d] = l.trim().split("|").map(x => x.trim());
+    const nodo = {n: n.slice(0, 80)}; if (d) nodo.d = d.slice(0, 160);
+    (padre.s).push(nodo);
+    nodo.s = []; pila.push({nivel, s: nodo.s});
+  }
+  const limpiar = arr => arr.map(x => { const o = {n: x.n}; if (x.d) o.d = x.d; if (x.s.length) o.s = limpiar(x.s); return o; });
+  const r = limpiar(raiz);
+  if (!r.length) throw new Error("El catálogo está vacío. Escribí al menos una categoría.");
+  return r;
+}
+function txtCatalogo(arr, nivel = 0) {
+  return arr.map(x => "  ".repeat(nivel) + x.n + (x.d ? " | " + x.d : "") + (x.s ? "\n" + txtCatalogo(x.s, nivel + 1) : "")).join("\n");
+}
+const CATALOGO_BASE = parseCatalogo(CATALOGO_TXT);
+function hojas(arr = S.config.catalogo, ruta = []) {
+  let out = [];
+  arr.forEach(x => { const r = [...ruta, x.n]; if (x.s && x.s.length) out = out.concat(hojas(x.s, r)); else out.push(r); });
+  return out;
+}
+
+/* ---------- estado ---------- */
+const S = {
+  modo: "cargando", tickets: [],
+  config: {empresa:"", tecnicos:[], grupos:["Soporte Nivel 1"], areas:[], catalogo: CATALOGO_BASE},
+  filtro: "activos", tec: "todos", q: "",
+  sel: [], qCat: "", form: null,               // creación
+  rapida: null, confirmar: false, confUno: false
+};
+let db = null, soloLectura = false;
+
+/* ---------- SLA (con pausa mientras se espera al cliente) ---------- */
+const abierto = t => t.estado !== "Resuelto" && t.estado !== "Cerrado";
+const pausado = t => t.estado === "Esperando al cliente";
+function usadoMs(t, ahora = Date.now()) {
+  const fin = t.cerrado || ahora;
+  return Math.max(0, fin - t.creado - (t.pausaMs || 0) - (t.pausaDesde ? fin - t.pausaDesde : 0));
+}
+const slaMs = t => (PRIORIDADES[t.prioridad] || 24) * 3600e3;
+const vencido = t => abierto(t) && usadoMs(t) > slaMs(t);
+const aTiempo = t => !abierto(t) && usadoMs(t) <= slaMs(t);
+function cambiosEstado(t, nuevo, ahora) {
+  const c = {estado: nuevo};
+  if (t.pausaDesde && nuevo !== "Esperando al cliente") { c.pausaMs = (t.pausaMs || 0) + (ahora - t.pausaDesde); c.pausaDesde = null; }
+  if (nuevo === "Esperando al cliente" && !t.pausaDesde) c.pausaDesde = ahora;
+  c.cerrado = (nuevo === "Resuelto" || nuevo === "Cerrado") ? (t.cerrado || ahora) : null;
+  return c;
+}
+
+/* ---------- datos ---------- */
+const store = {
+  async crear(t) {
+    if (S.modo === "db") { const r = db.collection("tickets").doc(); await r.set(t); return r.id; }
+    const id = "m" + t.num; S.tickets.push({id, ...t}); render(); return id;
+  },
+  async actualizar(id, cambios) {
+    if (S.modo === "db") return db.doc("tickets/" + id).update(cambios);
+    const t = S.tickets.find(x => x.id === id); Object.assign(t, cambios); render();
+  },
+  async borrar(id) {
+    if (S.modo === "db") return db.doc("tickets/" + id).delete();
+    S.tickets = S.tickets.filter(x => x.id !== id); render();
+  },
+  async guardarConfig(c) {
+    S.config = {...S.config, ...c};
+    if (S.modo === "db") return db.doc("config/main").set(S.config);
+    render();
+  }
+};
+function fallo(e) {
+  const code = e && e.code;
+  if (code === "invalid_argument") { soloLectura = true; aviso("No tenés permiso para modificar esta mesa de ayuda."); render(); }
+  else if (code === "quota_exceeded") aviso("Se llenó el espacio de la base de datos. Borrá solicitudes viejas para seguir.");
+  else aviso("No se pudo guardar. Revisá la conexión e intentá de nuevo.");
+}
+
+/* ---------- utilidades ---------- */
+const fmtFecha = ms => new Date(ms).toLocaleDateString("es-CR", {day:"2-digit", month:"short"});
+const fmtFH = ms => new Date(ms).toLocaleString("es-CR", {day:"2-digit", month:"short", year:"numeric", hour:"numeric", minute:"2-digit"});
+function hace(ms) {
+  const m = Math.round((Date.now() - ms) / 60000);
+  if (m < 1) return "ahora"; if (m < 60) return `hace ${m} min`;
+  const h = Math.round(m / 60); if (h < 24) return `hace ${h} h`;
+  const d = Math.round(h / 24); return d === 1 ? "ayer" : `hace ${d} días`;
+}
+function duracion(ms) {
+  const h = ms / 3600e3;
+  if (h < 1) return Math.max(1, Math.round(h * 60)) + " min";
+  if (h < 48) return String(Math.round(h * 10) / 10).replace(".", ",") + " h";
+  return String(Math.round(h / 24 * 10) / 10).replace(".", ",") + " días";
+}
+const numero = t => "#" + t.num;
+const iniciales = n => (n || "?").split(/\s+/).filter(Boolean).slice(0, 2).map(x => x[0]).join("").toUpperCase();
+function colorDe(n) { let h = 0; for (const c of n || "") h = (h * 31 + c.charCodeAt(0)) % 360; return `hsl(${h} 45% 48%)`; }
+const avatar = n => `<span class="av" style="background:${colorDe(n)}">${esc(iniciales(n))}</span>`;
+const localDT = ms => { const d = new Date(ms - new Date(ms).getTimezoneOffset() * 60000); return d.toISOString().slice(0, 16); };
+const rutaTxt = r => (r || []).map(esc).join(" » ");
+
+/* ---------- datos de ejemplo (solo para presentar) ---------- */
+function ejemplo() {
+  const tecnicos = ["Ana Solís","Diego Mora","Karla Jiménez","Luis Vargas"];
+  const grupos = ["Soporte Nivel 1","Soporte Nivel 2","Infraestructura"];
+  const gente = [["María Fernández","Contabilidad"],["José Rodríguez","Cajas"],["Laura Campos","Bodega"],["Andrés Quesada","Ventas"],["Sofía Ramírez","Gerencia"],["Pablo Rojas","Recursos Humanos"],["Daniela Castro","Cajas"],["Esteban Vega","Ventas"]];
+  const casos = [
+    ["La impresora de facturas no imprime",["Impresoras","Impresora de oficina","No imprime"],"Incidente","Sale el papel en blanco desde esta mañana. Ya la apagué y la encendí."],
+    ["No puedo entrar al correo",["Correo y Office","Correo","No puedo entrar"],"Incidente","Dice que la contraseña es incorrecta, pero no la he cambiado."],
+    ["Computadora muy lenta al encender",["Equipos y computadoras","Computadora o laptop","Está lenta o se congela"],"Incidente","Tarda unos 10 minutos en estar lista para trabajar."],
+    ["Sin internet en bodega",["Red e internet","Internet","Sin conexión"],"Incidente","Las dos computadoras de bodega no tienen conexión desde las 8 a. m."],
+    ["Restablecer contraseña del sistema contable",["Colaboradores","Restablecer contraseña"],"Pedido de servicio","Se bloqueó el usuario después de varios intentos."],
+    ["Instalar Office en laptop nueva",["Equipos y computadoras","Equipo nuevo","Configurar equipo nuevo"],"Pedido de servicio","Laptop asignada al nuevo asistente de ventas."],
+    ["El datáfono no conecta",["Punto de venta","Datáfono"],"Incidente","Muestra error de comunicación en la caja 2."],
+    ["Pantalla parpadea",["Equipos y computadoras","Computadora o laptop","Pantalla o monitor"],"Incidente","El monitor parpadea cada pocos minutos."],
+    ["Usuario para colaboradora nueva",["Colaboradores","Nuevo colaborador"],"Pedido de servicio","Ingresa el lunes. Necesita correo y acceso al sistema de planillas."],
+    ["Teléfono de recepción sin tono",["Telefonía","Teléfono fijo"],"Incidente","No da tono ni recibe llamadas."],
+    ["Error al abrir el sistema de facturación",["Sistemas","Facturación electrónica"],"Incidente","Aparece un mensaje de base de datos no disponible."],
+    ["¿Cómo comparto una carpeta con contabilidad?",["Correo y Office","Carpetas compartidas"],"Pregunta","Necesito que contabilidad vea los reportes de ventas."],
+    ["Cambio de tóner",["Impresoras","Impresora de oficina","Cambio de tóner o tinta"],"Pedido de servicio","La impresora del segundo piso imprime muy claro."],
+    ["Configurar impresora de etiquetas",["Impresoras","Impresora de etiquetas"],"Pedido de servicio","Impresora nueva para bodega."],
+    ["Traslado de Pablo a Ventas",["Colaboradores","Traslado de área o departamento"],"Pedido de servicio","Pasa de Recursos Humanos a Ventas. Quitar accesos de planillas."],
+    ["Wi‑Fi de la sala de reuniones muy lento",["Red e internet","Wi-Fi"],"Problema","Las videollamadas se cortan todas las semanas."]
+  ];
+  const prios = ["Media","Alta","Media","Crítica","Baja","Media","Alta","Baja"];
+  const ahora = Date.now(); const out = [];
+  let s = 7; const rnd = () => (s = (s * 9301 + 49297) % 233280) / 233280;
+  for (let i = 0; i < 34; i++) {
+    const [asunto, ruta, tipo, desc] = casos[i % casos.length];
+    const [solicitante, area] = gente[Math.floor(rnd() * gente.length)];
+    const prioridad = prios[Math.floor(rnd() * prios.length)];
+    const edadH = i < 9 ? 0.5 + rnd() * 40 : 40 + rnd() * 24 * 52;
+    const creado = Math.round(ahora - edadH * 3600e3);
+    let estado = "Cerrado";
+    if (i < 9) estado = ["Abierto","En proceso","Abierto","Esperando al cliente","En proceso","Abierto","Resuelto","En proceso","Abierto"][i];
+    else if (i < 12) estado = "Resuelto";
+    const tecnico = (i === 0 || i === 5) ? "" : tecnicos[Math.floor(rnd() * tecnicos.length)];
+    const grupo = ruta[0] === "Red e internet" ? "Infraestructura" : (i % 5 === 0 ? "Soporte Nivel 2" : "Soporte Nivel 1");
+    const resolH = PRIORIDADES[prioridad] * (0.25 + rnd() * 0.9);
+    const cerrado = (estado === "Resuelto" || estado === "Cerrado") ? Math.min(ahora - 3600e3, creado + resolH * 3600e3) : null;
+    const h = [{t: creado, tipo: "evento", texto: "Solicitud creada desde Web"}];
+    if (tecnico) h.push({t: creado + 15 * 60e3, tipo: "evento", texto: `Asignada a ${tecnico} (${grupo})`});
+    if (estado !== "Abierto" && tecnico) h.push({t: creado + 30 * 60e3, tipo: "respuesta", autor: tecnico, rol: "agente", texto: `Hola ${solicitante.split(" ")[0]}, recibimos tu solicitud y ya la estamos revisando.`});
+    let pausaDesde = null;
+    if (estado === "Esperando al cliente") { pausaDesde = creado + 50 * 60e3; h.push({t: pausaDesde, tipo: "respuesta", autor: tecnico, rol: "agente", texto: "Para avanzar necesitamos que nos indiqués el número de serie del equipo."}); h.push({t: pausaDesde + 1, tipo: "evento", texto: "Estado: En proceso → Esperando al cliente"}); }
+    if (cerrado) { h.push({t: cerrado - 60e3, tipo: "respuesta", autor: tecnico || "Soporte", rol: "agente", texto: "Ya quedó listo. ¿Nos confirmás que funciona bien?"}); h.push({t: cerrado, tipo: "evento", texto: `Estado: En proceso → ${estado}`}); }
+    out.push({num: 1001 + i, asunto, desc, solicitante, area, ruta, categoria: ruta[0], tipo, origen: ORIGENES[Math.floor(rnd() * 3)], prioridad, estado,
+      tecnico, grupo, creado, ocurrio: creado - 20 * 60e3, actualizado: cerrado || creado + 50 * 60e3, cerrado, pausaDesde, pausaMs: 0, historial: h, ejemplo: true});
+  }
+  return {tickets: out, config: {empresa: "Empresa de ejemplo S.A.", tecnicos, grupos, areas: [...new Set(gente.map(g => g[1]))]}};
+}
+
+/* ---------- rutas ---------- */
+const NOMBRES = {tablero: "Tablero", solicitudes: "Solicitudes", crear: "Crear solicitud", ajustes: "Ajustes"};
+function ruta() {
+  const h = location.hash.slice(1);
+  if (/^caso-\d+$/.test(h)) return "caso";
+  return NOMBRES[h] ? h : "tablero";
+}
+const casoActual = () => { const n = +location.hash.slice(6); return S.tickets.find(t => t.num === n); };
+addEventListener("hashchange", () => {
+  S.confirmar = false; S.confUno = false; S.rapida = null;
+  if (ruta() === "crear" && !S.form) { /* queda en catálogo */ }
+  render(); window.scrollTo(0, 0);
+});
+
+/* ---------- render (conserva lo que el usuario está escribiendo) ---------- */
+function render(opt = {}) {
+  const r = ruta();
+  document.querySelectorAll(".nav a").forEach(a => { if (a.dataset.r === r || (r === "caso" && a.dataset.r === "solicitudes")) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
+  const t = r === "caso" ? casoActual() : null;
+  $("#titulo").textContent = r === "caso" ? (t ? "Solicitud " + numero(t) : "Solicitud") : NOMBRES[r];
+  $("#empresa").textContent = S.config.empresa ? "· " + S.config.empresa : "";
+  $("#navN").textContent = S.tickets.filter(abierto).length || "";
+  const v = $("#vista");
+  let guardado = null, foco = null;
+  if (opt.conservar) {
+    guardado = {};
+    v.querySelectorAll("input[id],textarea[id],select[id]").forEach(el => guardado[el.id] = el.type === "checkbox" ? el.checked : el.value);
+    const a = document.activeElement;
+    if (a && a.id && v.contains(a)) foco = {id: a.id, s: a.selectionStart, e: a.selectionEnd};
+  }
+  if (S.modo === "cargando") { v.innerHTML = `<div class="vacio"><h2>Cargando la mesa de ayuda…</h2><p>Un momento, estamos trayendo las solicitudes.</p></div>`; return; }
+  let html = "";
+  if (S.modo === "memoria") html += `<div class="aviso"><span>ⓘ</span><span><b>Demo con datos de ejemplo.</b> Probá crear y responder solicitudes con libertad: los cambios se borran al recargar la página.</span></div>`;
+  if (soloLectura) html += `<div class="aviso"><span>ⓘ</span><span><b>Solo lectura.</b> Podés ver las solicitudes, pero no crear ni modificar.</span></div>`;
+  if (r === "tablero") html += S.tickets.length ? vTablero() : vVacio();
+  else if (r === "solicitudes") html += S.tickets.length ? vLista() : vVacio();
+  else if (r === "crear") html += soloLectura ? `<div class="vacio"><h2>Solo lectura</h2><p>No tenés permiso para crear solicitudes en esta mesa de ayuda.</p></div>` : (S.form ? vForm() : vCatalogo());
+  else if (r === "caso") html += t ? vCaso(t) : `<div class="vacio"><h2>No encontramos esa solicitud</h2><p>Puede que la hayan eliminado.</p><div class="acc"><a class="btn" href="#solicitudes">Ver solicitudes</a></div></div>`;
+  else html += vAjustes();
+  v.innerHTML = html;
+  if (guardado) {
+    for (const [id, val] of Object.entries(guardado)) { const el = document.getElementById(id); if (el && v.contains(el)) { if (el.type === "checkbox") el.checked = val; else el.value = val; } }
+    if (foco) { const el = document.getElementById(foco.id); if (el) { el.focus(); try { if (foco.s != null) el.setSelectionRange(foco.s, foco.e); } catch {} } }
+  }
+}
+
+function vVacio() {
+  return `<div class="vacio"><h2>Todavía no hay solicitudes</h2>
+    <p>Cada problema que reporten los colaboradores queda registrado aquí, con su prioridad, responsable y tiempo de respuesta. Creá la primera solicitud o cargá datos de ejemplo para la presentación.</p>
+    <div class="acc"><a class="btn pri" href="#crear">Crear la primera solicitud</a>
+    <button class="btn" type="button" data-a="cargarEjemplo" ${soloLectura ? "disabled" : ""}>Cargar datos de ejemplo</button></div></div>`;
+}
+
+/* ---------- tablero ---------- */
+function vTablero() {
+  const T = S.tickets, ahora = Date.now();
+  const act = T.filter(abierto), sinAsig = act.filter(t => !t.tecnico), venc = act.filter(vencido);
+  const mes = T.filter(t => t.cerrado && ahora - t.cerrado < 30 * 864e5);
+  const prom = mes.length ? mes.reduce((a, t) => a + usadoMs(t), 0) / mes.length : null;
+  const enSla = mes.length ? Math.round(mes.filter(aTiempo).length / mes.length * 100) : null;
+  const kp = (k, lbl, val, sub, cls = "") => `<button type="button" class="kpi ${cls}" data-a="irFiltro" data-f="${k}"><span>${lbl}</span><b>${val}</b><small>${sub}</small></button>`;
+  let h = `<section class="kpis">
+    ${kp("activos", "Abiertos", act.length, "en cola ahora")}
+    ${kp("sinasignar", "Sin asignar", sinAsig.length, "esperan responsable", sinAsig.length ? "alerta" : "")}
+    ${kp("vencidos", "Fuera de tiempo", venc.length, "pasaron su SLA", venc.length ? "alerta" : "bien")}
+    ${kp("resueltos", "Resueltos 30 días", mes.length, enSla === null ? "sin datos" : enSla + " % a tiempo", "bien")}
+    ${kp("resueltos", "Tiempo promedio", prom === null ? "—" : duracion(prom), "para resolver")}
+  </section>`;
+  const barras = (obj, color, vacioTxt, sinLbl) => {
+    const f = Object.entries(obj).sort((a, b) => b[1] - a[1]); const m = Math.max(1, ...f.map(x => x[1]));
+    return f.length ? f.map(([n, c]) => `<div class="fila-b"><span>${n ? esc(n) : `<span class="sin">${sinLbl}</span>`}</span><b>${c}</b><div class="pista"><i style="width:${c / m * 100}%;background:${n ? color : "var(--warn)"}"></i></div></div>`).join("") : `<p class="vacio-mini">${vacioTxt}</p>`;
+  };
+  const porTec = {}, porCat = {};
+  act.forEach(t => { porTec[t.tecnico || ""] = (porTec[t.tecnico || ""] || 0) + 1; porCat[t.categoria] = (porCat[t.categoria] || 0) + 1; });
+  h += `<section class="grid2">
+    <div class="card"><h2>Abiertos por técnico<small>${act.length} en total</small></h2><div class="barras">${barras(porTec, "var(--accent)", "No hay solicitudes abiertas.", "Sin asignar")}</div></div>
+    <div class="card"><h2>Resueltos por semana<small>últimas 8 semanas</small></h2>${grafSemanas()}</div></section>`;
+  const rec = [...T].sort((a, b) => b.creado - a.creado).slice(0, 6);
+  h += `<section class="grid3">
+    <div class="card"><h2>Abiertos por categoría</h2><div class="barras">${barras(porCat, "var(--violet)", "No hay solicitudes abiertas.", "Sin categoría")}</div></div>
+    <div class="card"><h2>Últimas solicitudes<small><a href="#solicitudes">Ver todas</a></small></h2>
+      <div class="barras">${rec.map(t => `<a class="tk" href="#caso-${t.num}" style="padding:10px 12px">
+        <span class="r"><span class="num">${numero(t)}</span><span class="pill e-${estIdx(t.estado)}">${esc(t.estado)}</span>${vencido(t) ? '<span class="venc">Vencido</span>' : ""}</span>
+        <b>${esc(t.asunto)}</b><small>${esc(t.solicitante)} · ${hace(t.creado)}</small></a>`).join("")}</div></div></section>`;
+  return h;
+}
+function grafSemanas() {
+  const lunes = d => { const x = new Date(d); x.setHours(0, 0, 0, 0); x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); return x.getTime(); };
+  const base = lunes(Date.now());
+  const sem = Array.from({length: 8}, (_, i) => ({ini: base - (7 - i) * 7 * 864e5, c: 0}));
+  S.tickets.forEach(t => { if (!t.cerrado) return; const s = sem.find(x => x.ini === lunes(t.cerrado)); if (s) s.c++; });
+  const W = 520, H = 220, pl = 30, pr = 8, pt = 18, pb = 28;
+  const paso = Math.ceil(Math.max(4, ...sem.map(s => s.c)) / 4), top = paso * 4;
+  const y = v => pt + (H - pt - pb) * (1 - v / top), bw = (W - pl - pr) / sem.length;
+  let g = "";
+  for (let v = 0; v <= top; v += paso) g += `<line class="rejilla" x1="${pl}" x2="${W - pr}" y1="${y(v)}" y2="${y(v)}"/><text x="${pl - 6}" y="${y(v) + 4}" text-anchor="end">${v}</text>`;
+  sem.forEach((s, i) => {
+    const x = pl + i * bw + bw * .2, w = bw * .6;
+    if (s.c) g += `<rect class="bar${i === 7 ? " ult" : ""}" x="${x}" y="${y(s.c)}" width="${w}" height="${y(0) - y(s.c)}" rx="4"/><text class="val" x="${x + w / 2}" y="${y(s.c) - 5}" text-anchor="middle">${s.c}</text>`;
+    g += `<text x="${x + w / 2}" y="${H - 8}" text-anchor="middle">${new Date(s.ini).toLocaleDateString("es-CR", {day: "2-digit", month: "2-digit"})}</text>`;
+  });
+  return `<svg class="graf" viewBox="0 0 ${W} ${H}" role="img" aria-label="Solicitudes resueltas por semana">${g}</svg>`;
+}
+
+/* ---------- lista ---------- */
+function filtrados() {
+  const q = S.q.trim().toLowerCase();
+  return S.tickets.filter(t => {
+    if (S.filtro === "activos" && !abierto(t)) return false;
+    if (S.filtro === "sinasignar" && !(abierto(t) && !t.tecnico)) return false;
+    if (S.filtro === "vencidos" && !vencido(t)) return false;
+    if (S.filtro === "esperando" && !pausado(t)) return false;
+    if (S.filtro === "resueltos" && abierto(t)) return false;
+    if (S.tec !== "todos" && (t.tecnico || "") !== (S.tec === "_" ? "" : S.tec)) return false;
+    if (q && !(`#${t.num} ${t.asunto} ${t.solicitante} ${t.area} ${(t.ruta || []).join(" ")}`.toLowerCase().includes(q))) return false;
+    return true;
+  }).sort((a, b) => {
+    const pa = abierto(a) ? (vencido(a) ? 0 : 1) : 2, pb = abierto(b) ? (vencido(b) ? 0 : 1) : 2;
+    return pa - pb || b.creado - a.creado;
+  });
+}
+function vLista() {
+  const T = S.tickets, cuenta = f => T.filter(f).length;
+  const chips = [["activos", "Abiertos", cuenta(abierto)], ["sinasignar", "Sin asignar", cuenta(t => abierto(t) && !t.tecnico)],
+    ["vencidos", "Fuera de tiempo", cuenta(vencido)], ["esperando", "Esperando al cliente", cuenta(pausado)],
+    ["resueltos", "Resueltos y cerrados", cuenta(t => !abierto(t))], ["todos", "Todos", T.length]]
+    .map(([k, l, c]) => `<button type="button" class="chip" data-a="filtro" data-f="${k}" aria-pressed="${S.filtro === k}">${l}<span class="c">${c}</span></button>`).join("");
+  const tecs = [...new Set([...S.config.tecnicos, ...T.map(t => t.tecnico).filter(Boolean)])];
+  const selTec = `<select class="sel" id="fTec" aria-label="Filtrar por técnico"><option value="todos">Todos los técnicos</option><option value="_" ${S.tec === "_" ? "selected" : ""}>Sin asignar</option>${tecs.map(n => `<option ${S.tec === n ? "selected" : ""}>${esc(n)}</option>`).join("")}</select>`;
+  const L = filtrados();
+  let h = `<div class="filtros">${chips}<div class="der">${selTec}</div></div>`;
+  if (!L.length) return h + `<div class="vacio"><h2>Nada por aquí</h2><p>No hay solicitudes con estos filtros${S.q ? " y esa búsqueda" : ""}.</p></div>`;
+  const fila = t => `<tr data-a="ir" data-h="caso-${t.num}" tabindex="0">
+    <td class="num">${numero(t)}</td>
+    <td class="as"><b>${esc(t.asunto)}${t.ejemplo ? '<span class="ej">Ejemplo</span>' : ""}</b><small>${esc(t.solicitante)}${t.area ? " · " + esc(t.area) : ""} · ${rutaTxt(t.ruta)}</small></td>
+    <td><span class="prio p-${t.prioridad}"><i></i>${t.prioridad}</span></td>
+    <td><span class="pill e-${estIdx(t.estado)}">${esc(t.estado)}</span>${vencido(t) ? '<span class="venc">Vencido</span>' : ""}</td>
+    <td>${t.tecnico ? esc(t.tecnico) : '<span class="sin">Sin asignar</span>'}</td>
+    <td class="num">${fmtFecha(t.creado)}</td></tr>`;
+  const tarjeta = t => `<a class="tk" href="#caso-${t.num}">
+    <span class="r"><span class="num">${numero(t)}</span><span class="pill e-${estIdx(t.estado)}">${esc(t.estado)}</span><span class="prio p-${t.prioridad}"><i></i>${t.prioridad}</span>${vencido(t) ? '<span class="venc">Vencido</span>' : ""}</span>
+    <b>${esc(t.asunto)}</b><small>${esc(t.solicitante)} · ${t.tecnico ? esc(t.tecnico) : "Sin asignar"} · ${hace(t.creado)}</small></a>`;
+  return h + `<div class="tabla-w"><table><thead><tr><th>N.º</th><th>Asunto</th><th>Prioridad</th><th>Estado</th><th>Técnico</th><th>Creado</th></tr></thead><tbody>${L.map(fila).join("")}</tbody></table></div>
+    <div class="tarjetas">${L.map(tarjeta).join("")}</div>`;
+}
+
+/* ---------- crear: catálogo ---------- */
+function vCatalogo() {
+  const cat = S.config.catalogo;
+  const lupa = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>`;
+  let h = `<section class="catalogo"><div class="cab"><h2>Hola. ¿En qué podemos ayudarte?</h2><a data-a="sinCategoria" tabindex="0">Crear solicitud sin categoría</a></div>
+    <div class="bcat">${lupa}<input id="qCat" type="search" placeholder="Buscar categorías o servicios" autocomplete="off" value="${esc(S.qCat)}"></div>`;
+  const q = S.qCat.trim().toLowerCase();
+  if (q) {
+    const res = hojas().filter(r => r.join(" ").toLowerCase().includes(q)).slice(0, 30);
+    h += res.length ? `<div class="resultados">${res.map(r => `<button type="button" data-a="elegirRuta" data-r="${esc(JSON.stringify(r))}"><b>${esc(r[r.length - 1])}</b><small>${rutaTxt(r)}</small></button>`).join("")}</div>`
+      : `<p class="ayuda">No hay servicios que coincidan con “${esc(S.qCat)}”. Probá con otra palabra o creá la solicitud sin categoría.</p>`;
+    return h + `</section>`;
+  }
+  const [i, j, k] = S.sel;
+  const c1 = cat[i], c2 = c1 && c1.s && j != null ? c1.s[j] : null, c3 = c2 && c2.s && k != null ? c2.s[k] : null;
+  const lista = (arr, nivel, actual) => `<ul>${arr.map((x, n) => `<li><button type="button" data-a="sel" data-n="${nivel}" data-i="${n}" aria-current="${actual === n}"><i></i>${esc(x.n)}${x.s && x.s.length ? '<span class="fl">›</span>' : ""}</button></li>`).join("")}</ul>`;
+  const col1 = `<div class="col"><h3>Seleccioná una categoría</h3>${lista(cat, 0, i)}</div>`;
+  const col2 = c1 ? `<div class="col"><h3 class="act">${esc(c1.n)}</h3>${c1.d ? `<p class="d">${esc(c1.d)}</p>` : ""}${c1.s ? lista(c1.s, 1, j) : `<p class="d">Esta categoría no tiene servicios. Podés crear la solicitud directamente.</p>`}</div>` : `<div class="col"></div>`;
+  const col3 = c2 && c2.s ? `<div class="col"><h3 class="act">${esc(c2.n)}</h3>${lista(c2.s, 2, k)}</div>` : `<div class="col"></div>`;
+  let elegido = null;
+  if (c3) elegido = [c1.n, c2.n, c3.n]; else if (c2 && !c2.s) elegido = [c1.n, c2.n]; else if (c1 && !c1.s) elegido = [c1.n];
+  const col4 = elegido ? `<div class="col final"><h3>${esc(elegido[elegido.length - 1])}</h3><p class="ruta">${rutaTxt(elegido)}</p><div><button class="btn pri" type="button" data-a="elegirRuta" data-r="${esc(JSON.stringify(elegido))}">Crear solicitud</button></div></div>` : `<div class="col"></div>`;
+  return h + `<div class="cols">${col1}${col2}${col3}${col4}</div></section>`;
+}
+
+/* ---------- crear: formulario ---------- */
+function vForm() {
+  const f = S.form, c = S.config;
+  const areas = [...new Set([...c.areas, ...S.tickets.map(t => t.area).filter(Boolean)])];
+  const migas = f.ruta.length ? f.ruta.map((x, n) => n < f.ruta.length - 1 ? `<button type="button" data-a="volverCat" data-n="${n}">${esc(x)}</button><span>›</span>` : `<b>${esc(x)}</b>`).join("") : "<b>Sin categoría</b>";
+  const opts = (arr, sel) => arr.map(o => `<option ${o === sel ? "selected" : ""}>${esc(o)}</option>`).join("");
+  return `<div class="migas"><button type="button" data-a="volverCat" data-n="-1">Catálogo</button><span>›</span>${migas}</div>
+  <form class="forma" id="cForm" novalidate>
+    <div class="banda">Nueva solicitud</div>
+    <div class="sec">
+      <div class="fila">
+        <label class="campo">Cliente (quien reporta)<input id="cSolic" maxlength="80" placeholder="Nombre completo" list="dlSolic"></label>
+        <div class="campo" style="display:grid;gap:6px;font-size:12px;font-weight:600;color:var(--muted)">Origen
+          <div class="seg" role="group" aria-label="Origen">${ORIGENES.map(o => `<button type="button" data-a="origen" data-v="${o}" aria-pressed="${f.origen === o}">${o}</button>`).join("")}</div></div>
+      </div>
+      <datalist id="dlSolic">${[...new Set(S.tickets.map(t => t.solicitante))].map(n => `<option value="${esc(n)}">`).join("")}</datalist>
+      <div class="fila">
+        <label class="campo">Tipo<select id="cTipo">${opts(TIPOS, f.tipo)}</select></label>
+        <label class="campo">Fecha de ocurrencia<input id="cFecha" type="datetime-local" value="${localDT(Date.now())}"></label>
+        <label class="campo">Prioridad<select id="cPrio">${opts(Object.keys(PRIORIDADES), "Media")}</select></label>
+      </div>
+      <label class="campo">Área solicitante<input id="cArea" maxlength="60" placeholder="Seleccioná o escribí el área" list="dlArea"></label>
+      <datalist id="dlArea">${areas.map(a => `<option value="${esc(a)}">`).join("")}</datalist>
+      <label class="campo">Asunto<input id="cAsunto" maxlength="120" placeholder="${esc(f.ruta[f.ruta.length - 1] || "Una frase corta que diga qué pasa")}"></label>
+      <label class="campo">Descripción<textarea id="cDesc" maxlength="4000" placeholder="Qué pasa, desde cuándo, a quién afecta y qué ya se intentó"></textarea></label>
+    </div>
+    <div class="sec">
+      <div class="asig"><span class="t">Asignar manualmente</span>
+        <div class="fila">
+          <label class="campo">Mesa de ayuda<select id="cGrupo">${opts(c.grupos, c.grupos[0])}</select></label>
+          <label class="campo">Agente<select id="cTec"><option value="">Sin asignar</option>${opts(c.tecnicos, "")}</select></label>
+        </div></div>
+      <div class="info"><span>ⓘ</span><span>Al crearla, la solicitud entra a la cola como <b>Abierto</b> y empieza a contar su tiempo de respuesta según la prioridad.</span></div>
+      <p class="error" id="cError" role="alert"></p>
+    </div>
+    <div class="pie-f"><button class="btn" type="button" data-a="volverCat" data-n="-1">Cancelar</button><button class="btn pri" type="submit" id="cGuardar">Enviar</button></div>
+  </form>`;
+}
+async function crearDesdeForm() {
+  const f = S.form, val = id => $(id).value.trim();
+  const solicitante = val("#cSolic"); let asunto = val("#cAsunto");
+  if (!asunto && f.ruta.length) asunto = f.ruta[f.ruta.length - 1];
+  if (!solicitante) { $("#cError").textContent = "Escribí el nombre de quien reporta el problema."; $("#cSolic").focus(); return; }
+  if (!asunto) { $("#cError").textContent = "Escribí el asunto: una frase corta que diga qué pasa."; $("#cAsunto").focus(); return; }
+  const ahora = Date.now(), tecnico = $("#cTec").value, grupo = $("#cGrupo").value;
+  const ocurrio = $("#cFecha").value ? new Date($("#cFecha").value).getTime() : ahora;
+  const num = Math.max(1000, ...S.tickets.map(t => t.num || 0)) + 1;
+  const historial = [{t: ahora, tipo: "evento", texto: `Solicitud creada desde ${f.origen}`}];
+  if (tecnico) historial.push({t: ahora + 1, tipo: "evento", texto: `Asignada a ${tecnico} (${grupo})`});
+  const t = {num, asunto, solicitante, area: val("#cArea"), ruta: f.ruta, categoria: f.ruta[0] || "Sin categoría", tipo: $("#cTipo").value, origen: f.origen,
+    prioridad: $("#cPrio").value, estado: "Abierto", tecnico, grupo, desc: val("#cDesc"), creado: ahora, ocurrio, actualizado: ahora,
+    cerrado: null, pausaDesde: null, pausaMs: 0, historial, ejemplo: false};
+  $("#cGuardar").disabled = true;
+  try {
+    const id = await store.crear(t);
+    if (S.modo === "db" && !S.tickets.some(x => x.id === id)) S.tickets.push({id, ...t});
+    S.form = null; S.sel = []; S.qCat = "";
+    aviso(`Solicitud #${num} creada`); location.hash = "caso-" + num;
+  } catch (e) { fallo(e); $("#cGuardar").disabled = false; }
+}
+
+/* ---------- página del caso ---------- */
+function vCaso(t) {
+  const ro = soloLectura ? "disabled" : "";
+  const opts = (arr, sel) => arr.map(o => `<option ${o === sel ? "selected" : ""}>${esc(o)}</option>`).join("");
+  const usado = usadoMs(t), sla = slaMs(t), pct = Math.round(usado / sla * 100);
+  let res, col = "var(--ok)";
+  if (!abierto(t)) { res = aTiempo(t) ? `A tiempo (${pct} %)` : `Fuera de tiempo (${pct} %)`; col = aTiempo(t) ? "var(--ok)" : "var(--bad)"; }
+  else if (pausado(t)) { res = `Pausado (${pct} %)`; col = "var(--warn)"; }
+  else if (pct > 100) { res = `Vencido hace ${duracion(usado - sla)}`; col = "var(--bad)"; }
+  else { res = `En curso (${pct} %) · quedan ${duracion(sla - usado)}`; col = pct > 75 ? "var(--warn)" : "var(--ok)"; }
+  const hist = [...(t.historial || [])].sort((a, b) => b.t - a.t);
+  const nombre = (t.solicitante || "").split(" ")[0];
+  const rap = [["seguimiento", "Dar seguimiento"], ["info", "Pedir más información"], ["recepcion", "Confirmar recepción"], ["solucion", "Recomendar solución"]];
+  const ayudaRap = {info: "Al responder, el caso pasa a Esperando al cliente y el tiempo se pausa.", recepcion: "Al responder, el caso pasa a En proceso.", solucion: "Al responder, el caso se marca como Resuelto.", seguimiento: ""};
+  const item = h => h.tipo === "evento"
+    ? `<div class="evento"><i></i><span>${esc(h.texto)}<small>${fmtFH(h.t)}</small></span></div>`
+    : `<div class="msj"><div class="av-wrap">${avatar(h.autor)}<small>${h.rol === "cliente" ? "Cliente" : "Agente"}</small></div>
+        <div class="burbuja ${h.tipo === "interna" ? "interna" : h.rol === "agente" ? "agente" : ""}"><div class="q"><b>${esc(h.autor)}</b><span class="der">${h.tipo === "interna" ? '<span class="tag amar">Nota interna</span>' : ""}<span class="tag">${hace(h.t)}</span></span></div><p>${esc(h.texto)}</p></div></div>`;
+  const grupos = [...new Set([...S.config.grupos, t.grupo].filter(Boolean))];
+  const tecs = [...new Set([...S.config.tecnicos, t.tecnico].filter(Boolean))];
+  return `<div class="caso">
+  <section class="caso-main">
+    <div class="barra">
+      <label class="oculto" for="kEstado">Estado</label>
+      <select class="estado" id="kEstado" ${ro}>${opts(ESTADOS, t.estado)}</select>
+      ${t.ejemplo ? '<span class="ej">Ejemplo</span>' : ""}
+      <div class="der"><a class="btn sm fant" href="#solicitudes">← Volver a la lista</a></div>
+    </div>
+    <div class="cab-caso">
+      <div><h2>${esc(t.asunto)}</h2><p class="ruta">${t.ruta && t.ruta.length ? rutaTxt(t.ruta) : "Sin categoría"}</p></div>
+      <div class="badge-num"><small>${esc(t.tipo || "Solicitud")}</small><b>${numero(t)}</b></div>
+    </div>
+    <div class="datos-caso">
+      <div class="dato"><small>Prioridad</small><select id="kPrio" class="p-${t.prioridad}" ${ro} aria-label="Prioridad">${opts(Object.keys(PRIORIDADES), t.prioridad)}</select></div>
+      <div class="dato"><small>Tipo</small><select id="kTipo" ${ro} aria-label="Tipo">${opts(TIPOS, t.tipo)}</select></div>
+      <div class="dato"><small>Origen</small><b>${esc(t.origen || "Web")}</b></div>
+      <div class="dato"><small>Resolución</small><b style="color:${col}">${res}</b><div class="medidor"><i style="width:${Math.min(100, pct)}%;background:${col}"></i></div></div>
+      <div class="dato ancho"><small>Área solicitante</small><b>${t.area ? esc(t.area) : '<span class="sin">Sin indicar</span>'}</b></div>
+    </div>
+    <div class="conv">
+      <div class="msj"><div class="av-wrap">${avatar(t.solicitante)}<small>Cliente</small></div>
+        <div class="burbuja"><div class="q"><b>${esc(t.solicitante)}</b><span class="der"><span class="tag">${hace(t.creado)}</span><span class="tag azul">Descripción</span></span></div>
+        <p>${t.desc ? esc(t.desc) : '<span class="sin">Sin descripción.</span>'}</p></div></div>
+      ${soloLectura ? "" : `<div class="msj"><div class="av-wrap">${avatar(t.tecnico || "Soporte")}</div>
+        <div class="composer">
+          <label class="oculto" for="kResp">Respuesta</label>
+          <textarea id="kResp" maxlength="3000" placeholder="Escribí una respuesta aquí…"></textarea>
+          <div class="rap">${rap.map(([k, l]) => `<button type="button" data-a="rapida" data-k="${k}" aria-pressed="${S.rapida === k}">${l}</button>`).join("")}</div>
+          <div class="pie"><span class="ayuda">${S.rapida ? ayudaRap[S.rapida] : ""}</span>
+            <label><input type="checkbox" id="kInterna"> Interno</label>
+            <button class="btn pri sm" type="button" data-a="responder">Responder</button></div>
+        </div></div>`}
+      <div class="separa">Historial</div>
+      ${hist.map(item).join("")}
+    </div>
+  </section>
+  <aside class="lado">
+    <div class="card"><h2>Participantes</h2><div class="cnt">
+      <div class="part">${avatar(t.solicitante)}<div><b>${esc(t.solicitante)}</b><small>Cliente${t.area ? " · " + esc(t.area) : ""}</small></div></div>
+      <div class="part">${avatar(t.tecnico || "?")}<div><b>${t.tecnico ? esc(t.tecnico) : '<span class="sin">Sin agente</span>'}</b><small>Agente</small>
+        <select class="sel" id="kTec" ${ro} aria-label="Reasignar agente"><option value="">Sin asignar</option>${opts(tecs, t.tecnico)}</select></div></div>
+      <div class="part"><span class="ic-mesa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18"/></svg></span><div><b>${esc(t.grupo || "Sin mesa")}</b><small>Mesa de ayuda</small>
+        <select class="sel" id="kGrupo" ${ro} aria-label="Cambiar mesa de ayuda">${opts(grupos, t.grupo)}</select></div></div>
+    </div></div>
+    <div class="card"><h2>Detalles</h2><div class="cnt"><dl class="kv">
+      <dt>Creada</dt><dd>${fmtFH(t.creado)}</dd>
+      <dt>Ocurrió</dt><dd>${fmtFH(t.ocurrio || t.creado)}</dd>
+      <dt>Actualizada</dt><dd>${hace(t.actualizado || t.creado)}</dd>
+      <dt>Tiempo objetivo</dt><dd>${PRIORIDADES[t.prioridad]} h (${t.prioridad})</dd>
+      ${t.cerrado ? `<dt>Resuelta</dt><dd>${fmtFH(t.cerrado)}</dd><dt>Tardó</dt><dd>${duracion(usado)}</dd>` : ""}
+    </dl></div></div>
+    ${soloLectura ? "" : `<div class="card"><h2>Acciones</h2><div class="cnt">
+      ${S.confUno ? `<div class="confirmar"><span>¿Eliminar esta solicitud y su historial?</span><button class="btn sm" type="button" data-a="noBorrarUno">Cancelar</button><button class="btn sm peligro" type="button" data-a="borrarUno">Sí, eliminar</button></div>`
+        : `<button class="btn peligro sm" type="button" data-a="pedirBorrarUno">Eliminar solicitud</button>`}
+    </div></div>`}
+  </aside></div>`;
+}
+const PLANTILLAS = {
+  seguimiento: (t, n) => `Hola ${n}, te escribo para dar seguimiento a tu solicitud ${numero(t)}. ¿Cómo va todo?`,
+  info: (t, n) => `Hola ${n}, para avanzar con tu solicitud ${numero(t)} necesitamos más información:\n\n`,
+  recepcion: (t, n) => `Hola ${n}, recibimos tu solicitud ${numero(t)} y ya la estamos revisando. Te avisamos apenas tengamos novedades.`,
+  solucion: (t, n) => `Hola ${n}, esta es la solución para tu solicitud ${numero(t)}:\n\n`
+};
+async function editarCaso(t, cambios, evento) {
+  const ahora = Date.now();
+  const historial = [...(t.historial || [])];
+  if (evento) historial.push({t: ahora, tipo: "evento", texto: evento});
+  try { await store.actualizar(t.id, {...cambios, historial, actualizado: ahora}); aviso("Cambio guardado"); } catch (e) { fallo(e); render(); }
+}
+async function cambiarCampo(campo, valor) {
+  const t = casoActual(); if (!t || t[campo] === valor) return;
+  const ahora = Date.now();
+  if (campo === "estado") return editarCaso(t, cambiosEstado(t, valor, ahora), `Estado: ${t.estado} → ${valor}`);
+  const txt = {prioridad: `Prioridad: ${t.prioridad} → ${valor}`, tipo: `Tipo: ${t.tipo} → ${valor}`,
+    tecnico: valor ? `Reasignada a ${valor}` : "Se quitó el agente asignado", grupo: `Mesa de ayuda: ${t.grupo} → ${valor}`}[campo];
+  return editarCaso(t, {[campo]: valor}, txt);
+}
+async function responder() {
+  const t = casoActual(); if (!t) return;
+  const texto = $("#kResp").value.trim(), interna = $("#kInterna").checked;
+  if (!texto) { aviso("Escribí la respuesta antes de enviarla."); $("#kResp").focus(); return; }
+  const ahora = Date.now(), historial = [...(t.historial || [])];
+  historial.push({t: ahora, tipo: interna ? "interna" : "respuesta", autor: t.tecnico || "Soporte", rol: "agente", texto});
+  let cambios = {historial, actualizado: ahora};
+  const destino = interna ? null : {info: "Esperando al cliente", recepcion: t.estado === "Abierto" ? "En proceso" : null, solucion: "Resuelto"}[S.rapida];
+  if (destino && destino !== t.estado) { cambios = {...cambios, ...cambiosEstado(t, destino, ahora)}; historial.push({t: ahora + 1, tipo: "evento", texto: `Estado: ${t.estado} → ${destino}`}); }
+  else if (!interna && t.estado === "Abierto") { cambios = {...cambios, ...cambiosEstado(t, "En proceso", ahora)}; historial.push({t: ahora + 1, tipo: "evento", texto: "Estado: Abierto → En proceso"}); }
+  $("#kResp").value = ""; $("#kInterna").checked = false; S.rapida = null;
+  try { await store.actualizar(t.id, cambios); aviso(interna ? "Nota interna guardada" : "Respuesta enviada"); } catch (e) { fallo(e); }
+}
+
+/* ---------- ajustes ---------- */
+function vAjustes() {
+  const c = S.config, ro = soloLectura ? "disabled" : "";
+  const lista = (tipo, arr, ph) => `<div class="lista-ed">${arr.length ? arr.map((n, i) => `<div class="it"><span>${esc(n)}</span><button class="btn sm" type="button" data-a="quitar" data-t="${tipo}" data-i="${i}" ${ro}>Quitar</button></div>`).join("") : `<p class="vacio-mini">Todavía no hay ninguno.</p>`}</div>
+    <div class="agregar"><input id="a-${tipo}" maxlength="60" placeholder="${ph}" ${ro}><button class="btn" type="button" data-a="agregar" data-t="${tipo}" ${ro}>Agregar</button></div>`;
+  const ej = S.tickets.filter(t => t.ejemplo).length;
+  return `<section class="grid3">
+    <div class="card"><h2>Empresa</h2>
+      <div style="display:grid;gap:10px"><label class="campo">Nombre que aparece arriba<input id="aEmpresa" maxlength="80" value="${esc(c.empresa)}" placeholder="Ej.: Distribuidora del Valle" ${ro}></label>
+      <div><button class="btn" type="button" data-a="guardarEmpresa" ${ro}>Guardar nombre</button></div></div></div>
+    <div class="card"><h2>Tiempos de respuesta (SLA)</h2>
+      <dl class="kv">${Object.entries(PRIORIDADES).map(([p, h]) => `<dt><span class="prio p-${p}"><i></i>${p}</span></dt><dd>resolver en ${h} horas</dd>`).join("")}</dl>
+      <p class="ayuda" style="margin-top:12px">El tiempo se pausa mientras el caso está en <b>Esperando al cliente</b>. Si se pasa, se marca como <b>Vencido</b>.</p></div>
+    <div class="card"><h2>Agentes<small>${c.tecnicos.length}</small></h2>${lista("tecnicos", c.tecnicos, "Nombre del agente")}</div>
+    <div class="card"><h2>Mesas de ayuda<small>${c.grupos.length}</small></h2>${lista("grupos", c.grupos, "Ej.: Soporte Nivel 2")}</div>
+    <div class="card"><h2>Áreas de la empresa<small>${c.areas.length}</small></h2>${lista("areas", c.areas, "Ej.: Contabilidad")}</div>
+    <div class="card"><h2>Datos de demostración</h2>
+      <p class="ayuda" style="margin-bottom:12px">Para presentar la herramienta podés cargar 34 solicitudes de ejemplo. Llevan la marca <span class="ej" style="margin:0">Ejemplo</span> y se borran con un clic antes de entregarla.</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn" type="button" data-a="cargarEjemplo" ${ro}>Cargar datos de ejemplo</button>
+        <button class="btn peligro" type="button" data-a="pedirBorrar" ${ro || (S.tickets.length ? "" : "disabled")}>Borrar todas las solicitudes</button></div>
+      ${S.confirmar ? `<div class="confirmar" style="margin-top:12px"><span>Se van a borrar <b>${S.tickets.length}</b> solicitudes${ej ? ` (${ej} de ejemplo)` : ""}. Esto no se puede deshacer.</span>
+        <button class="btn sm" type="button" data-a="cancelarBorrar">Cancelar</button><button class="btn sm peligro" type="button" data-a="borrarTodo">Sí, borrar todo</button></div>` : ""}
+    </div>
+  </section>
+  <section class="card"><h2>Catálogo de servicios</h2>
+    <p class="ayuda" style="margin-bottom:10px">Una línea por opción. Usá 2 espacios de sangría por nivel: categoría, servicio y caso. Para la descripción de una categoría, escribila después de <span class="mono">|</span>.</p>
+    <textarea class="arbol" id="aCatalogo" spellcheck="false" ${ro}>${esc(txtCatalogo(c.catalogo))}</textarea>
+    <p class="error" id="aCatErr" role="alert"></p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px"><button class="btn pri" type="button" data-a="guardarCatalogo" ${ro}>Guardar catálogo</button>
+    <button class="btn" type="button" data-a="catalogoBase" ${ro}>Volver al catálogo base</button></div>
+  </section>`;
+}
+
+/* ---------- acciones ---------- */
+async function cargarEjemplo() {
+  const ej = ejemplo(), base = Math.max(1000, ...S.tickets.map(t => t.num || 0)) - 1000;
+  ej.tickets.forEach(t => t.num += base);
+  const une = k => [...new Set([...S.config[k], ...ej.config[k]])];
+  const cfg = {tecnicos: une("tecnicos"), grupos: une("grupos"), areas: une("areas"), empresa: S.config.empresa || ej.config.empresa};
+  if (S.modo === "memoria") { ej.tickets.forEach(t => S.tickets.push({id: "m" + t.num, ...t})); S.config = {...S.config, ...cfg}; render(); aviso("Datos de ejemplo cargados"); return; }
+  aviso("Cargando datos de ejemplo…");
+  try { await store.guardarConfig(cfg); for (const t of ej.tickets) await store.crear(t); aviso("Datos de ejemplo cargados"); } catch (e) { fallo(e); }
+}
+async function borrarTodo() {
+  S.confirmar = false; const ids = S.tickets.map(t => t.id);
+  aviso(`Borrando ${ids.length} solicitudes…`);
+  try { for (const id of ids) await store.borrar(id); aviso("Se borraron todas las solicitudes"); } catch (e) { fallo(e); }
+  render();
+}
+document.addEventListener("click", async e => {
+  const el = e.target.closest("[data-a]"); if (!el || el.disabled) return;
+  const a = el.dataset.a;
+  if (a === "ir") location.hash = el.dataset.h;
+  else if (a === "filtro") { S.filtro = el.dataset.f; render(); }
+  else if (a === "irFiltro") { S.filtro = el.dataset.f; S.tec = "todos"; location.hash = "solicitudes"; }
+  else if (a === "sel") { const n = +el.dataset.n, i = +el.dataset.i; S.sel = [...S.sel.slice(0, n), i]; render(); if (innerWidth < 980) { const cols = document.querySelectorAll(".col"); cols[Math.min(3, n + 1)]?.scrollIntoView({behavior: "smooth", block: "start"}); } }
+  else if (a === "elegirRuta") { S.form = {ruta: JSON.parse(el.dataset.r), origen: "Web", tipo: "Incidente"}; render(); window.scrollTo(0, 0); setTimeout(() => $("#cSolic")?.focus(), 30); }
+  else if (a === "sinCategoria") { S.form = {ruta: [], origen: "Web", tipo: "Incidente"}; render(); }
+  else if (a === "volverCat") { const n = +el.dataset.n; if (S.form && n >= 0) { const r = S.form.ruta.slice(0, n + 1); let arr = S.config.catalogo; S.sel = r.map(x => { const i = arr.findIndex(y => y.n === x); arr = (arr[i] && arr[i].s) || []; return i; }); } S.form = null; render(); }
+  else if (a === "origen") { S.form.origen = el.dataset.v; render({conservar: true}); }
+  else if (a === "rapida") {
+    const t = casoActual(); const k = el.dataset.k; const previo = $("#kResp").value;
+    S.rapida = S.rapida === k ? null : k;
+    const txt = S.rapida ? PLANTILLAS[k](t, (t.solicitante || "").split(" ")[0]) : "";
+    render({conservar: true}); const nt = $("#kResp");
+    if (!previo.trim() || previo === ultimaPlantilla) { nt.value = txt; ultimaPlantilla = txt; }
+    nt.focus(); nt.setSelectionRange(nt.value.length, nt.value.length);
+  }
+  else if (a === "responder") responder();
+  else if (a === "cargarEjemplo") cargarEjemplo();
+  else if (a === "pedirBorrar") { S.confirmar = true; render(); }
+  else if (a === "cancelarBorrar") { S.confirmar = false; render(); }
+  else if (a === "borrarTodo") borrarTodo();
+  else if (a === "pedirBorrarUno") { S.confUno = true; render({conservar: true}); }
+  else if (a === "noBorrarUno") { S.confUno = false; render({conservar: true}); }
+  else if (a === "borrarUno") { const t = casoActual(); S.confUno = false; location.hash = "solicitudes"; try { await store.borrar(t.id); aviso("Solicitud eliminada"); } catch (err) { fallo(err); } }
+  else if (a === "guardarEmpresa") { try { await store.guardarConfig({empresa: $("#aEmpresa").value.trim()}); aviso("Nombre guardado"); } catch (err) { fallo(err); } }
+  else if (a === "agregar") {
+    const tipo = el.dataset.t, inp = $("#a-" + tipo), v = inp.value.trim();
+    if (!v) { inp.focus(); return; }
+    if (S.config[tipo].some(x => x.toLowerCase() === v.toLowerCase())) { aviso("Ya está en la lista."); return; }
+    try { await store.guardarConfig({[tipo]: [...S.config[tipo], v]}); aviso("Agregado"); } catch (err) { fallo(err); }
+  }
+  else if (a === "quitar") { const tipo = el.dataset.t, i = +el.dataset.i; try { await store.guardarConfig({[tipo]: S.config[tipo].filter((_, j) => j !== i)}); } catch (err) { fallo(err); } }
+  else if (a === "guardarCatalogo") {
+    try { const cat = parseCatalogo($("#aCatalogo").value); S.sel = []; await store.guardarConfig({catalogo: cat}); aviso("Catálogo guardado"); }
+    catch (err) { if (err instanceof Error) $("#aCatErr").textContent = err.message; else fallo(err); }
+  }
+  else if (a === "catalogoBase") { $("#aCatalogo").value = CATALOGO_TXT; $("#aCatErr").textContent = "Revisalo y tocá Guardar catálogo para aplicarlo."; }
+});
+document.addEventListener("submit", e => { if (e.target.id === "cForm") { e.preventDefault(); crearDesdeForm(); } });
+document.addEventListener("change", e => {
+  const id = e.target.id;
+  if (id === "kEstado") cambiarCampo("estado", e.target.value);
+  else if (id === "kPrio") cambiarCampo("prioridad", e.target.value);
+  else if (id === "kTipo") cambiarCampo("tipo", e.target.value);
+  else if (id === "kTec") cambiarCampo("tecnico", e.target.value);
+  else if (id === "kGrupo") cambiarCampo("grupo", e.target.value);
+  else if (id === "fTec") { S.tec = e.target.value; render(); }
+});
+document.addEventListener("input", e => {
+  if (e.target.id === "qCat") { S.qCat = e.target.value; render({conservar: true}); }
+});
+document.addEventListener("keydown", e => {
+  if (e.key === "Enter" && e.target.id && e.target.id.startsWith("a-")) { e.preventDefault(); e.target.nextElementSibling.click(); }
+  if (e.key === "Enter" && (e.target.tagName === "TR" || e.target.dataset.a === "sinCategoria")) e.target.click();
+});
+$("#q").addEventListener("input", e => { S.q = e.target.value; if (ruta() !== "solicitudes" && S.q) { S.filtro = "todos"; location.hash = "solicitudes"; } else render(); });
+$("#btnNueva").addEventListener("click", () => { S.form = null; S.sel = []; S.qCat = ""; if (ruta() === "crear") render(); });
+
+let tAviso, ultimaPlantilla = "";
+function aviso(txt) { const t = $("#toast"); t.textContent = txt; t.classList.add("on"); clearTimeout(tAviso); tAviso = setTimeout(() => t.classList.remove("on"), 2600); }
+
+/* ---------- arranque ---------- */
+function modoMemoria() {
+  if (S.modo !== "cargando") return;
+  const ej = ejemplo(); S.modo = "memoria";
+  S.tickets = ej.tickets.map(t => ({id: "m" + t.num, ...t})); S.config = {...S.config, ...ej.config}; render();
+}
+render();
+const espera = setTimeout(modoMemoria, 11000);
+(async () => {
+  try { db = window.claude && window.claude.use ? await window.claude.use("db") : null; } catch { db = null; }
+  clearTimeout(espera);
+  if (!db) { modoMemoria(); return; }
+  S.modo = "db"; render();
+  db.collection("tickets").orderBy("creado", "desc").limit(1000).onSnapshot(snap => {
+    S.tickets = snap.docs.map(d => ({id: d.id, ...d.data()})); render({conservar: true});
+  }, () => aviso("Se perdió la conexión con la base de datos. Recargá la página."));
+  db.doc("config/main").onSnapshot(d => {
+    if (d.exists) { const c = d.data();
+      S.config = {empresa: c.empresa || "", tecnicos: c.tecnicos || [], grupos: (c.grupos && c.grupos.length) ? c.grupos : ["Soporte Nivel 1"],
+        areas: c.areas || [], catalogo: (c.catalogo && c.catalogo.length) ? c.catalogo : CATALOGO_BASE}; }
+    render({conservar: true});
+  }, () => {});
+  try { const u = await window.claude.use("user"); if (u) { const w = await u.can("data.write"); if (w === false) { soloLectura = true; render(); } } } catch {}
+})();
+})();
+</script>
+
+</body>
+</html>

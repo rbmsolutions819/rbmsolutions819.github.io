@@ -1,0 +1,143 @@
+<!doctype html><html lang="es"><head><meta charset=utf8><meta name="robots" content="noindex"><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Compras con Sai</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: vitrina de una columna; el motivo es la caja de envío (cinta kraft, etiqueta), todo lleva a WhatsApp */
+:root{
+  --bg:#f6f3ee; --surface:#ffffff; --ink:#1d2326; --muted:#62696b; --line:#e2dcd2;
+  --accent:#0f6e64; --accent-ink:#ffffff; --kraft:#c9965a; --kraft-soft:#efe1cc; --kraft-ink:#4a3214;
+  --wa:#1f8f4e;
+  --display:"Unbounded", "Arial Black", system-ui, sans-serif;
+  --body:"Figtree", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#141716; --surface:#1d2221; --ink:#f0ece6; --muted:#a3a8a5; --line:#2f3533;
+  --accent:#4fc2b2; --accent-ink:#06201d; --kraft:#d7a76c; --kraft-soft:#3a2f22; --kraft-ink:#f3dcbc;
+  --wa:#43c47b; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#141716; --surface:#1d2221; --ink:#f0ece6; --muted:#a3a8a5; --line:#2f3533;
+  --accent:#4fc2b2; --accent-ink:#06201d; --kraft:#d7a76c; --kraft-soft:#3a2f22; --kraft-ink:#f3dcbc;
+  --wa:#43c47b; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 56px}
+.wrap{max-width:680px;margin:0 auto;display:grid;gap:40px}
+.tape{height:14px;background:repeating-linear-gradient(-45deg,var(--kraft) 0 14px,var(--kraft-soft) 14px 28px);margin:0 calc(-1*max(16px,env(safe-area-inset-left,0px)));}
+header{display:grid;gap:14px;padding-top:28px}
+.badge{justify-self:start;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;background:var(--kraft-soft);color:var(--kraft-ink);padding:5px 10px;border-radius:4px}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(30px,8.5vw,52px);line-height:1.02;margin:0;letter-spacing:-.02em;text-wrap:balance}
+h1 em{font-style:normal;color:var(--accent)}
+.lead{font-size:18px;color:var(--muted);margin:0;max-width:34ch}
+.cta-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn{display:inline-flex;align-items:center;gap:8px;font:inherit;font-weight:700;text-decoration:none;border:0;border-radius:10px;padding:13px 18px;cursor:pointer}
+.btn.wa{background:var(--wa);color:#fff}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.phone{font-variant-numeric:tabular-nums;font-weight:700;user-select:all}
+h2{font-family:var(--display);font-weight:600;font-size:20px;margin:0 0 16px;text-wrap:balance}
+.steps{list-style:none;margin:0;padding:0;display:grid;gap:12px;counter-reset:s}
+.steps li{display:grid;grid-template-columns:40px 1fr;gap:14px;align-items:start;counter-increment:s}
+.steps li::before{content:counter(s);font-family:var(--display);font-weight:800;font-size:18px;width:40px;height:40px;display:grid;place-items:center;background:var(--kraft-soft);color:var(--kraft-ink);border-radius:8px}
+.steps b{display:block}
+.steps span{color:var(--muted);font-size:15px}
+.cats{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.cat{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px;display:grid;gap:4px;min-width:0}
+.cat b{font-size:15px}
+.cat span{font-size:13px;color:var(--muted)}
+.stores{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;font-size:14px;color:var(--muted);align-items:center}
+.stores strong{background:var(--ink);color:var(--bg);padding:4px 10px;border-radius:999px;font-size:13px}
+.label{background:var(--surface);border:2px solid var(--ink);border-radius:12px;padding:20px;display:grid;gap:14px;position:relative}
+.label::before{content:"SOLICITUD DE COTIZACIÓN";position:absolute;top:-11px;left:16px;background:var(--bg);padding:0 8px;font-size:11px;font-weight:700;letter-spacing:.12em}
+label{display:grid;gap:5px;font-size:13px;font-weight:600;color:var(--muted)}
+input,textarea{font:inherit;font-size:16px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:11px 12px;width:100%;min-width:0}
+textarea{min-height:84px;resize:vertical}
+input:focus,textarea:focus,.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.two{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
+.note{font-size:13px;color:var(--muted);margin:0}
+footer{border-top:1px solid var(--line);padding-top:20px;display:grid;gap:10px;font-size:14px;color:var(--muted)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:8px;font-size:14px}
+</style>
+
+<div class="tape" aria-hidden="true"></div>
+<div class="wrap">
+  <header>
+    <span class="badge">+ de 10 años de experiencia</span>
+    <h1>Lo que querés de <em>eBay</em> y <em>Amazon</em>, hasta Costa Rica.</h1>
+    <p class="lead">Soy Sai, asesora de compras. Yo busco, compro y te doy el precio final en colones, con todo incluido.</p>
+    <div class="cta-row">
+      <a class="btn wa" id="waTop" href="https://wa.me/50689529679" target="_blank" rel="noopener">Escribime por WhatsApp</a>
+      <span>o al <span class="phone">8952-9679</span></span>
+    </div>
+  </header>
+
+  <section>
+    <h2>Cómo funciona</h2>
+    <ol class="steps">
+      <li><div><b>Mandame lo que querés</b><span>Un enlace, una foto o el nombre del producto. Si no sabés dónde está, lo busco yo.</span></div></li>
+      <li><div><b>Te cotizo en colones</b><span>Precio, envío al casillero, impuestos y mi servicio. Sin sorpresas al final.</span></div></li>
+      <li><div><b>Confirmás y compro</b><span>Hago la compra y te paso el número de pedido para que le des seguimiento.</span></div></li>
+      <li><div><b>Te llega</b><span>Te aviso en cada paso hasta que lo tengás en la mano.</span></div></li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>Lo que más traigo</h2>
+    <div class="cats">
+      <div class="cat"><b>Repuestos de carro</b><span>Clutches, cuerpos de aceleración, piezas por número de parte</span></div>
+      <div class="cat"><b>Perfumería</b><span>Fragancias originales de diseñador</span></div>
+      <div class="cat"><b>Ropa de marca</b><span>Camisetas, tenis y accesorios por talla</span></div>
+      <div class="cat"><b>Juguetes y hobby</b><span>Carros a control remoto y coleccionables</span></div>
+      <div class="cat"><b>Cuidado de piel</b><span>Bloqueadores y dermocosmética</span></div>
+      <div class="cat"><b>Decoración</b><span>Inflables y luces para Navidad</span></div>
+    </div>
+    <div class="stores"><strong>eBay</strong><strong>Amazon</strong> y también Walmart, Target, Best Buy y más.</div>
+  </section>
+
+  <section>
+    <h2>Pedí tu cotización</h2>
+    <form class="label" id="form" novalidate>
+      <div class="two">
+        <label for="fNombre">Tu nombre<input id="fNombre" autocomplete="name" placeholder="Ej: Daniela"></label>
+        <label for="fZona">¿Dónde estás?<input id="fZona" placeholder="Ej: Heredia centro"></label>
+      </div>
+      <label for="fProd">¿Qué buscás?<textarea id="fProd" placeholder="Ej: Kit de clutch Stage 2 para Nissan Sentra SR20, o perfume Scandal 80 ml"></textarea></label>
+      <label for="fLink">Enlace (si lo tenés)<input id="fLink" type="url" inputmode="url" placeholder="https://www.ebay.com/…"></label>
+      <label for="fDet">Talla, color o detalles<input id="fDet" placeholder="Opcional"></label>
+      <button class="btn wa" type="submit">Enviar por WhatsApp</button>
+      <p class="note">Se abre WhatsApp con tu mensaje listo. Solo tocá enviar.</p>
+      <a class="btn ghost" id="waForm" target="_blank" rel="noopener" hidden>¿No se abrió? Tocá aquí</a>
+    </form>
+  </section>
+
+  <footer>
+    <span>WhatsApp: <span class="phone">8952-9679</span> <button class="btn ghost" id="copy" type="button" style="padding:6px 12px;font-size:13px;margin-left:6px">Copiar número</button></span>
+    <span>Cotizaciones sin compromiso. Los tiempos de entrega dependen de la tienda y del casillero, te los confirmo al cotizar.</span>
+  </footer>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+const WA="50689529679";
+const $=id=>document.getElementById(id);
+function toast(m){const t=$("toast");t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,2400)}
+$("waTop").href="https://wa.me/"+WA+"?text="+encodeURIComponent("Hola Sai, quiero cotizar una compra.");
+$("form").addEventListener("submit",e=>{
+  e.preventDefault();
+  const prod=$("fProd").value.trim(),link=$("fLink").value.trim();
+  if(!prod&&!link){toast("Contame qué buscás o pegá el enlace");$("fProd").focus();return}
+  const lines=["Hola Sai, quiero una cotización 📦"];
+  if($("fNombre").value.trim())lines.push("Soy "+$("fNombre").value.trim()+($("fZona").value.trim()?" ("+$("fZona").value.trim()+")":""));
+  if(prod)lines.push("Busco: "+prod);
+  if(link)lines.push("Enlace: "+link);
+  if($("fDet").value.trim())lines.push("Detalles: "+$("fDet").value.trim());
+  const url="https://wa.me/"+WA+"?text="+encodeURIComponent(lines.join("\n"));
+  const f=$("waForm");f.href=url;f.hidden=false;
+  try{f.click()}catch(err){}
+});
+$("copy").addEventListener("click",()=>{
+  const n="89529679";
+  try{navigator.clipboard.writeText(n).then(()=>toast("Número copiado"),()=>toast("Mantené presionado el número para copiarlo"))}catch(e){toast("Mantené presionado el número para copiarlo")}
+});
+</script>
+
+</body></html>
