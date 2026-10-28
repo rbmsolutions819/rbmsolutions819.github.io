@@ -100,6 +100,15 @@ section h2{font:400 26px var(--f-logo);color:var(--fucsia);margin-bottom:12px}
 .btn.sm{padding:7px 12px;font-size:14px;border-radius:10px}
 .btn:disabled{opacity:.45;cursor:not-allowed}
 .fila-btn{display:flex;gap:8px;flex-wrap:wrap}
+.miTarj{display:grid;grid-template-columns:auto minmax(0,1fr);gap:16px;align-items:center}
+.qr{width:150px;height:150px;background:#fff;border-radius:14px;padding:8px;border:2px solid var(--linea);display:grid;place-items:center}
+.qr img,.qr canvas{width:100%!important;height:auto!important}
+.codigo{font:800 26px/1 var(--f-txt);letter-spacing:.08em;color:var(--fucsia2);font-variant-numeric:tabular-nums}
+.cli{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;align-items:center;padding:10px 0;border-bottom:1px dashed var(--linea)}
+.cli small{color:var(--suave)}
+.cli .fila-btn{grid-column:1/-1}
+.ficha{background:#fff;border:2px solid var(--fucsia);border-radius:18px;padding:16px;display:grid;gap:12px;margin-top:12px}
+@media (max-width:520px){.miTarj{grid-template-columns:1fr;justify-items:center;text-align:center}}
 footer{text-align:center;color:var(--suave);font-size:13px;padding:10px var(--gr) 30px var(--gl)}
 footer button{border:0;background:none;color:var(--suave);text-decoration:underline;cursor:pointer;font-size:13px}
 
@@ -165,7 +174,7 @@ label.c textarea{min-height:64px;resize:vertical}
     <div>
       <h1 id="nombre">Matcha Mía</h1>
       <p class="lema" id="lema">Matcha bar, inspirado en una salchichita</p>
-      <div class="chips-info"><span id="estado">Cargando horario…</span><a href="#info">📍 Barrio Amón</a><a id="ig" href="https://www.instagram.com/matchamia.cr" target="_blank" rel="noopener">Instagram</a></div>
+      <div class="chips-info"><span id="estado">Cargando horario…</span><a href="#lealtad">🐾 Mi tarjeta</a><a href="#info">📍 Barrio Amón</a><a id="ig" href="https://www.instagram.com/matchamia.cr" target="_blank" rel="noopener">Instagram</a></div>
     </div>
   </div>
 </header>
@@ -179,11 +188,7 @@ label.c textarea{min-height:64px;resize:vertical}
 
     <section id="lealtad" aria-labelledby="h-leal">
       <h2 id="h-leal">Tu tarjeta de sellos</h2>
-      <div class="tarjeta">
-        <p>Cada bebida que pedís desde aquí suma un sello. <b>La décima es gratis.</b></p>
-        <div class="sellos" id="sellos"></div>
-        <p class="nota" id="sellos-txt"></p>
-      </div>
+      <div class="tarjeta" id="tarjeta"></div>
     </section>
 
     <section id="info" aria-labelledby="h-info">
@@ -207,6 +212,7 @@ label.c textarea{min-height:64px;resize:vertical}
 <div class="hoja" id="hoja" role="dialog" aria-modal="true" aria-labelledby="hojaT"><div id="hojaC"></div></div>
 <div class="toast" id="toast" role="status"></div>
 
+<script src="qrcode.min.js"></script>
 <script>
 (() => {
 "use strict";
@@ -248,8 +254,14 @@ const OPC = {
 
 let D = lsGet("mm-datos", null) || JSON.parse(JSON.stringify(BASE));
 let pedido = lsGet("mm-pedido", []);
-let sellos = lsGet("mm-sellos", 6);
-let catSel = "todo", admin = false;
+// Tarjeta de sellos: cada cliente tiene su propio código (ej. MM-4821) y su QR.
+// En la demo se guarda en este navegador; en la versión real va en Firebase y la dueña y el cliente ven lo mismo.
+let clientes = lsGet("mm-clientes", {});
+let yo = lsGet("mm-yo", null);
+const guardarC = () => lsSet("mm-clientes", clientes);
+let catSel = "todo", admin = lsGet("mm-admin", false), qBus = "";
+const baseUrl = () => location.href.split("#")[0];
+function nuevoCodigo() { let c; do { c = "MM-" + String(Math.floor(1000 + Math.random() * 9000)); } while (clientes[c]); return c; }
 const guardarD = () => lsSet("mm-datos", D);
 const guardarP = () => { lsSet("mm-pedido", pedido); pintarCarrito(); };
 
@@ -355,11 +367,48 @@ function pintarCarrito() {
   const n = pedido.reduce((a, it) => a + it.cant, 0);
   $("#carrito").hidden = !n; $("#carN").textContent = n; $("#carT").textContent = crc(pedido.reduce((a, it) => a + it.total, 0));
 }
-function pintarSellos() {
-  const s = Math.min(sellos, 10);
-  $("#sellos").innerHTML = Array.from({length: 10}, (_, i) => i === 9 ? `<i class="${s >= 10 ? "si" : "gratis"}">${s >= 10 ? "★" : "GRATIS"}</i>` : `<i class="${i < s ? "si" : ""}">${i < s ? "🐾" : ""}</i>`).join("");
-  $("#sellos-txt").textContent = s >= 10 ? "¡Tu próxima bebida es gratis! Mostrá esta pantalla en la barra." : `Llevás ${s} de 10. Te faltan ${10 - s} para tu bebida gratis. (En la demo empezás con 6 sellos.)`;
+function selloHTML(n) {
+  const s = Math.min(n, 10);
+  return `<div class="sellos">${Array.from({length: 10}, (_, i) => i === 9 ? `<i class="${s >= 10 ? "si" : "gratis"}">${s >= 10 ? "★" : "GRATIS"}</i>` : `<i class="${i < s ? "si" : ""}">${i < s ? "🐾" : ""}</i>`).join("")}</div>`;
 }
+function pintarSellos() {
+  const t = $("#tarjeta"), c = yo && clientes[yo];
+  if (!c) {
+    t.innerHTML = `<p>Activá tu tarjeta gratis: cada bebida suma un sello y <b>la décima es gratis</b>.</p>
+      <div class="dos" style="gap:10px"><label class="c">Tu nombre<input id="tNom" maxlength="40" autocomplete="name" placeholder="Ej.: Daniela"></label>
+      <label class="c">Celular<input id="tTel" inputmode="tel" maxlength="12" autocomplete="tel" placeholder="Ej.: 8888 7777"></label></div>
+      <p class="err" id="tErr"></p><div><button class="btn pri" type="button" data-activar>Activar mi tarjeta</button></div>
+      <p class="nota">Te damos un código y un QR propios. Nadie más suma ni usa tus sellos.</p>`;
+    return;
+  }
+  const s = c.sellos;
+  t.innerHTML = `<div class="miTarj"><div class="qr" id="qr" aria-label="Código QR de tu tarjeta"></div>
+      <div style="display:grid;gap:6px"><span class="nota">Tarjeta de ${esc(c.nombre)}</span><span class="codigo">${esc(yo)}</span>
+      <span class="nota">Mostrá este QR en la barra cuando recojás tu pedido y te sumamos los sellos.</span></div></div>
+    ${selloHTML(s)}
+    <p class="nota">${s >= 10 ? "<b>¡Tu próxima bebida es gratis!</b> Mostrá tu QR en la barra para canjearla." : `Llevás ${s} de 10. Te faltan ${10 - s} para tu bebida gratis.`}${c.canjes ? ` · Ya canjeaste ${c.canjes}.` : ""}</p>`;
+  const url = baseUrl() + "#cliente-" + yo + "~" + encodeURIComponent(c.nombre);
+  try { new QRCode($("#qr"), {text: url, width: 220, height: 220, colorDark: "#3a1424", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.M}); }
+  catch { $("#qr").innerHTML = `<span class="codigo" style="font-size:18px">${esc(yo)}</span>`; }
+}
+// La dueña escanea el QR con la cámara del celular: se abre esta página con #cliente-CÓDIGO y le aparece la ficha.
+function fichaCliente(cod) {
+  const c = clientes[cod];
+  if (!c) return `<div class="ficha"><b>No encontramos el código ${esc(cod)}.</b><span class="nota">Revisá que esté bien escrito.</span></div>`;
+  return `<div class="ficha"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><b style="font-size:18px">${esc(c.nombre)}</b><span class="codigo" style="font-size:18px">${esc(cod)}</span></div>
+    ${c.tel ? `<span class="nota">Cel. ${esc(c.tel)}</span>` : ""}
+    ${selloHTML(c.sellos)}
+    <span class="nota">${c.sellos >= 10 ? "<b>Tiene una bebida gratis para canjear.</b>" : `${c.sellos} de 10 sellos`}${c.canjes ? ` · ${c.canjes} canje${c.canjes === 1 ? "" : "s"}` : ""}</span>
+    <div class="fila-btn">${[1, 2, 3].map(n => `<button class="btn sm" type="button" data-sumar="${esc(cod)}" data-n="${n}" ${c.sellos >= 10 ? "disabled" : ""}>+${n} sello${n > 1 ? "s" : ""}</button>`).join("")}
+      <button class="btn sm pri" type="button" data-canjear="${esc(cod)}" ${c.sellos >= 10 ? "" : "disabled"}>Canjear bebida gratis</button></div></div>`;
+}
+function abrirCliente(cod, nombre) {
+  cod = cod.toUpperCase();
+  if (!clientes[cod] && nombre) { clientes[cod] = {nombre, tel: "", sellos: 0, canjes: 0, creado: Date.now()}; guardarC(); }
+  if (!admin) { pendienteCli = cod; pintarAdmin(); return; }
+  tabAdm = "cli"; qBus = cod; pintarAdmin();
+}
+let pendienteCli = null;
 
 /* ===== Panel de la dueña ===== */
 let tabAdm = "prod";
@@ -372,8 +421,20 @@ function pintarAdmin() {
       <p class="nota">Versión de prueba · contraseña: <b style="user-select:all">${CLAVE_DEMO}</b></p></div>`);
     return;
   }
-  const tabs = `<div class="tabs"><button type="button" data-tab="prod" aria-pressed="${tabAdm === "prod"}">Productos</button><button type="button" data-tab="neg" aria-pressed="${tabAdm === "neg"}">Negocio</button></div>`;
+  const tabs = `<div class="tabs"><button type="button" data-tab="cli" aria-pressed="${tabAdm === "cli"}">Clientes</button><button type="button" data-tab="prod" aria-pressed="${tabAdm === "prod"}">Productos</button><button type="button" data-tab="neg" aria-pressed="${tabAdm === "neg"}">Negocio</button></div>`;
   let cuerpo;
+  if (tabAdm === "cli") {
+    const lista = Object.entries(clientes).sort((a, b) => b[1].creado - a[1].creado);
+    const q = qBus.trim().toUpperCase(), exacto = q && clientes[q] ? q : (q && clientes["MM-" + q] ? "MM-" + q : null);
+    const filtrados = q ? lista.filter(([k, c]) => k.includes(q) || c.nombre.toUpperCase().includes(q) || (c.tel || "").replace(/\D/g, "").includes(q.replace(/\D/g, "") || "~")) : lista;
+    cuerpo = `<p class="nota">Escaneá el QR del cliente con la cámara del celular, o escribí su código, nombre o celular.</p>
+      <div class="grupo"><label class="c">Buscar cliente<input id="cBus" value="${esc(qBus)}" placeholder="Ej.: MM-4821 o 4821" autocapitalize="characters"></label></div>
+      ${exacto ? fichaCliente(exacto) : ""}
+      <div class="grupo"><b>Clientes con tarjeta (${lista.length})</b>
+      ${filtrados.length ? filtrados.map(([k, c]) => `<div class="cli"><span><b>${esc(c.nombre)}</b> <small>${esc(k)}</small></span><span class="precio">${Math.min(c.sellos, 10)}/10</span>
+        <div class="fila-btn"><button class="btn sm" type="button" data-sumar="${esc(k)}" data-n="1" ${c.sellos >= 10 ? "disabled" : ""}>+1 sello</button>${c.sellos >= 10 ? `<button class="btn sm pri" type="button" data-canjear="${esc(k)}">Canjear gratis</button>` : ""}</div></div>`).join("")
+        : `<p class="nota">${lista.length ? "Ningún cliente coincide con la búsqueda." : "Todavía no hay clientes. Cuando alguien active su tarjeta en el menú, aparece aquí."}</p>`}</div>`;
+  } else
   if (tabAdm === "prod") {
     cuerpo = D.productos.map(p => `<div class="adm"><b>${esc(p.nombre)} <small style="color:var(--suave);font-weight:600">· ${CATS.find(c => c[0] === p.cat)?.[1] || ""}</small></b>
       <input type="number" min="0" step="100" value="${p.precio}" data-precio="${p.id}" aria-label="Precio de ${esc(p.nombre)}">
@@ -401,7 +462,7 @@ function pintarAdmin() {
       <button class="btn sm" type="button" data-reset>Volver a los datos de ejemplo</button></div>`;
   }
   abrirHoja(`<div class="asa"></div><button class="x" type="button" data-cerrar aria-label="Cerrar">×</button>
-    <h2 id="hojaT">Administrar menú</h2><p class="nota">En la demo, los cambios se guardan solo en este celular.</p>${tabs}${cuerpo}`);
+    <h2 id="hojaT">Administrar menú</h2><p class="nota">En la demo, los cambios se guardan solo en este celular. <button type="button" data-salir style="border:0;background:none;color:var(--fucsia2);text-decoration:underline;cursor:pointer">Salir</button></p>${tabs}${cuerpo}`);
 }
 
 /* ===== Acciones ===== */
@@ -427,16 +488,29 @@ document.addEventListener("click", e => {
     const total = pedido.reduce((a, it) => a + it.total, 0);
     const lineas = [`Hola ${D.negocio.nombre} 💚 quiero pedir para recoger:`, ...pedido.map(it => `• ${it.cant} × ${it.nombre}${detalle(it) ? ` (${detalle(it)})` : ""} — ${crc(it.total)}`),
       `Total: ${crc(total)}`, `A nombre de: ${nom}`, `Paso a las: ${$("#pHora").value}`];
+    if (yo && clientes[yo]) lineas.push(`Tarjeta de sellos: ${yo}`);
     if ($("#pNota").value.trim()) lineas.push(`Nota: ${$("#pNota").value.trim()}`);
     const url = `https://wa.me/${String(D.negocio.whatsapp).replace(/\D/g, "")}?text=${encodeURIComponent(lineas.join("\n"))}`;
     const a = $("#waLink"); a.href = url; a.hidden = false; try { a.click(); } catch {}
-    const bebidas = pedido.filter(it => esBebida(D.productos.find(x => x.id === it.id) || {})).reduce((s, it) => s + it.cant, 0);
-    sellos = sellos >= 10 ? bebidas : sellos + bebidas; lsSet("mm-sellos", sellos); pintarSellos();
-    pedido = []; guardarP(); aviso(bebidas ? `¡Pedido listo! Sumaste ${bebidas} sello${bebidas === 1 ? "" : "s"}` : "¡Pedido listo!");
+    pedido = []; guardarP(); aviso(yo ? "¡Pedido listo! Mostrá tu QR al recoger para sumar sellos" : "¡Pedido listo!");
     return;
   }
   if (b.id === "abrirAdmin") return pintarAdmin();
-  if (b.hasAttribute("data-entrar")) { if ($("#aClave").value === CLAVE_DEMO) { admin = true; pintarAdmin(); } else $("#aErr").textContent = "Contraseña incorrecta."; return; }
+  if (b.hasAttribute("data-entrar")) { if ($("#aClave").value === CLAVE_DEMO) { admin = true; lsSet("mm-admin", true);
+      if (pendienteCli) { tabAdm = "cli"; qBus = pendienteCli; pendienteCli = null; } pintarAdmin(); } else $("#aErr").textContent = "Contraseña incorrecta."; return; }
+  if (b.hasAttribute("data-salir")) { admin = false; lsSet("mm-admin", false); cerrarHoja(); aviso("Sesión cerrada"); return; }
+  if (b.hasAttribute("data-activar")) {
+    const nombre = $("#tNom").value.trim(), tel = $("#tTel").value.replace(/\D/g, "");
+    if (nombre.length < 2) { $("#tErr").textContent = "Escribí tu nombre."; $("#tNom").focus(); return; }
+    if (tel.length < 8) { $("#tErr").textContent = "Escribí tu celular de 8 dígitos."; $("#tTel").focus(); return; }
+    const ya = Object.entries(clientes).find(([, c]) => c.tel === tel);
+    yo = ya ? ya[0] : nuevoCodigo();
+    if (!ya) { clientes[yo] = {nombre, tel, sellos: 0, canjes: 0, creado: Date.now()}; guardarC(); }
+    lsSet("mm-yo", yo); pintarSellos(); aviso(ya ? `Recuperamos tu tarjeta ${yo}` : `Tu tarjeta es la ${yo}`); return;
+  }
+  if (b.dataset.sumar) { const c = clientes[b.dataset.sumar]; c.sellos = Math.min(10, c.sellos + +b.dataset.n); guardarC(); pintarSellos(); pintarAdmin();
+    aviso(c.sellos >= 10 ? `${c.nombre} completó su tarjeta: tiene una bebida gratis` : `${c.nombre}: ${c.sellos} de 10 sellos`); return; }
+  if (b.dataset.canjear) { const c = clientes[b.dataset.canjear]; c.sellos = 0; c.canjes = (c.canjes || 0) + 1; guardarC(); pintarSellos(); pintarAdmin(); aviso(`Bebida gratis canjeada para ${c.nombre}. La tarjeta vuelve a cero.`); return; }
   if (b.dataset.tab) { tabAdm = b.dataset.tab; pintarAdmin(); return; }
   if (b.dataset.borrar) { D.productos = D.productos.filter(p => p.id !== b.dataset.borrar); guardarD(); pintarMenu(); pintarAdmin(); aviso("Producto borrado"); return; }
   if (b.hasAttribute("data-nuevo")) {
@@ -453,6 +527,7 @@ document.addEventListener("click", e => {
   }
   if (b.hasAttribute("data-reset")) { D = JSON.parse(JSON.stringify(BASE)); guardarD(); pintarMenu(); pintarHorario(); pintarAdmin(); aviso("Datos de ejemplo restaurados"); return; }
 });
+document.addEventListener("input", e => { if (e.target.id === "cBus") { qBus = e.target.value; const pos = e.target.selectionStart; pintarAdmin(); const n = $("#cBus"); n.focus(); try { n.setSelectionRange(pos, pos); } catch {} } });
 document.addEventListener("change", e => {
   const t = e.target;
   if (t.dataset.precio) { const p = D.productos.find(x => x.id === t.dataset.precio); p.precio = Math.max(0, +t.value || 0); guardarD(); pintarMenu(); aviso("Precio actualizado"); }
@@ -464,6 +539,13 @@ const q = encodeURIComponent("Parque Morazán, Barrio Amón, San José, Costa Ri
 $("#maps").href = `https://www.google.com/maps/search/?api=1&query=${q}`;
 $("#waze").href = `https://waze.com/ul?q=${q}&navigate=yes`;
 pintarCats(); pintarMenu(); pintarHorario(); pintarCarrito(); pintarSellos();
+function leerHash() {
+  const m = decodeURIComponent(location.hash).match(/^#cliente-(MM-\d{4})(?:~(.*))?$/i);
+  if (!m) return;
+  history.replaceState(null, "", location.pathname + location.search);
+  abrirCliente(m[1], m[2] || "");
+}
+leerHash(); addEventListener("hashchange", leerHash);
 setInterval(pintarHorario, 60000);
 })();
 </script>
