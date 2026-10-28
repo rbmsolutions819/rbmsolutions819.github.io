@@ -48,6 +48,17 @@ a{color:var(--fucsia2)}
 .fila-dom{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px}
 .fila-dom select,.fila-dom input{border:2px solid var(--linea);border-radius:12px;background:#fff;padding:10px;font-weight:700;color:var(--tinta);min-width:0}
 .dom{border:2px dashed var(--rosa2);border-radius:16px;padding:12px}
+.badge{display:inline-grid;place-items:center;min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:var(--fucsia);color:#fff;font-size:12px;font-weight:800;line-height:1;vertical-align:1px}
+.tabs button[aria-pressed="true"] .badge{background:#fff;color:var(--fucsia2)}
+.avisoPed{display:block;width:100%;border:0;background:var(--fucsia);color:#fff;font:700 14px var(--f-txt);padding:9px var(--gr) 9px var(--gl);cursor:pointer;text-align:center}
+.avisoPed::after{content:" · Ver ›";font-weight:800;text-decoration:underline}
+.avisoPed[hidden]{display:none}
+.pend{display:grid;gap:8px}
+.pend button{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:2px 10px;align-items:center;text-align:left;background:#fff;border:2px solid var(--linea);border-radius:14px;padding:10px 12px;cursor:pointer;color:var(--tinta);font:inherit}
+.pend button:hover,.pend button.sel{border-color:var(--fucsia)}
+.pend .app{grid-row:span 2;background:var(--rosa);color:var(--fucsia2);font-weight:800;font-size:12px;border-radius:8px;padding:6px 8px}
+.pend small{grid-column:3;grid-row:1 / span 2;color:var(--suave);font-weight:700;font-size:12.5px}
+.pend span:not(.app){grid-column:2;color:var(--suave);font-size:13.5px}
 .top10{display:grid}
 .top10 button{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:2px 10px;align-items:center;text-align:left;border:0;border-bottom:1px dashed var(--linea);background:none;color:var(--tinta);padding:9px 2px;cursor:pointer;font:inherit}
 .top10 .pos{font:400 20px var(--f-logo);color:var(--fucsia);grid-row:span 2}
@@ -191,6 +202,7 @@ label.c textarea{min-height:64px;resize:vertical}
 <body>
 
 <div class="demo">Demo de <b>RBM Solutions</b> · menú, precios y horario de ejemplo</div>
+<button class="avisoPed" id="avisoPed" type="button" hidden></button>
 <div class="prueba" id="bPrueba" hidden>🧪 <b>Modo prueba</b> · los clientes y sellos son de ejemplo, no son reales · <a href="./">Salir</a></div>
 
 <header class="top">
@@ -465,17 +477,55 @@ function vistaReclamo() {
       <button class="btn sm" type="button" data-rechazar ${cliOcupado ? "disabled" : ""}>Rechazar</button></div>`;
   return h + `</div>`;
 }
+// ----- Pestaña "Sellos pedidos": las órdenes de Uber Eats / DiDi que los clientes mandaron -----
+const nombreApp = k => (Tarjetas.APPS.find(a => a[0] === k) || [k, k])[1];
+function haceCuanto(ts) {
+  const d = ts && ts.toDate ? ts.toDate() : null; if (!d) return "";
+  const m = Math.max(0, Math.round((Date.now() - d) / 60000));
+  if (m < 1) return "recién"; if (m < 60) return `hace ${m} min`;
+  const h = Math.floor(m / 60); if (h < 24) return `hace ${h} h${m % 60 ? " " + (m % 60) + " min" : ""}`;
+  return d.toLocaleString("es-CR", {dateStyle: "short", timeStyle: "short"});
+}
+function vistaPedidos() {
+  let h = `<p class="nota" style="margin-top:12px">Aquí llegan los pedidos de Uber Eats, DiDi o Rappi que los clientes mandaron para sumar sello. Revisá en la tablet que la orden sea real y aprobala.</p>`;
+  if (rcl && rcl !== "cargando") h += `<div class="grupo">${vistaReclamo()}<div><button class="btn sm" type="button" data-cerrar-rcl>Volver a la lista</button></div></div>`;
+  else if (rcl === "cargando") h += `<p class="nota">Abriendo…</p>`;
+  h += `<div class="grupo"><b>${pendientes.length ? `⏳ Pendientes (${pendientes.length})` : "Pendientes"}</b>
+    ${pendError ? `<p class="nota">${Tarjetas.prueba ? "No se pudo cargar la lista. Revisá la conexión." : "No se pudo cargar la lista. Revisá la conexión."}</p>`
+    : !pendientes.length ? `<p class="nota">✅ No hay pedidos esperando sello. Cuando un cliente mande su número de orden, te aparece aquí.</p>`
+    : `<div class="pend">${pendientes.map(p => `<button type="button" data-rcl="${esc(p.id)}" class="${rcl && rcl.id === p.id ? "sel" : ""}"><span class="app">${nombreApp(p.app)}</span><b>#${esc(p.orden)}</b><span>${esc(p.nombre)}</span><small>${haceCuanto(p.creado)}</small></button>`).join("")}</div>`}</div>`;
+  h += `<div class="grupo dom"><b>Buscar una orden</b>
+      <span class="nota">Si el cliente te dice su número, buscalo aquí aunque ya no esté en la lista.</span>
+      <div class="fila-dom"><select id="oApp" aria-label="App">${Tarjetas.APPS.map(([k, n]) => `<option value="${k}" ${rclApp === k ? "selected" : ""}>${n}</option>`).join("")}</select>
+        <input id="oNum" autocomplete="off" autocapitalize="characters" maxlength="30" placeholder="N.º de orden" aria-label="Número de orden" value="${esc(rclNum)}"></div>
+      <div><button class="btn sm" type="button" data-orden>Buscar orden</button></div></div>`;
+  return h;
+}
+// Escucha la lista de pendientes mientras la dueña tenga la sesión abierta: contador, aviso y vibración.
+let pendientes = [], pendError = false, pendUnsub = null, pendPrimera = true;
+function escucharPedidos() {
+  if (pendUnsub || !admin) return;
+  pendUnsub = true;
+  Tarjetas.escucharPendientes(lista => {
+    const nuevos = lista.filter(p => !pendientes.some(q => q.id === p.id));
+    pendientes = lista; pendError = false;
+    if (!pendPrimera && nuevos.length) { aviso(`🛵 Nuevo pedido para sellar: ${nuevos[0].nombre} · ${nombreApp(nuevos[0].app)} #${nuevos[0].orden}`); if (navigator.vibrate) navigator.vibrate([80, 60, 80]); }
+    pendPrimera = false; pintarAvisoPedidos();
+    if (panelAbierto() && !camStream) { const sc = $("#hoja").scrollTop; pintarAdmin(); $("#hoja").scrollTop = sc; }
+  }, () => { pendError = true; pintarAvisoPedidos(); }).then(u => pendUnsub = u).catch(() => { pendError = true; pendUnsub = null; });
+}
+// ¿Está abierto el panel de administración (y no otra hoja, como la de armar una bebida)?
+const panelAbierto = () => admin && $("#hoja").classList.contains("on") && ($("#hojaT") || {}).textContent === "Administrar menú";
+function pintarAvisoPedidos() {
+  const n = admin ? pendientes.length : 0, el = $("#avisoPed");
+  el.hidden = !n; el.innerHTML = `🛵 <b>${n}</b> pedido${n === 1 ? "" : "s"} esperando sello`;
+  $("#abrirAdmin").innerHTML = `🔒 Administrar menú${n ? ` <span class="badge">${n}</span>` : ""}`;
+}
 function vistaSellos() {
   let h = `<div class="fila-btn"><button class="btn pri" type="button" data-escanear>📷 Escanear QR</button></div>
     <div class="grupo"><label class="c">Buscar por cédula<input id="sCed" inputmode="numeric" maxlength="15" placeholder="Ej.: 1 1234 5678"></label>
       <div><button class="btn sm" type="button" data-buscar>Buscar</button></div></div>
-    ${cliMsg ? `<p class="err" role="alert">${esc(cliMsg)}</p>` : ""}
-    <div class="grupo dom"><b>🛵 Pedido a domicilio</b>
-      <span class="nota">Escribí el número de orden que ves en la tablet de Uber Eats o DiDi para ver quién la reclamó.</span>
-      <div class="fila-dom"><select id="oApp" aria-label="App">${Tarjetas.APPS.map(([k, n]) => `<option value="${k}" ${rclApp === k ? "selected" : ""}>${n}</option>`).join("")}</select>
-        <input id="oNum" autocomplete="off" autocapitalize="characters" maxlength="30" placeholder="N.º de orden" aria-label="Número de orden" value="${esc(rclNum)}"></div>
-      <div><button class="btn sm" type="button" data-orden>Buscar orden</button></div>
-      ${vistaReclamo()}</div>`;
+    ${cliMsg ? `<p class="err" role="alert">${esc(cliMsg)}</p>` : ""}`;
   if (cli && cli.cargando) h += `<div class="ficha"><span class="nota">Cargando tarjeta…</span></div>`;
   else if (cli) {
     const suma = cli.sellos + cliPend, ganaria = Math.floor(suma / 10);
@@ -572,8 +622,11 @@ function _pintarAdmin() {
       <p class="nota">Versión de prueba · contraseña: <b style="user-select:all">${CLAVE_DEMO}</b></p></div>`);
     return;
   }
-  const tabs = `<div class="tabs"><button type="button" data-tab="cli" aria-pressed="${tabAdm === "cli"}">Sellos clientes</button><button type="button" data-tab="prod" aria-pressed="${tabAdm === "prod"}">Productos</button><button type="button" data-tab="neg" aria-pressed="${tabAdm === "neg"}">Negocio</button></div>`;
+  const tabs = `<div class="tabs"><button type="button" data-tab="ped" aria-pressed="${tabAdm === "ped"}">🛵 Sellos pedidos${pendientes.length ? ` <span class="badge">${pendientes.length}</span>` : ""}</button><button type="button" data-tab="cli" aria-pressed="${tabAdm === "cli"}">Sellos clientes</button><button type="button" data-tab="prod" aria-pressed="${tabAdm === "prod"}">Productos</button><button type="button" data-tab="neg" aria-pressed="${tabAdm === "neg"}">Negocio</button></div>`;
   let cuerpo;
+  if (tabAdm === "ped") {
+    cuerpo = vistaPedidos();
+  } else
   if (tabAdm === "cli") {
     cuerpo = vistaSellos();
   } else
@@ -604,7 +657,7 @@ function _pintarAdmin() {
       <button class="btn sm" type="button" data-reset>Volver a los datos de ejemplo</button></div>`;
   }
   abrirHoja(`<div class="asa"></div><button class="x" type="button" data-cerrar aria-label="Cerrar">×</button>
-    <h2 id="hojaT">Administrar menú</h2><p class="nota">${tabAdm === "cli" ? (Tarjetas.prueba ? "🧪 Estás en el <b>modo prueba</b>: nada de esto toca los clientes reales." : "Las tarjetas se guardan en la nube: el cliente ve sus sellos al instante.") : "En la demo, los cambios del menú se guardan solo en este celular."}
+    <h2 id="hojaT">Administrar menú</h2><p class="nota">${tabAdm === "cli" || tabAdm === "ped" ? (Tarjetas.prueba ? "🧪 Estás en el <b>modo prueba</b>: nada de esto toca los clientes reales." : "Las tarjetas se guardan en la nube: el cliente ve sus sellos al instante.") : "En la demo, los cambios del menú se guardan solo en este celular."}
       <a href="${Tarjetas.prueba ? "./" : "./?prueba"}">${Tarjetas.prueba ? "Volver a los datos reales" : "🧪 Abrir modo prueba"}</a> <button type="button" data-salir style="border:0;background:none;color:var(--fucsia2);text-decoration:underline;cursor:pointer">Salir</button></p>${tabs}${cuerpo}`);
 }
 
@@ -638,14 +691,17 @@ document.addEventListener("click", async e => {
     return;
   }
   if (b.id === "abrirAdmin") return pintarAdmin();
-  if (b.hasAttribute("data-entrar")) { if ($("#aClave").value === CLAVE_DEMO) { admin = true; lsSet("mm-admin", true);
+  if (b.hasAttribute("data-entrar")) { if ($("#aClave").value === CLAVE_DEMO) { admin = true; lsSet("mm-admin", true); escucharPedidos();
       if (fichaPendiente) { const t = fichaPendiente; fichaPendiente = null; abrirFicha(t); } else pintarAdmin(); } else $("#aErr").textContent = "Contraseña incorrecta."; return; }
-  if (b.hasAttribute("data-salir")) { admin = false; lsSet("mm-admin", false); cerrarHoja(); aviso("Sesión cerrada"); return; }
+  if (b.hasAttribute("data-salir")) { admin = false; lsSet("mm-admin", false); if (typeof pendUnsub === "function") pendUnsub(); pendUnsub = null; pendientes = []; pendPrimera = true; pintarAvisoPedidos(); cerrarHoja(); aviso("Sesión cerrada"); return; }
   if (b.hasAttribute("data-escanear")) { abrirCamara(); return; }
   if (b.hasAttribute("data-cerrar-cam")) { cerrarCamara(); tabAdm = "cli"; pintarAdmin(); return; }
   if (b.dataset.ficha) { cliNuevo = null; abrirFicha(b.dataset.ficha); return; }
   if (b.hasAttribute("data-cerrar-ficha")) { if (cliUnsub) { cliUnsub(); cliUnsub = null; } cli = null; cliPend = 0; cliMsg = ""; cliNuevo = null; pintarAdmin(); return; }
   if (b.dataset.canje) { cliCanje = Math.max(1, Math.min(cli ? cli.gratis : 1, cliCanje + +b.dataset.canje)); const sc = $("#hoja").scrollTop; pintarAdmin(); $("#hoja").scrollTop = sc; return; }
+  if (b.dataset.rcl) { rcl = "cargando"; rclN = 1; pintarAdmin(); try { rcl = await Tarjetas.verReclamo(b.dataset.rcl) || {no: true, orden: b.dataset.rcl}; } catch { rcl = "error"; } const sc = $("#hoja"); pintarAdmin(); sc.scrollTop = 0; return; }
+  if (b.hasAttribute("data-cerrar-rcl")) { rcl = null; pintarAdmin(); return; }
+  if (b.id === "avisoPed") { tabAdm = "ped"; rcl = null; pintarAdmin(); return; }
   if (b.hasAttribute("data-orden")) {
     rclApp = $("#oApp").value; rclNum = Tarjetas.ordenLimpia($("#oNum").value);
     if (rclNum.length < 3) { rcl = {no: true, orden: rclNum || "—"}; pintarAdmin(); return; }
@@ -659,7 +715,7 @@ document.addEventListener("click", async e => {
     try {
       if (aprobar) { const r = await Tarjetas.aprobarReclamo(id, rclN); aviso(r.ganados ? `🎉 ${r.nombre} ganó ${r.ganados} bebida${r.ganados === 1 ? "" : "s"} gratis. Tarjeta en ${r.sellos} de 10.` : `Listo: ${rclN} sello${rclN === 1 ? "" : "s"} para ${r.nombre} (${r.sellos} de 10)`); }
       else { await Tarjetas.rechazarReclamo(id); aviso("Orden rechazada"); }
-      rcl = await Tarjetas.verReclamo(id);
+      rcl = tabAdm === "ped" ? null : await Tarjetas.verReclamo(id);
     } catch (x) { aviso(x.message === "ya-revisada" ? "Esa orden ya se había revisado." : "No se pudo. Revisá la conexión."); }
     cliOcupado = false; pintarAdmin(); return;
   }
@@ -734,6 +790,8 @@ const q = encodeURIComponent("Parque Morazán, Barrio Amón, San José, Costa Ri
 $("#maps").href = `https://www.google.com/maps/search/?api=1&query=${q}`;
 $("#waze").href = `https://waze.com/ul?q=${q}&navigate=yes`;
 if (Tarjetas.prueba) { $("#bPrueba").hidden = false; Tarjetas.asegurarEjemplos().catch(() => {}); }
+if (admin) escucharPedidos();
+setInterval(() => { if (tabAdm === "ped" && panelAbierto() && !rcl) { const sc = $("#hoja").scrollTop; pintarAdmin(); $("#hoja").scrollTop = sc; } }, 60000);
 pintarCats(); pintarMenu(); pintarHorario(); pintarCarrito(); pintarSellos();
 // #sellos-TOKEN: la dueña escaneó con la cámara normal del celular y tocó "Sumar sellos" en la tarjeta del cliente.
 function leerHash() {

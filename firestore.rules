@@ -279,6 +279,24 @@ service cloud.firestore {
         && request.resource.data.revisado == request.time;
       allow delete: if esAdmin();
     }
+    // Lista de pedidos esperando sello: solo primer nombre + inicial, app y número de orden (sin el código de la tarjeta).
+    // Se crea junto con el reclamo y se borra cuando la dueña lo aprueba o lo rechaza.
+    match /demo_matcha_pendientes/{id} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasOnly(['nombre','app','orden','creado'])
+        && request.resource.data.nombre is string && request.resource.data.nombre.size() <= 40
+        && request.resource.data.creado == request.time
+        && existsAfter(/databases/$(database)/documents/demo_matcha_reclamos/$(id))
+        && getAfter(/databases/$(database)/documents/demo_matcha_reclamos/$(id)).data.estado == 'pendiente';
+      allow delete: if esAdmin()
+        || (exists(/databases/$(database)/documents/demo_matcha_reclamos/$(id))
+          && getAfter(/databases/$(database)/documents/demo_matcha_reclamos/$(id)).data.estado != 'pendiente');
+    }
+    match /prueba_matcha_pendientes/{id} {
+      allow read, delete: if true;
+      allow create, update: if id.size() <= 40 && request.resource.data.keys().hasOnly(['nombre','app','orden','creado'])
+        && request.resource.data.nombre is string && request.resource.data.nombre.size() <= 40;
+    }
     match /prueba_matcha_reclamos/{id} {
       allow read, delete: if true;
       allow create, update: if id.size() <= 40
