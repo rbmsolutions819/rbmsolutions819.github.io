@@ -10,6 +10,8 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Matcha Mía">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="icon" href="logo.png">
+<link rel="apple-touch-icon" href="logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Shrikhand&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -27,6 +29,7 @@ body{margin:0;background:radial-gradient(circle at 20% 0%,#f05a95,var(--fondo) 5
   padding:calc(20px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) calc(24px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
 [hidden]{display:none!important}
 .t{max-width:420px;margin:0 auto;background:var(--tarjeta);border-radius:28px;padding:22px 20px 20px;box-shadow:0 30px 60px -24px rgba(58,20,36,.6);display:grid;gap:16px;text-align:center}
+.logo{width:104px;height:104px;border-radius:50%;margin:0 auto -6px;border:3px solid #fff;box-shadow:0 10px 24px -12px rgba(176,24,90,.6)}
 .marca{font:400 30px/1 var(--f-logo);color:var(--fucsia)}
 .sub{color:var(--suave);font-weight:700;font-size:14px;margin-top:-8px}
 .nombre{font-size:20px;font-weight:800}
@@ -79,7 +82,7 @@ details.clave .form{margin-top:10px}
 </head>
 <body>
 <main class="t" id="t">
-  <div class="marca">Matcha Mía</div>
+  <img class="logo" src="logo.png" alt="" width="104" height="104"><div class="marca">Matcha Mía</div>
   <div class="sub">Tarjeta de sellos</div>
   <p class="nota" id="carga">Cargando tu tarjeta…</p>
 </main>
@@ -106,7 +109,7 @@ if (Tarjetas.prueba) { $("#bPrueba").hidden = false; document.body.style.padding
 const EJEMPLO = {ced: "111111111", pin: "1234", token: "ejemplomatcha00000", tarjeta: {nombre: "Cliente de ejemplo", sellos: 7, gratis: 2, canjes: 1, total: 37}};
 const token = location.hash === "#ingresar" ? null : (Tarjetas.tokenDeTexto(location.hash) || lsGet(Tarjetas.KEY, null));
 const t = $("#t");
-const LOGO = `<div class="marca">Matcha Mía</div>`;
+const LOGO = `<img class="logo" src="logo.png" alt="" width="104" height="104"><div class="marca">Matcha Mía</div>`;
 const entrar = tk => { lsSet(Tarjetas.KEY, tk); location.replace(Tarjetas.link(tk)); location.reload(); };
 
 // ---- Ingreso con cédula y clave ----
@@ -158,7 +161,7 @@ if (!location.hash.includes(token)) history.replaceState(null, "", "#t=" + token
 let antes = null;
 function pintar(c) {
   if (!c) {
-    t.innerHTML = `<div class="marca">Matcha Mía</div><div class="sub">Tarjeta de sellos</div><p>Esta tarjeta ya no existe.</p><p class="nota">Pedí una nueva en la barra.</p>`;
+    t.innerHTML = `<img class="logo" src="logo.png" alt="" width="104" height="104"><div class="marca">Matcha Mía</div><div class="sub">Tarjeta de sellos</div><p>Esta tarjeta ya no existe.</p><p class="nota">Pedí una nueva en la barra.</p>`;
     lsSet(Tarjetas.KEY, null); return;
   }
   c = Tarjetas.normal(c);
@@ -169,7 +172,7 @@ function pintar(c) {
     return `<i class="${cls}">${i < s ? "🐾" : i === 9 ? "GRATIS" : ""}</i>`;
   }).join("");
   const pasos = esIOS ? `<li>Tocá <b>Compartir</b> (el cuadro con la flecha).</li><li>Tocá <b>Agregar a inicio</b>.</li>` : `<li>Tocá el menú <b>⋮</b> del navegador.</li><li>Tocá <b>Agregar a pantalla principal</b>.</li>`;
-  t.innerHTML = `<div class="marca">Matcha Mía</div><div class="sub">Tarjeta de sellos</div>
+  t.innerHTML = `<img class="logo" src="logo.png" alt="" width="104" height="104"><div class="marca">Matcha Mía</div><div class="sub">Tarjeta de sellos</div>
     <div class="nombre">${esc(c.nombre)}</div>
     <div class="qr" id="qr" aria-label="Tu código QR"></div>
     <p class="nota">Mostrá este QR en la barra para sumar sellos.</p>
@@ -214,7 +217,7 @@ function pintar(c) {
 }
 if (esEjemplo) { pintar(EJEMPLO.tarjeta); return; }
 Tarjetas.escuchar(token, pintar, () => { $("#carga") && ($("#carga").textContent = "No se pudo cargar tu tarjeta. Revisá tu conexión."); })
-  .catch(() => { t.innerHTML = `<div class="marca">Matcha Mía</div><div class="sub">Tarjeta de sellos</div><p>No se pudo cargar tu tarjeta.</p><p class="nota">Revisá tu conexión e intentá de nuevo.</p>`; });
+  .catch(() => { t.innerHTML = `<img class="logo" src="logo.png" alt="" width="104" height="104"><div class="marca">Matcha Mía</div><div class="sub">Tarjeta de sellos</div><p>No se pudo cargar tu tarjeta.</p><p class="nota">Revisá tu conexión e intentá de nuevo.</p>`; });
 })();
 </script>
 </body>

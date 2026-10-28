@@ -7,6 +7,8 @@
 <title>Matcha Mía · Menú (demo)</title>
 <meta name="description" content="Demo de menú digital con pedidos para recoger, hecha por RBM Solutions.">
 <meta name="theme-color" content="#fbe3ee">
+<link rel="icon" href="logo.png">
+<link rel="apple-touch-icon" href="logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Shrikhand&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -51,6 +53,7 @@ a{color:var(--fucsia2)}
 
 /* portada */
 .top{background:var(--rosa);border-bottom:2px solid var(--rosa2)}
+.logo{width:clamp(96px,22vw,128px);height:auto;aspect-ratio:1;border-radius:50%;border:3px solid #fff;box-shadow:0 10px 24px -12px rgba(176,24,90,.6)}
 .top .wrap{display:grid;grid-template-columns:auto minmax(0,1fr);gap:16px;align-items:center;padding-block:22px 20px}
 .sello{width:86px;height:86px;border-radius:50%;background:#fff;border:3px solid var(--fucsia);display:grid;place-items:center;box-shadow:0 0 0 5px var(--rosa2)}
 .sello svg{width:60px;height:60px}
@@ -189,13 +192,7 @@ label.c textarea{min-height:64px;resize:vertical}
 
 <header class="top">
   <div class="wrap">
-    <div class="sello" aria-hidden="true">
-      <svg viewBox="0 0 64 64" fill="none" stroke="#d6246e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M12 34c0-6 5-9 11-9h17c6 0 9 3 11 6l5-3c2 3 1 7-2 8l-4 1c-1 4-5 6-10 6H22c-6 0-10-3-10-9z"/>
-        <path d="M18 43v6M26 43v6M38 43v6M45 41v6M12 32l-5-3"/><circle cx="50" cy="31" r="1.4" fill="#d6246e"/>
-        <path d="M27 20c0-5 6-5 6 0 0-5 6-5 6 0 0 4-6 7-6 7s-6-3-6-7z" fill="#7aa33b" stroke="#7aa33b" stroke-width="1"/>
-      </svg>
-    </div>
+    <img class="logo" src="logo.png" alt="" width="120" height="120">
     <div>
       <h1 id="nombre">Matcha Mía</h1>
       <p class="lema" id="lema">Matcha bar, inspirado en una salchichita</p>
