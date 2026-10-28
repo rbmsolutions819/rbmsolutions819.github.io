@@ -9,6 +9,7 @@
 <meta name="theme-color" content="#0b0916">
 <link rel="icon" href="logo.png">
 <link rel="apple-touch-icon" href="logo.png">
+<link rel="preload" as="image" href="hero.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -41,15 +42,14 @@ a{color:var(--cian)}
 .greca{height:20px;background:var(--greca) repeat-x center/40px 20px;opacity:.8}
 
 /* portada */
-.top{position:relative;overflow:hidden;text-align:center;border-bottom:1px solid var(--linea)}
-.top::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(125,91,184,.12) 0 3px,transparent 3px 9px,rgba(79,195,217,.10) 9px 12px,transparent 12px 18px);mask-image:linear-gradient(90deg,#000 0 18%,transparent 30% 70%,#000 82%);-webkit-mask-image:linear-gradient(90deg,#000 0 18%,transparent 30% 70%,#000 82%)}
-.top .wrap{position:relative;display:grid;justify-items:center;gap:10px;padding-block:26px 24px}
-.logo{width:min(200px,52vw);height:auto;aspect-ratio:1;border-radius:50%;box-shadow:0 0 0 2px rgba(196,177,255,.5),0 0 60px rgba(70,90,255,.55)}
+.top{position:relative;overflow:hidden;text-align:center;border-bottom:1px solid var(--linea);background:#0c0a1c url("hero.jpg") center 42%/cover no-repeat}
+.top::after{content:"";position:absolute;inset:auto 0 0 0;height:55%;background:linear-gradient(transparent,rgba(11,9,22,.85));pointer-events:none}
+.top .wrap{position:relative;z-index:1;display:grid;justify-items:center;align-content:end;gap:10px;min-height:clamp(400px,62vw,540px);padding-block:20px 22px}
+.top .greca{position:relative;z-index:1}
+.top .lema{font:600 clamp(15px,3.6vw,18px) var(--f-logo);color:var(--texto);letter-spacing:.18em;text-transform:uppercase;text-shadow:0 2px 10px rgba(0,0,0,.6)}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-.top h1{font:800 clamp(40px,11vw,72px)/1 var(--f-logo);letter-spacing:.16em;color:var(--texto);text-shadow:0 0 24px rgba(79,195,217,.35)}
-.top .lema{font:600 clamp(15px,3.6vw,18px) var(--f-logo);color:var(--oro);letter-spacing:.14em;text-transform:uppercase}
 .chips-info{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-top:6px}
-.chips-info span,.chips-info a{font-size:13px;font-weight:700;background:rgba(255,255,255,.04);border:1px solid var(--linea);border-radius:999px;padding:5px 11px;color:var(--texto);text-decoration:none}
+.chips-info span,.chips-info a{font-size:13px;font-weight:700;background:rgba(11,9,22,.55);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);border:1px solid var(--linea);border-radius:999px;padding:5px 11px;color:var(--texto);text-decoration:none}
 .abierto{color:var(--ok)!important}
 .cerrado{color:var(--magenta)!important}
 
@@ -186,7 +186,6 @@ label.c textarea{min-height:64px;resize:vertical}
 <header class="top">
   <div class="greca" aria-hidden="true"></div>
   <div class="wrap">
-    <img class="logo" src="logo.png" alt="Koktela" width="200" height="200">
     <h1 id="nombre" class="sr">Koktela</h1>
     <p class="lema" id="lema">El ride para llevar</p>
     <div class="chips-info"><span id="estado">Cargando horario…</span><a href="#lealtad">⚡ Mi tarjeta</a><a href="#info">📍 La California</a><a id="ig" href="https://www.instagram.com/koktelaelride" target="_blank" rel="noopener">Instagram</a></div>
