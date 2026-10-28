@@ -39,6 +39,10 @@ a{color:var(--cian)}
 .wrap{max-width:1000px;margin:0 auto;padding-left:var(--gl);padding-right:var(--gr)}
 .demo{background:#000;color:var(--suave);font-size:12.5px;text-align:center;padding:6px var(--gr) 6px var(--gl);padding-top:calc(6px + env(safe-area-inset-top,0px));border-bottom:1px solid var(--linea)}
 .demo b{color:var(--oro)}
+.prueba{background:#f6c90e;color:#1a1400;font-size:13px;font-weight:700;text-align:center;padding:6px var(--gr) 6px var(--gl)}
+.prueba a{color:#1a1400;font-weight:800}
+.ejs{display:grid;gap:4px;font-size:13.5px}
+.ejs div{display:flex;justify-content:space-between;gap:8px;border-bottom:1px dashed var(--linea);padding:4px 0}
 .greca{height:20px;background:var(--greca) repeat-x center/40px 20px}
 
 /* portada */
@@ -176,6 +180,7 @@ label.c textarea{min-height:64px;resize:vertical}
 <body>
 
 <div class="demo">Demo de <b>RBM Solutions</b> · precios tomados del menú publicado; horario de ejemplo</div>
+<div class="prueba" id="bPrueba" hidden>🧪 <b>Modo prueba</b> · los clientes y sellos son de ejemplo, no son reales · <a href="./">Salir</a></div>
 
 <div class="edad" id="edad" hidden><div>
   <h2>¿Mayor de 18?</h2><p>Para ver el menú de cócteles confirmá que sos mayor de edad.</p>
@@ -323,11 +328,12 @@ let D = lsGet("kk-datos", null) || JSON.parse(JSON.stringify(BASE));
 let pedido = []; try { localStorage.removeItem("kk-pedido"); } catch {}
 // Tarjeta de sellos: la dueña registra a cada cliente (nombre y cédula) y se genera su QR.
 // Todo se guarda en Firebase: el cliente ve sus sellos al instante en su tarjeta (tarjeta.html).
-let miToken = lsGet("kk-token", null);
+let miToken = lsGet(Tarjetas.KEY, null);
 let catSel = "todo", admin = lsGet("kk-admin", false);
+let confirmarBorrado = false;
 let cli = null, cliPend = 0, cliMsg = "", cliOcupado = false, cliUnsub = null, cliNuevo = null;
-let recientes = lsGet("kk-recientes", []);
-const recordar = (token, nombre) => { recientes = [{token, nombre}, ...recientes.filter(r => r.token !== token)].slice(0, 12); lsSet("kk-recientes", recientes); };
+let recientes = lsGet(Tarjetas.prueba ? "kk-recientes-prueba" : "kk-recientes", []);
+const recordar = (token, nombre) => { recientes = [{token, nombre}, ...recientes.filter(r => r.token !== token)].slice(0, 12); lsSet(Tarjetas.prueba ? "kk-recientes-prueba" : "kk-recientes", recientes); };
 const guardarD = () => lsSet("kk-datos", D);
 const guardarP = () => { lsSet("kk-pedido", pedido); pintarCarrito(); };
 
@@ -458,14 +464,14 @@ function pintarSellos() {
   if (!miToken) {
     t.innerHTML = `<p>Pedí tu tarjeta gratis en la barra: te registramos con tu nombre y cédula y te mandamos tu QR por WhatsApp.</p>
       ${selloHTML(0)}<p class="nota">Cada cóctel suma un sello y <b>la décima es gratis</b>. </p>
-      <div class="fila-btn"><a class="btn sm pri" href="tarjeta.html#ingresar">Ya tengo tarjeta: ingresar con mi cédula</a></div>`;
+      <div class="fila-btn"><a class="btn sm pri" href="${Tarjetas.url('tarjeta.html#ingresar')}">Ya tengo tarjeta: ingresar con mi cédula</a></div>`;
     return;
   }
   t.innerHTML = `<p class="nota">Cargando tu tarjeta…</p>`;
   if (miUnsub) return;
   const fallo = () => { t.innerHTML = `<p class="nota">No se pudo cargar tu tarjeta. Revisá tu conexión.</p>`; };
   Tarjetas.escuchar(miToken, c => {
-    if (!c) { miToken = null; lsSet("kk-token", null); pintarSellos(); return; }
+    if (!c) { miToken = null; lsSet(Tarjetas.KEY, null); pintarSellos(); return; }
     t.innerHTML = `<div class="miTarj"><div class="qr" id="qr" aria-label="Código QR de tu tarjeta"></div>
         <div style="display:grid;gap:6px"><span class="nota">Tarjeta de</span><span class="codigo" style="letter-spacing:0">${esc(c.nombre)}</span>
         <span class="nota">Mostrá este QR en la barra y te sumamos los sellos.</span><a class="btn sm" href="${Tarjetas.link(miToken)}">Abrir mi tarjeta</a></div></div>
@@ -513,6 +519,11 @@ function vistaSellos() {
         <div class="fila-btn">${cliNuevo.tel ? `<a class="btn sm verde" target="_blank" rel="noopener" href="https://wa.me/506${cliNuevo.tel}?text=${encodeURIComponent(msj)}">Enviar por WhatsApp</a>` : ""}
           <button class="btn sm" type="button" data-copiar-link="${esc(Tarjetas.link(cliNuevo.token))}">Copiar link</button></div></div></div></div>`;
   }
+  if (Tarjetas.prueba) h += `<div class="grupo"><b>🧪 Base de datos de prueba</b>
+      <p class="nota">Clientes de ejemplo para practicar o enseñar la demo. Entran en la tarjeta con su cédula y su clave.</p>
+      <div class="ejs">${Tarjetas.EJEMPLOS.map(e => `<div><span>${esc(e.nombre)} · ${e.sellos} sellos</span><span>${e.ced} · clave ${e.pin}</span></div>`).join("")}</div>
+      <div class="fila-btn"><button class="btn sm pri" type="button" data-pr-cargar ${cliOcupado ? "disabled" : ""}>Cargar clientes de ejemplo</button>
+        <button class="btn sm" type="button" data-pr-borrar ${cliOcupado ? "disabled" : ""}>Borrar todo y empezar de cero</button></div></div>`;
   h += `<div class="grupo"><b>Registrar cliente nuevo</b>
       <label class="c">Nombre completo<input id="rNom" maxlength="60" autocomplete="off" placeholder="Ej.: Daniela Mora"></label>
       <label class="c">Cédula<input id="rCed" inputmode="numeric" maxlength="15" autocomplete="off" placeholder="Ej.: 1 1234 5678"></label>
@@ -600,7 +611,8 @@ function _pintarAdmin() {
       <button class="btn sm" type="button" data-reset>Volver a los datos de ejemplo</button></div>`;
   }
   abrirHoja(`<div class="asa"></div><button class="x" type="button" data-cerrar aria-label="Cerrar">×</button>
-    <h2 id="hojaT">Administrar menú</h2><p class="nota">${tabAdm === "cli" ? "Las tarjetas se guardan en la nube: el cliente ve sus sellos al instante." : "En la demo, los cambios del menú se guardan solo en este celular."} <button type="button" data-salir style="border:0;background:none;color:var(--fucsia2);text-decoration:underline;cursor:pointer">Salir</button></p>${tabs}${cuerpo}`);
+    <h2 id="hojaT">Administrar menú</h2><p class="nota">${tabAdm === "cli" ? (Tarjetas.prueba ? "🧪 Estás en el <b>modo prueba</b>: nada de esto toca los clientes reales." : "Las tarjetas se guardan en la nube: el cliente ve sus sellos al instante.") : "En la demo, los cambios del menú se guardan solo en este celular."}
+      <a href="${Tarjetas.prueba ? "./" : "./?prueba"}" style="color:var(--oro)">${Tarjetas.prueba ? "Volver a los datos reales" : "🧪 Abrir modo prueba"}</a> <button type="button" data-salir style="border:0;background:none;color:var(--fucsia2);text-decoration:underline;cursor:pointer">Salir</button></p>${tabs}${cuerpo}`);
 }
 
 /* ===== Acciones ===== */
@@ -673,6 +685,14 @@ document.addEventListener("click", async e => {
     catch { cliOcupado = false; $("#rErr").textContent = "No se pudo crear la tarjeta. Revisá la conexión."; b.disabled = false; }
     return;
   }
+  if (b.hasAttribute("data-pr-cargar") || b.hasAttribute("data-pr-borrar")) {
+    const borrar = b.hasAttribute("data-pr-borrar");
+    if (borrar && !confirmarBorrado) { confirmarBorrado = true; b.textContent = "Tocá otra vez para borrar todo"; setTimeout(() => confirmarBorrado = false, 4000); return; }
+    confirmarBorrado = false; cliOcupado = true; pintarAdmin();
+    try { if (borrar) await Tarjetas.borrarPrueba(); else await Tarjetas.cargarEjemplos(); aviso(borrar ? "Base de prueba vacía" : "Clientes de ejemplo cargados"); }
+    catch { aviso("No se pudo. Revisá la conexión."); }
+    cliOcupado = false; if (cliUnsub) { cliUnsub(); cliUnsub = null; } cli = null; cliNuevo = null; pintarAdmin(); return;
+  }
   if (b.dataset.copiarLink) { const l = b.dataset.copiarLink; try { await navigator.clipboard.writeText(l); aviso("Link copiado"); } catch { aviso(l); } return; }
   if (b.dataset.tab) { tabAdm = b.dataset.tab; pintarAdmin(); return; }
   if (b.dataset.borrar) { D.productos = D.productos.filter(p => p.id !== b.dataset.borrar); guardarD(); pintarMenu(); pintarAdmin(); aviso("Producto borrado"); return; }
@@ -703,6 +723,7 @@ if (!lsGet("kk-mayor", false)) { $("#edad").hidden = false; }
 $("#soyMayor").addEventListener("click", () => { lsSet("kk-mayor", true); $("#edad").hidden = true; });
 $("#maps").href = `https://www.google.com/maps/search/?api=1&query=${q}`;
 $("#waze").href = `https://waze.com/ul?q=${q}&navigate=yes`;
+if (Tarjetas.prueba) $("#bPrueba").hidden = false;
 pintarCats(); pintarMenu(); pintarHorario(); pintarCarrito(); pintarSellos();
 // #sellos-TOKEN: la dueña escaneó con la cámara normal del celular y tocó "Sumar sellos" en la tarjeta del cliente.
 function leerHash() {

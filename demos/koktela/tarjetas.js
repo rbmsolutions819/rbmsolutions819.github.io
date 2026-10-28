@@ -11,7 +11,12 @@ window.Tarjetas = (() => {
     messagingSenderId: "602522235911",
     appId: "1:602522235911:web:bd4fe58dcecb79edefe6a2"
   };
-  const COL = "demo_koktela_clientes", IDX = "demo_koktela_ced", ACC = "demo_koktela_acceso";
+  // Modo prueba: con ?prueba en la dirección todo va a una base de datos aparte, con clientes de ejemplo.
+  const PRUEBA = /[?&]prueba\b/.test(location.search);
+  const PRE = PRUEBA ? "prueba_koktela_" : "demo_koktela_";
+  const COL = PRE + "clientes", IDX = PRE + "ced", ACC = PRE + "acceso";
+  const KEY = PRUEBA ? "kk-token-prueba" : "kk-token";
+  const url = ruta => { const u = new URL(ruta, location.href); if (PRUEBA) u.search = "?prueba"; return u.href; };
   const BASE = "https://www.gstatic.com/firebasejs/10.12.2/";
   let listo = null, F = null, db = null;
 
@@ -40,7 +45,7 @@ window.Tarjetas = (() => {
     const b = new Uint8Array(15); crypto.getRandomValues(b);
     return [...b].map(x => x.toString(36).padStart(2, "0")).join("").slice(0, 24);
   }
-  const link = token => new URL("tarjeta.html#t=" + token, location.href).href;
+  const link = token => url("tarjeta.html#t=" + token);
   const tokenDeTexto = txt => { const m = String(txt || "").match(/[#&?]t=([a-z0-9]{16,40})/i) || String(txt || "").match(/^([a-z0-9]{16,40})$/i); return m ? m[1].toLowerCase() : null; };
 
   async function buscarPorCedula(cedula) {
@@ -83,6 +88,34 @@ window.Tarjetas = (() => {
     const s = await F.getDoc(F.doc(db, ACC, await huellaAcceso(cedula, clave)));
     return s.exists() ? s.data().t : null;
   }
+  // ----- Solo en modo prueba -----
+  const EJEMPLOS = [
+    {nombre: "Ana Solís", ced: "101110111", pin: "1111", sellos: 3, canjes: 0},
+    {nombre: "Carlos Mora", ced: "202220222", pin: "2222", sellos: 6, canjes: 1},
+    {nombre: "María Vargas", ced: "303330333", pin: "3333", sellos: 9, canjes: 0},
+    {nombre: "José Rojas", ced: "404440444", pin: "4444", sellos: 10, canjes: 2},
+    {nombre: "Laura Jiménez", ced: "505550555", pin: "5555", sellos: 0, canjes: 0}
+  ];
+  async function cargarEjemplos() {
+    if (!PRUEBA) throw new Error("solo-prueba");
+    await iniciar();
+    for (const e of EJEMPLOS) {
+      const h = await huella(e.ced), ya = await F.getDoc(F.doc(db, IDX, h));
+      const token = ya.exists() ? ya.data().t : nuevoToken(), w = F.writeBatch(db);
+      w.set(F.doc(db, COL, token), { nombre: e.nombre, ced4: e.ced.slice(-4), sellos: e.sellos, canjes: e.canjes, creado: F.serverTimestamp(), actualizado: F.serverTimestamp() });
+      w.set(F.doc(db, IDX, h), { t: token });
+      w.set(F.doc(db, ACC, await huellaAcceso(e.ced, e.pin)), { t: token });
+      await w.commit();
+    }
+  }
+  async function borrarPrueba() {
+    if (!PRUEBA) throw new Error("solo-prueba");
+    await iniciar();
+    for (const c of [ACC, IDX, COL]) {
+      const s = await F.getDocs(F.collection(db, c));
+      for (let i = 0; i < s.docs.length; i += 400) { const w = F.writeBatch(db); s.docs.slice(i, i + 400).forEach(d => w.delete(d.ref)); await w.commit(); }
+    }
+  }
   // Suma sellos (máximo 10 en la tarjeta). No existe la opción de restar.
   async function sumar(token, n) {
     await iniciar();
@@ -110,5 +143,5 @@ window.Tarjetas = (() => {
     await iniciar();
     return F.onSnapshot(F.doc(db, COL, token), s => alCambiar(s.exists() ? { token, ...s.data() } : null), e => alFallar && alFallar(e));
   }
-  return { iniciar, buscarPorCedula, obtener, crear, crearAcceso, ingresar, sumar, canjear, escuchar, link, tokenDeTexto, soloDigitos };
+  return { prueba: PRUEBA, KEY, url, EJEMPLOS, cargarEjemplos, borrarPrueba, iniciar, buscarPorCedula, obtener, crear, crearAcceso, ingresar, sumar, canjear, escuchar, link, tokenDeTexto, soloDigitos };
 })();

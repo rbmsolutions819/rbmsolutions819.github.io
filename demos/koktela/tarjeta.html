@@ -65,6 +65,7 @@ body{margin:0;background:radial-gradient(700px 400px at 80% -10%,rgba(31,91,181,
 details.clave{border:1px dashed var(--linea);border-radius:8px;padding:10px 12px;text-align:left}
 details.clave summary{cursor:pointer;font-weight:800;font-size:14.5px}
 details.clave .form{margin-top:10px}
+.prueba{position:fixed;top:0;left:0;right:0;z-index:70;background:#f6c90e;color:#1a1400;font:800 13px var(--f-txt);text-align:center;padding:5px 10px;padding-top:calc(5px + env(safe-area-inset-top,0px))}
 .toast{position:fixed;left:50%;transform:translate(-50%,20px);bottom:calc(24px + env(safe-area-inset-bottom,0px));background:var(--texto);color:var(--fondo);padding:12px 18px;border-radius:8px;font-weight:800;opacity:0;pointer-events:none;transition:.25s;max-width:calc(100% - 32px)}
 .toast.on{opacity:1;transform:translate(-50%,0)}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
@@ -77,6 +78,7 @@ details.clave .form{margin-top:10px}
   <p class="nota" id="carga">Cargando tu tarjeta…</p>
 </main>
 <div class="toast" id="toast" role="status"></div>
+<div class="prueba" id="bPrueba" hidden>🧪 Modo prueba · datos de ejemplo</div>
 
 <script src="../matcha/qrcode.min.js"></script>
 <script src="tarjetas.js"></script>
@@ -93,12 +95,13 @@ let tAviso; const aviso = t => { const el = $("#toast"); el.textContent = t; el.
 
 // El código de la tarjeta viene en el link (#t=...). Se recuerda en este celular para abrirla aunque falte el link.
 addEventListener("hashchange", () => { const n = Tarjetas.tokenDeTexto(location.hash); if (n && n !== token) location.reload(); });
+if (Tarjetas.prueba) { $("#bPrueba").hidden = false; document.body.style.paddingTop = "48px"; }
 // Usuario de ejemplo para mostrar la demo (no usa la base de datos).
 const EJEMPLO = {ced: "111111111", pin: "1234", token: "ejemplokoktela0000", tarjeta: {nombre: "Cliente de ejemplo", sellos: 7, canjes: 1}};
-const token = location.hash === "#ingresar" ? null : (Tarjetas.tokenDeTexto(location.hash) || lsGet("kk-token", null));
+const token = location.hash === "#ingresar" ? null : (Tarjetas.tokenDeTexto(location.hash) || lsGet(Tarjetas.KEY, null));
 const t = $("#t");
 const LOGO = `<img class="logo" src="logo.png" alt="Koktela" width="110" height="110">`;
-const entrar = tk => { lsSet("kk-token", tk); location.replace("tarjeta.html#t=" + tk); location.reload(); };
+const entrar = tk => { lsSet(Tarjetas.KEY, tk); location.replace(Tarjetas.link(tk)); location.reload(); };
 
 // ---- Ingreso con cédula y clave ----
 function pintarIngreso() {
@@ -111,7 +114,7 @@ function pintarIngreso() {
     </form>
     <div class="ejemplo"><b>Usuario de ejemplo</b><br>Cédula <b>1 1111 1111</b> · clave <b>1234</b></div>
     <p class="nota">¿No tenés clave? Pedila en la barra, o abrí el link que te mandamos por WhatsApp y creala desde ahí.</p>
-    <a class="btn" href="./">Ver el menú</a>`;
+    <a class="btn" href="${Tarjetas.url('./')}">Ver el menú</a>`;
   $("#fIng").addEventListener("submit", async e => {
     e.preventDefault();
     const ced = Tarjetas.soloDigitos($("#iCed").value), pin = Tarjetas.soloDigitos($("#iPin").value), err = $("#iErr");
@@ -128,14 +131,14 @@ function pintarIngreso() {
 }
 if (!token) { pintarIngreso(); return; }
 const esEjemplo = token === EJEMPLO.token;
-lsSet("kk-token", token);
+lsSet(Tarjetas.KEY, token);
 if (!location.hash.includes(token)) history.replaceState(null, "", "#t=" + token);
 
 let antes = null;
 function pintar(c) {
   if (!c) {
     t.innerHTML = `<img class="logo" src="logo.png" alt="Koktela" width="110" height="110"><div class="sub">Tarjeta de sellos</div><p>Esta tarjeta ya no existe.</p><p class="nota">Pedí una nueva en la barra.</p>`;
-    lsSet("kk-token", null); return;
+    lsSet(Tarjetas.KEY, null); return;
   }
   const s = Math.min(c.sellos || 0, 10), sube = antes != null && s > antes;
   const sellos = Array.from({length: 10}, (_, i) => {
@@ -152,7 +155,7 @@ function pintar(c) {
     ${c.canjes ? `<p class="nota">Ya canjeaste ${c.canjes} cóctel${c.canjes === 1 ? "" : "s"} gratis 🏛️</p>` : ""}
     <span class="vivo"><i></i>Se actualiza sola</span>
     ${instalada() ? "" : `<div class="guardar"><b>Guardala en tu celular</b><span>Así la abrís como una app, sin buscar el link:</span><ol>${pasos}</ol></div>`}
-    <div class="links"><a class="btn" href="./">Ver el menú</a></div>
+    <div class="links"><a class="btn" href="${Tarjetas.url('./')}">Ver el menú</a></div>
     ${esEjemplo ? `<p class="nota">Esta es una tarjeta de ejemplo para ver cómo funciona.</p>` : `<details class="clave"><summary>🔑 Crear mi usuario y clave</summary>
       <form class="form" id="fClave" novalidate>
         <span class="nota">Así podés entrar desde cualquier celular con tu cédula y tu clave.</span>
@@ -161,8 +164,8 @@ function pintar(c) {
         <p class="err" id="cErr"></p><button class="btn pri" type="submit">Guardar mi clave</button>
       </form></details>`}
     <button class="salir" type="button" id="salir">Salir de esta tarjeta</button>
-    ${esEjemplo ? "" : `<p class="dueña">¿Sos del personal? <a href="./#sellos-${token}">Sumar sellos</a></p>`}`;
-  $("#salir").addEventListener("click", () => { lsSet("kk-token", null); location.replace("tarjeta.html#ingresar"); location.reload(); });
+    ${esEjemplo ? "" : `<p class="dueña">¿Sos del personal? <a href="${Tarjetas.url('./#sellos-' + token)}">Sumar sellos</a></p>`}`;
+  $("#salir").addEventListener("click", () => { lsSet(Tarjetas.KEY, null); location.replace(Tarjetas.url("tarjeta.html#ingresar")); location.reload(); });
   const fc = $("#fClave");
   if (fc) fc.addEventListener("submit", async e => {
     e.preventDefault();

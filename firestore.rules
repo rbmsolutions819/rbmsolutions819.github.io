@@ -189,6 +189,24 @@ service cloud.firestore {
       allow delete: if esAdmin();
     }
 
+    // MODO PRUEBA de Koktela: base de datos aparte, con datos de ejemplo. Cualquiera la puede reiniciar.
+    match /prueba_koktela_clientes/{t} {
+      allow read, delete: if true;
+      allow create, update: if t.size() >= 16 && t.size() <= 40
+        && request.resource.data.keys().hasOnly(['nombre','ced4','sellos','canjes','creado','actualizado'])
+        && request.resource.data.nombre is string && request.resource.data.nombre.size() <= 60
+        && request.resource.data.sellos is int && request.resource.data.sellos >= 0 && request.resource.data.sellos <= 10
+        && request.resource.data.canjes is int && request.resource.data.canjes >= 0 && request.resource.data.canjes <= 1000;
+    }
+    match /prueba_koktela_ced/{h} {
+      allow read, delete: if true;
+      allow create, update: if h.size() == 64 && request.resource.data.keys().hasOnly(['t']) && request.resource.data.t is string && request.resource.data.t.size() <= 40;
+    }
+    match /prueba_koktela_acceso/{h} {
+      allow read, delete: if true;
+      allow create, update: if h.size() == 64 && request.resource.data.keys().hasOnly(['t']) && request.resource.data.t is string && request.resource.data.t.size() <= 40;
+    }
+
     match /{path=**} { allow read, write: if false; }
   }
 }
