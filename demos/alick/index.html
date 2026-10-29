@@ -31,6 +31,8 @@ h1,h2,h3{font-family:var(--f-t);font-weight:600;line-height:1.05;margin:0}
 .dorado{background:linear-gradient(180deg,var(--oro2),var(--oro) 55%,var(--oro3));-webkit-background-clip:text;background-clip:text;color:transparent}
 .demo{background:#000;color:var(--suave);font-size:12.5px;text-align:center;padding:7px 12px;padding-top:calc(7px + env(safe-area-inset-top,0px));border-bottom:1px solid var(--linea)}
 .demo b{color:var(--oro2)}
+.prueba{background:#f6c90e;color:#1a1400;font-size:13px;font-weight:600;text-align:center;padding:7px 12px}
+.prueba a{color:#1a1400;font-weight:800}
 
 /* encabezado */
 .top{position:sticky;top:0;z-index:20;background:rgba(11,10,8,.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--linea)}
@@ -192,6 +194,7 @@ footer{border-top:1px solid var(--linea);text-align:center;padding:30px 16px 110
 </head>
 <body>
 <div class="demo">✨ <b>Página de ejemplo</b> hecha por RBM Solutions CR · precios de prueba</div>
+<div class="prueba" id="bPrueba" hidden>🧪 <b>Modo demo</b> · los pedidos no le llegan a la tienda: WhatsApp te deja escoger a quién enviarlo · <a href="./">Salir</a></div>
 
 <header class="top"><div class="wrap">
   <button class="hamb" id="hamb" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="lateral">☰</button>
@@ -331,7 +334,9 @@ const precio = p => p.oferta && p.oferta < p.precio ? p.oferta : p.precio;
 const rebaja = p => p.oferta && p.oferta < p.precio ? p.precio - p.oferta : 0;
 const nombreLargo = p => `${p.nombre} · ${p.marca}`;
 function toast(t){ const d = document.createElement("div"); d.className = "toast"; d.textContent = t; d.setAttribute("role", "status"); document.body.append(d); setTimeout(() => d.remove(), 2800); }
-const waNum = () => { const n = String(DB.negocio.whatsapp || "").replace(/\D/g, ""); return n.length === 8 ? "506" + n : n; };
+// Modo demo (?prueba): WhatsApp deja escoger el contacto, así nadie le escribe a la tienda mientras se prueba.
+const DEMO = /[?&]prueba\b/.test(location.search);
+const waNum = () => { if (DEMO) return ""; const n = String(DB.negocio.whatsapp || "").replace(/\D/g, ""); return n.length === 8 ? "506" + n : n; };
 const waLink = m => `https://wa.me/${waNum()}?text=${encodeURIComponent(m)}`;
 const fotoHTML = (p, conOferta = true) => `<div class="foto">${p.foto ? `<img src="${esc(p.foto)}" alt="${esc(p.nombre)}" loading="lazy">` : ""}${conOferta && rebaja(p) ? `<span class="of">−${crc(rebaja(p))}</span>` : ""}</div>`;
 const precioHTML = p => `<div class="precio"><b>${crc(precio(p))}</b>${rebaja(p) ? `<s>${crc(p.precio)}</s><span class="ah">Ahorrás ${crc(rebaja(p))}</span>` : ""}</div>`;
@@ -371,7 +376,7 @@ function pintar(){
   $("#lista-p").innerHTML = [...new Set(vis.flatMap(p => [p.nombre, p.marca]))].map(x => `<option value="${esc(x)}">`).join("");
   $("#rapidos").innerHTML = ["Lattafa", "Club de Nuit", "Afnan", "Valentino", "Ofertas"].map(x => `<button type="button" data-rap="${esc(x)}">${x === "Ofertas" ? "🔥 Ofertas" : esc(x)}</button>`).join("");
   $("#i-envio").textContent = n.envio; $("#i-hora").innerHTML = `<b style="color:var(--texto)">Horario:</b> ${esc(n.horario)}`; $("#i-pago").textContent = n.pago;
-  $("#f-datos").innerHTML = `WhatsApp <a href="${waLink("Hola 👋")}" target="_blank" rel="noopener">+${esc(waNum())}</a> · Instagram <a href="https://instagram.com/${esc(n.instagram)}" target="_blank" rel="noopener">@${esc(n.instagram)}</a><br>Perfumes · Joyería · Accesorios · Tennis`;
+  $("#f-datos").innerHTML = `WhatsApp <a href="${waLink("Hola 👋")}" target="_blank" rel="noopener">${DEMO ? "+506 7197 0674" : "+" + esc(waNum())}</a> · Instagram <a href="https://instagram.com/${esc(n.instagram)}" target="_blank" rel="noopener">@${esc(n.instagram)}</a><br>Perfumes · Joyería · Accesorios · Tennis`;
   document.querySelectorAll("[data-wa-general]").forEach(a => { a.href = waLink(`Hola ${n.nombre} 👋, quisiera hacer una consulta.`); a.target = "_blank"; a.rel = "noopener"; });
   $("#n-pedido").textContent = pedido.reduce((s, x) => s + x.cant, 0);
 }
@@ -430,7 +435,7 @@ function verPedido(){
           <div class="campo"><label for="d-can">Cantón</label><input id="d-can"></div><div class="campo"><label for="d-dis">Distrito</label><input id="d-dis"></div></div>
           <div class="campo"><label for="d-dir">Dirección exacta</label><textarea id="d-dir" rows="2"></textarea></div></div>
         <a class="b b-wa b-bloque" id="pp-wa" href="#" target="_blank" rel="noopener">Enviar pedido por WhatsApp</a>
-        <p style="font-size:13px;color:var(--suave);text-align:center;margin:10px 0 0">Se abre WhatsApp con tu pedido ya escrito: solo tocá enviar.</p>`;
+        <p style="font-size:13px;color:var(--suave);text-align:center;margin:10px 0 0">${DEMO ? "🧪 Modo demo: WhatsApp te deja escoger a quién enviar el pedido (no le llega a la tienda)." : "Se abre WhatsApp con tu pedido ya escrito: solo tocá enviar."}</p>`;
       const armar = () => {
         const v = s => ($(s, h)?.value || "").trim(), envio = v("#d-ent") === "Envío a mi casa";
         $("#d-dirw", h).hidden = !envio;
@@ -548,6 +553,7 @@ function comprimir(file, max = 500, q = .82){
     const s = Math.min(1, max / Math.max(im.width, im.height)), cv = document.createElement("canvas"); cv.width = Math.round(im.width * s); cv.height = Math.round(im.height * s);
     cv.getContext("2d").drawImage(im, 0, 0, cv.width, cv.height); ok(cv.toDataURL("image/jpeg", q)); }; im.onerror = mal; im.src = r.result; }; r.onerror = mal; r.readAsDataURL(file); });
 }
+if (DEMO) $("#bPrueba").hidden = false;
 pintar();
 </script>
 </body>
