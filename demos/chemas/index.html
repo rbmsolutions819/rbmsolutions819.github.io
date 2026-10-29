@@ -121,8 +121,8 @@ section{padding:44px 0}
 
 /* tallas */
 .tabla-wrap{overflow-x:auto;background:var(--panel);border:1px solid var(--linea);border-radius:16px;padding:4px}
-table{border-collapse:collapse;width:100%;min-width:420px;font-size:15px}
-th,td{padding:10px 12px;text-align:center;border-bottom:1px solid var(--linea)}
+table{border-collapse:collapse;width:100%;font-size:14.5px}
+th,td{padding:10px 6px;text-align:center;border-bottom:1px solid var(--linea)}
 th{font:800 12px var(--f-x);letter-spacing:.08em;text-transform:uppercase;color:var(--suave)}
 td:first-child{font:800 16px var(--f-x);color:var(--rosa)}
 tr:last-child td{border-bottom:0}
@@ -322,14 +322,14 @@ footer button{background:none;border:0;color:var(--suave);font-size:13px;margin-
 <script>
 /* ===================== DATOS ===================== */
 const CLAVE_DEMO = "demo1234";
-const KEY = "chemas_demo_v1";
+const KEY = "chemas_demo_v2";
 const TALLAS = ["S","M","L","XL","XXL"];
 const KITS = ["Local","Visita","Tercera","Ed. especial"];
 const PARCHES = ["Sin parche","Liga","Champions League","Mundial 2026","Eliminatorias","Campeón del Mundo","Otro"];
 // Dibujo: c1 = color principal, c2 = segundo color, cuello, mangas y patrón (liso, rayas, aros, mitad, banda, franja).
 const P = (id, equipo, temporada, kit, liga, dib, extra = {}) => ({ id, equipo, temporada, kit, liga, dib, entrega:"encargo", stock:{}, retro:false, nuevo:false, oculto:false, foto:"", ...extra });
 const BASE = {
-  negocio: { nombre:"Chemas Collector CR", instagram:"", instagramMuestra:"chemascollectorcr", diasEncargo:[5,20], llegaMin:19, llegaMax:28, adelanto:50,
+  negocio: { nombre:"Chemas Collector CR", instagram:"chemascollectorcr", instagramMuestra:"chemascollectorcr", diasEncargo:[5,20], llegaMin:19, llegaMax:28, adelanto:50,
     envio:"Correos de CR o mensajero" },
   precios: { Fan:27000, Player:29000, Retro:29000, poster:2900 },
   productos: [
@@ -358,8 +358,8 @@ const BASE = {
     P("cr-90","Costa Rica","1990","Local","Retro",{c1:"#ce1126",c2:"#ffffff",cuello:"#ffffff",pat:"liso"},{retro:true,entrega:"inmediata",stock:{Retro:["M","L"]}})
   ],
   medidas: {
-    Fan:    [["S","50","70"],["M","53","72"],["L","56","74"],["XL","59","76"],["XXL","62","78"]],
-    Player: [["S","47","68"],["M","50","70"],["L","53","72"],["XL","56","74"],["XXL","59","76"]]
+    Fan:    [["S","53–55","69–71","1,62–1,70 m"],["M","55–57","71–73","1,70–1,76 m"],["L","57–58","73–75","1,76–1,82 m"],["XL","58–60","75–78","1,82–1,90 m"],["XXL","60–62","78–81","1,90–1,95 m"]],
+    Player: [["S","48–50","66–68","1,60–1,68 m"],["M","50–52","68–70","1,68–1,74 m"],["L","52–54","70–72","1,74–1,80 m"],["XL","54–56","72–74","1,80–1,86 m"],["XXL","56–58","74–76","1,86–1,92 m"]]
   },
   guiaFoto: ""
 };
@@ -380,9 +380,9 @@ const versiones = p => p.retro ? ["Retro"] : ["Fan","Player"];
 const precioDe = (p, ver, pos) => (DB.precios[ver] || 0) + (pos ? DB.precios.poster : 0);
 const desde = p => Math.min(...versiones(p).map(v => DB.precios[v] || 0));
 const enStock = (p, ver, t) => p.entrega === "inmediata" && (p.stock?.[ver] || []).includes(t);
-const igUser = () => String(DB.negocio.instagram || "").replace(/^@/, "").trim();
-// Instagram no deja escribir el mensaje desde un link: se copia y se abre el chat para pegarlo.
-const igLink = () => igUser() ? `https://ig.me/m/${igUser()}` : "https://www.instagram.com/direct/inbox/";
+const igUser = () => String(DB.negocio.instagram || DB.negocio.instagramMuestra || "").replace(/^@/, "").trim();
+// Abre directo el chat de Chemas en Instagram. (Instagram no deja que una página escriba el mensaje: se copia para pegarlo.)
+const igLink = () => `https://ig.me/m/${igUser()}`;
 async function copiar(t){ try { await navigator.clipboard.writeText(t); return true; } catch { try { const a = document.createElement("textarea"); a.value = t; a.style.position = "fixed"; a.style.opacity = "0"; document.body.append(a); a.select(); const ok = document.execCommand("copy"); a.remove(); return ok; } catch { return false; } } }
 
 /* ----- Fechas de encargo (los días 5 y 20) y cuándo llega ----- */
@@ -453,8 +453,8 @@ function pintar(){
     || `<p style="color:var(--suave)">No encontramos esa chema. <a href="#buscar">Mandanos una foto y te ayudamos a encontrarla.</a></p>`;
   // tallas
   const g = DB.guiaFoto; $("#guiaImg").hidden = !g; if (g) $("#guiaImg").src = g;
-  $("#tablas").innerHTML = ["Fan","Player"].map(v => `<div><h3>Versión ${v}</h3><div class="tabla-wrap"><table><tr><th>Talla</th><th>Ancho (cm)</th><th>Largo (cm)</th></tr>${DB.medidas[v].map(r => `<tr>${r.map(x => `<td>${esc(x)}</td>`).join("")}</tr>`).join("")}</table></div></div>`).join("");
-  $("#t-nota").textContent = "Ancho: de axila a axila. Largo: del cuello al ruedo. Medidas de ejemplo: Chemas pone las suyas desde el panel.";
+  $("#tablas").innerHTML = ["Fan","Player"].map(v => `<div><h3>Versión ${v}</h3><div class="tabla-wrap"><table><tr><th>Talla</th><th>Ancho</th><th>Largo</th><th>Estatura</th></tr>${DB.medidas[v].map(r => `<tr>${[0,1,2,3].map(k => `<td>${esc(r[k] || "—")}</td>`).join("")}</tr>`).join("")}</table></div></div>`).join("");
+  $("#t-nota").textContent = "Medidas en centímetros. Ancho: de axila a axila, con la camisa acostada. Largo: del cuello al ruedo. La Player es más ajustada: si estás entre dos tallas, en Player escogé la más grande. Las medidas pueden variar 1–2 cm.";
   $("#paso3").textContent = `Encargás con el ${n.adelanto}% y el resto se paga cuando esté lista para entregar.`;
   $("#paso4").textContent = `Llega en ${n.llegaMin} a ${n.llegaMax} días. Envío gratis por ${n.envio}.`;
   $("#f-datos").innerHTML = `Instagram <a href="https://instagram.com/${esc(igUser() || n.instagramMuestra)}" target="_blank" rel="noopener">@${esc(igUser() || n.instagramMuestra)}</a> · Pedidos por privado · Costa Rica 🇨🇷`;
@@ -556,7 +556,7 @@ function verPedido(){
           <div class="campo"><label for="d-dir">Dirección exacta</label><textarea id="d-dir" rows="2"></textarea></div>
           <p class="nota" style="margin-top:-4px">Podés dejar los datos para después: Chemas te los pide cuando llegue tu chema.</p>
           <button class="b b-ig b-bloque" id="pp-ig" style="margin-top:8px">Validar disponibilidad por Instagram</button>
-          <p class="nota" style="text-align:center">Se copia tu pedido y se abre el chat: solo <b>pegalo y envialo</b>.</p>
+          <p class="nota" style="text-align:center">Se abre el chat de <b>@${esc(igUser())}</b> con tu pedido listo para pegar: mantené presionado, <b>Pegar</b> y enviar.</p>
           <details style="margin-top:6px"><summary class="nota" style="cursor:pointer">Ver el mensaje que se envía</summary><textarea class="msj" id="pp-msj" readonly></textarea></details>`;
       const armar = () => {
         const v = s => ($(s, h)?.value || "").trim();
@@ -571,9 +571,8 @@ function verPedido(){
       $("#pp-ig", h).addEventListener("click", async () => {
         const m = armar(), ok = await copiar(m);
         window.open(igLink(), "_blank", "noopener");
-        toast(ok ? "📋 Pedido copiado: pegalo en el chat de Instagram" : "Copiá el mensaje de abajo y pegalo en Instagram");
+        toast(ok ? `Abriendo el chat de @${igUser()}: pegá tu pedido y envialo 📩` : "Copiá el mensaje de abajo y pegalo en el chat");
         if (!ok) h.querySelector("details").open = true;
-        if (!igUser()) setTimeout(() => toast(`Página de ejemplo: en la real se abre el chat de @${n.instagramMuestra}`), 3000);
       });
     };
     pint();
@@ -645,7 +644,7 @@ function pintarAdmin(){
       <p class="nota" style="margin-top:0">Si ya tenés la imagen con las medidas (la que mandás por Instagram), subila y sale arriba de las tablas.</p>
       ${DB.guiaFoto ? `<img src="${DB.guiaFoto}" alt="" style="max-height:200px;border-radius:12px;display:block;margin:8px 0">` : ""}
       <div class="acc" style="margin-top:8px"><label class="b b-claro" style="cursor:pointer">📷 ${DB.guiaFoto ? "Cambiar" : "Subir"} foto<input type="file" accept="image/*" id="gf" hidden></label>${DB.guiaFoto ? `<button class="b b-claro" id="gf-x">Quitar foto</button>` : ""}</div>
-      ${["Fan","Player"].map(v => `<div class="lbl">Medidas versión ${v} (ancho · largo en cm)</div>${DB.medidas[v].map((r, i) => `<div class="fila3" style="grid-template-columns:60px 1fr 1fr;align-items:center"><b>${r[0]}</b><input class="buscar" style="margin:0 0 6px" data-md="${v}:${i}:1" value="${esc(r[1])}" aria-label="${v} ${r[0]} ancho"><input class="buscar" style="margin:0 0 6px" data-md="${v}:${i}:2" value="${esc(r[2])}" aria-label="${v} ${r[0]} largo"></div>`).join("")}`).join("")}
+      ${["Fan","Player"].map(v => `<div class="lbl">Medidas versión ${v} (ancho · largo en cm · estatura)</div>${DB.medidas[v].map((r, i) => `<div class="fila3" style="grid-template-columns:44px 1fr 1fr 1.2fr;align-items:center"><b>${r[0]}</b>${[1,2,3].map(k => `<input class="buscar" style="margin:0 0 6px;padding:10px 8px" data-md="${v}:${i}:${k}" value="${esc(r[k] || "")}" aria-label="${v} ${r[0]} ${["","ancho","largo","estatura"][k]}">`).join("")}</div>`).join("")}`).join("")}
       <button class="b b-azul" id="md-g" style="margin-top:8px">Guardar medidas</button></div>`;
     $("#gf").onchange = async e => { const f = e.target.files[0]; if (!f) return; try { DB.guiaFoto = await comprimir(f, 1200); guardar(); pintar(); pintarAdmin(); toast("Guía de tallas lista"); } catch { toast("No se pudo leer la foto."); } };
     $("#gf-x")?.addEventListener("click", () => { DB.guiaFoto = ""; guardar(); pintar(); pintarAdmin(); });
@@ -653,7 +652,7 @@ function pintarAdmin(){
   } else if (aTab === "datos") {
     const n = DB.negocio;
     c.innerHTML = `<div style="margin:12px 0 40px">
-      <div class="campo"><label>Instagram que recibe los pedidos (sin @; vacío = para probar sin escribirle al negocio)</label><input data-n="instagram" value="${esc(n.instagram)}" placeholder="${esc(n.instagramMuestra)}"></div>
+      <div class="campo"><label>Instagram que recibe los pedidos (sin @)</label><input data-n="instagram" value="${esc(n.instagram)}" placeholder="${esc(n.instagramMuestra)}"></div>
       <div class="campo"><label>Días de encargo (separados por coma)</label><input id="dn-dias" value="${esc(n.diasEncargo.join(", "))}"></div>
       <div class="fila3"><div class="campo"><label>Llega desde (días)</label><input inputmode="numeric" data-nn="llegaMin" value="${n.llegaMin}"></div><div class="campo"><label>Hasta (días)</label><input inputmode="numeric" data-nn="llegaMax" value="${n.llegaMax}"></div><div class="campo"><label>Adelanto (%)</label><input inputmode="numeric" data-nn="adelanto" value="${n.adelanto}"></div></div>
       <div class="campo"><label>Envío</label><input data-n="envio" value="${esc(n.envio)}"></div>
