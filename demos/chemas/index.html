@@ -352,7 +352,7 @@ footer button{background:none;border:0;color:var(--suave);font-size:13px;margin-
 <script>
 /* ===================== DATOS ===================== */
 const CLAVE_DEMO = "demo1234";
-const KEY = "chemas_demo_v3";
+const KEY = "chemas_demo_v4";
 const TALLAS = ["S","M","L","XL","XXL"];
 const KITS = ["Local","Visita","Tercera","Ed. especial"];
 const PARCHES = ["Sin parche","Liga","Champions League","Mundial 2026","Eliminatorias","Campeón del Mundo","Otro"];
@@ -363,12 +363,12 @@ const BASE = {
     envio:"Correos de CR o mensajero" },
   precios: { Fan:27000, Player:29000, Retro:29000, poster:2900 },
   productos: [
-    P("rma-l","Real Madrid","25/26","Local","LaLiga",{c1:"#f5f5f2",c2:"#d4af37",cuello:"#d4af37",pat:"liso"},{entrega:"inmediata",stock:{Fan:["M","L"],Player:["L","XL"]}}),
-    P("bar-l","Barcelona","25/26","Local","LaLiga",{c1:"#a50044",c2:"#004d98",cuello:"#e8b923",pat:"rayas"},{entrega:"inmediata",stock:{Fan:["S","M","L"],Player:["M"]}}),
+    P("rma-l","Real Madrid","25/26","Local","LaLiga",{c1:"#f5f5f2",c2:"#d4af37",cuello:"#d4af37",pat:"liso"},{entrega:"inmediata",stock:{Fan:["M","L"],Player:["L","XL"]},foto:"f/rma.jpg"}),
+    P("bar-l","Barcelona","25/26","Local","LaLiga",{c1:"#a50044",c2:"#004d98",cuello:"#e8b923",pat:"rayas"},{entrega:"inmediata",stock:{Fan:["S","M","L"],Player:["M"]},foto:"f/bar.jpg"}),
     P("rma-v","Real Madrid","25/26","Visita","LaLiga",{c1:"#1d2b4f",c2:"#e8a33d",cuello:"#e8a33d",pat:"liso"}),
     P("rma-t","Real Madrid","25/26","Tercera","LaLiga",{c1:"#2b2b2e",c2:"#7fd1c7",cuello:"#7fd1c7",pat:"liso"},{precios:{Fan:28000,Player:30000}}),
     P("bar-v","Barcelona","25/26","Visita","LaLiga",{c1:"#111827",c2:"#e8c547",cuello:"#e8c547",pat:"liso"}),
-    P("liv-l","Liverpool","25/26","Local","Premier League",{c1:"#c8102e",c2:"#ffffff",cuello:"#ffffff",pat:"liso"},{entrega:"inmediata",stock:{Fan:["L","XL"]}}),
+    P("liv-l","Liverpool","25/26","Local","Premier League",{c1:"#c8102e",c2:"#ffffff",cuello:"#ffffff",pat:"liso"},{entrega:"inmediata",stock:{Fan:["L","XL"]},foto:"f/liv.jpg"}),
     P("arg-l","Argentina","2026","Local","Mundial 2026",{c1:"#ffffff",c2:"#75aadb",cuello:"#111827",pat:"rayas"},{entrega:"inmediata",stock:{Fan:["M","L","XL"],Player:["L"]},nuevo:true}),
     P("sap-l","Saprissa","25/26","Local","Costa Rica",{c1:"#5b2a86",c2:"#ffffff",cuello:"#ffffff",pat:"liso"},{entrega:"inmediata",stock:{Fan:["M","L"]}}),
     P("por-e","Portugal","2026","Ed. especial","Mundial 2026",{c1:"#121212",c2:"#c9a227",cuello:"#c9a227",pat:"liso"},{nuevo:true}),
@@ -378,8 +378,9 @@ const BASE = {
     P("mex-l","México","2026","Local","Mundial 2026",{c1:"#006847",c2:"#ffffff",cuello:"#ce1126",pat:"liso"}),
     P("mci-l","Manchester City","25/26","Local","Premier League",{c1:"#6cabdd",c2:"#1c2c5b",cuello:"#1c2c5b",pat:"liso"}),
     P("ars-l","Arsenal","25/26","Local","Premier League",{c1:"#db0007",c2:"#ffffff",cuello:"#ffffff",pat:"liso",mangas:"#ffffff"}),
-    P("psg-l","PSG","25/26","Local","Otras ligas",{c1:"#0b1c3c",c2:"#d6001c",cuello:"#d6001c",pat:"franja"}),
-    P("bay-l","Bayern Múnich","25/26","Local","Otras ligas",{c1:"#dc052d",c2:"#ffffff",cuello:"#ffffff",pat:"liso"}),
+    P("psg-l","PSG","25/26","Local","Otras ligas",{c1:"#0b1c3c",c2:"#d6001c",cuello:"#d6001c",pat:"franja"},{foto:"f/psg.jpg"}),
+    P("bay-l","Bayern Múnich","25/26","Visita","Otras ligas",{c1:"#f4f4f2",c2:"#1c2c5b",cuello:"#1c2c5b",pat:"liso"},{foto:"f/bay.jpg",entrega:"inmediata",stock:{Fan:["M","L"],Player:["L"]}}),
+    P("atm-l","Atlético de Madrid","25/26","Local","LaLiga",{c1:"#ffffff",c2:"#cb3524",cuello:"#1b2a5c",pat:"rayas"},{foto:"f/atm.jpg",nuevo:true}),
     P("juv-l","Juventus","25/26","Local","Serie A",{c1:"#ffffff",c2:"#111111",cuello:"#111111",pat:"rayas"}),
     P("mil-l","AC Milan","25/26","Local","Serie A",{c1:"#c8102e",c2:"#111111",cuello:"#111111",pat:"rayas"}),
     P("int-l","Inter","25/26","Local","Serie A",{c1:"#0068a8",c2:"#111111",cuello:"#111111",pat:"rayas"}),
@@ -390,7 +391,7 @@ const BASE = {
     P("her-l","Herediano","25/26","Local","Costa Rica",{c1:"#d10f1f",c2:"#f2c300",cuello:"#f2c300",pat:"rayas"}),
     P("bra-02","Brasil","2002","Local","Retro",{c1:"#ffdf00",c2:"#009c3b",cuello:"#009c3b",pat:"liso"},{retro:true}),
     P("mil-07","AC Milan","06/07","Local","Retro",{c1:"#c8102e",c2:"#111111",cuello:"#ffffff",pat:"rayas"},{retro:true}),
-    P("bar-09","Barcelona","08/09","Local","Retro",{c1:"#a50044",c2:"#004d98",cuello:"#a50044",pat:"rayas"},{retro:true}),
+    P("bar-09","Barcelona","08/09","Ed. especial","Retro",{c1:"#a50044",c2:"#004d98",cuello:"#a50044",pat:"mitad"},{retro:true,foto:"f/bar09.jpg"}),
     P("cr-90","Costa Rica","1990","Local","Retro",{c1:"#ce1126",c2:"#ffffff",cuello:"#ffffff",pat:"liso"},{retro:true,entrega:"inmediata",stock:{Retro:["M","L"]}})
   ],
   medidas: {
@@ -424,7 +425,7 @@ const ALIAS = {
   "Saprissa": ["sapri", "saprissa", "deportivo saprissa", "morado", "monstruo", "tibas"], "Herediano": ["team", "heredia", "florenses", "cs herediano"],
   "Costa Rica": ["sele", "la sele", "tricolor", "seleccion de costa rica"], "Argentina": ["albiceleste", "seleccion argentina"], "Brasil": ["brazil", "canarinha", "verdeamarela"],
   "México": ["mexico", "seleccion mexicana"], "Portugal": ["seleccion portuguesa"], "Manchester City": ["city", "man city", "citizens"], "Liverpool": ["reds", "lfc"],
-  "Arsenal": ["gunners"], "PSG": ["paris", "paris saint germain", "psg"], "Bayern Múnich": ["bayern", "munich"], "Juventus": ["juve"], "AC Milan": ["milan", "rossoneri"], "Inter": ["inter de milan", "internazionale", "nerazzurri"]
+  "Arsenal": ["gunners"], "PSG": ["paris", "paris saint germain", "psg"], "Bayern Múnich": ["bayern", "munich"], "Juventus": ["juve"], "Atlético de Madrid": ["atletico", "atleti", "colchoneros", "atm"], "AC Milan": ["milan", "rossoneri"], "Inter": ["inter de milan", "internazionale", "nerazzurri"]
 };
 function equipoCoincide(p, t){
   const e = norm(p.equipo); if (!t) return true;
