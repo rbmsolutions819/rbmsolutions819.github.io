@@ -131,6 +131,8 @@ section h2 .p{font:600 16px var(--f-txt);color:var(--oro)}
 .bdn small{color:var(--suave);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .bds{text-align:right}.bds b{color:var(--oro);font-size:14px}.bds small{color:var(--suave);font-size:12px}
 .bdopc summary{cursor:pointer}
+.reg .flecha{font-size:11px;opacity:.85}
+.reg-cuerpo{display:grid;gap:8px;padding:12px 14px 14px;border:1px solid var(--linea);border-radius:8px;background:var(--panel)}
 .cli{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;align-items:center;padding:10px 0;border-bottom:1px dashed var(--linea)}
 .cli small{color:var(--suave)}
 .ficha{background:var(--panel2);border:1px solid var(--oro);border-radius:8px;padding:16px;display:grid;gap:12px;margin-top:12px}
@@ -369,6 +371,7 @@ let pedido = []; try { localStorage.removeItem("kk-pedido"); } catch {}
 // Todo se guarda en Firebase: el cliente ve sus sellos al instante en su tarjeta (tarjeta.html).
 let miToken = lsGet(Tarjetas.KEY, null);
 let catSel = "todo", admin = lsGet("kk-admin", false);
+let regAbierto = false;
 let confirmarBorrado = false, cliCanje = 1, top = null;
 let cli = null, cliPend = 0, cliMsg = "", cliOcupado = false, cliUnsub = null, cliNuevo = null;
 let recientes = lsGet(Tarjetas.prueba ? "kk-recientes-prueba" : "kk-recientes", []);
@@ -625,7 +628,8 @@ function vistaSellos() {
         <small>${c.gratis} gratis por canjear · ${c.canjes} canjeado${c.canjes === 1 ? "" : "s"} · ${c.sellos} de 10</small></button>`).join("")}</div>
       <div><button class="btn sm" type="button" data-top>Actualizar</button></div>`}</div>`;
   if (MOSTRAR_IMPORTAR) h += vistaImportar();
-  h += `<div class="grupo"><b>Registrar cliente nuevo</b>
+  h += `<div class="grupo reg"><div class="fila-btn"><button type="button" class="btn pri" data-reg aria-expanded="${regAbierto}">➕ Registrar cliente nuevo <span class="flecha">${regAbierto ? "▲" : "▼"}</span></button></div>
+      <div class="reg-cuerpo" ${regAbierto ? "" : "hidden"}>
       <label class="c">Nombre completo<input id="rNom" maxlength="60" autocomplete="off" placeholder="Ej.: Daniela Mora"></label>
       <label class="c">Cédula<input id="rCed" inputmode="numeric" maxlength="15" autocomplete="off" placeholder="Ej.: 1 1234 5678"></label>
       <label class="c">Clave del cliente, 4 dígitos (opcional)<input id="rPin" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="Ej.: 4821"></label>
@@ -633,7 +637,7 @@ function vistaSellos() {
       <label class="c">Celular para mandarle el QR (opcional)<input id="rTel" inputmode="tel" maxlength="12" autocomplete="off" placeholder="Ej.: 8888 7777"></label>
       <label class="c">Sellos que ya traía de su tarjeta vieja (opcional)<input id="rPrev" type="number" inputmode="numeric" min="0" max="99" autocomplete="off" placeholder="0"></label>
       <p class="err" id="rErr"></p><div><button class="btn pri" type="button" data-registrar ${cliOcupado ? "disabled" : ""}>Crear tarjeta y QR</button></div>
-      <p class="nota">De la cédula solo se guardan los últimos 4 dígitos y una huella para poder buscarla.</p></div>`;
+      <p class="nota">De la cédula solo se guardan los últimos 4 dígitos y una huella para poder buscarla.</p></div></div>`;
   if (recientes.length) h += `<div class="grupo"><b>Vistos en este celular</b>${recientes.map(r => `<div class="cli"><span><b>${esc(r.nombre)}</b></span><button class="btn sm" type="button" data-ficha="${esc(r.token)}">Abrir</button></div>`).join("")}</div>`;
   return h;
 }
@@ -919,10 +923,11 @@ document.addEventListener("click", async e => {
     const ced = Tarjetas.soloDigitos($("#sCed").value);
     if (ced.length < 9) { cliMsg = "Escribí la cédula completa (9 dígitos o más)."; pintarAdmin(); return; }
     cliMsg = ""; b.disabled = true;
-    try { const t = await Tarjetas.buscarPorCedula(ced); if (t) { cliNuevo = null; abrirFicha(t); } else { cli = null; cliMsg = "No hay ninguna tarjeta con esa cédula. Podés registrarla abajo."; pintarAdmin(); } }
+    try { const t = await Tarjetas.buscarPorCedula(ced); if (t) { cliNuevo = null; abrirFicha(t); } else { cli = null; cliMsg = "No hay ninguna tarjeta con esa cédula. Podés registrarla abajo."; regAbierto = true; pintarAdmin(); } }
     catch { cliMsg = "No se pudo buscar. Revisá la conexión."; pintarAdmin(); }
     return;
   }
+  if (b.hasAttribute("data-reg")) { regAbierto = !regAbierto; const sc = $("#hoja").scrollTop; pintarAdmin(); $("#hoja").scrollTop = sc; if (regAbierto) setTimeout(() => $("#rNom") && $("#rNom").focus(), 50); return; }
   if (b.hasAttribute("data-registrar")) {
     const nombre = $("#rNom").value.trim(), ced = Tarjetas.soloDigitos($("#rCed").value), tel = Tarjetas.soloDigitos($("#rTel").value), pin = Tarjetas.soloDigitos($("#rPin").value), correo = $("#rCorreo").value.trim(), previos = Math.max(0, Math.min(99, Math.floor(+$("#rPrev").value || 0)));
     if (nombre.length < 2) { $("#rErr").textContent = "Escribí el nombre del cliente."; $("#rNom").focus(); return; }
@@ -933,7 +938,7 @@ document.addEventListener("click", async e => {
     cliOcupado = true; b.disabled = true;
     try { const r = await Tarjetas.crear({nombre, cedula: ced, correo, tel, previos});
       if (pin) await Tarjetas.crearAcceso(r.token, ced, pin);
-      cliNuevo = {token: r.token, nombre, tel, existia: r.existia, ced, pin}; cliOcupado = false; abrirFicha(r.token); aviso(r.existia ? "Esa cédula ya tenía tarjeta" : "Tarjeta creada"); }
+      regAbierto = false; cliNuevo = {token: r.token, nombre, tel, existia: r.existia, ced, pin}; cliOcupado = false; abrirFicha(r.token); aviso(r.existia ? "Esa cédula ya tenía tarjeta" : "Tarjeta creada"); }
     catch { cliOcupado = false; $("#rErr").textContent = "No se pudo crear la tarjeta. Revisá la conexión."; b.disabled = false; }
     return;
   }
