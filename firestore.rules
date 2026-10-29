@@ -351,6 +351,30 @@ service cloud.firestore {
       allow create, update: if promoOk(request.resource.data);
     }
 
+    // DEMO de reportes del condominio (residente, seguridad y administración comparten estos datos de prueba).
+    match /demo_condo_casos/{id} {
+      allow read, delete: if true;
+      allow create, update: if request.resource.data.keys().hasOnly(['tipo','lugar','contraCasa','donde','descripcion','foto','casa','nombre','resId','prioridad','estado','agente','resultado','resolucion','problema','problemaNota','calificacion','comentarioRes','num','creado','atendido','cerrado','historial'])
+        && request.resource.data.estado in ['nuevo', 'en_atencion', 'cerrado']
+        && request.resource.data.descripcion is string && request.resource.data.descripcion.size() <= 400
+        && (!('foto' in request.resource.data) || (request.resource.data.foto is string && request.resource.data.foto.size() < 500000))
+        && request.resource.data.historial is list && request.resource.data.historial.size() <= 40;
+    }
+    match /demo_condo_meta/{id} {
+      allow read: if true;
+      allow write: if request.resource.data.keys().hasOnly(['n']) && request.resource.data.n is int;
+    }
+    match /demo_condo_residentes/{id} {
+      allow read, delete: if true;
+      allow create, update: if request.resource.data.keys().hasOnly(['nombre','ced4','cedH','casa','tel','activo','conClave','creado'])
+        && request.resource.data.nombre is string && request.resource.data.nombre.size() <= 60
+        && request.resource.data.casa is string && request.resource.data.casa.size() <= 10;
+    }
+    match /demo_condo_acceso/{h} {
+      allow read, delete: if true;
+      allow create, update: if h.size() == 64 && request.resource.data.keys().hasOnly(['t']) && request.resource.data.t is string && request.resource.data.t.size() <= 40;
+    }
+
     match /{path=**} { allow read, write: if false; }
   }
 }
