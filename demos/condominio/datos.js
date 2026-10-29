@@ -131,6 +131,18 @@ window.Datos = (() => {
     return r && r.activo ? r : null;
   }
 
+  // Residente de ejemplo con acceso listo (si no existe, lo crea). Sirve para entrar a la demo con "ricardo".
+  async function asegurarResidente({ nombre, cedula, casa, clave }) {
+    await iniciar();
+    const ced = soloDigitos(cedula), id = "ej-" + ced, cedH = await huella("ced:" + ced), h = await huella("acc:" + ced + ":" + clave);
+    const r = { nombre, ced4: ced.slice(-4), cedH, casa: String(casa), tel: "", activo: true, conClave: true };
+    if (LOCAL) { const d = lLeer(); if (!d.res[id]) d.res[id] = { ...r, creado: Date.now() }; else d.res[id].activo = true; d.acc[h] = id; lGuardar(d); return; }
+    const w = F.writeBatch(db);
+    const s = await F.getDoc(F.doc(db, RES, id));
+    if (s.exists()) w.update(F.doc(db, RES, id), { activo: true, conClave: true }); else w.set(F.doc(db, RES, id), { ...r, creado: F.serverTimestamp() });
+    w.set(F.doc(db, ACC, h), { t: id });
+    await w.commit();
+  }
   /* ================= DATOS DE EJEMPLO ================= */
   async function sembrar(casos, residentes) {
     await iniciar();
@@ -162,5 +174,5 @@ window.Datos = (() => {
     }
     await F.setDoc(F.doc(db, META, "contador"), { n: 1000 });
   }
-  return { LOCAL, soloDigitos, escuchar, crear, actualizar, escucharResidentes, crearResidente, obtenerResidente, cambiarResidente, crearClave, ingresar, sembrar, borrarTodo };
+  return { LOCAL, soloDigitos, asegurarResidente, escuchar, crear, actualizar, escucharResidentes, crearResidente, obtenerResidente, cambiarResidente, crearClave, ingresar, sembrar, borrarTodo };
 })();

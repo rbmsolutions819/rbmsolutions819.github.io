@@ -22,7 +22,8 @@ const RESULTADOS = [["resuelto","✅ Resuelto"],["llamado","🗣️ Se llamó la
 const resultado = k => (RESULTADOS.find(r => r[0] === k) || [k, k])[1];
 const ESTADOS = { nuevo: "Nuevo", en_atencion: "En atención", cerrado: "Cerrado" };
 const OFICIALES = ["Oficial Mora", "Oficial Rojas", "Oficial Vargas"];
-const USUARIOS = { seguridad: { usuario: "seguridad", clave: "demo1234" }, admin: { usuario: "administrador", clave: "demo1234" } };
+const USUARIOS = { seguridad: { usuario: "seguridad", clave: "demo1234", otros: [] }, admin: { usuario: "administrador", clave: "demo1234", otros: ["administracion", "admin"] } };
+const RICARDO = { nombre: "José Ricardo Montoya", cedula: "1111111", casa: "18", clave: "demo1234", usuario: "ricardo" };
 const nombreCondo = () => lsGet("condo-nombre", "Condominio Vista Verde");
 
 /* ===================== UTILIDADES ===================== */
@@ -63,7 +64,7 @@ function generarEjemplo(){
     { nombre: "Andrea Solano", cedula: "303330333", casa: "8" }, { nombre: "Luis Quesada", cedula: "404440444", casa: "14" },
     { nombre: "Patricia Rojas", cedula: "505550555", casa: "21" }, { nombre: "Esteban Vargas", cedula: "606660666", casa: "27" },
     { nombre: "Daniela Mora", cedula: "707770777", casa: "33" }, { nombre: "Jorge Chaves", cedula: "808880888", casa: "40" },
-    { nombre: "Sofía Castro", cedula: "909990999", casa: "45" }];
+    { nombre: "Sofía Castro", cedula: "909990999", casa: "45" }, { nombre: RICARDO.nombre, cedula: RICARDO.cedula, casa: RICARDO.casa, clave: RICARDO.clave }];
   const LUG = { ruido: {"Una casa": 8, "Salón de eventos": 1, "Piscina": 1}, mascotas: {"Parque infantil": 3, "Calle interna": 3, "Una casa": 4},
     parqueo: {"Parqueo de visitas": 5, "Calle interna": 4, "Una casa": 1}, basura: {"Zona de basura": 6, "Calle interna": 3}, sucio: {"Rancho / BBQ": 5, "Parque infantil": 2, "Piscina": 2, "Gimnasio": 1},
     dano: {"Parque infantil": 3, "Gimnasio": 2, "Portón / entrada": 2, "Rancho / BBQ": 2}, averia: {"Calle interna": 4, "Portón / entrada": 3, "Piscina": 2},
@@ -149,7 +150,8 @@ function loginUsuario(rol, titulo, ico, alEntrar){
       <p class="err" id="le"></p><button class="btn pri bloque" type="submit">Entrar</button>
       <div class="demo-claves">🔑 <b>Demo:</b> usuario <b>${USUARIOS[rol].usuario}</b> · contraseña <b>${USUARIOS[rol].clave}</b></div></form></main>`;
   $("#fLogin").addEventListener("submit", e => { e.preventDefault();
-    if ($("#lu").value.trim().toLowerCase() === USUARIOS[rol].usuario && $("#lc").value === USUARIOS[rol].clave) { lsSet("condo-ses-" + rol, { ok: true }); alEntrar(); }
+    const u = $("#lu").value.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    if ((u === USUARIOS[rol].usuario || USUARIOS[rol].otros.includes(u)) && $("#lc").value === USUARIOS[rol].clave) { lsSet("condo-ses-" + rol, { ok: true }); alEntrar(); }
     else $("#le").textContent = "Usuario o contraseña incorrectos."; });
   setTimeout(() => $("#lu").focus(), 50);
 }
@@ -220,16 +222,18 @@ function residente(){
 function loginResidente(){
   app.innerHTML = `${encabezado("Residentes").replace(/<button class="btn sm" type="button" data-salir>Salir<\/button>/, "")}
     <main class="wrap"><form class="caja login" id="fLogin" novalidate><div class="ico">🏠</div><h2 style="margin-top:6px">Ingresá para reportar</h2>
-      <div class="campo"><label for="lu">Cédula</label><input id="lu" inputmode="numeric" autocomplete="username" placeholder="Ej.: 1 1111 1111"></div>
+      <div class="campo"><label for="lu">Cédula o usuario</label><input id="lu" autocomplete="username" autocapitalize="none" placeholder="Ej.: 1 1111 1111"></div>
       <div class="campo"><label for="lc">Contraseña</label><input id="lc" type="password" autocomplete="current-password"></div>
       <p class="err" id="le"></p><button class="btn pri bloque" type="submit" id="lb">Entrar</button>
       <p class="nota">¿No tenés contraseña? La administración te manda un link para crearla.</p>
-      <div class="demo-claves">🔑 <b>Residente de ejemplo:</b> cédula <b>101110111</b> · contraseña <b>1234</b> (María Fernández, casa 12)</div></form></main>`;
+      <div class="demo-claves">🔑 <b>Demo:</b> usuario <b>ricardo</b> · contraseña <b>demo1234</b> (José Ricardo Montoya, casa 18)</div></form></main>`;
   $("#fLogin").addEventListener("submit", async e => { e.preventDefault();
-    const ced = Datos.soloDigitos($("#lu").value), cl = $("#lc").value;
-    if (ced.length < 9 && ced.length < 7) { $("#le").textContent = "Escribí tu cédula."; return; }
+    const txt = $("#lu").value.trim().toLowerCase(), cl = $("#lc").value, esRicardo = txt === RICARDO.usuario;
+    const ced = esRicardo ? RICARDO.cedula : Datos.soloDigitos(txt);
+    if (ced.length < 7) { $("#le").textContent = "Escribí tu cédula."; return; }
     $("#lb").disabled = true; $("#le").textContent = "";
-    try { const r = await Datos.ingresar(ced, cl);
+    try { let r = await Datos.ingresar(ced, cl);
+      if (!r && ced === RICARDO.cedula && cl === RICARDO.clave) { await Datos.asegurarResidente(RICARDO); r = await Datos.ingresar(ced, cl); }
       if (!r) { $("#le").textContent = "Cédula o contraseña incorrectas, o tu cuenta no está activa."; $("#lb").disabled = false; return; }
       lsSet("condo-ses-residente", { id: r.id, nombre: r.nombre, casa: r.casa }); residente();
     } catch { $("#le").textContent = "No se pudo ingresar. Revisá tu conexión."; $("#lb").disabled = false; } });
