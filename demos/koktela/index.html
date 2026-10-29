@@ -624,7 +624,7 @@ function vistaSellos() {
     : `<div class="top10">${top.map((c, i) => `<button type="button" data-ficha="${esc(c.token)}"><span class="pos">${i + 1}</span><b>${esc(c.nombre)}</b><span class="n">${c.total} ⚡</span>
         <small>${c.gratis} gratis por canjear · ${c.canjes} canjeado${c.canjes === 1 ? "" : "s"} · ${c.sellos} de 10</small></button>`).join("")}</div>
       <div><button class="btn sm" type="button" data-top>Actualizar</button></div>`}</div>`;
-  h += vistaImportar();
+  if (MOSTRAR_IMPORTAR) h += vistaImportar();
   h += `<div class="grupo"><b>Registrar cliente nuevo</b>
       <label class="c">Nombre completo<input id="rNom" maxlength="60" autocomplete="off" placeholder="Ej.: Daniela Mora"></label>
       <label class="c">Cédula<input id="rCed" inputmode="numeric" maxlength="15" autocomplete="off" placeholder="Ej.: 1 1234 5678"></label>
@@ -676,6 +676,8 @@ document.addEventListener("input", e => {
   $("#bdNada").hidden = n > 0;
   const mas = document.querySelector("[data-bd-mas]"); if (mas) mas.hidden = !!q;
 });
+// "Traer clientes de otra tarjeta" (Excel/CSV): escondido por ahora. Cambiar a true para mostrarlo.
+const MOSTRAR_IMPORTAR = false;
 function vistaImportar() {
   let h = `<div class="grupo" id="gImp"><b>📥 Traer clientes de otra tarjeta</b>`;
   if (!imp) h += `<p class="nota">Si el negocio ya usaba tarjeta de sellos (Loopy, Devotio, un Excel o tarjetas de papel), subí la lista y cada cliente queda con los sellos que ya tenía. Columnas: nombre, celular, correo, cédula y sellos. Solo el nombre es obligatorio.</p>
