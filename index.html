@@ -711,6 +711,7 @@ footer.pie-g .wrap{display:block}
   .aviso-mini{color:#8a5a00;background:rgba(255,190,60,.14);border-color:rgba(200,140,20,.4)}
   .mev-x{background:rgba(12,20,34,.06)}
   .g-acc button{color:#07090d}
+  .ing-dia.hoy i{background:#0c1422}
   .frase blockquote em{background:linear-gradient(100deg,#2a5fe6,#5aa8ff 50%,#2a5fe6);-webkit-background-clip:text;background-clip:text}
   .gal .vid{background:radial-gradient(circle at 50% 40%,#d6e4fa,var(--sup))}
   .play{background:rgba(255,255,255,.88)}
@@ -753,6 +754,38 @@ footer.pie-g .wrap{display:block}
   .res-grid{grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:18px}
   .frase blockquote{max-width:26ch;font-size:clamp(40px,3.6vw,64px)}
   .pie-cols{gap:48px}
+}
+/* ===== Panel de administrador ancho en computadora ===== */
+@media (min-width:1100px){
+  #p-admin .in{max-width:1560px;padding-top:28px}
+  #p-admin>.cab{padding-inline:var(--gut-l)}
+  #admin .n-fila span{font-size:22px}
+  #admin .n-tabs{flex-wrap:wrap;overflow:visible;margin:0 0 20px;padding:0}
+  #admin .cal-bar{grid-template-columns:auto 1fr auto;align-items:center;gap:16px}
+  #admin .cal-vistas{min-width:420px}
+  #admin .cal-nav b{font-size:20px}
+  #admin .mes-d{min-height:132px;padding:6px 5px;gap:3px}
+  #admin .mes-d .n{font-size:13px;width:28px;height:28px}
+  #admin .mes-ev{font-size:12.5px;padding:3px 6px}
+  #admin .mes-d .mas{font-size:12px}
+  #admin .ing{grid-template-columns:repeat(3,minmax(0,1fr));align-items:start;gap:18px}
+  #admin .ing>.cal-bar,#admin .ing>.prueba{grid-column:1/-1}
+  #admin .ing>.ing-total{grid-column:span 2;align-self:stretch;align-content:center}
+  #admin .ing>.ing-kpis{grid-template-columns:1fr;gap:8px}
+  #admin .ing>.ing-box:has(.ing-fila){grid-column:span 2}
+  #admin .ing-dias{height:200px}
+  #admin .ing>.ing-box:has(.ing-dias){grid-column:1/-1}
+  #admin .conf{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start;gap:16px}
+  #admin .g-admin{grid-template-columns:repeat(6,1fr)}
+  #admin .bol-seg{max-width:720px}
+  #admin .bol-lista{display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:14px;align-items:start}
+  #admin .bol-lista .cita-a{margin:0}
+  #admin .bol-wrap{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 18px;align-items:start}
+  #admin .bol-wrap>:not(.bol-sec){grid-column:1/-1}
+  #admin .bol-wrap>.btn{max-width:520px;justify-self:center;width:100%}
+  #admin .bol-wrap>.bol-acc{max-width:620px;justify-self:center;width:100%}
+  #admin .bol-fotos{grid-template-columns:repeat(4,minmax(0,1fr))}
+  #admin .enc-resumen{max-width:820px}
 }
 </style>
 </head><body>
@@ -1858,14 +1891,14 @@ function pintarCal(todas){
   if (nCal.vista === "mes") {
     const primero = new Date(Date.UTC(ref.getUTCFullYear(), ref.getUTCMonth(), 1));
     const inicio = masDias(primero, -((primero.getUTCDay() + 6) % 7));
-    let celdas = "";
+    let celdas = ""; const maxEv = matchMedia("(min-width:1100px)").matches ? 5 : 2;
     for (let i = 0; i < 42; i++) {
       const d = masDias(inicio, i), f = iso(d), l = porDia(f), fuera = d.getUTCMonth() !== ref.getUTCMonth();
       if (i === 35 && fuera) break;
       celdas += `<button class="mes-d${fuera ? " fuera" : ""}${!turnosDe(f).length ? " cerr" : ""}" data-cdia="${f}">
         <span class="n${f === hoy ? " hoy" : ""}">${d.getUTCDate()}</span>
-        ${l.slice(0, 2).map(c => `<span class="mes-ev ${colorLugar(c.lugar)}">${h12m(c.ini).replace(/:00| /g, "").replace("p.m.", "p").replace("a.m.", "a")} ${esc(c.nombre.split(" ")[0])}</span>`).join("")}
-        ${l.length > 2 ? `<span class="mas">+${l.length - 2} más</span>` : ""}</button>`;
+        ${l.slice(0, maxEv).map(c => `<span class="mes-ev ${colorLugar(c.lugar)}">${h12m(c.ini).replace(/:00| /g, "").replace("p.m.", "p").replace("a.m.", "a")} ${esc(c.nombre.split(" ")[0])}</span>`).join("")}
+        ${l.length > maxEv ? `<span class="mas">+${l.length - maxEv} más</span>` : ""}</button>`;
     }
     return `<div class="mes"><div class="mes-cab">${["L", "M", "M", "J", "V", "S", "D"].map(x => `<span>${x}</span>`).join("")}</div><div class="mes-grid">${celdas}</div></div>`;
   }
@@ -2051,14 +2084,14 @@ function pintarBoletas(){
   const seg = `<div class="bol-seg">${[["nueva", "＋ Nueva"], ["proc", `En proceso (${proc.length})`], ["fin", `Finalizados (${fin.length})`]]
     .map(([k, t]) => `<button class="chip${nBol.vista === k && !nBol.editar ? " si" : ""}" data-bv="${k}">${t}</button>`).join("")}</div>`;
   const nota = Reservas.prueba ? `<p class="prueba">Versión de prueba: las boletas se guardan solo en este navegador.</p>` : "";
-  if (nBol.editar) { const b = todas.find(x => x.id === nBol.editar); if (b) return seg + formRecibo(b); nBol.editar = null; nBol.rec = nBol.recGuard || bolVacia(); }
-  if (nBol.vista === "nueva") return seg + formRecibo() + nota;
-  if (nBol.trab) { const b = todas.find(x => x.id === nBol.trab); if (b) return seg + formTrabajo(b); nBol.trab = null; }
+  if (nBol.editar) { const b = todas.find(x => x.id === nBol.editar); if (b) return seg + `<div class="bol-wrap">${formRecibo(b)}</div>`; nBol.editar = null; nBol.rec = nBol.recGuard || bolVacia(); }
+  if (nBol.vista === "nueva") return seg + `<div class="bol-wrap">${formRecibo()}</div>` + nota;
+  if (nBol.trab) { const b = todas.find(x => x.id === nBol.trab); if (b) return seg + `<div class="bol-wrap">${formTrabajo(b)}</div>`; nBol.trab = null; }
   const lista = nBol.vista === "proc" ? proc : fin, q = nBol.busca.trim().toLowerCase();
   const vis = q ? lista.filter(b => [bolNum(b.num), b.nombre, b.tel, equipoTxt(b), b.serie].join(" ").toLowerCase().includes(q)) : lista;
   return seg
     + (lista.length > 3 || q ? `<div class="campo bol-buscar"><input id="bf-busca" data-bbusca autocomplete="off" placeholder="Buscar por nombre, número, celular o equipo" value="${esc(nBol.busca)}"></div>` : "")
-    + (vis.length ? vis.map(tarjetaBol).join("") : `<div class="vacio">${q ? "No hay boletas que coincidan." : nBol.vista === "proc" ? "No hay equipos en proceso. Cuando recibás uno, llená una <b>Nueva</b> boleta." : "Todavía no hay trabajos finalizados."}</div>`)
+    + (vis.length ? `<div class="bol-lista">${vis.map(tarjetaBol).join("")}</div>` : `<div class="vacio">${q ? "No hay boletas que coincidan." : nBol.vista === "proc" ? "No hay equipos en proceso. Cuando recibás uno, llená una <b>Nueva</b> boleta." : "Todavía no hay trabajos finalizados."}</div>`)
     + nota;
 }
 function formRecibo(ed){
