@@ -133,6 +133,14 @@ section h2 .p{font:600 16px var(--f-txt);color:var(--oro)}
 .bdopc summary{cursor:pointer}
 .reg .flecha{font-size:11px;opacity:.85}
 .reg-cuerpo{display:grid;gap:8px;padding:12px 14px 14px;border:1px solid var(--linea);border-radius:8px;background:var(--panel)}
+.menu-top{position:absolute;top:30px;right:max(12px,env(safe-area-inset-right,0px));z-index:15}
+.menu-btn{width:44px;height:44px;border-radius:12px;border:1px solid rgba(255,255,255,.25);background:rgba(5,7,13,.6);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);color:#fff;font-size:22px;line-height:1;cursor:pointer}
+.menu-btn[aria-expanded="true"]{background:var(--violeta);border-color:var(--oro)}
+.menu-panel{position:absolute;right:0;top:52px;min-width:230px;background:var(--panel);border:1px solid var(--linea);border-radius:12px;box-shadow:0 18px 40px -12px rgba(0,0,0,.8);overflow:hidden;text-align:left;display:grid}
+.menu-ceja{font:700 11px var(--f-logo);letter-spacing:.18em;text-transform:uppercase;color:var(--suave);padding:10px 14px 6px}
+.menu-panel a,.menu-panel button{display:block;width:100%;text-align:left;border:0;border-top:1px solid var(--linea);background:none;color:var(--texto);text-decoration:none;padding:12px 14px;font:700 15px var(--f-txt);cursor:pointer}
+.menu-panel a:hover,.menu-panel button:hover{background:var(--panel2)}
+.menu-admin{color:var(--oro)!important;background:rgba(140,196,255,.08)!important}
 .cli{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;align-items:center;padding:10px 0;border-bottom:1px dashed var(--linea)}
 .cli small{color:var(--suave)}
 .ficha{background:var(--panel2);border:1px solid var(--oro);border-radius:8px;padding:16px;display:grid;gap:12px;margin-top:12px}
@@ -228,6 +236,15 @@ label.c textarea{min-height:64px;resize:vertical}
 </div></div>
 
 <header class="top">
+  <div class="menu-top">
+    <button type="button" class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="menuPanel" aria-label="Menú">☰</button>
+    <div class="menu-panel" id="menuPanel" hidden>
+      <div class="menu-ceja">Menú</div>
+      <a href="#lealtad" data-menu-cerrar>⚡ Mi tarjeta de sellos</a>
+      <a href="#info" data-menu-cerrar>📍 Horario y ubicación</a>
+      <button type="button" id="abrirAdmin" class="menu-admin">🔒 Acceso administrador</button>
+    </div>
+  </div>
   <div class="greca" aria-hidden="true"></div>
   <div class="wrap">
     <h1 id="nombre" class="sr">Koktela</h1>
@@ -266,7 +283,7 @@ label.c textarea{min-height:64px;resize:vertical}
 </main>
 
 <div class="greca" aria-hidden="true"></div>
-<footer>Hecho por RBM Solutions · Tomá con moderación · <button type="button" id="abrirAdmin">🔒 Administrar menú</button></footer>
+<footer>Hecho por RBM Solutions · Tomá con moderación</footer>
 
 <button class="carrito" id="carrito" type="button" hidden style="display:none"><span><span class="n" id="carN">0</span>Ver mi pedido</span><span id="carT">₡0</span></button>
 
@@ -896,7 +913,7 @@ document.addEventListener("click", async e => {
     pedido = []; guardarP(); aviso(miToken ? "¡Pedido listo! Mostrá tu QR al recoger para sumar sellos" : "¡Pedido listo!");
     return;
   }
-  if (b.id === "abrirAdmin") return pintarAdmin();
+  if (b.id === "abrirAdmin") { cerrarMenu(); return pintarAdmin(); }
   if (b.hasAttribute("data-entrar")) { if ($("#aClave").value === CLAVE_DEMO) { admin = true; lsSet("kk-admin", true);
       if (fichaPendiente) { const t = fichaPendiente; fichaPendiente = null; abrirFicha(t); } else pintarAdmin(); } else $("#aErr").textContent = "Contraseña incorrecta."; return; }
   if (b.hasAttribute("data-salir")) { admin = false; lsSet("kk-admin", false); cerrarHoja(); aviso("Sesión cerrada"); return; }
@@ -1011,6 +1028,11 @@ $("#maps").href = `https://www.google.com/maps/search/?api=1&query=${q}`;
 $("#waze").href = `https://waze.com/ul?q=${q}&navigate=yes`;
 if (Tarjetas.prueba) { $("#bPrueba").hidden = false;
   Tarjetas.asegurarEjemplos().catch(() => {}); }
+// Menú de la esquina (☰): acceso administrador y atajos
+function cerrarMenu(){ $("#menuPanel").hidden = true; $("#menuBtn").setAttribute("aria-expanded", "false"); }
+$("#menuBtn").addEventListener("click", e => { e.stopPropagation(); const abrir = $("#menuPanel").hidden; $("#menuPanel").hidden = !abrir; $("#menuBtn").setAttribute("aria-expanded", String(abrir)); });
+document.addEventListener("click", e => { if (!e.target.closest(".menu-top") || e.target.closest("[data-menu-cerrar]")) cerrarMenu(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape") cerrarMenu(); });
 pintarCats(); pintarMenu(); pintarHorario(); pintarCarrito(); pintarSellos();
 Tarjetas.escucharPromos(l => { promosNube = l; promoErr = false; pintarPromosNube();
   if (tabAdm === "promo" && admin && $("#hoja").classList.contains("on") && ($("#hojaT") || {}).textContent === "Administrar menú") { const sc = $("#hoja").scrollTop; pintarAdmin(); $("#hoja").scrollTop = sc; } }, () => { promoErr = true; }).catch(() => { promoErr = true; });
