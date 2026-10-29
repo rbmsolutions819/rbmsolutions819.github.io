@@ -51,6 +51,7 @@ h1,h2,h3{font-family:var(--f-t);font-weight:400;line-height:.95;margin:0;letter-
 .hero{position:relative;overflow:hidden;padding:34px 0 28px;background:radial-gradient(520px 360px at 85% 20%,rgba(59,108,255,.35),transparent 70%),radial-gradient(420px 300px at 0% 100%,rgba(255,46,147,.16),transparent 70%)}
 .hero .wrap{display:grid;gap:22px;align-items:center}
 @media(min-width:860px){.hero .wrap{grid-template-columns:1.1fr 1fr}}
+.hero .wrap>div{min-width:0}
 .pill{display:inline-flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--linea);border-radius:999px;padding:6px 14px 6px 6px;font-weight:600;font-size:13.5px}
 .pill b{background:var(--oro);color:#1a1400;border-radius:999px;padding:3px 10px;font:800 11px var(--f-x);letter-spacing:.08em}
 .hero h1{font-size:clamp(56px,13vw,96px);margin-top:14px}
@@ -94,8 +95,18 @@ section{padding:44px 0}
 .card .in{padding:10px 12px 12px;display:grid;gap:4px;flex:1;align-content:start}
 .card h3{font-size:22px;letter-spacing:.03em}
 .card .d{font-size:12.5px;color:var(--suave)}
-.card .pr{font:800 16px var(--f-x)}
-.card .pr small{color:var(--suave);font-weight:600;font-size:12px}
+.prs{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:6px;margin-top:4px}
+.prs span{display:grid;background:var(--panel2);border-radius:8px;padding:5px 7px;line-height:1.25}
+.prs small{color:var(--suave);font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prs b{font-size:14.5px}
+.res-q{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--linea);border-radius:12px;padding:9px 12px;margin-bottom:12px;font-size:14px}
+.res-q button{border:0;background:none;color:var(--celeste);font-weight:700;font-size:13.5px;white-space:nowrap}
+.hbusca{display:flex;gap:8px;margin-top:18px;max-width:520px}
+.hbusca input{flex:1;min-width:0;border:1px solid var(--linea);background:var(--panel);border-radius:999px;padding:13px 18px;font-size:16px}
+.hbusca button{border:0;background:var(--azul);color:#fff;border-radius:999px;padding:0 20px;font:700 15px var(--f-x)}
+.equipos{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;max-width:520px}
+.equipos button{border:1px solid var(--linea);background:transparent;color:var(--suave);border-radius:999px;padding:6px 12px;font:600 13px var(--f-x)}
+.equipos button:hover{color:var(--texto);border-color:var(--azul)}
 .tag{position:absolute;top:8px;left:8px;font:800 10.5px var(--f-x);letter-spacing:.08em;text-transform:uppercase;padding:4px 8px;border-radius:6px;z-index:1}
 .tag.ya{background:var(--verde);color:#062012}
 .tag.enc{background:var(--panel2);color:var(--suave);border:1px solid var(--linea)}
@@ -235,6 +246,9 @@ footer button{background:none;border:0;color:var(--suave);font-size:13px;margin-
     <span class="pill"><b>ENVÍO GRATIS</b>A todo Costa Rica por Correos de CR</span>
     <h1>Tu chema, <span>tu equipo</span></h1>
     <p>Camisas de fútbol de clubes y selecciones. Escogé versión, talla y personalización, y validamos la disponibilidad por Instagram.</p>
+    <form class="hbusca" id="hbusca" role="search"><input id="hq" type="search" placeholder="Poné tu equipo: Real Madrid, Liga, Barça…" aria-label="¿Qué equipo querés?" autocomplete="off" list="lista-equipos"><button type="submit">Buscar</button></form>
+    <datalist id="lista-equipos"></datalist>
+    <div class="equipos" id="equipos"></div>
     <div class="tipos"><span class="t-retro">Retro</span><span class="t-fan">Fan</span><span class="t-player">Player</span></div>
     <div class="encargo" id="encargo"></div>
     <div class="acc"><a class="b b-azul" href="#catalogo">Ver catálogo</a><a class="b b-claro" href="#buscar">¿No encontrás la tuya?</a></div>
@@ -246,6 +260,7 @@ footer button{background:none;border:0;color:var(--suave);font-size:13px;margin-
   <div class="cab"><div class="k">Catálogo</div><h2>Escogé tu chema</h2><p>Tocá una camisa para escoger versión, talla, nombre y número.</p></div>
   <div class="chips" id="filtros"></div>
   <input class="buscar" id="q" type="search" placeholder="Buscar equipo o selección…" aria-label="Buscar equipo o selección">
+  <div class="res-q" id="resQ" hidden></div>
   <div class="grid" id="grid"></div>
 </div></section>
 
@@ -322,7 +337,7 @@ footer button{background:none;border:0;color:var(--suave);font-size:13px;margin-
 <script>
 /* ===================== DATOS ===================== */
 const CLAVE_DEMO = "demo1234";
-const KEY = "chemas_demo_v2";
+const KEY = "chemas_demo_v3";
 const TALLAS = ["S","M","L","XL","XXL"];
 const KITS = ["Local","Visita","Tercera","Ed. especial"];
 const PARCHES = ["Sin parche","Liga","Champions League","Mundial 2026","Eliminatorias","Campeón del Mundo","Otro"];
@@ -335,6 +350,9 @@ const BASE = {
   productos: [
     P("rma-l","Real Madrid","25/26","Local","LaLiga",{c1:"#f5f5f2",c2:"#d4af37",cuello:"#d4af37",pat:"liso"},{entrega:"inmediata",stock:{Fan:["M","L"],Player:["L","XL"]}}),
     P("bar-l","Barcelona","25/26","Local","LaLiga",{c1:"#a50044",c2:"#004d98",cuello:"#e8b923",pat:"rayas"},{entrega:"inmediata",stock:{Fan:["S","M","L"],Player:["M"]}}),
+    P("rma-v","Real Madrid","25/26","Visita","LaLiga",{c1:"#1d2b4f",c2:"#e8a33d",cuello:"#e8a33d",pat:"liso"}),
+    P("rma-t","Real Madrid","25/26","Tercera","LaLiga",{c1:"#2b2b2e",c2:"#7fd1c7",cuello:"#7fd1c7",pat:"liso"},{precios:{Fan:28000,Player:30000}}),
+    P("bar-v","Barcelona","25/26","Visita","LaLiga",{c1:"#111827",c2:"#e8c547",cuello:"#e8c547",pat:"liso"}),
     P("liv-l","Liverpool","25/26","Local","Premier League",{c1:"#c8102e",c2:"#ffffff",cuello:"#ffffff",pat:"liso"},{entrega:"inmediata",stock:{Fan:["L","XL"]}}),
     P("arg-l","Argentina","2026","Local","Mundial 2026",{c1:"#ffffff",c2:"#75aadb",cuello:"#111827",pat:"rayas"},{entrega:"inmediata",stock:{Fan:["M","L","XL"],Player:["L"]},nuevo:true}),
     P("sap-l","Saprissa","25/26","Local","Costa Rica",{c1:"#5b2a86",c2:"#ffffff",cuello:"#ffffff",pat:"liso"},{entrega:"inmediata",stock:{Fan:["M","L"]}}),
@@ -350,7 +368,10 @@ const BASE = {
     P("juv-l","Juventus","25/26","Local","Serie A",{c1:"#ffffff",c2:"#111111",cuello:"#111111",pat:"rayas"}),
     P("mil-l","AC Milan","25/26","Local","Serie A",{c1:"#c8102e",c2:"#111111",cuello:"#111111",pat:"rayas"}),
     P("int-l","Inter","25/26","Local","Serie A",{c1:"#0068a8",c2:"#111111",cuello:"#111111",pat:"rayas"}),
-    P("ala-l","Alajuelense","25/26","Local","Costa Rica",{c1:"#d10f1f",c2:"#111111",cuello:"#111111",pat:"rayas"}),
+    P("ala-l","Alajuelense","25/26","Local","Costa Rica",{c1:"#d10f1f",c2:"#111111",cuello:"#111111",pat:"rayas"},{precios:{Fan:25000,Player:27000},entrega:"inmediata",stock:{Fan:["M","L","XL"]}}),
+    P("ala-v","Alajuelense","25/26","Visita","Costa Rica",{c1:"#ffffff",c2:"#d10f1f",cuello:"#d10f1f",pat:"banda"},{precios:{Fan:25000,Player:27000}}),
+    P("ala-e","Alajuelense","25/26","Ed. especial","Costa Rica",{c1:"#111111",c2:"#d10f1f",cuello:"#d10f1f",pat:"liso"},{precios:{Fan:30000,Player:32000},nuevo:true}),
+    P("sap-v","Saprissa","25/26","Visita","Costa Rica",{c1:"#ffffff",c2:"#5b2a86",cuello:"#5b2a86",pat:"franja"}),
     P("her-l","Herediano","25/26","Local","Costa Rica",{c1:"#d10f1f",c2:"#f2c300",cuello:"#f2c300",pat:"rayas"}),
     P("bra-02","Brasil","2002","Local","Retro",{c1:"#ffdf00",c2:"#009c3b",cuello:"#009c3b",pat:"liso"},{retro:true}),
     P("mil-07","AC Milan","06/07","Local","Retro",{c1:"#c8102e",c2:"#111111",cuello:"#ffffff",pat:"rayas"},{retro:true}),
@@ -377,8 +398,32 @@ const prod = id => DB.productos.find(p => p.id === id);
 const titulo = p => `${p.equipo} ${p.temporada}`;
 function toast(t){ const d = document.createElement("div"); d.className = "toast"; d.textContent = t; d.setAttribute("role", "status"); document.body.append(d); setTimeout(() => d.remove(), 2800); }
 const versiones = p => p.retro ? ["Retro"] : ["Fan","Player"];
-const precioDe = (p, ver, pos) => (DB.precios[ver] || 0) + (pos ? DB.precios.poster : 0);
-const desde = p => Math.min(...versiones(p).map(v => DB.precios[v] || 0));
+const precioBase = (p, ver) => +(p.precios && p.precios[ver]) || DB.precios[ver] || 0;
+const precioDe = (p, ver, pos) => precioBase(p, ver) + (pos ? DB.precios.poster : 0);
+const desde = p => Math.min(...versiones(p).map(v => precioBase(p, v)));
+// ----- Buscador de equipos: entiende apodos (Liga, LDA, Barça, Sapri, la Sele…) -----
+const norm = t => String(t || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9 ]/g, " ").replace(/\s+/g, " ").trim();
+const ALIAS = {
+  "Real Madrid": ["madrid", "rm", "merengue", "merengues", "real"], "Barcelona": ["barca", "barça", "fcb", "blaugrana", "barcelona fc"],
+  "Alajuelense": ["liga", "lda", "liga deportiva alajuelense", "la liga cr", "manudos", "manudo", "rojinegros"],
+  "Saprissa": ["sapri", "saprissa", "deportivo saprissa", "morado", "monstruo", "tibas"], "Herediano": ["team", "heredia", "florenses", "cs herediano"],
+  "Costa Rica": ["sele", "la sele", "tricolor", "seleccion de costa rica"], "Argentina": ["albiceleste", "seleccion argentina"], "Brasil": ["brazil", "canarinha", "verdeamarela"],
+  "México": ["mexico", "seleccion mexicana"], "Portugal": ["seleccion portuguesa"], "Manchester City": ["city", "man city", "citizens"], "Liverpool": ["reds", "lfc"],
+  "Arsenal": ["gunners"], "PSG": ["paris", "paris saint germain", "psg"], "Bayern Múnich": ["bayern", "munich"], "Juventus": ["juve"], "AC Milan": ["milan", "rossoneri"], "Inter": ["inter de milan", "internazionale", "nerazzurri"]
+};
+function equipoCoincide(p, t){
+  const e = norm(p.equipo); if (!t) return true;
+  if (e.includes(t) || (t.length >= 4 && t.includes(e))) return true;
+  return (ALIAS[p.equipo] || []).some(a => { const n = norm(a); return n === t || (t.length >= 3 && n.startsWith(t)) || (n.length >= 4 && t.includes(n)); });
+}
+function buscarChemas(lista, texto){
+  const t = norm(texto); if (!t) return lista;
+  // Primero los apodos exactos ("sele" = Costa Rica, "liga" = Alajuelense), después lo demás.
+  const exacto = lista.filter(p => norm(p.equipo) === t || (ALIAS[p.equipo] || []).some(a => norm(a) === t));
+  if (exacto.length) return exacto;
+  const porEquipo = lista.filter(p => equipoCoincide(p, t));
+  return porEquipo.length ? porEquipo : lista.filter(p => norm(`${p.equipo} ${p.temporada} ${p.kit} ${p.liga} ${p.retro ? "retro" : ""}`).includes(t));
+}
 const enStock = (p, ver, t) => p.entrega === "inmediata" && (p.stock?.[ver] || []).includes(t);
 const igUser = () => String(DB.negocio.instagram || DB.negocio.instagramMuestra || "").replace(/^@/, "").trim();
 // Abre directo el chat de Chemas en Instagram. (Instagram no deja que una página escriba el mensaje: se copia para pegarlo.)
@@ -439,17 +484,20 @@ const vista = (p, o) => p.foto && !(o && o.espalda) ? `<img src="${p.foto}" alt=
 let filtro = "Todas", q = "";
 const FILTROS = ["Todas","Entrega inmediata","Mundial 2026","Premier League","LaLiga","Serie A","Otras ligas","Costa Rica","Retro"];
 function pintar(){
+  pintarEquipos();
   const n = DB.negocio, vis = DB.productos.filter(p => !p.oculto), e = textoEncargo();
   $("#vitrina").innerHTML = ["arg-l","por-e","bar-l"].map(id => prod(id)).filter(Boolean).map(p => `<div class="fig">${camisa(p)}</div>`).join("");
   $("#encargo").innerHTML = `<b>📅 Próximo encargo: ${e.cuando}</b><span>Encargos los días ${n.diasEncargo.join(" y ")} de cada mes. Si encargás para esa fecha, te llega entre el ${fmtC(e.desde)} y el ${fmtC(e.hasta)}</span>`;
   $("#filtros").innerHTML = FILTROS.filter(f => f === "Todas" || f === "Entrega inmediata" ? true : vis.some(p => p.liga === f)).map(f => `<button class="${f === filtro ? "si" : ""}" data-f="${esc(f)}">${f === "Entrega inmediata" ? "⚡ " : ""}${esc(f)}</button>`).join("");
-  const qq = q.trim().toLowerCase();
-  const lista = vis.filter(p => (filtro === "Todas" || (filtro === "Entrega inmediata" ? p.entrega === "inmediata" : p.liga === filtro)) && (!qq || `${p.equipo} ${p.temporada} ${p.kit} ${p.liga}`.toLowerCase().includes(qq)));
+  const lista = buscarChemas(vis.filter(p => filtro === "Todas" || (filtro === "Entrega inmediata" ? p.entrega === "inmediata" : p.liga === filtro)), q);
+  const equipos = [...new Set(lista.map(p => p.equipo))];
+  $("#resQ").hidden = !q.trim();
+  $("#resQ").innerHTML = q.trim() ? `<span>${lista.length ? `${equipos.length === 1 ? `Camisas de <b>${esc(equipos[0])}</b>` : `Resultados para <b>«${esc(q.trim())}»</b>`} · ${lista.length} ${lista.length === 1 ? "edición" : "ediciones"}` : `No encontramos <b>«${esc(q.trim())}»</b>`}</span><button type="button" data-limpiar>Ver todas</button>` : "";
   $("#grid").innerHTML = lista.map(p => `<article class="card" data-elegir="${p.id}" tabindex="0" role="button" aria-label="${esc(titulo(p))}">
       ${p.retro ? `<span class="tag ret">Retro</span>` : p.entrega === "inmediata" ? `<span class="tag ya">⚡ Entrega inmediata</span>` : `<span class="tag enc">Por encargo</span>`}
       <div class="ft">${vista(p)}</div>
       <div class="in"><h3>${esc(titulo(p))}</h3><span class="d">${esc(p.kit)} · ${esc(versiones(p).join(" / "))}${p.nuevo ? " · <b style='color:var(--oro)'>Nuevo</b>" : ""}</span>
-        <div class="pr"><small>desde</small> ${crc(desde(p))}</div></div></article>`).join("")
+        <div class="prs">${versiones(p).map(v => `<span><small>${v}</small><b>${crc(precioBase(p, v))}</b></span>`).join("")}</div></div></article>`).join("")
     || `<p style="color:var(--suave)">No encontramos esa chema. <a href="#buscar">Mandanos una foto y te ayudamos a encontrarla.</a></p>`;
   // tallas
   const g = DB.guiaFoto; $("#guiaImg").hidden = !g; if (g) $("#guiaImg").src = g;
@@ -468,6 +516,18 @@ document.addEventListener("click", e => {
 });
 document.addEventListener("keydown", e => { if ((e.key === "Enter" || e.key === " ") && e.target.matches?.(".card")) { e.preventDefault(); elegir(e.target.dataset.elegir); } });
 $("#q").addEventListener("input", e => { q = e.target.value; pintar(); });
+function irAEquipo(t){ q = t; filtro = "Todas"; $("#q").value = t; $("#hq").value = t; pintar(); $("#catalogo").scrollIntoView({behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth"}); }
+$("#hbusca").addEventListener("submit", e => { e.preventDefault(); const t = $("#hq").value.trim(); if (t) irAEquipo(t); else $("#hq").focus(); });
+document.addEventListener("click", e => {
+  const eq = e.target.closest("[data-eq]"); if (eq) { irAEquipo(eq.dataset.eq); return; }
+  if (e.target.closest("[data-limpiar]")) { q = ""; $("#q").value = ""; $("#hq").value = ""; pintar(); }
+});
+function pintarEquipos(){
+  const todos = [...new Set(DB.productos.filter(p => !p.oculto).map(p => p.equipo))];
+  $("#lista-equipos").innerHTML = todos.map(t => `<option value="${esc(t)}">`).join("");
+  const top = ["Real Madrid", "Barcelona", "Alajuelense", "Saprissa", "Argentina", "Costa Rica"].filter(t => todos.includes(t));
+  $("#equipos").innerHTML = top.map(t => `<button type="button" data-eq="${esc(t)}">${esc(t)}</button>`).join("");
+}
 
 /* ---- hojas ---- */
 function hoja(html, alAbrir){
@@ -499,7 +559,7 @@ function elegir(id){
     <p class="err" id="e-err"></p>
     <button class="b b-azul b-bloque" id="e-ok">Agregar al pedido</button>`, (h, cerrar) => {
     const pint = () => {
-      $("#e-ver", h).innerHTML = vs.map(v => `<button class="${v === s.ver ? "si" : ""}" data-ver="${v}">${v}<small>${crc(DB.precios[v])}</small></button>`).join("");
+      $("#e-ver", h).innerHTML = vs.map(v => `<button class="${v === s.ver ? "si" : ""}" data-ver="${v}">${v}<small>${crc(precioBase(p, v))}</small></button>`).join("");
       $("#e-kit", h).innerHTML = KITS.map(k => `<button class="${k === s.kit ? "si" : ""}" data-kit="${k}">${k}</button>`).join("");
       $("#e-man", h).innerHTML = ["Corta","Larga"].map(k => `<button class="${k === s.man ? "si" : ""}" data-man="${k}">${k}</button>`).join("");
       $("#e-tal", h).innerHTML = TALLAS.map(t => `<button class="${t === s.tal ? "si" : ""}" data-tal="${t}">${t}${enStock(p, s.ver, t) ? "<small>⚡ ya</small>" : ""}</button>`).join("");
@@ -629,13 +689,13 @@ function pintarAdmin(){
       p.entrega = Object.values(p.stock).some(x => x.length) ? "inmediata" : "encargo"; guardar(); pintarAdmin(); });
   } else if (aTab === "prod") {
     c.innerHTML = `<button class="b b-azul" id="nuevo-p" style="margin-top:10px">+ Agregar camisa</button>
-      <div class="alist">${DB.productos.map(p => `<div class="arow"><div class="mini">${vista(p)}</div><div class="tx"><b>${esc(titulo(p))}</b><span>${esc(p.kit)} · ${esc(p.liga)}${p.entrega === "inmediata" ? " · ⚡" : ""}${p.nuevo ? " · Nuevo" : ""}${p.oculto ? " · Oculta" : ""}</span></div><button data-ed="${p.id}">Editar</button></div>`).join("")}</div>`;
+      <div class="alist">${DB.productos.map(p => `<div class="arow"><div class="mini">${vista(p)}</div><div class="tx"><b>${esc(titulo(p))}</b><span>${esc(p.kit)} · ${versiones(p).map(v => crc(precioBase(p, v))).join(" / ")} · ${esc(p.liga)}${p.entrega === "inmediata" ? " · ⚡" : ""}${p.nuevo ? " · Nuevo" : ""}${p.oculto ? " · Oculta" : ""}</span></div><button data-ed="${p.id}">Editar</button></div>`).join("")}</div>`;
     $("#nuevo-p").onclick = () => editar(null);
     c.querySelectorAll("[data-ed]").forEach(b => b.onclick = () => editar(b.dataset.ed));
   } else if (aTab === "precios") {
     const pr = DB.precios;
     c.innerHTML = `<div style="margin:12px 0 40px">${[["Fan","Versión Fan"],["Player","Versión Player"],["Retro","Retro"],["poster","Póster (se suma al precio)"]].map(([k, l]) => `<div class="campo"><label>${l} (₡)</label><input inputmode="numeric" data-pr="${k}" value="${pr[k]}"></div>`).join("")}
-      <p class="nota">Ejemplo: Fan ₡27.000 · Player ₡29.000 · Player con póster ₡31.900.</p>
+      <p class="nota">Estos son los precios generales. Cada camisa puede tener su propio precio: se pone en Camisas → Editar.</p>
       <button class="b b-azul" id="pr-g" style="margin-top:8px">Guardar precios</button></div>`;
     $("#pr-g").onclick = () => { c.querySelectorAll("[data-pr]").forEach(i => pr[i.dataset.pr] = +i.value.replace(/\D/g, "") || 0); guardar(); pintar(); toast("Precios guardados"); };
   } else if (aTab === "tallas") {
@@ -678,7 +738,10 @@ function editar(id){
     <div class="lbl">Colores del dibujo</div>
     <div class="fila3" style="grid-template-columns:repeat(4,minmax(0,1fr))">${[["c1","Principal"],["c2","Segundo"],["cuello","Cuello"]].map(([k, l]) => `<div class="campo"><label>${l}</label><input type="color" data-dc="${k}" value="${p.dib[k]}" style="height:44px;padding:4px"></div>`).join("")}
       <div class="campo"><label>Diseño</label><select id="ed-pat">${[["liso","Liso"],["rayas","Rayas"],["aros","Aros"],["mitad","Mitad"],["banda","Banda"],["franja","Franja"]].map(([v, l]) => `<option value="${v}" ${v === p.dib.pat ? "selected" : ""}>${l}</option>`).join("")}</select></div></div>
-    <label class="check"><input type="checkbox" id="ed-r" ${p.retro ? "checked" : ""}> Es <b>retro</b> (precio de retro)</label>
+    <label class="check"><input type="checkbox" id="ed-r" ${p.retro ? "checked" : ""}> Es <b>retro</b></label>
+    <div class="lbl">Precio de esta camisa (₡)</div>
+    <div class="fila3" id="ed-prs"></div>
+    <p class="nota" style="margin-top:-2px">Si lo dejás vacío, usa el precio general de la pestaña Precios.</p>
     <label class="check"><input type="checkbox" id="ed-nu" ${p.nuevo ? "checked" : ""}> Marcar como <b>Nueva</b></label>
     <label class="check"><input type="checkbox" id="ed-oc" ${p.oculto ? "checked" : ""}> <b>Ocultar</b> del catálogo</label>
     <p class="err" id="ed-err"></p>
@@ -686,6 +749,11 @@ function editar(id){
     ${nuevo ? "" : `<button class="b b-bloque" id="ed-b" style="background:none;color:var(--rosa);margin-top:6px">Borrar esta camisa</button>`}`, (h, cerrar) => {
     const prev = () => { $("#ed-prev", h).innerHTML = vista(p); };
     prev();
+    const pintarPrs = () => { const vs = $("#ed-r", h).checked ? ["Retro"] : ["Fan", "Player"];
+      $("#ed-prs", h).style.gridTemplateColumns = `repeat(${vs.length},minmax(0,1fr))`;
+      $("#ed-prs", h).innerHTML = vs.map(v => `<div class="campo"><label>${v === "Player" ? "Player (jugador)" : v}</label><input inputmode="numeric" data-pv="${v}" value="${(p.precios && p.precios[v]) || ""}" placeholder="${DB.precios[v]}"></div>`).join(""); };
+    pintarPrs();
+    $("#ed-r", h).addEventListener("change", () => { const g = {}; h.querySelectorAll("[data-pv]").forEach(i => g[i.dataset.pv] = i.value); p.precios = {...(p.precios || {}), ...Object.fromEntries(Object.entries(g).map(([k, v]) => [k, +v.replace(/\D/g, "") || 0]))}; pintarPrs(); });
     h.querySelectorAll("[data-dc]").forEach(i => i.addEventListener("input", () => { p.dib[i.dataset.dc] = i.value; p.dib.mangas = ""; prev(); }));
     $("#ed-pat", h).addEventListener("change", e => { p.dib.pat = e.target.value; prev(); });
     $("#ed-foto", h).addEventListener("change", async e => { const f = e.target.files[0]; if (!f) return; try { p.foto = await comprimir(f); prev(); toast("Foto lista. Tocá Guardar."); } catch { toast("No se pudo leer la foto."); } });
@@ -693,6 +761,7 @@ function editar(id){
     $("#ed-g", h).addEventListener("click", () => {
       p.equipo = $("#ed-e", h).value.trim(); p.temporada = $("#ed-t", h).value.trim(); p.kit = $("#ed-k", h).value; p.liga = $("#ed-l", h).value;
       p.retro = $("#ed-r", h).checked; p.nuevo = $("#ed-nu", h).checked; p.oculto = $("#ed-oc", h).checked;
+      p.precios = {...(p.precios || {})}; h.querySelectorAll("[data-pv]").forEach(i => { const v = +i.value.replace(/\D/g, "") || 0; if (v) p.precios[i.dataset.pv] = v; else delete p.precios[i.dataset.pv]; });
       if (p.equipo.length < 2) { $("#ed-err", h).textContent = "Escribí el equipo o la selección."; return; }
       if (nuevo) DB.productos.unshift(p); else DB.productos[DB.productos.findIndex(x => x.id === p.id)] = p;
       guardar(); cerrar(); pintar(); pintarAdmin(); toast("Guardado");
