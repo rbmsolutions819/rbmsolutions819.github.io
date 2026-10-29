@@ -1,0 +1,554 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0b0a08">
+<title>Alick Online Store · Perfumes originales (demo)</title>
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+/* Alick: negro y dorado como su logo (frasco con las iniciales A y E). */
+:root{--fondo:#0b0a08;--panel:#15130f;--panel2:#1e1b15;--linea:#2e2a20;--texto:#f3eee2;--suave:#a89f8b;
+  --oro:#d4af37;--oro2:#f2d47a;--oro3:#9c7a1f;--rojo:#e0524a;--verde:#25d366;
+  --f-t:"Cormorant Garamond","Didot","Bodoni MT",Georgia,serif;--f-x:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--fondo);color:var(--texto);font:400 16px/1.55 var(--f-x);-webkit-font-smoothing:antialiased}
+[hidden]{display:none!important}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+img{max-width:100%}
+a{color:var(--oro2)}
+:focus-visible{outline:2px solid var(--oro2);outline-offset:2px;border-radius:6px}
+.wrap{max-width:1100px;margin:0 auto;padding:0 16px}
+h1,h2,h3{font-family:var(--f-t);font-weight:600;line-height:1.05;margin:0}
+.k{font:700 11.5px var(--f-x);letter-spacing:.22em;text-transform:uppercase;color:var(--oro)}
+.dorado{background:linear-gradient(180deg,var(--oro2),var(--oro) 55%,var(--oro3));-webkit-background-clip:text;background-clip:text;color:transparent}
+.demo{background:#000;color:var(--suave);font-size:12.5px;text-align:center;padding:7px 12px;padding-top:calc(7px + env(safe-area-inset-top,0px));border-bottom:1px solid var(--linea)}
+.demo b{color:var(--oro2)}
+
+/* encabezado */
+.top{position:sticky;top:0;z-index:20;background:rgba(11,10,8,.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--linea)}
+.top .wrap{display:flex;align-items:center;gap:10px;height:62px}
+.hamb{flex:none;width:40px;height:40px;border-radius:10px;border:1px solid var(--linea);background:var(--panel);font-size:20px;line-height:1;color:var(--oro2)}
+.marca{display:flex;align-items:center;gap:9px;text-decoration:none;color:var(--texto);min-width:0}
+.marca img{width:40px;height:40px;border-radius:50%;flex:none;box-shadow:0 0 0 1px var(--oro3)}
+.marca b{font:600 22px/1 var(--f-t);letter-spacing:.14em;white-space:nowrap}
+.marca small{display:block;font:600 9.5px var(--f-x);letter-spacing:.24em;color:var(--suave);margin-top:3px}
+.top nav{margin-left:auto;display:none;gap:4px}
+@media(min-width:860px){.top nav{display:flex}}
+.top nav a{text-decoration:none;color:var(--suave);font-weight:600;font-size:14px;padding:6px 12px;border-radius:999px}
+.top nav a:hover{background:var(--panel);color:var(--texto)}
+.btn-pedido{flex:none;margin-left:auto;border:0;background:linear-gradient(180deg,var(--oro2),var(--oro));color:#1a1405;border-radius:999px;padding:10px 15px;font:800 14px var(--f-x);white-space:nowrap}
+@media(min-width:860px){.btn-pedido{margin-left:8px}}
+.btn-pedido i{font-style:normal;background:#1a1405;color:var(--oro2);border-radius:999px;padding:0 7px;margin-left:6px;font-size:12px}
+
+/* portada */
+.hero{position:relative;overflow:hidden;padding:30px 0 26px;background:radial-gradient(480px 340px at 80% 30%,rgba(212,175,55,.22),transparent 70%),radial-gradient(420px 300px at 0% 100%,rgba(212,175,55,.08),transparent 70%)}
+.hero .wrap{display:grid;gap:20px;align-items:center}
+.hero .wrap>div{min-width:0}
+@media(min-width:860px){.hero .wrap{grid-template-columns:1.15fr .85fr}}
+.hero h1{font-size:clamp(42px,10.5vw,72px)}
+.hero p{color:var(--suave);font-size:17px;max-width:520px;margin:10px 0 0}
+.sellos-h{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.sellos-h span{font-size:13px;font-weight:600;border:1px solid var(--linea);background:var(--panel);border-radius:999px;padding:6px 12px}
+.hbusca{display:flex;gap:8px;margin-top:18px;max-width:520px}
+.hbusca input{flex:1;min-width:0;border:1px solid var(--linea);background:var(--panel);border-radius:999px;padding:13px 18px;font-size:16px}
+.hbusca button{border:0;background:linear-gradient(180deg,var(--oro2),var(--oro));color:#1a1405;border-radius:999px;padding:0 20px;font:800 15px var(--f-x)}
+.rapidos{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;max-width:520px}
+.rapidos button{border:1px solid var(--linea);background:transparent;color:var(--suave);border-radius:999px;padding:6px 12px;font:600 13px var(--f-x)}
+.rapidos button:hover{color:var(--texto);border-color:var(--oro)}
+.vitrina{display:flex;justify-content:center}
+@media(max-width:859px){.vitrina{display:none}}
+.vitrina img{width:min(78vw,320px);border-radius:50%;box-shadow:0 0 0 1px var(--oro3),0 30px 70px -20px rgba(212,175,55,.45)}
+.b{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:999px;padding:13px 20px;font:700 15px var(--f-x);text-decoration:none;border:0}
+.b-oro{background:linear-gradient(180deg,var(--oro2),var(--oro));color:#1a1405}
+.b-claro{background:var(--panel);border:1px solid var(--linea);color:var(--texto)}
+.b-wa{background:var(--verde);color:#062b14}
+.b-bloque{width:100%}
+
+section{padding:40px 0}
+.cab{margin-bottom:16px}
+.cab h2{font-size:clamp(36px,8vw,52px);margin-top:6px}
+.cab p{color:var(--suave);margin:6px 0 0}
+
+/* filtros y lista */
+.chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px;margin-bottom:12px}
+.chips::-webkit-scrollbar{display:none}
+.chips button{flex:none;border:1px solid var(--linea);background:var(--panel);color:var(--suave);border-radius:999px;padding:8px 15px;font:700 13.5px var(--f-x)}
+.chips button.si{background:var(--oro);border-color:var(--oro);color:#1a1405}
+.buscar{width:100%;border:1px solid var(--linea);background:var(--panel);border-radius:12px;padding:12px 14px;margin-bottom:12px;font-size:15px}
+.res-q{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--linea);border-radius:12px;padding:9px 12px;margin-bottom:12px;font-size:14px}
+.res-q button{border:0;background:none;color:var(--oro2);font-weight:700;font-size:13.5px;white-space:nowrap}
+.lista{display:grid;gap:10px}
+@media(min-width:760px){.lista{grid-template-columns:1fr 1fr}}
+.prod{display:grid;grid-template-columns:88px minmax(0,1fr) auto;gap:12px;align-items:center;background:var(--panel);border:1px solid var(--linea);border-radius:16px;padding:10px;cursor:pointer;text-align:left;color:var(--texto);width:100%;transition:border-color .15s}
+.prod:hover{border-color:var(--oro3)}
+.foto{width:88px;height:88px;border-radius:12px;overflow:hidden;background:var(--panel2);position:relative;flex:none}
+.foto img{width:100%;height:100%;object-fit:cover;display:block}
+.foto .of{position:absolute;left:4px;top:4px;background:var(--rojo);color:#fff;font:800 10px var(--f-x);padding:2px 6px;border-radius:5px}
+.tx{min-width:0;display:grid;gap:2px}
+.tx b{font-size:15.5px;line-height:1.25}
+.tx .mar{font-size:12px;color:var(--suave);font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.tx .not{font-size:12.5px;color:var(--suave);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.precio{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-top:2px}
+.precio b{font-size:16.5px;color:var(--oro2)}
+.precio s{font-size:13px;color:var(--suave)}
+.precio .ah{font-size:11.5px;font-weight:800;color:#ffb4ae}
+.mas{width:38px;height:38px;border-radius:12px;border:1px solid var(--oro3);color:var(--oro2);display:grid;place-items:center;font-size:22px;font-weight:600;background:var(--panel2)}
+.agot{opacity:.55}
+.agot .mas{border-color:var(--linea);color:var(--suave);font-size:11px;font-weight:700;width:auto;padding:0 8px}
+
+/* bloques */
+.trio{display:grid;gap:10px;grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(min-width:760px){.trio{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.trio div{background:var(--panel);border:1px solid var(--linea);border-radius:16px;padding:14px;display:grid;gap:4px}
+.trio i{font-style:normal;font-size:22px}
+.trio b{font-size:15px}
+.trio span{color:var(--suave);font-size:13.5px}
+.busca{background:linear-gradient(135deg,#231d0e,#0f0d09);border:1px solid var(--oro3);border-radius:24px;padding:22px 18px;display:grid;gap:14px}
+@media(min-width:860px){.busca{grid-template-columns:1fr 1.1fr;padding:30px}}
+.busca h2{font-size:clamp(34px,8vw,48px)}
+.busca p{color:var(--suave);margin:6px 0 0}
+.foto-ref{border:2px dashed var(--oro3);border-radius:16px;min-height:110px;display:grid;place-items:center;text-align:center;padding:12px;cursor:pointer;color:var(--suave);background:rgba(0,0,0,.25);position:relative;overflow:hidden}
+.foto-ref img{max-height:200px;border-radius:10px}
+.foto-ref input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.campo{display:grid;gap:5px;margin-bottom:10px}
+.campo label{font-size:13px;color:var(--suave);font-weight:700}
+.campo input,.campo select,.campo textarea{width:100%;border:1px solid var(--linea);background:var(--panel);border-radius:10px;padding:11px 12px;font-size:16px}
+.fila2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.fila3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.info{display:grid;gap:12px}
+@media(min-width:760px){.info{grid-template-columns:1fr 1fr}}
+.info .c{background:var(--panel);border:1px solid var(--linea);border-radius:18px;padding:18px}
+.info h3{font-size:26px;margin-bottom:6px}
+.info p{margin:4px 0;color:var(--suave)}
+footer{border-top:1px solid var(--linea);text-align:center;padding:30px 16px 110px;font-size:14px;color:var(--suave)}
+.wa-flot{position:fixed;right:16px;bottom:18px;z-index:30;width:58px;height:58px;border-radius:50%;background:var(--verde);display:grid;place-items:center;box-shadow:0 10px 30px rgba(0,0,0,.45)}
+.wa-flot svg{width:30px;height:30px}
+
+/* menú lateral */
+.lat-velo{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:44}
+.lateral{position:fixed;top:0;bottom:0;left:0;width:min(300px,84vw);background:var(--panel);border-right:1px solid var(--linea);z-index:45;padding:calc(14px + env(safe-area-inset-top,0px)) 14px 20px;display:flex;flex-direction:column;gap:10px;animation:entra .2s ease-out}
+@keyframes entra{from{transform:translateX(-100%)}to{transform:none}}
+.lat-cab{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-bottom:10px;border-bottom:1px solid var(--linea)}
+.lat-cab b{font:600 22px var(--f-t);letter-spacing:.14em}
+.lat-item{display:flex;align-items:center;gap:10px;width:100%;border:1px solid var(--linea);background:var(--panel2);border-radius:12px;padding:14px;font:700 15px var(--f-x);text-align:left}
+.lat-item:hover{border-color:var(--oro)}
+
+/* hojas */
+.velo{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:50;display:flex;align-items:flex-end;justify-content:center}
+@media(min-width:760px){.velo{align-items:center}}
+.hoja{background:var(--fondo);border:1px solid var(--linea);width:100%;max-width:560px;max-height:94vh;overflow:auto;border-radius:22px 22px 0 0;padding:18px 16px calc(26px + env(safe-area-inset-bottom,0px))}
+@media(min-width:760px){.hoja{border-radius:22px}}
+.hoja-cab{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.hoja-cab h3{font-size:28px}
+.x{border:0;background:var(--panel2);width:38px;height:38px;border-radius:50%;font-size:20px;flex:none;color:var(--texto)}
+.det{display:grid;grid-template-columns:150px minmax(0,1fr);gap:14px;align-items:start}
+.det .foto{width:150px;height:150px;border-radius:16px}
+.notas{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.notas span{font-size:12.5px;font-weight:600;border:1px solid var(--oro3);color:var(--oro2);border-radius:999px;padding:3px 10px}
+.cant{display:flex;align-items:center;gap:12px;margin:16px 0}
+.cant button{width:40px;height:40px;border-radius:50%;border:1px solid var(--linea);background:var(--panel);font-size:20px}
+.cant b{font-size:20px;min-width:24px;text-align:center}
+.err{color:var(--rojo);font-size:14px;min-height:20px;margin:4px 0;font-weight:600}
+.linea-p{display:grid;grid-template-columns:56px minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--linea)}
+.linea-p .foto{width:56px;height:56px;border-radius:10px}
+.linea-p small{display:block;color:var(--suave)}
+.linea-p button{border:0;background:none;color:var(--rojo);font-size:13px;font-weight:700}
+.res{display:grid;gap:4px;margin:12px 0}
+.res div{display:flex;justify-content:space-between}
+.res .ahorro{color:#7ee2a0;font-weight:700}
+.res .total{font:800 22px var(--f-x);margin-top:4px}
+.aviso{background:var(--panel);border:1px dashed var(--linea);border-radius:12px;padding:10px 12px;font-size:13.5px;color:var(--suave);margin:10px 0}
+.aviso b{color:var(--texto)}
+.lbl{font:800 12px var(--f-x);letter-spacing:.08em;text-transform:uppercase;color:var(--suave);margin:14px 0 7px}
+
+/* administración */
+.admin{position:fixed;inset:0;z-index:40;background:var(--fondo);overflow:auto}
+.admin-top{position:sticky;top:0;background:#000;border-bottom:1px solid var(--linea);z-index:2}
+.admin-top .wrap{display:flex;align-items:center;gap:10px;height:58px}
+.admin-top b{font:600 22px var(--f-t);letter-spacing:.1em}
+.admin-top button{margin-left:auto;border:1px solid var(--linea);background:none;border-radius:999px;padding:7px 14px;font-size:14px}
+.tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:14px 0 6px}
+.tabs button{flex:none;border:1px solid var(--linea);background:var(--panel);border-radius:999px;padding:8px 15px;font:700 14px var(--f-x)}
+.tabs button.si{background:var(--oro);border-color:var(--oro);color:#1a1405}
+.alist{display:grid;gap:8px;margin:12px 0 40px}
+.arow{display:flex;gap:12px;align-items:center;background:var(--panel);border:1px solid var(--linea);border-radius:14px;padding:8px 10px}
+.arow .foto{width:52px;height:52px;border-radius:10px}
+.arow .tx span{font-size:12.5px;color:var(--suave)}
+.arow button{border:1px solid var(--linea);background:none;border-radius:999px;padding:6px 12px;font-size:13px;flex:none}
+.check{display:flex;gap:8px;align-items:center;font-size:15px;margin:6px 0}
+.check input{width:20px;height:20px;accent-color:var(--oro)}
+.aviso-demo{background:var(--panel2);border:1px solid var(--linea);border-radius:12px;padding:12px 14px;font-size:14px;margin-top:12px}
+.toast{position:fixed;left:50%;bottom:92px;transform:translateX(-50%);background:var(--oro2);color:#1a1405;padding:10px 18px;border-radius:999px;font-size:14px;font-weight:700;z-index:90;box-shadow:0 10px 30px rgba(0,0,0,.4);max-width:calc(100% - 32px);text-align:center}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.lateral{animation:none}}
+</style>
+</head>
+<body>
+<div class="demo">✨ <b>Página de ejemplo</b> hecha por RBM Solutions CR · precios de prueba</div>
+
+<header class="top"><div class="wrap">
+  <button class="hamb" id="hamb" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="lateral">☰</button>
+  <a class="marca" href="#" aria-label="Alick Online Store, inicio"><img src="logo.png" alt="" width="40" height="40"><span><b class="dorado">ALICK</b><small>TIENDA ONLINE</small></span></a>
+  <nav><a href="#catalogo">Perfumes</a><a href="#buscar">¿No lo encontrás?</a><a href="#info">Envíos y pagos</a></nav>
+  <button class="btn-pedido" data-abrir-pedido>🛍️ Mi pedido<i id="n-pedido">0</i></button>
+</div></header>
+
+<section class="hero"><div class="wrap">
+  <div>
+    <div class="k">Perfumes 100% originales</div>
+    <h1 style="margin-top:10px">Encontrá el aroma <span class="dorado">perfecto</span></h1>
+    <p>Perfumes de diseñador y árabes, estuches para regalar y ofertas cada semana. Armá tu pedido y te lo confirmamos por WhatsApp.</p>
+    <form class="hbusca" id="hbusca" role="search"><input id="hq" type="search" placeholder="¿Qué perfume buscás? Ej.: 9pm, Lattafa…" aria-label="¿Qué perfume buscás?" autocomplete="off" list="lista-p"><button type="submit">Buscar</button></form>
+    <datalist id="lista-p"></datalist>
+    <div class="rapidos" id="rapidos"></div>
+    <div class="sellos-h"><span>💎 100% originales</span><span>🚚 Envíos a todo Costa Rica</span><span>🤝 Atención personalizada</span></div>
+  </div>
+  <div class="vitrina"><img src="logo.png" alt="Alick Tienda Online" width="320" height="320"></div>
+</div></section>
+
+<section id="catalogo" style="padding-top:16px"><div class="wrap">
+  <div class="cab"><div class="k">Catálogo</div><h2>Perfumes</h2><p>Tocá un perfume para ver sus notas y agregarlo a tu pedido.</p></div>
+  <div class="chips" id="filtros"></div>
+  <input class="buscar" id="q" type="search" placeholder="Buscar por nombre, marca o aroma (vainilla, cítrico…)" aria-label="Buscar perfume">
+  <div class="res-q" id="resQ" hidden></div>
+  <div class="lista" id="lista"></div>
+</div></section>
+
+<section style="padding-top:0"><div class="wrap">
+  <div class="trio">
+    <div><i>💎</i><b>100% originales</b><span>Perfumes auténticos, sellados.</span></div>
+    <div><i>🎁</i><b>Estuches</b><span>Listos para regalar.</span></div>
+    <div><i>🚚</i><b>Envíos</b><span>A todo Costa Rica.</span></div>
+    <div><i>💸</i><b>SINPE Móvil</b><span>Pagás fácil y rápido.</span></div>
+  </div>
+</div></section>
+
+<section id="buscar" style="padding-top:0"><div class="wrap">
+  <div class="busca">
+    <div>
+      <div class="k">¿No lo encontrás?</div>
+      <h2 style="margin-top:6px">Te lo conseguimos</h2>
+      <p>Escribinos el nombre o mandanos una foto del perfume que buscás y te decimos si lo tenemos o lo podemos traer.</p>
+    </div>
+    <div>
+      <label class="foto-ref"><span id="refTxt">📷 <b>Foto del perfume</b> (opcional)<br><small>Una captura sirve</small></span><input type="file" id="refFoto" accept="image/*" aria-label="Foto del perfume que buscás"></label>
+      <div class="campo" style="margin-top:10px"><label for="refNom">Nombre del perfume</label><input id="refNom" placeholder="Ej.: Lattafa Asad"></div>
+      <div class="fila2"><div class="campo"><label for="refPara">Para</label><select id="refPara"><option>Hombre</option><option>Mujer</option><option>Unisex</option><option>Regalo</option></select></div>
+        <div class="campo"><label for="refPres">Presupuesto</label><select id="refPres"><option>Cualquiera</option><option>Hasta ₡20.000</option><option>₡20.000 a ₡35.000</option><option>Más de ₡35.000</option></select></div></div>
+      <button class="b b-wa b-bloque" id="refEnviar" type="button">Preguntar por WhatsApp</button>
+      <p class="nota" id="refNota" style="color:var(--suave);font-size:13px;text-align:center;margin:8px 0 0"></p>
+    </div>
+  </div>
+</div></section>
+
+<section id="info" style="padding-top:0"><div class="wrap">
+  <div class="cab"><div class="k">Cómo comprar</div><h2>Envíos y pagos</h2></div>
+  <div class="info">
+    <div class="c"><h3>🚚 Envíos</h3><p id="i-envio"></p><p id="i-hora"></p></div>
+    <div class="c"><h3>💸 Pagos</h3><p id="i-pago"></p><p>Cuando confirmamos tu pedido te pasamos los datos para pagar.</p></div>
+  </div>
+</div></section>
+
+<footer>
+  <img src="logo.png" alt="" width="64" height="64" style="border-radius:50%">
+  <div id="f-datos" style="margin-top:8px"></div>
+  <div style="margin-top:14px;font-size:12px;opacity:.7">Hecho por <a href="https://rbmsolutionscr.com">RBM Solutions CR</a></div>
+</footer>
+<a class="wa-flot" href="#" data-wa-general aria-label="Escribir por WhatsApp"><svg viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.3 14.2c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .2-3.3-.7-2.8-1.1-4.6-4-4.7-4.2-.1-.2-1.1-1.5-1.1-2.9s.7-2.1 1-2.4c.3-.3.6-.3.8-.3h.6c.2 0 .4 0 .6.5l.9 2.1c.1.2.1.4 0 .6l-.4.6-.4.5c-.1.1-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.4 2.4 1.5.3.1.5.1.7-.1l1-1.2c.2-.3.4-.2.7-.1l2 1c.3.1.5.2.5.3.1.2.1.7-.1 1.3z"/></svg></a>
+
+<!-- menú lateral -->
+<div class="lat-velo" id="latVelo" hidden></div>
+<aside class="lateral" id="lateral" aria-label="Menú" hidden>
+  <div class="lat-cab"><b class="dorado">ALICK</b><button class="x" type="button" id="latCerrar" aria-label="Cerrar menú">×</button></div>
+  <button type="button" id="abrir-admin" class="lat-item">🔒 Acceso administrador</button>
+</aside>
+
+<!-- panel de administración -->
+<div class="admin" id="admin" hidden>
+  <div class="admin-top"><div class="wrap"><b class="dorado">PANEL DE ALICK</b><button id="cerrar-admin">Ver la página</button></div></div>
+  <div class="wrap">
+    <div class="aviso-demo">Versión de prueba: los cambios se guardan <b>solo en este celular</b>. En la versión final se guardan en la nube y los ven todos los clientes al instante.</div>
+    <div class="tabs" id="a-tabs"><button data-at="prod" class="si">Perfumes y precios</button><button data-at="datos">Datos de la tienda</button></div>
+    <div id="a-cuerpo"></div>
+  </div>
+</div>
+
+<script>
+/* ===================== DATOS ===================== */
+const CLAVE_DEMO = "demo1234";
+const KEY = "alick_demo_v1";
+// precio = precio normal; oferta = precio rebajado (vacío si no tiene rebaja). Precios de ejemplo.
+const P = (id, nombre, marca, para, tipo, precio, oferta = 0, notas = "", extra = {}) => ({ id, nombre, marca, para, tipo, precio, oferta, notas, foto: `f/${id}.jpg`, agotado: false, oculto: false, ...extra });
+const BASE = {
+  negocio: { nombre:"Alick Online Store", whatsapp:"50671970674", instagram:"alick_online", horario:"Lunes a sábado, 9:00 a. m. a 6:00 p. m.",
+    envio:"Enviamos a todo Costa Rica por Correos de CR o mensajero. El costo se confirma según tu zona.", pago:"SINPE Móvil o transferencia." },
+  productos: [
+    P("01","La Belle","Jean Paul Gaultier","Mujer","Diseñador",68000,62000,"Pera, vainilla, floral"),
+    P("02","Le Male Elixir","Jean Paul Gaultier","Hombre","Diseñador",72000,0,"Ámbar, vainilla, tabaco"),
+    P("03","CK One","Calvin Klein","Unisex","Diseñador",32000,28000,"Cítrico, fresco, té verde"),
+    P("04","Acqua di Giò","Giorgio Armani","Hombre","Diseñador",58000,0,"Marino, cítrico, fresco"),
+    P("05","In Motion","Hugo Boss","Hombre","Diseñador",30000,0,"Cítrico, especiado"),
+    P("06","Born in Roma Intense","Valentino","Hombre","Diseñador",75000,69000,"Vainilla, lavanda, ámbar"),
+    P("07","Stallion 53","Emper","Hombre","Árabe",18000,0,"Cítrico, especiado, cuero"),
+    P("08","Ejaazi","Lattafa","Unisex","Árabe",25000,22000,"Frutal, ámbar, dulce"),
+    P("09","Victorioso","Maison Alhambra","Hombre","Árabe",16000,0,"Fresco, amaderado"),
+    P("10","9pm","Afnan","Hombre","Árabe",28000,25000,"Vainilla, canela, ámbar"),
+    P("11","Club de Nuit Sillage","Armaf","Unisex","Árabe",30000,0,"Cítrico, almizcle, fresco"),
+    P("12","Club de Nuit Intense Man","Armaf","Hombre","Árabe",27000,0,"Piña, ahumado, abedul"),
+    P("13","Halloween Man","Halloween","Hombre","Diseñador",26000,0,"Fresco, especiado"),
+    P("14","Happy for Men","Clinique","Hombre","Diseñador",35000,0,"Cítrico, fresco"),
+    P("15","Blue Seduction","Antonio Banderas","Hombre","Diseñador",15000,13000,"Fresco, marino"),
+    P("16","Estuche Born in Roma","Valentino","Hombre","Estuche",85000,0,"Perfume + regalo"),
+    P("17","Estuche Club de Nuit Intense Man","Armaf","Hombre","Estuche",38000,35000,"Perfume + regalo"),
+    P("18","Estuche Club de Nuit Woman","Armaf","Mujer","Estuche",36000,0,"Perfume + regalo"),
+    P("19","Ajwad","Lattafa","Mujer","Árabe",22000,0,"Rosas, atalcado, floral, avainillado"),
+    P("20","Sublime","Lattafa","Mujer","Árabe",24000,0,"Afrutado, fresco, avainillado, rosas"),
+    P("21","9am Dive","Afnan","Unisex","Árabe",28000,25000,"Fresco, cítrico, afrutado, ámbar"),
+    P("22","Khamrah","Lattafa","Unisex","Árabe",30000,0,"Dulce, ámbar, avainillado, canela"),
+    P("23","Fakhar Rose","Lattafa","Mujer","Árabe",22000,0,"Floral blanco, afrutado, dulce"),
+    P("24","Club de Nuit Woman","Armaf","Mujer","Árabe",27000,0,"Cítrico, fresco, rosas, avainillado",{agotado:false})
+  ]
+};
+const lsGet = () => { try { return JSON.parse(localStorage.getItem(KEY)); } catch { return null; } };
+const lsSet = v => { try { localStorage.setItem(KEY, JSON.stringify(v)); return true; } catch { return false; } };
+let DB = lsGet() || structuredClone(BASE);
+const guardar = () => { if (!lsSet(DB)) toast("No se pudo guardar (memoria llena). Probá con fotos más livianas."); };
+let pedido = []; // {p, cant}
+
+/* ===================== UTILIDADES ===================== */
+const $ = (s, r = document) => r.querySelector(s);
+const esc = t => String(t ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const crc = n => "₡" + String(Math.round(+n || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+const prod = id => DB.productos.find(p => p.id === id);
+const precio = p => p.oferta && p.oferta < p.precio ? p.oferta : p.precio;
+const rebaja = p => p.oferta && p.oferta < p.precio ? p.precio - p.oferta : 0;
+const nombreLargo = p => `${p.nombre} · ${p.marca}`;
+function toast(t){ const d = document.createElement("div"); d.className = "toast"; d.textContent = t; d.setAttribute("role", "status"); document.body.append(d); setTimeout(() => d.remove(), 2800); }
+const waNum = () => { const n = String(DB.negocio.whatsapp || "").replace(/\D/g, ""); return n.length === 8 ? "506" + n : n; };
+const waLink = m => `https://wa.me/${waNum()}?text=${encodeURIComponent(m)}`;
+const fotoHTML = (p, conOferta = true) => `<div class="foto">${p.foto ? `<img src="${esc(p.foto)}" alt="${esc(p.nombre)}" loading="lazy">` : ""}${conOferta && rebaja(p) ? `<span class="of">−${crc(rebaja(p))}</span>` : ""}</div>`;
+const precioHTML = p => `<div class="precio"><b>${crc(precio(p))}</b>${rebaja(p) ? `<s>${crc(p.precio)}</s><span class="ah">Ahorrás ${crc(rebaja(p))}</span>` : ""}</div>`;
+
+/* ----- Buscador: entiende apodos de marcas y aromas ----- */
+const norm = t => String(t || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9 ]/g, " ").replace(/\s+/g, " ").trim();
+const ALIAS = { "jpg":"jean paul gaultier", "jean paul":"jean paul gaultier", "cdn":"club de nuit", "club de noche":"club de nuit", "arabe":"arabe", "arabes":"arabe", "ck":"calvin klein",
+  "armani":"giorgio armani", "acqua di gio":"acqua di gio", "boss":"hugo boss", "valentino":"valentino", "banderas":"antonio banderas", "9 pm":"9pm", "9 am":"9am", "nueve pm":"9pm",
+  "vainilla":"vainilla", "avainillado":"vainilla", "dulce":"dulce", "fresco":"fresco", "citrico":"citrico", "regalo":"estuche", "estuches":"estuche", "set":"estuche", "kit":"estuche" };
+function buscar(lista, texto){
+  let t = norm(texto); if (!t) return lista;
+  t = ALIAS[t] || t;
+  const palabras = t.split(" ");
+  return lista.filter(p => { const h = norm(`${p.nombre} ${p.marca} ${p.para} ${p.tipo} ${p.notas}`).replace(/avainillad\w*/g, "vainilla avainillado"); return palabras.every(w => h.includes(w)); });
+}
+
+/* ===================== PÁGINA PÚBLICA ===================== */
+let filtro = "Todos", q = "";
+const FILTROS = [["Todos","Todos"],["Ofertas","🔥 Ofertas"],["Hombre","Hombre"],["Mujer","Mujer"],["Unisex","Unisex"],["Árabe","Árabes"],["Diseñador","Diseñador"],["Estuche","🎁 Estuches"]];
+function pasaFiltro(p){
+  if (filtro === "Todos") return true;
+  if (filtro === "Ofertas") return !!rebaja(p);
+  if (["Hombre","Mujer","Unisex"].includes(filtro)) return p.para === filtro;
+  return p.tipo === filtro;
+}
+function pintar(){
+  const n = DB.negocio, vis = DB.productos.filter(p => !p.oculto);
+  $("#filtros").innerHTML = FILTROS.filter(([k]) => k === "Todos" || vis.some(p => { const f = filtro; filtro = k; const r = pasaFiltro(p); filtro = f; return r; }))
+    .map(([k, l]) => `<button class="${k === filtro ? "si" : ""}" data-f="${esc(k)}">${l}</button>`).join("");
+  const lista = buscar(vis.filter(pasaFiltro), q).sort((a, b) => (a.agotado - b.agotado));
+  $("#resQ").hidden = !q.trim();
+  $("#resQ").innerHTML = q.trim() ? `<span>${lista.length ? `Resultados para <b>«${esc(q.trim())}»</b> · ${lista.length}` : `No encontramos <b>«${esc(q.trim())}»</b>. <a href="#buscar">Preguntanos por él</a>`}</span><button type="button" data-limpiar>Ver todos</button>` : "";
+  $("#lista").innerHTML = lista.map(p => `<button type="button" class="prod${p.agotado ? " agot" : ""}" data-ver="${p.id}">
+      ${fotoHTML(p)}
+      <span class="tx"><span class="mar">${esc(p.marca)} · ${esc(p.para)}</span><b>${esc(p.nombre)}</b>${p.notas ? `<span class="not">${esc(p.notas)}</span>` : ""}${precioHTML(p)}</span>
+      <span class="mas" aria-hidden="true">${p.agotado ? "Agotado" : "+"}</span></button>`).join("") || `<p style="color:var(--suave)">No hay perfumes en esta sección.</p>`;
+  $("#lista-p").innerHTML = [...new Set(vis.flatMap(p => [p.nombre, p.marca]))].map(x => `<option value="${esc(x)}">`).join("");
+  $("#rapidos").innerHTML = ["Lattafa", "Club de Nuit", "Afnan", "Valentino", "Ofertas"].map(x => `<button type="button" data-rap="${esc(x)}">${x === "Ofertas" ? "🔥 Ofertas" : esc(x)}</button>`).join("");
+  $("#i-envio").textContent = n.envio; $("#i-hora").innerHTML = `<b style="color:var(--texto)">Horario:</b> ${esc(n.horario)}`; $("#i-pago").textContent = n.pago;
+  $("#f-datos").innerHTML = `WhatsApp <a href="${waLink("Hola 👋")}" target="_blank" rel="noopener">+${esc(waNum())}</a> · Instagram <a href="https://instagram.com/${esc(n.instagram)}" target="_blank" rel="noopener">@${esc(n.instagram)}</a><br>Perfumes · Joyería · Accesorios · Tennis`;
+  document.querySelectorAll("[data-wa-general]").forEach(a => { a.href = waLink(`Hola ${n.nombre} 👋, quisiera hacer una consulta.`); a.target = "_blank"; a.rel = "noopener"; });
+  $("#n-pedido").textContent = pedido.reduce((s, x) => s + x.cant, 0);
+}
+function irA(t){
+  if (t === "Ofertas") { filtro = "Ofertas"; q = ""; } else { filtro = "Todos"; q = t; }
+  $("#q").value = q; $("#hq").value = t === "Ofertas" ? "" : t; pintar();
+  $("#catalogo").scrollIntoView({behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth"});
+}
+document.addEventListener("click", e => {
+  const f = e.target.closest("[data-f]"); if (f) { filtro = f.dataset.f; pintar(); return; }
+  const r = e.target.closest("[data-rap]"); if (r) { irA(r.dataset.rap); return; }
+  if (e.target.closest("[data-limpiar]")) { q = ""; $("#q").value = ""; $("#hq").value = ""; pintar(); return; }
+  const v = e.target.closest("[data-ver]"); if (v) { verProducto(v.dataset.ver); return; }
+  if (e.target.closest("[data-abrir-pedido]")) verPedido();
+});
+$("#q").addEventListener("input", e => { q = e.target.value; pintar(); });
+$("#hbusca").addEventListener("submit", e => { e.preventDefault(); const t = $("#hq").value.trim(); if (t) irA(t); else $("#hq").focus(); });
+
+/* ---- hojas ---- */
+function hoja(html, alAbrir){
+  const v = document.createElement("div"); v.className = "velo"; v.innerHTML = `<div class="hoja" role="dialog" aria-modal="true">${html}</div>`;
+  document.body.append(v); document.body.style.overflow = "hidden";
+  const cerrar = () => { v.remove(); if (!$(".velo") && $("#admin").hidden) document.body.style.overflow = ""; };
+  v.addEventListener("click", e => { if (e.target === v || e.target.closest("[data-cerrar]")) cerrar(); });
+  alAbrir?.(v.firstElementChild, cerrar); return cerrar;
+}
+function verProducto(id){
+  const p = prod(id); if (!p) return; let cant = 1;
+  hoja(`<div class="hoja-cab"><h3>${esc(p.nombre)}</h3><button class="x" data-cerrar aria-label="Cerrar">×</button></div>
+    <div class="det">${fotoHTML(p)}<div><div class="k" style="letter-spacing:.12em">${esc(p.marca)}</div><div style="color:var(--suave);font-size:14px;margin-top:4px">${esc(p.para)} · ${esc(p.tipo === "Estuche" ? "Estuche de regalo" : "Perfume " + p.tipo.toLowerCase())}</div>
+      ${precioHTML(p)}
+      ${p.notas ? `<div class="notas">${p.notas.split(",").map(x => `<span>${esc(x.trim())}</span>`).join("")}</div>` : ""}</div></div>
+    ${p.agotado ? `<div class="aviso">Este perfume está <b>agotado</b> por ahora. Escribinos y te avisamos cuando vuelva.</div><a class="b b-wa b-bloque" target="_blank" rel="noopener" href="${waLink(`Hola ${DB.negocio.nombre} 👋, ¿me avisan cuando vuelva el ${nombreLargo(p)}?`)}">Avisame cuando vuelva</a>`
+    : `<div class="cant"><button data-c="-1" aria-label="Uno menos">−</button><b id="v-n">1</b><button data-c="1" aria-label="Uno más">+</button><span style="margin-left:auto;font-weight:800" id="v-t">${crc(precio(p))}</span></div>
+    <button class="b b-oro b-bloque" id="v-ok">Agregar al pedido</button>`}`, (h, cerrar) => {
+    h.addEventListener("click", e => {
+      const c = e.target.closest("[data-c]"); if (c) { cant = Math.max(1, Math.min(10, cant + +c.dataset.c)); $("#v-n", h).textContent = cant; $("#v-t", h).textContent = crc(precio(p) * cant); }
+      if (e.target.closest("#v-ok")) { const ex = pedido.find(x => x.p === id); if (ex) ex.cant += cant; else pedido.push({ p: id, cant }); cerrar(); pintar(); toast(`${p.nombre} agregado ✓`); }
+    });
+  });
+}
+function verPedido(){
+  hoja(`<div class="hoja-cab"><h3>Mi pedido</h3><button class="x" data-cerrar aria-label="Cerrar">×</button></div><div id="pp"></div>`, (h, cerrar) => {
+    const pint = () => {
+      if (!pedido.length) { $("#pp", h).innerHTML = `<p style="color:var(--suave)">Todavía no has agregado perfumes. Tocá uno del catálogo para empezar.</p><button class="b b-claro b-bloque" data-cerrar>Ver perfumes</button>`; return; }
+      const items = pedido.map(x => ({ ...x, p: prod(x.p) })).filter(x => x.p);
+      const total = items.reduce((a, x) => a + precio(x.p) * x.cant, 0), ahorro = items.reduce((a, x) => a + rebaja(x.p) * x.cant, 0);
+      $("#pp", h).innerHTML = items.map((x, i) => `<div class="linea-p">${fotoHTML(x.p, false)}<span><b>${x.cant} × ${esc(x.p.nombre)}</b><small>${esc(x.p.marca)}${rebaja(x.p) ? ` · <s>${crc(x.p.precio)}</s>` : ""}</small></span><span style="text-align:right">${crc(precio(x.p) * x.cant)}<br><button data-q="${i}">Quitar</button></span></div>`).join("")
+        + `<div class="res">${ahorro ? `<div class="ahorro"><span>Ahorrás</span><span>−${crc(ahorro)}</span></div>` : ""}<div class="total"><span>Total</span><span>${crc(total)}</span></div></div>
+        <div class="aviso">🚚 Envío a todo Costa Rica: el costo te lo confirmamos según tu zona. 💸 Pagás por ${esc(DB.negocio.pago.replace(/\.$/, ""))}.</div>
+        <div class="lbl">Tus datos</div>
+        <div class="campo"><label for="d-nom">Nombre completo</label><input id="d-nom" autocomplete="name"></div>
+        <div class="fila2"><div class="campo"><label for="d-tel">Teléfono</label><input id="d-tel" inputmode="tel" autocomplete="tel" placeholder="8888 7777"></div>
+          <div class="campo"><label for="d-ent">Entrega</label><select id="d-ent"><option>Envío a mi casa</option><option>Retiro / entrega acordada</option></select></div></div>
+        <div id="d-dirw"><div class="fila3"><div class="campo"><label for="d-pro">Provincia</label><select id="d-pro">${["","San José","Alajuela","Cartago","Heredia","Guanacaste","Puntarenas","Limón"].map(x => `<option>${x}</option>`).join("")}</select></div>
+          <div class="campo"><label for="d-can">Cantón</label><input id="d-can"></div><div class="campo"><label for="d-dis">Distrito</label><input id="d-dis"></div></div>
+          <div class="campo"><label for="d-dir">Dirección exacta</label><textarea id="d-dir" rows="2"></textarea></div></div>
+        <a class="b b-wa b-bloque" id="pp-wa" href="#" target="_blank" rel="noopener">Enviar pedido por WhatsApp</a>
+        <p style="font-size:13px;color:var(--suave);text-align:center;margin:10px 0 0">Se abre WhatsApp con tu pedido ya escrito: solo tocá enviar.</p>`;
+      const armar = () => {
+        const v = s => ($(s, h)?.value || "").trim(), envio = v("#d-ent") === "Envío a mi casa";
+        $("#d-dirw", h).hidden = !envio;
+        const dir = [v("#d-pro"), v("#d-can"), v("#d-dis")].filter(Boolean).join(", ");
+        const m = [`Hola ${DB.negocio.nombre} 👋, quiero hacer este pedido:`, "",
+          ...items.map(x => `• ${x.cant} × ${x.p.nombre} (${x.p.marca}) — ${crc(precio(x.p) * x.cant)}${rebaja(x.p) ? ` (antes ${crc(x.p.precio * x.cant)})` : ""}`), "",
+          ahorro ? `Ahorro: −${crc(ahorro)}` : null, `Total: ${crc(total)}`, "",
+          v("#d-nom") ? `Nombre: ${v("#d-nom")}` : null, v("#d-tel") ? `Teléfono: ${v("#d-tel")}` : null,
+          envio ? `Envío a: ${[dir, v("#d-dir")].filter(Boolean).join(" · ") || "(te paso la dirección)"}` : "Entrega: retiro o entrega acordada", "",
+          "¿Me confirman disponibilidad? 🙏"].filter(l => l !== null).join("\n");
+        $("#pp-wa", h).href = waLink(m);
+      };
+      armar(); h.querySelectorAll("input,select,textarea").forEach(i => { i.addEventListener("input", armar); i.addEventListener("change", armar); });
+    };
+    pint();
+    h.addEventListener("click", e => { const b = e.target.closest("[data-q]"); if (b) { pedido.splice(+b.dataset.q, 1); pint(); pintar(); } });
+  });
+}
+
+/* ---- ¿No encontrás tu perfume? ---- */
+let refArchivo = null;
+$("#refFoto").addEventListener("change", e => {
+  refArchivo = e.target.files[0] || null; if (!refArchivo) return;
+  $("#refTxt").innerHTML = `<img src="${URL.createObjectURL(refArchivo)}" alt="Tu foto de referencia"><br><small>Tocá para cambiarla</small>`;
+});
+$("#refEnviar").addEventListener("click", async () => {
+  const v = s => $(s).value.trim();
+  const m = [`Hola ${DB.negocio.nombre} 👋, ando buscando un perfume:`, `Nombre: ${v("#refNom") || "(te mando la foto)"}`, `Para: ${v("#refPara")}`, `Presupuesto: ${v("#refPres")}`, "", "¿Lo tienen o lo pueden conseguir? 🙏"].join("\n");
+  // Con foto: en el celular se comparte la foto + el mensaje y se escoge WhatsApp.
+  if (refArchivo && navigator.canShare && navigator.canShare({ files: [refArchivo] })) {
+    try { await navigator.share({ files: [refArchivo], text: m }); $("#refNota").textContent = "Escogé WhatsApp y el chat de Alick para enviarlo."; return; }
+    catch (x) { if (x && x.name === "AbortError") return; }
+  }
+  window.open(waLink(m), "_blank", "noopener");
+  if (refArchivo) $("#refNota").textContent = "Se abrió WhatsApp con el mensaje: adjuntá la foto con el clip 📎 antes de enviarlo.";
+});
+
+/* ===================== MENÚ Y ADMINISTRACIÓN ===================== */
+function lateral(abrir){ $("#lateral").hidden = !abrir; $("#latVelo").hidden = !abrir; $("#hamb").setAttribute("aria-expanded", String(abrir)); document.body.style.overflow = abrir ? "hidden" : ""; }
+$("#hamb").addEventListener("click", () => lateral(true));
+$("#latCerrar").addEventListener("click", () => lateral(false));
+$("#latVelo").addEventListener("click", () => lateral(false));
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("#lateral").hidden) lateral(false); });
+let aTab = "prod", admin = false;
+$("#abrir-admin").addEventListener("click", () => {
+  lateral(false);
+  if (admin) return abrirAdmin();
+  hoja(`<div class="hoja-cab"><h3>Acceso administrador</h3><button class="x" data-cerrar aria-label="Cerrar">×</button></div>
+    <div class="campo"><label for="ac">Contraseña</label><input id="ac" type="password" autocomplete="current-password"></div>
+    <p class="err" id="ae"></p><button class="b b-oro b-bloque" id="aok">Entrar</button>
+    <p style="font-size:13px;color:var(--suave);text-align:center;margin-top:12px">Versión de prueba · contraseña: <b style="user-select:all">${CLAVE_DEMO}</b></p>`, (h, cerrar) => {
+    const ir = () => { if ($("#ac", h).value === CLAVE_DEMO) { admin = true; cerrar(); abrirAdmin(); } else $("#ae", h).textContent = "Contraseña incorrecta."; };
+    $("#aok", h).addEventListener("click", ir); $("#ac", h).addEventListener("keydown", e => { if (e.key === "Enter") ir(); });
+    setTimeout(() => $("#ac", h).focus(), 50);
+  });
+});
+$("#cerrar-admin").addEventListener("click", () => { $("#admin").hidden = true; document.body.style.overflow = ""; pintar(); });
+$("#a-tabs").addEventListener("click", e => { const b = e.target.closest("[data-at]"); if (!b) return; aTab = b.dataset.at; pintarAdmin(); });
+function abrirAdmin(){ $("#admin").hidden = false; document.body.style.overflow = "hidden"; pintarAdmin(); }
+function pintarAdmin(){
+  document.querySelectorAll("#a-tabs button").forEach(b => b.classList.toggle("si", b.dataset.at === aTab));
+  const c = $("#a-cuerpo");
+  if (aTab === "prod") {
+    c.innerHTML = `<p style="color:var(--suave);margin:10px 0">Para poner un perfume en oferta, escribí el <b>precio rebajado</b>: en la página sale tachado el precio normal y cuánto se ahorra.</p>
+      <button class="b b-oro" id="nuevo-p">+ Agregar perfume</button>
+      <div class="alist">${DB.productos.map(p => `<div class="arow">${fotoHTML(p, false)}<div class="tx" style="flex:1;min-width:0"><b style="font-size:15px">${esc(p.nombre)}</b><span>${esc(p.marca)} · ${rebaja(p) ? `<s>${crc(p.precio)}</s> ${crc(p.oferta)}` : crc(p.precio)}${p.agotado ? " · Agotado" : ""}${p.oculto ? " · Oculto" : ""}</span></div><button data-ed="${p.id}">Editar</button></div>`).join("")}</div>`;
+    $("#nuevo-p").onclick = () => editar(null);
+    c.querySelectorAll("[data-ed]").forEach(b => b.onclick = () => editar(b.dataset.ed));
+  } else {
+    const n = DB.negocio;
+    c.innerHTML = `<div style="margin:12px 0 40px">${[["whatsapp","WhatsApp que recibe los pedidos"],["instagram","Instagram (sin @)"],["horario","Horario"],["envio","Envíos"],["pago","Formas de pago"]]
+      .map(([k, l]) => `<div class="campo"><label>${l}</label><input data-n="${k}" value="${esc(n[k])}"></div>`).join("")}
+      <button class="b b-oro" id="d-g">Guardar datos</button>
+      <button class="b b-claro" id="d-reset" style="margin-left:6px">Volver al ejemplo</button></div>`;
+    $("#d-g").onclick = () => { c.querySelectorAll("[data-n]").forEach(i => n[i.dataset.n] = i.value.trim().replace(/^@/, "")); guardar(); pintar(); toast("Datos guardados"); };
+    $("#d-reset").onclick = () => { if (!confirm("¿Volver a los datos de ejemplo? Se borran tus cambios de prueba.")) return; DB = structuredClone(BASE); guardar(); pintar(); pintarAdmin(); toast("Listo"); };
+  }
+}
+function editar(id){
+  const nuevo = !id, p = nuevo ? P("p" + Date.now(), "", "", "Unisex", "Árabe", 25000, 0, "", { foto: "" }) : structuredClone(prod(id));
+  hoja(`<div class="hoja-cab"><h3>${nuevo ? "Nuevo perfume" : "Editar perfume"}</h3><button class="x" data-cerrar aria-label="Cerrar">×</button></div>
+    <div class="det" style="grid-template-columns:110px 1fr;align-items:center"><div id="ed-f">${fotoHTML(p, false).replace('class="foto"', 'class="foto" style="width:110px;height:110px"')}</div>
+      <label class="b b-claro" style="cursor:pointer">📷 ${p.foto ? "Cambiar foto" : "Subir foto"}<input type="file" accept="image/*" id="ed-foto" hidden></label></div>
+    <div class="campo" style="margin-top:12px"><label>Nombre</label><input id="ed-n" value="${esc(p.nombre)}" placeholder="Ej.: Khamrah"></div>
+    <div class="campo"><label>Marca</label><input id="ed-m" value="${esc(p.marca)}" placeholder="Ej.: Lattafa"></div>
+    <div class="fila2"><div class="campo"><label>Para</label><select id="ed-pa">${["Hombre","Mujer","Unisex"].map(x => `<option ${x === p.para ? "selected" : ""}>${x}</option>`).join("")}</select></div>
+      <div class="campo"><label>Tipo</label><select id="ed-t">${["Árabe","Diseñador","Estuche"].map(x => `<option ${x === p.tipo ? "selected" : ""}>${x}</option>`).join("")}</select></div></div>
+    <div class="fila2"><div class="campo"><label>Precio normal (₡)</label><input id="ed-p" inputmode="numeric" value="${p.precio || ""}"></div>
+      <div class="campo"><label>Precio rebajado (₡, opcional)</label><input id="ed-o" inputmode="numeric" value="${p.oferta || ""}" placeholder="Sin rebaja"></div></div>
+    <p class="nota" id="ed-ah" style="color:var(--suave);font-size:13px;margin:-4px 0 8px"></p>
+    <div class="campo"><label>Notas del aroma (separadas por coma)</label><input id="ed-no" value="${esc(p.notas)}" placeholder="Ej.: Dulce, ámbar, vainilla"></div>
+    <label class="check"><input type="checkbox" id="ed-ag" ${p.agotado ? "checked" : ""}> Marcar como <b>agotado</b></label>
+    <label class="check"><input type="checkbox" id="ed-oc" ${p.oculto ? "checked" : ""}> <b>Ocultar</b> de la página</label>
+    <p class="err" id="ed-e"></p>
+    <button class="b b-oro b-bloque" id="ed-g">Guardar</button>
+    ${nuevo ? "" : `<button class="b b-bloque" id="ed-b" style="background:none;color:var(--rojo);margin-top:6px">Borrar este perfume</button>`}`, (h, cerrar) => {
+    const num = s => +$(s, h).value.replace(/\D/g, "") || 0;
+    const ah = () => { const a = num("#ed-p"), b = num("#ed-o"); $("#ed-ah", h).textContent = b && b < a ? `En la página sale: ${crc(b)} (antes ${crc(a)}) · ahorran ${crc(a - b)}` : b ? "El precio rebajado tiene que ser menor que el normal." : ""; };
+    ah(); ["#ed-p", "#ed-o"].forEach(s => $(s, h).addEventListener("input", ah));
+    $("#ed-foto", h).addEventListener("change", async e => { const f = e.target.files[0]; if (!f) return; try { p.foto = await comprimir(f); $("#ed-f", h).innerHTML = fotoHTML(p, false).replace('class="foto"', 'class="foto" style="width:110px;height:110px"'); toast("Foto lista. Tocá Guardar."); } catch { toast("No se pudo leer la foto."); } });
+    $("#ed-g", h).addEventListener("click", () => {
+      p.nombre = $("#ed-n", h).value.trim(); p.marca = $("#ed-m", h).value.trim(); p.para = $("#ed-pa", h).value; p.tipo = $("#ed-t", h).value;
+      p.precio = num("#ed-p"); p.oferta = num("#ed-o"); p.notas = $("#ed-no", h).value.trim(); p.agotado = $("#ed-ag", h).checked; p.oculto = $("#ed-oc", h).checked;
+      if (p.nombre.length < 2) { $("#ed-e", h).textContent = "Escribí el nombre del perfume."; return; }
+      if (!p.precio) { $("#ed-e", h).textContent = "Escribí el precio."; return; }
+      if (p.oferta && p.oferta >= p.precio) { $("#ed-e", h).textContent = "El precio rebajado tiene que ser menor que el normal."; return; }
+      if (nuevo) DB.productos.unshift(p); else DB.productos[DB.productos.findIndex(x => x.id === p.id)] = p;
+      guardar(); cerrar(); pintar(); pintarAdmin(); toast("Guardado");
+    });
+    $("#ed-b", h)?.addEventListener("click", () => { if (!confirm(`¿Borrar "${p.nombre}"?`)) return; DB.productos = DB.productos.filter(x => x.id !== p.id); guardar(); cerrar(); pintar(); pintarAdmin(); toast("Borrado"); });
+  });
+}
+function comprimir(file, max = 500, q = .82){
+  return new Promise((ok, mal) => { const r = new FileReader(); r.onload = () => { const im = new Image(); im.onload = () => {
+    const s = Math.min(1, max / Math.max(im.width, im.height)), cv = document.createElement("canvas"); cv.width = Math.round(im.width * s); cv.height = Math.round(im.height * s);
+    cv.getContext("2d").drawImage(im, 0, 0, cv.width, cv.height); ok(cv.toDataURL("image/jpeg", q)); }; im.onerror = mal; im.src = r.result; }; r.onerror = mal; r.readAsDataURL(file); });
+}
+pintar();
+</script>
+</body>
+</html>
