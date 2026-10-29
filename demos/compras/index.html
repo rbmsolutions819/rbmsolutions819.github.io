@@ -56,6 +56,9 @@ input:focus,textarea:focus,.btn:focus-visible{outline:2px solid var(--accent);ou
 .note{font-size:13px;color:var(--muted);margin:0}
 footer{border-top:1px solid var(--line);padding-top:20px;display:grid;gap:10px;font-size:14px;color:var(--muted)}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:8px;font-size:14px}
+
+/* RBM-ANCHO: en computadora la página usa todo el ancho */
+@media (min-width:1100px){.wrap{max-width:1500px!important}}
 </style>
 
 <div class="tape" aria-hidden="true"></div>

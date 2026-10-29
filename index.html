@@ -183,6 +183,10 @@ section{padding-block:64px}
 .res .quien small{display:block;color:var(--gris);font-size:12.5px}
 .res-mas{display:block;margin:16px auto 0}
 .enc-pub{color:var(--ok)!important;border-color:rgba(95,211,154,.45)!important}
+.demo-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.demo-tabs button{border:1px solid var(--borde);background:var(--sup2);color:var(--blanco);border-radius:999px;padding:7px 13px;font:600 13px var(--f-txt);cursor:pointer}
+.demo-tabs button.si{background:linear-gradient(135deg,var(--azul),#4f95ff);border-color:transparent;color:#fff}
+.cita-a p.demo-url{font-size:12.5px;color:var(--gris);margin-top:8px;overflow-wrap:anywhere}
 
 /* trabajos */
 .trabajos{display:grid;gap:14px}
@@ -2574,6 +2578,7 @@ $("#admin").addEventListener("click", async e => {
     catch { toast("No se pudo guardar. Revisá tu conexión."); b.disabled = false; }
     return;
   }
+  if (b.dataset.demoTab) { const [id, n] = b.dataset.demoTab.split(":"); demoTab[id] = +n; pintarAdmin(); return; }
   if (b.dataset.copiarDemo) { await copiar(b.dataset.copiarDemo, "Link copiado. Mandáselo al cliente."); return; }
   if (b.id === "n-ok") {
     b.disabled = true;
@@ -2719,7 +2724,8 @@ const DEMOS = [
   { id:"alick", url:"demos/alick/", ic:"precio", menu:"Tienda de perfumes", tipo:"Perfumería · Catálogo con ofertas", nombre:"Tienda de perfumes",
     desc:"Perfumes con foto, notas del aroma y precios en oferta, buscador por marca o aroma y pedido directo al WhatsApp de la tienda." },
   { id:"condominio", url:"demos/condominio/", ic:"chat", menu:"Reportes de condominio", tipo:"Condominios · Residentes, seguridad y administración", nombre:"Reportes de condominio",
-    desc:"Los residentes reportan ruido, mascotas, parqueo o áreas sucias; seguridad lo atiende en vivo y la administración ve las estadísticas." }
+    desc:"Los residentes reportan ruido, mascotas, parqueo o áreas sucias; seguridad lo atiende en vivo y la administración ve las estadísticas.",
+    links:[{ t:"🏠 Residentes", url:"demos/condominio/residente.html", nota:"usuario ricardo" }, { t:"🛡️ Seguridad", url:"demos/condominio/seguridad.html", nota:"usuario seguridad" }, { t:"📊 Administración", url:"demos/condominio/", nota:"usuario administrador" }] }
 ];
 // Las que se ven si todavía no se ha guardado nada desde el administrador
 const DEMOS_INICIALES = ["spa", "candelas", "service-desk", "mesa-compras", "compras"];
@@ -2733,17 +2739,22 @@ function pintarDemos(){
   const nav = document.querySelector('.nav a[href="#demos"]'); if (nav) nav.hidden = !l.length;
 }
 pintarDemos();
+const demoTab = {};
 function pintarDemosAdmin(){
   const pub = Reservas.demosPub();
   if (!pub) return `<div class="vacio">Cargando…</div>`;
-  const base = location.href.split("#")[0].replace(/index\.html$/, "");
+  const base = (location.origin + location.pathname).replace(/index\.html$/, "");
   return `<p class="conf-p" style="margin-bottom:12px">Aquí están todas tus demos. Solo las <b>publicadas</b> salen en el menú y en la sección Demos de la página. Las ocultas las podés abrir vos desde aquí, o mandarle el link solo al cliente que querás.</p>`
     + DEMOS.map(d => { const on = pub.includes(d.id); return `<div class="cita-a">
       <div class="h"><b>${esc(d.nombre)}</b><span style="color:${on ? "var(--ok)" : "var(--gris)"}">${on ? "● Publicada" : "○ Oculta"}</span></div>
       <p>${esc(d.tipo)}</p>
-      <div class="acc"><a href="${d.url}" target="_blank" rel="noopener">Abrir ↗</a>
+      ${d.links ? `<div class="demo-tabs" role="tablist">${d.links.map((l, i) => `<button role="tab" class="${(demoTab[d.id] || 0) === i ? "si" : ""}" aria-selected="${(demoTab[d.id] || 0) === i}" data-demo-tab="${d.id}:${i}">${esc(l.t)}</button>`).join("")}</div>
+        ${(() => { const l = d.links[demoTab[d.id] || 0]; return `<p class="demo-url"><span class="mono">${esc(base + l.url)}</span>${l.nota ? ` · ${esc(l.nota)} · clave demo1234` : ""}</p>
+        <div class="acc"><a href="${l.url}" target="_blank" rel="noopener">Abrir ↗</a><button data-copiar-demo="${base + l.url}">Copiar link</button>
+        <button class="${on ? "rojo" : "ya"}" data-demo-pub="${d.id}">${on ? "Ocultar de la página" : "Publicar en la página"}</button></div>`; })()}</div>`
+      : `<div class="acc"><a href="${d.url}" target="_blank" rel="noopener">Abrir ↗</a>
         <button data-copiar-demo="${base + d.url}">Copiar link</button>
-        <button class="${on ? "rojo" : "ya"}" data-demo-pub="${d.id}">${on ? "Ocultar de la página" : "Publicar en la página"}</button></div></div>`; }).join("");
+        <button class="${on ? "rojo" : "ya"}" data-demo-pub="${d.id}">${on ? "Ocultar de la página" : "Publicar en la página"}</button></div></div>`}`; }).join("");
 }
 pintarResenas();
 $("#gal").addEventListener("click", e => {
