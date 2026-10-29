@@ -133,6 +133,7 @@ section h2 .p{font:600 16px var(--f-txt);color:var(--oro)}
 .bdopc summary{cursor:pointer}
 .reg .flecha{font-size:11px;opacity:.85}
 .reg-cuerpo{display:grid;gap:8px;padding:12px 14px 14px;border:1px solid var(--linea);border-radius:8px;background:var(--panel)}
+.top .zeus{position:absolute;left:50%;top:clamp(34px,7vw,40px);transform:translateX(-50%);height:clamp(120px,32vw,170px);width:auto;opacity:.9;z-index:1;pointer-events:none;filter:drop-shadow(0 0 10px rgba(140,196,255,.45))}
 .menu-top{position:absolute;top:30px;right:max(12px,env(safe-area-inset-right,0px));z-index:15}
 .menu-btn{width:44px;height:44px;border-radius:12px;border:1px solid rgba(255,255,255,.25);background:rgba(5,7,13,.6);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);color:#fff;font-size:22px;line-height:1;cursor:pointer}
 .menu-btn[aria-expanded="true"]{background:var(--violeta);border-color:var(--oro)}
@@ -236,6 +237,7 @@ label.c textarea{min-height:64px;resize:vertical}
 </div></div>
 
 <header class="top">
+  <img class="zeus" src="zeus.svg" alt="" aria-hidden="true">
   <div class="menu-top">
     <button type="button" class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="menuPanel" aria-label="Menú">☰</button>
     <div class="menu-panel" id="menuPanel" hidden>
