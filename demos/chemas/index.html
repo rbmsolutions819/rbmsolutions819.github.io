@@ -1,0 +1,712 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0a0d14">
+<title>Chemas Collector CR · Camisas de fútbol (demo)</title>
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+/* Chemas Collector: fondo oscuro como sus historias, azul eléctrico y los colores de su tabla de pedidos
+   (naranja = versión, celeste = local/visita, verde = manga, rosado = talla). */
+:root{--fondo:#0a0d14;--panel:#121826;--panel2:#19213a;--linea:#26304a;--texto:#eef1f8;--suave:#98a2bd;--azul:#3b6cff;--azul2:#2550d9;
+  --naranja:#f6a623;--celeste:#29a8e0;--verde:#2ecc71;--rosa:#ff2e93;--oro:#ffd23f;
+  --f-t:"Bebas Neue","Impact","Arial Narrow",sans-serif;--f-x:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--fondo);color:var(--texto);font:400 16px/1.55 var(--f-x);-webkit-font-smoothing:antialiased}
+[hidden]{display:none!important}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+img{max-width:100%}
+a{color:var(--celeste)}
+:focus-visible{outline:2px solid var(--celeste);outline-offset:2px;border-radius:6px}
+.wrap{max-width:1100px;margin:0 auto;padding:0 16px}
+h1,h2,h3{font-family:var(--f-t);font-weight:400;line-height:.95;margin:0;letter-spacing:.02em}
+.k{font:800 12px var(--f-x);letter-spacing:.16em;text-transform:uppercase;color:var(--celeste)}
+.demo{background:#000;color:var(--suave);font-size:12.5px;text-align:center;padding:7px 12px;padding-top:calc(7px + env(safe-area-inset-top,0px))}
+.demo b{color:#fff}
+
+/* encabezado */
+.top{position:sticky;top:0;z-index:20;background:rgba(10,13,20,.9);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--linea)}
+.top .wrap{display:flex;align-items:center;gap:12px;height:62px}
+.marca{display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--texto);min-width:0;overflow:hidden}
+.marca svg{width:32px;height:32px;flex:none}
+.marca b{font:400 clamp(19px,5.4vw,26px)/1 var(--f-t);letter-spacing:.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.marca b span{color:var(--azul)}
+.top nav{margin-left:auto;display:none;gap:4px}
+@media(min-width:820px){.top nav{display:flex}}
+.top nav a{text-decoration:none;color:var(--suave);font-weight:600;font-size:14px;padding:6px 12px;border-radius:999px}
+.top nav a:hover{background:var(--panel);color:var(--texto)}
+.btn-pedido{flex:none;margin-left:auto;border:0;background:var(--azul);color:#fff;border-radius:999px;padding:10px 16px;font:700 14px var(--f-x);white-space:nowrap;box-shadow:0 8px 20px -6px rgba(59,108,255,.6)}
+@media(min-width:820px){.btn-pedido{margin-left:8px}}
+.btn-pedido i{font-style:normal;background:#fff;color:var(--azul2);border-radius:999px;padding:0 7px;margin-left:6px;font-size:12px}
+
+/* portada */
+.hero{position:relative;overflow:hidden;padding:34px 0 28px;background:radial-gradient(520px 360px at 85% 20%,rgba(59,108,255,.35),transparent 70%),radial-gradient(420px 300px at 0% 100%,rgba(255,46,147,.16),transparent 70%)}
+.hero .wrap{display:grid;gap:22px;align-items:center}
+@media(min-width:860px){.hero .wrap{grid-template-columns:1.1fr 1fr}}
+.pill{display:inline-flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--linea);border-radius:999px;padding:6px 14px 6px 6px;font-weight:600;font-size:13.5px}
+.pill b{background:var(--oro);color:#1a1400;border-radius:999px;padding:3px 10px;font:800 11px var(--f-x);letter-spacing:.08em}
+.hero h1{font-size:clamp(56px,13vw,96px);margin-top:14px}
+.hero h1 span{color:var(--azul)}
+.hero p{color:var(--suave);font-size:17px;max-width:520px;margin:10px 0 0}
+.tipos{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.tipos span{font:800 12px var(--f-x);letter-spacing:.08em;text-transform:uppercase;padding:6px 12px;border-radius:6px}
+.t-retro{background:#3a2a10;color:var(--oro)}.t-fan{background:#0f2a3a;color:var(--celeste)}.t-player{background:#3a240a;color:var(--naranja)}
+.acc{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
+.b{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:999px;padding:13px 20px;font:700 15px var(--f-x);text-decoration:none;border:0}
+.b-azul{background:var(--azul);color:#fff;box-shadow:0 10px 24px -8px rgba(59,108,255,.7)}
+.b-claro{background:var(--panel);border:1px solid var(--linea);color:var(--texto)}
+.b-ig{background:linear-gradient(45deg,#f9a825,#e91e63 45%,#7b2ff7);color:#fff}
+.b-bloque{width:100%}
+.vitrina{position:relative;display:flex;justify-content:center;align-items:flex-end;min-height:250px}
+.vitrina .fig{width:36%;max-width:200px;filter:drop-shadow(0 18px 22px rgba(0,0,0,.55))}
+.vitrina .fig:nth-child(2){width:42%;max-width:230px;margin:0 -5%;z-index:1;transform:translateY(-10px)}
+.encargo{display:grid;gap:4px;background:var(--panel);border:1px solid var(--linea);border-left:4px solid var(--azul);border-radius:14px;padding:12px 14px;margin-top:18px;max-width:520px}
+.encargo b{font-size:15px}
+.encargo span{color:var(--suave);font-size:14px}
+
+section{padding:44px 0}
+.cab{margin-bottom:18px}
+.cab h2{font-size:clamp(40px,9vw,58px);margin-top:6px}
+.cab p{color:var(--suave);margin:6px 0 0}
+
+/* filtros y tarjetas */
+.chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px;margin-bottom:12px}
+.chips::-webkit-scrollbar{display:none}
+.chips button{flex:none;border:1px solid var(--linea);background:var(--panel);color:var(--suave);border-radius:999px;padding:8px 15px;font:700 13.5px var(--f-x)}
+.chips button.si{background:var(--texto);border-color:var(--texto);color:var(--fondo)}
+.buscar{width:100%;border:1px solid var(--linea);background:var(--panel);border-radius:12px;padding:12px 14px;margin-bottom:16px;font-size:15px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media(min-width:760px){.grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}}
+@media(min-width:1000px){.grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.card{background:var(--panel);border:1px solid var(--linea);border-radius:18px;overflow:hidden;display:flex;flex-direction:column;position:relative;cursor:pointer;transition:transform .15s,border-color .15s}
+.card:hover{transform:translateY(-2px);border-color:var(--azul)}
+.card .ft{aspect-ratio:1;background:radial-gradient(circle at 50% 40%,var(--panel2),var(--fondo) 75%);display:grid;place-items:center;overflow:hidden}
+.card .ft img{width:100%;height:100%;object-fit:cover}
+.card .ft svg{width:78%;height:auto;filter:drop-shadow(0 12px 14px rgba(0,0,0,.5))}
+.card .in{padding:10px 12px 12px;display:grid;gap:4px;flex:1;align-content:start}
+.card h3{font-size:22px;letter-spacing:.03em}
+.card .d{font-size:12.5px;color:var(--suave)}
+.card .pr{font:800 16px var(--f-x)}
+.card .pr small{color:var(--suave);font-weight:600;font-size:12px}
+.tag{position:absolute;top:8px;left:8px;font:800 10.5px var(--f-x);letter-spacing:.08em;text-transform:uppercase;padding:4px 8px;border-radius:6px;z-index:1}
+.tag.ya{background:var(--verde);color:#062012}
+.tag.enc{background:var(--panel2);color:var(--suave);border:1px solid var(--linea)}
+.tag.ret{background:var(--oro);color:#1a1400}
+
+/* incluye */
+.incluye{display:grid;gap:10px;grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(min-width:760px){.incluye{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.incluye div{background:var(--panel);border:1px solid var(--linea);border-radius:16px;padding:14px;display:grid;gap:4px}
+.incluye i{font-style:normal;font-size:24px}
+.incluye b{font-size:15px}
+.incluye span{color:var(--suave);font-size:13.5px}
+
+/* buscar chema */
+.busca{background:linear-gradient(135deg,#1b2a64,#2a1240);border:1px solid #3a4a8a;border-radius:24px;padding:22px 18px;display:grid;gap:16px}
+@media(min-width:860px){.busca{grid-template-columns:1fr 1.1fr;padding:30px}}
+.busca h2{font-size:clamp(40px,9vw,56px)}
+.busca p{color:#c9d1ee;margin:6px 0 0}
+.emoji{font-size:52px;line-height:1}
+.foto-ref{border:2px dashed #5b6bb0;border-radius:16px;min-height:120px;display:grid;place-items:center;text-align:center;padding:12px;cursor:pointer;color:#c9d1ee;background:rgba(0,0,0,.2);position:relative;overflow:hidden}
+.foto-ref img{max-height:220px;border-radius:10px}
+.foto-ref input{position:absolute;inset:0;opacity:0;cursor:pointer}
+
+/* tallas */
+.tabla-wrap{overflow-x:auto;background:var(--panel);border:1px solid var(--linea);border-radius:16px;padding:4px}
+table{border-collapse:collapse;width:100%;min-width:420px;font-size:15px}
+th,td{padding:10px 12px;text-align:center;border-bottom:1px solid var(--linea)}
+th{font:800 12px var(--f-x);letter-spacing:.08em;text-transform:uppercase;color:var(--suave)}
+td:first-child{font:800 16px var(--f-x);color:var(--rosa)}
+tr:last-child td{border-bottom:0}
+.dos-t{display:grid;gap:14px}
+@media(min-width:860px){.dos-t{grid-template-columns:1fr 1fr}}
+.dos-t h3{font-size:26px;margin-bottom:8px}
+.nota{font-size:13px;color:var(--suave);margin-top:8px}
+.guia-img{border-radius:16px;border:1px solid var(--linea);display:block;margin-bottom:12px}
+
+/* pasos */
+.pasos{display:grid;gap:10px;counter-reset:p}
+@media(min-width:760px){.pasos{grid-template-columns:repeat(4,1fr)}}
+.pasos div{background:var(--panel);border:1px solid var(--linea);border-radius:16px;padding:16px}
+.pasos div::before{counter-increment:p;content:counter(p);width:34px;height:34px;border-radius:50%;background:var(--azul);color:#fff;display:grid;place-items:center;font:800 16px var(--f-x);margin-bottom:8px}
+.pasos b{display:block;font-size:15px}
+.pasos span{color:var(--suave);font-size:13.5px}
+footer{border-top:1px solid var(--linea);text-align:center;padding:30px 16px 110px;font-size:14px;color:var(--suave)}
+footer button{background:none;border:0;color:var(--suave);font-size:13px;margin-top:14px;text-decoration:underline}
+.ig-flot{position:fixed;right:16px;bottom:18px;z-index:30;width:58px;height:58px;border-radius:50%;background:linear-gradient(45deg,#f9a825,#e91e63 45%,#7b2ff7);display:grid;place-items:center;box-shadow:0 10px 30px rgba(0,0,0,.45)}
+.ig-flot svg{width:28px;height:28px}
+
+/* hojas */
+.velo{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:50;display:flex;align-items:flex-end;justify-content:center}
+@media(min-width:760px){.velo{align-items:center}}
+.hoja{background:var(--fondo);border:1px solid var(--linea);width:100%;max-width:580px;max-height:94vh;overflow:auto;border-radius:22px 22px 0 0;padding:18px 16px calc(26px + env(safe-area-inset-bottom,0px))}
+@media(min-width:760px){.hoja{border-radius:22px}}
+.hoja-cab{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.hoja-cab h3{font-size:30px}
+.x{border:0;background:var(--panel2);width:38px;height:38px;border-radius:50%;font-size:20px;flex:none}
+.prev{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:4px}
+.prev .ft{aspect-ratio:1;border-radius:14px;background:radial-gradient(circle at 50% 40%,var(--panel2),var(--fondo) 75%);display:grid;place-items:center;overflow:hidden;position:relative}
+.prev .ft svg{width:84%}
+.prev .ft img{width:100%;height:100%;object-fit:cover}
+.prev .ft small{position:absolute;bottom:6px;left:0;right:0;text-align:center;font-size:11px;color:var(--suave);font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.lbl{font:800 12px var(--f-x);letter-spacing:.08em;text-transform:uppercase;color:var(--suave);margin:14px 0 7px}
+.ops{display:flex;flex-wrap:wrap;gap:7px}
+.ops button{border:1px solid var(--linea);background:var(--panel);border-radius:10px;padding:9px 13px;font:700 14px var(--f-x)}
+.ops button small{display:block;font-weight:600;font-size:11.5px;color:var(--suave)}
+.ops button.si{border-color:transparent;color:#0a0d14}
+.ops button.si small{color:inherit;opacity:.75}
+.ops.ver button.si{background:var(--naranja)}.ops.kit button.si{background:var(--celeste)}.ops.man button.si{background:var(--verde)}.ops.tal button.si{background:var(--rosa);color:#fff}.ops.pos button.si{background:var(--oro)}
+.ops button:disabled{opacity:.35;text-decoration:line-through;cursor:default}
+.ops.tal button{min-width:52px}
+.campo{display:grid;gap:5px;margin-bottom:10px}
+.campo label{font-size:13px;color:var(--suave);font-weight:700}
+.campo input,.campo select,.campo textarea{width:100%;border:1px solid var(--linea);background:var(--panel);border-radius:10px;padding:11px 12px;font-size:16px}
+.fila2{display:grid;grid-template-columns:1fr 92px;gap:10px}
+.fila3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.precio-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:16px 0 10px;padding-top:12px;border-top:1px solid var(--linea)}
+.precio-h b{font:800 26px var(--f-x)}
+.err{color:var(--rosa);font-size:14px;min-height:20px;margin:4px 0;font-weight:600}
+.aviso{background:var(--panel);border:1px dashed var(--linea);border-radius:12px;padding:10px 12px;font-size:13.5px;color:var(--suave);margin:10px 0}
+.aviso b{color:var(--texto)}
+/* pedido tipo tabla, con los mismos colores que usa Chemas */
+.item{background:var(--panel);border:1px solid var(--linea);border-radius:14px;padding:10px 12px;margin-bottom:8px;display:grid;gap:8px}
+.item .t{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.item .t b{font-size:15px}
+.item .t button{border:0;background:none;color:var(--rosa);font-size:13px;font-weight:700}
+.cel{display:flex;flex-wrap:wrap;gap:5px}
+.cel span{font:800 11px var(--f-x);letter-spacing:.05em;text-transform:uppercase;padding:4px 8px;border-radius:5px;color:#0a0d14}
+.c-v{background:var(--naranja)}.c-k{background:var(--celeste)}.c-m{background:var(--verde)}.c-t{background:var(--rosa);color:#fff!important}.c-n{background:var(--panel2);color:var(--texto)!important;border:1px solid var(--linea)}.c-p{background:var(--oro)}
+.res{display:grid;gap:4px;margin:12px 0}
+.res div{display:flex;justify-content:space-between}
+.res .total{font:800 22px var(--f-x);margin-top:4px}
+.res .adel{color:var(--celeste);font-weight:700}
+.msj{width:100%;min-height:150px;border:1px solid var(--linea);background:var(--panel);border-radius:12px;padding:10px;font:500 13px/1.45 ui-monospace,Menlo,Consolas,monospace;color:var(--suave)}
+
+/* administración */
+.admin{position:fixed;inset:0;z-index:40;background:var(--fondo);overflow:auto}
+.admin-top{position:sticky;top:0;background:#000;border-bottom:1px solid var(--linea);z-index:2}
+.admin-top .wrap{display:flex;align-items:center;gap:10px;height:58px}
+.admin-top b{font:400 24px var(--f-t);letter-spacing:.04em}
+.admin-top button{margin-left:auto;border:1px solid var(--linea);background:none;border-radius:999px;padding:7px 14px;font-size:14px}
+.tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:14px 0 6px}
+.tabs button{flex:none;border:1px solid var(--linea);background:var(--panel);border-radius:999px;padding:8px 15px;font:700 14px var(--f-x)}
+.tabs button.si{background:var(--azul);border-color:var(--azul);color:#fff}
+.alist{display:grid;gap:8px;margin:12px 0 40px}
+.arow{display:flex;gap:12px;align-items:center;background:var(--panel);border:1px solid var(--linea);border-radius:14px;padding:8px 10px}
+.arow .mini{width:56px;height:56px;border-radius:10px;overflow:hidden;background:var(--panel2);display:grid;place-items:center;flex:none}
+.arow .mini svg{width:84%}
+.arow .mini img{width:100%;height:100%;object-fit:cover}
+.arow .tx{flex:1;min-width:0}
+.arow .tx b{display:block;font-size:15px}
+.arow .tx span{font-size:12.5px;color:var(--suave)}
+.arow button{border:1px solid var(--linea);background:none;border-radius:999px;padding:6px 12px;font-size:13px}
+.inv .tl{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.inv .tl button{border:1px solid var(--linea);background:var(--panel2);border-radius:8px;padding:5px 10px;font:700 13px var(--f-x)}
+.inv .tl button.si{background:var(--verde);border-color:var(--verde);color:#062012}
+.check{display:flex;gap:8px;align-items:center;font-size:15px;margin:6px 0}
+.check input{width:20px;height:20px;accent-color:var(--azul)}
+.aviso-demo{background:var(--panel2);border:1px solid var(--linea);border-radius:12px;padding:12px 14px;font-size:14px;margin-top:12px}
+.toast{position:fixed;left:50%;bottom:92px;transform:translateX(-50%);background:var(--texto);color:var(--fondo);padding:10px 18px;border-radius:999px;font-size:14px;font-weight:700;z-index:90;box-shadow:0 10px 30px rgba(0,0,0,.4);max-width:calc(100% - 32px);text-align:center}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.card{transition:none}}
+</style>
+</head>
+<body>
+<div class="demo">⚽ <b>Página de ejemplo</b> hecha por RBM Solutions CR · camisas y precios de prueba</div>
+
+<header class="top"><div class="wrap">
+  <a class="marca" href="#" aria-label="Chemas Collector CR, inicio">
+    <svg viewBox="0 0 200 200" aria-hidden="true"><path d="M62 30l22-8q16 14 32 0l22 8 34 26-14 34-18-8v94H60V82l-18 8-14-34z" fill="#3b6cff"/><path d="M84 22q16 18 32 0" fill="none" stroke="#0a0d14" stroke-width="7"/><text x="100" y="140" text-anchor="middle" font-family="Bebas Neue,Impact,sans-serif" font-size="58" fill="#fff">CC</text></svg>
+    <b>CHEMAS <span>COLLECTOR</span></b>
+  </a>
+  <nav><a href="#catalogo">Catálogo</a><a href="#buscar">¿No la encontrás?</a><a href="#tallas">Tallas</a><a href="#como">Cómo pedir</a></nav>
+  <button class="btn-pedido" data-abrir-pedido>🛒 Mi pedido<i id="n-pedido">0</i></button>
+</div></header>
+
+<section class="hero"><div class="wrap">
+  <div>
+    <span class="pill"><b>ENVÍO GRATIS</b>A todo Costa Rica por Correos de CR</span>
+    <h1>Tu chema, <span>tu equipo</span></h1>
+    <p>Camisas de fútbol de clubes y selecciones. Escogé versión, talla y personalización, y validamos la disponibilidad por Instagram.</p>
+    <div class="tipos"><span class="t-retro">Retro</span><span class="t-fan">Fan</span><span class="t-player">Player</span></div>
+    <div class="encargo" id="encargo"></div>
+    <div class="acc"><a class="b b-azul" href="#catalogo">Ver catálogo</a><a class="b b-claro" href="#buscar">¿No encontrás la tuya?</a></div>
+  </div>
+  <div class="vitrina" id="vitrina"></div>
+</div></section>
+
+<section id="catalogo" style="padding-top:20px"><div class="wrap">
+  <div class="cab"><div class="k">Catálogo</div><h2>Escogé tu chema</h2><p>Tocá una camisa para escoger versión, talla, nombre y número.</p></div>
+  <div class="chips" id="filtros"></div>
+  <input class="buscar" id="q" type="search" placeholder="Buscar equipo o selección…" aria-label="Buscar equipo o selección">
+  <div class="grid" id="grid"></div>
+</div></section>
+
+<section style="padding-top:0"><div class="wrap">
+  <div class="cab"><div class="k">Todas incluyen</div><h2>Sin cobros extra</h2></div>
+  <div class="incluye">
+    <div><i>🔤</i><b>Personalización</b><span>Nombre, número y parche.</span></div>
+    <div><i>🏷️</i><b>Calcomanía</b><span>Del logo de tu equipo.</span></div>
+    <div><i>📦</i><b>Cajita</b><span>Lista para regalar.</span></div>
+    <div><i>🚚</i><b>Envío gratis</b><span>Por Correos de CR o mensajero.</span></div>
+  </div>
+</div></section>
+
+<section id="buscar" style="padding-top:0"><div class="wrap">
+  <div class="busca">
+    <div>
+      <div class="emoji">🤔</div>
+      <h2>¿No encontrás la chema que querés?</h2>
+      <p>No te preocupés: mandanos una foto de la que andás buscando y te ayudamos a encontrarla.</p>
+      <p style="margin-top:10px;font-size:14px">Sirve una captura de Instagram, de Google o de un partido.</p>
+    </div>
+    <div>
+      <label class="foto-ref" id="refBox"><span id="refTxt">📷 <b>Tocá para subir la foto</b><br><small>o tomala con la cámara</small></span><input type="file" id="refFoto" accept="image/*" aria-label="Foto de la chema que buscás"></label>
+      <div class="fila3" style="margin-top:10px">
+        <div class="campo"><label for="refEq">Equipo</label><input id="refEq" placeholder="Ej.: Portugal"></div>
+        <div class="campo"><label for="refAn">Año</label><input id="refAn" placeholder="Ej.: 2026"></div>
+        <div class="campo"><label for="refTa">Talla</label><select id="refTa"><option>S</option><option>M</option><option selected>L</option><option>XL</option><option>XXL</option><option>No sé</option></select></div>
+      </div>
+      <div class="campo"><label for="refVe">Versión</label><select id="refVe"><option>Fan</option><option>Player</option><option>Retro</option><option>No sé</option></select></div>
+      <div class="campo"><label for="refNo">Detalles (opcional)</label><input id="refNo" placeholder="Ej.: la negra, con el nombre de Ronaldo 7"></div>
+      <button class="b b-ig b-bloque" id="refEnviar" type="button">Enviar por Instagram</button>
+      <p class="nota" id="refNota" style="color:#c9d1ee;text-align:center"></p>
+    </div>
+  </div>
+</div></section>
+
+<section id="tallas" style="padding-top:0"><div class="wrap">
+  <div class="cab"><div class="k">Guía de tallas</div><h2>Medí antes de pedir</h2><p>Medí una camisa que te quede bien, acostada y sin estirar, y comparala con la tabla. La Player es más ajustada que la Fan.</p></div>
+  <img class="guia-img" id="guiaImg" alt="Guía de tallas de Chemas Collector" hidden>
+  <div class="dos-t" id="tablas"></div>
+  <p class="nota" id="t-nota"></p>
+</div></section>
+
+<section id="como" style="padding-top:0"><div class="wrap">
+  <div class="cab"><div class="k">Cómo pedir</div><h2>Tu chema en 4 pasos</h2></div>
+  <div class="pasos">
+    <div><b>Armá tu pedido</b><span>Versión, local o visita, manga, talla, nombre, número, parche y póster.</span></div>
+    <div><b>Validá por Instagram</b><span>El mensaje se arma solo: lo pegás en el chat y listo.</span></div>
+    <div><b>Encargá con el 50%</b><span id="paso3">El resto se paga cuando esté lista para entregar.</span></div>
+    <div><b>Te llega a la casa</b><span id="paso4">Llega en 19 a 28 días. Envío gratis.</span></div>
+  </div>
+</div></section>
+
+<footer>
+  <div style="font:400 30px var(--f-t);color:var(--texto)">CHEMAS <span style="color:var(--azul)">COLLECTOR</span> CR</div>
+  <div id="f-datos" style="margin-top:6px"></div>
+  <button id="abrir-admin">🔒 Administrar catálogo</button>
+  <div style="margin-top:14px;font-size:12px;opacity:.7">Hecho por <a href="https://rbmsolutionscr.com">RBM Solutions CR</a></div>
+</footer>
+<a class="ig-flot" href="#" data-ig-general aria-label="Escribir por Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="#fff"/></svg></a>
+
+<!-- panel de administración -->
+<div class="admin" id="admin" hidden>
+  <div class="admin-top"><div class="wrap"><b>PANEL DE CHEMAS COLLECTOR</b><button id="cerrar-admin">Ver la página</button></div></div>
+  <div class="wrap">
+    <div class="aviso-demo">Versión de prueba: los cambios se guardan <b>solo en este celular</b>. En la versión final se guardan en la nube y los ven todos los clientes al instante.</div>
+    <div class="tabs" id="a-tabs">
+      <button data-at="inv" class="si">Entrega inmediata</button><button data-at="prod">Camisas</button><button data-at="precios">Precios</button><button data-at="tallas">Guía de tallas</button><button data-at="datos">Datos</button>
+    </div>
+    <div id="a-cuerpo"></div>
+  </div>
+</div>
+
+<script>
+/* ===================== DATOS ===================== */
+const CLAVE_DEMO = "demo1234";
+const KEY = "chemas_demo_v1";
+const TALLAS = ["S","M","L","XL","XXL"];
+const KITS = ["Local","Visita","Tercera","Ed. especial"];
+const PARCHES = ["Sin parche","Liga","Champions League","Mundial 2026","Eliminatorias","Campeón del Mundo","Otro"];
+// Dibujo: c1 = color principal, c2 = segundo color, cuello, mangas y patrón (liso, rayas, aros, mitad, banda, franja).
+const P = (id, equipo, temporada, kit, liga, dib, extra = {}) => ({ id, equipo, temporada, kit, liga, dib, entrega:"encargo", stock:{}, retro:false, nuevo:false, oculto:false, foto:"", ...extra });
+const BASE = {
+  negocio: { nombre:"Chemas Collector CR", instagram:"", instagramMuestra:"chemascollectorcr", diasEncargo:[5,20], llegaMin:19, llegaMax:28, adelanto:50,
+    envio:"Correos de CR o mensajero" },
+  precios: { Fan:27000, Player:29000, Retro:29000, poster:2900 },
+  productos: [
+    P("rma-l","Real Madrid","25/26","Local","LaLiga",{c1:"#f5f5f2",c2:"#d4af37",cuello:"#d4af37",pat:"liso"},{entrega:"inmediata",stock:{Fan:["M","L"],Player:["L","XL"]}}),
+    P("bar-l","Barcelona","25/26","Local","LaLiga",{c1:"#a50044",c2:"#004d98",cuello:"#e8b923",pat:"rayas"},{entrega:"inmediata",stock:{Fan:["S","M","L"],Player:["M"]}}),
+    P("liv-l","Liverpool","25/26","Local","Premier League",{c1:"#c8102e",c2:"#ffffff",cuello:"#ffffff",pat:"liso"},{entrega:"inmediata",stock:{Fan:["L","XL"]}}),
+    P("arg-l","Argentina","2026","Local","Mundial 2026",{c1:"#ffffff",c2:"#75aadb",cuello:"#111827",pat:"rayas"},{entrega:"inmediata",stock:{Fan:["M","L","XL"],Player:["L"]},nuevo:true}),
+    P("sap-l","Saprissa","25/26","Local","Costa Rica",{c1:"#5b2a86",c2:"#ffffff",cuello:"#ffffff",pat:"liso"},{entrega:"inmediata",stock:{Fan:["M","L"]}}),
+    P("por-e","Portugal","2026","Ed. especial","Mundial 2026",{c1:"#121212",c2:"#c9a227",cuello:"#c9a227",pat:"liso"},{nuevo:true}),
+    P("arg-v","Argentina","2026","Visita","Mundial 2026",{c1:"#1b2a5c",c2:"#75aadb",cuello:"#75aadb",pat:"liso"}),
+    P("cr-l","Costa Rica","2026","Local","Mundial 2026",{c1:"#ce1126",c2:"#002b7f",cuello:"#002b7f",pat:"liso"}),
+    P("bra-l","Brasil","2026","Local","Mundial 2026",{c1:"#ffdf00",c2:"#009c3b",cuello:"#009c3b",pat:"liso"}),
+    P("mex-l","México","2026","Local","Mundial 2026",{c1:"#006847",c2:"#ffffff",cuello:"#ce1126",pat:"liso"}),
+    P("mci-l","Manchester City","25/26","Local","Premier League",{c1:"#6cabdd",c2:"#1c2c5b",cuello:"#1c2c5b",pat:"liso"}),
+    P("ars-l","Arsenal","25/26","Local","Premier League",{c1:"#db0007",c2:"#ffffff",cuello:"#ffffff",pat:"liso",mangas:"#ffffff"}),
+    P("psg-l","PSG","25/26","Local","Otras ligas",{c1:"#0b1c3c",c2:"#d6001c",cuello:"#d6001c",pat:"franja"}),
+    P("bay-l","Bayern Múnich","25/26","Local","Otras ligas",{c1:"#dc052d",c2:"#ffffff",cuello:"#ffffff",pat:"liso"}),
+    P("juv-l","Juventus","25/26","Local","Serie A",{c1:"#ffffff",c2:"#111111",cuello:"#111111",pat:"rayas"}),
+    P("mil-l","AC Milan","25/26","Local","Serie A",{c1:"#c8102e",c2:"#111111",cuello:"#111111",pat:"rayas"}),
+    P("int-l","Inter","25/26","Local","Serie A",{c1:"#0068a8",c2:"#111111",cuello:"#111111",pat:"rayas"}),
+    P("ala-l","Alajuelense","25/26","Local","Costa Rica",{c1:"#d10f1f",c2:"#111111",cuello:"#111111",pat:"rayas"}),
+    P("her-l","Herediano","25/26","Local","Costa Rica",{c1:"#d10f1f",c2:"#f2c300",cuello:"#f2c300",pat:"rayas"}),
+    P("bra-02","Brasil","2002","Local","Retro",{c1:"#ffdf00",c2:"#009c3b",cuello:"#009c3b",pat:"liso"},{retro:true}),
+    P("mil-07","AC Milan","06/07","Local","Retro",{c1:"#c8102e",c2:"#111111",cuello:"#ffffff",pat:"rayas"},{retro:true}),
+    P("bar-09","Barcelona","08/09","Local","Retro",{c1:"#a50044",c2:"#004d98",cuello:"#a50044",pat:"rayas"},{retro:true}),
+    P("cr-90","Costa Rica","1990","Local","Retro",{c1:"#ce1126",c2:"#ffffff",cuello:"#ffffff",pat:"liso"},{retro:true,entrega:"inmediata",stock:{Retro:["M","L"]}})
+  ],
+  medidas: {
+    Fan:    [["S","50","70"],["M","53","72"],["L","56","74"],["XL","59","76"],["XXL","62","78"]],
+    Player: [["S","47","68"],["M","50","70"],["L","53","72"],["XL","56","74"],["XXL","59","76"]]
+  },
+  guiaFoto: ""
+};
+const lsGet = () => { try { return JSON.parse(localStorage.getItem(KEY)); } catch { return null; } };
+const lsSet = v => { try { localStorage.setItem(KEY, JSON.stringify(v)); return true; } catch { return false; } };
+let DB = lsGet() || structuredClone(BASE);
+const guardar = () => { if (!lsSet(DB)) toast("No se pudo guardar (memoria llena). Probá con fotos más livianas."); };
+let pedido = []; // {p, ver, kit, man, tal, nom, num, par, pos, posDe}
+
+/* ===================== UTILIDADES ===================== */
+const $ = (s, r = document) => r.querySelector(s);
+const esc = t => String(t ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const crc = n => "₡" + String(Math.round(+n || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+const prod = id => DB.productos.find(p => p.id === id);
+const titulo = p => `${p.equipo} ${p.temporada}`;
+function toast(t){ const d = document.createElement("div"); d.className = "toast"; d.textContent = t; d.setAttribute("role", "status"); document.body.append(d); setTimeout(() => d.remove(), 2800); }
+const versiones = p => p.retro ? ["Retro"] : ["Fan","Player"];
+const precioDe = (p, ver, pos) => (DB.precios[ver] || 0) + (pos ? DB.precios.poster : 0);
+const desde = p => Math.min(...versiones(p).map(v => DB.precios[v] || 0));
+const enStock = (p, ver, t) => p.entrega === "inmediata" && (p.stock?.[ver] || []).includes(t);
+const igUser = () => String(DB.negocio.instagram || "").replace(/^@/, "").trim();
+// Instagram no deja escribir el mensaje desde un link: se copia y se abre el chat para pegarlo.
+const igLink = () => igUser() ? `https://ig.me/m/${igUser()}` : "https://www.instagram.com/direct/inbox/";
+async function copiar(t){ try { await navigator.clipboard.writeText(t); return true; } catch { try { const a = document.createElement("textarea"); a.value = t; a.style.position = "fixed"; a.style.opacity = "0"; document.body.append(a); a.select(); const ok = document.execCommand("copy"); a.remove(); return ok; } catch { return false; } } }
+
+/* ----- Fechas de encargo (los días 5 y 20) y cuándo llega ----- */
+const MESES = ["ene.","feb.","mar.","abr.","may.","jun.","jul.","ago.","sept.","oct.","nov.","dic."], DIAS = ["domingo","lunes","martes","miércoles","jueves","viernes","sábado"];
+const hoyCR = () => { const d = new Date(Date.now() - 6 * 3600e3); return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate())); };
+const fmt = d => `${DIAS[d.getUTCDay()]} ${d.getUTCDate()} de ${MESES[d.getUTCMonth()]}`;
+const fmtC = d => `${d.getUTCDate()} de ${MESES[d.getUTCMonth()]}`;
+const suma = (d, n) => new Date(d.getTime() + n * 864e5);
+function proximoEncargo(){
+  const h = hoyCR(), dias = [...(DB.negocio.diasEncargo || [5,20])].sort((a, b) => a - b);
+  for (let m = 0; m < 3; m++) for (const dd of dias) { const f = new Date(Date.UTC(h.getUTCFullYear(), h.getUTCMonth() + m, dd)); if (f >= h) return f; }
+  return h;
+}
+function textoEncargo(){
+  const f = proximoEncargo(), h = hoyCR(), falta = Math.round((f - h) / 864e5), n = DB.negocio;
+  return { f, falta, desde: suma(f, n.llegaMin), hasta: suma(f, n.llegaMax),
+    cuando: falta === 0 ? "hoy" : falta === 1 ? "mañana" : `el ${fmt(f)}` };
+}
+
+/* ----- Dibujo de la camisa (sin escudos ni marcas: solo los colores del equipo) ----- */
+function oscuro(hex){ const n = parseInt(hex.slice(1), 16); return ((n >> 16) * .299 + ((n >> 8) & 255) * .587 + (n & 255) * .114) < 140; }
+let uid = 0;
+function camisa(p, { espalda = false, nom = "", num = "" } = {}){
+  const d = p.dib, c1 = d.c1, c2 = d.c2, mangas = d.mangas || (d.pat === "rayas" || d.pat === "aros" ? c1 : c1), id = "cl" + (++uid);
+  const cuerpo = "M60 34l22-10q18 12 36 0l22 10 32 24-14 32-18-8v96H60V82l-18 8-14-32z";
+  let pat = "";
+  if (d.pat === "rayas") pat = [0,1,2,3,4,5].map(i => `<rect x="${52 + i * 18}" y="20" width="9" height="170" fill="${c2}"/>`).join("");
+  if (d.pat === "aros") pat = [0,1,2,3,4].map(i => `<rect x="20" y="${46 + i * 30}" width="160" height="14" fill="${c2}"/>`).join("");
+  if (d.pat === "mitad") pat = `<rect x="100" y="20" width="80" height="170" fill="${c2}"/>`;
+  if (d.pat === "banda") pat = `<path d="M40 40l26-12 110 140-10 18z" fill="${c2}"/>`;
+  if (d.pat === "franja") pat = `<rect x="86" y="20" width="28" height="170" fill="${c2}"/><rect x="82" y="20" width="4" height="170" fill="#fff"/><rect x="114" y="20" width="4" height="170" fill="#fff"/>`;
+  const txt = oscuro(c1) ? "#ffffff" : "#111111";
+  const frente = espalda
+    ? `<text x="100" y="72" text-anchor="middle" font-family="Bebas Neue,Impact,sans-serif" font-size="${Math.max(10, 20 - Math.max(0, nom.length - 8))}" fill="${txt}" letter-spacing="1">${esc(nom.toUpperCase())}</text>
+       <text x="100" y="140" text-anchor="middle" font-family="Bebas Neue,Impact,sans-serif" font-size="62" fill="${txt}">${esc(num)}</text>`
+    : `<path d="M84 26q16 16 32 0" fill="none" stroke="${d.cuello}" stroke-width="6"/><circle cx="124" cy="66" r="7" fill="none" stroke="${d.cuello}" stroke-width="2.5" opacity=".9"/>
+       <rect x="70" y="60" width="14" height="10" rx="2" fill="${d.cuello}" opacity=".85"/>`;
+  return `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <defs><clipPath id="${id}"><path d="${cuerpo}"/></clipPath></defs>
+    <path d="${cuerpo}" fill="${c1}"/>
+    <g clip-path="url(#${id})">${pat}
+      <path d="M28 58l32-24v48l-18 8z" fill="${mangas}"/><path d="M172 58l-32-24v48l18 8z" fill="${mangas}"/>
+      <path d="M42 90l-14-32" stroke="${d.cuello}" stroke-width="5"/><path d="M158 90l14-32" stroke="${d.cuello}" stroke-width="5"/>
+      <path d="M60 172h80" stroke="${d.cuello}" stroke-width="4" opacity=".7"/>
+      <path d="M70 40q-8 60 0 130" stroke="#fff" stroke-width="10" opacity=".07" fill="none"/></g>
+    <path d="${cuerpo}" fill="none" stroke="rgba(0,0,0,.35)" stroke-width="1.5"/>
+    ${espalda ? `<path d="M84 26q16 8 32 0" fill="none" stroke="${d.cuello}" stroke-width="6"/>` : ""}
+    ${frente}
+  </svg>`;
+}
+const vista = (p, o) => p.foto && !(o && o.espalda) ? `<img src="${p.foto}" alt="${esc(titulo(p))}" loading="lazy">` : camisa(p, o);
+
+/* ===================== PÁGINA PÚBLICA ===================== */
+let filtro = "Todas", q = "";
+const FILTROS = ["Todas","Entrega inmediata","Mundial 2026","Premier League","LaLiga","Serie A","Otras ligas","Costa Rica","Retro"];
+function pintar(){
+  const n = DB.negocio, vis = DB.productos.filter(p => !p.oculto), e = textoEncargo();
+  $("#vitrina").innerHTML = ["arg-l","por-e","bar-l"].map(id => prod(id)).filter(Boolean).map(p => `<div class="fig">${camisa(p)}</div>`).join("");
+  $("#encargo").innerHTML = `<b>📅 Próximo encargo: ${e.cuando}</b><span>Encargos los días ${n.diasEncargo.join(" y ")} de cada mes. Si encargás para esa fecha, te llega entre el ${fmtC(e.desde)} y el ${fmtC(e.hasta)}</span>`;
+  $("#filtros").innerHTML = FILTROS.filter(f => f === "Todas" || f === "Entrega inmediata" ? true : vis.some(p => p.liga === f)).map(f => `<button class="${f === filtro ? "si" : ""}" data-f="${esc(f)}">${f === "Entrega inmediata" ? "⚡ " : ""}${esc(f)}</button>`).join("");
+  const qq = q.trim().toLowerCase();
+  const lista = vis.filter(p => (filtro === "Todas" || (filtro === "Entrega inmediata" ? p.entrega === "inmediata" : p.liga === filtro)) && (!qq || `${p.equipo} ${p.temporada} ${p.kit} ${p.liga}`.toLowerCase().includes(qq)));
+  $("#grid").innerHTML = lista.map(p => `<article class="card" data-elegir="${p.id}" tabindex="0" role="button" aria-label="${esc(titulo(p))}">
+      ${p.retro ? `<span class="tag ret">Retro</span>` : p.entrega === "inmediata" ? `<span class="tag ya">⚡ Entrega inmediata</span>` : `<span class="tag enc">Por encargo</span>`}
+      <div class="ft">${vista(p)}</div>
+      <div class="in"><h3>${esc(titulo(p))}</h3><span class="d">${esc(p.kit)} · ${esc(versiones(p).join(" / "))}${p.nuevo ? " · <b style='color:var(--oro)'>Nuevo</b>" : ""}</span>
+        <div class="pr"><small>desde</small> ${crc(desde(p))}</div></div></article>`).join("")
+    || `<p style="color:var(--suave)">No encontramos esa chema. <a href="#buscar">Mandanos una foto y te ayudamos a encontrarla.</a></p>`;
+  // tallas
+  const g = DB.guiaFoto; $("#guiaImg").hidden = !g; if (g) $("#guiaImg").src = g;
+  $("#tablas").innerHTML = ["Fan","Player"].map(v => `<div><h3>Versión ${v}</h3><div class="tabla-wrap"><table><tr><th>Talla</th><th>Ancho (cm)</th><th>Largo (cm)</th></tr>${DB.medidas[v].map(r => `<tr>${r.map(x => `<td>${esc(x)}</td>`).join("")}</tr>`).join("")}</table></div></div>`).join("");
+  $("#t-nota").textContent = "Ancho: de axila a axila. Largo: del cuello al ruedo. Medidas de ejemplo: Chemas pone las suyas desde el panel.";
+  $("#paso3").textContent = `Encargás con el ${n.adelanto}% y el resto se paga cuando esté lista para entregar.`;
+  $("#paso4").textContent = `Llega en ${n.llegaMin} a ${n.llegaMax} días. Envío gratis por ${n.envio}.`;
+  $("#f-datos").innerHTML = `Instagram <a href="https://instagram.com/${esc(igUser() || n.instagramMuestra)}" target="_blank" rel="noopener">@${esc(igUser() || n.instagramMuestra)}</a> · Pedidos por privado · Costa Rica 🇨🇷`;
+  document.querySelectorAll("[data-ig-general]").forEach(a => { a.href = igLink(); a.target = "_blank"; a.rel = "noopener"; });
+  $("#n-pedido").textContent = pedido.length;
+}
+document.addEventListener("click", e => {
+  const f = e.target.closest("[data-f]"); if (f) { filtro = f.dataset.f; pintar(); return; }
+  const el = e.target.closest("[data-elegir]"); if (el) { elegir(el.dataset.elegir); return; }
+  if (e.target.closest("[data-abrir-pedido]")) verPedido();
+});
+document.addEventListener("keydown", e => { if ((e.key === "Enter" || e.key === " ") && e.target.matches?.(".card")) { e.preventDefault(); elegir(e.target.dataset.elegir); } });
+$("#q").addEventListener("input", e => { q = e.target.value; pintar(); });
+
+/* ---- hojas ---- */
+function hoja(html, alAbrir){
+  const v = document.createElement("div"); v.className = "velo"; v.innerHTML = `<div class="hoja" role="dialog" aria-modal="true">${html}</div>`;
+  document.body.append(v); document.body.style.overflow = "hidden";
+  const cerrar = () => { v.remove(); if (!$(".velo")) document.body.style.overflow = ""; };
+  v.addEventListener("click", e => { if (e.target === v || e.target.closest("[data-cerrar]")) cerrar(); });
+  alAbrir?.(v.firstElementChild, cerrar); return cerrar;
+}
+function elegir(id){
+  const p = prod(id); if (!p) return;
+  const vs = versiones(p);
+  let s = { ver: vs.includes("Player") && p.entrega !== "inmediata" ? vs[0] : vs[0], kit: p.kit, man: "Corta", tal: null, nom: "", num: "", par: "Sin parche", parOtro: "", pos: false, posDe: "" };
+  hoja(`<div class="hoja-cab"><h3>${esc(titulo(p))}</h3><button class="x" data-cerrar aria-label="Cerrar">×</button></div>
+    <div class="prev"><div class="ft">${vista(p)}<small>Frente</small></div><div class="ft" id="e-esp"></div></div>
+    <p class="nota" style="margin:0">${p.entrega === "inmediata" ? "⚡ Hay tallas para <b>entrega inmediata</b>. Las demás se encargan." : (() => { const e = textoEncargo(); return `📅 Por encargo: el próximo es ${e.cuando} y llega entre el ${fmtC(e.desde)} y el ${fmtC(e.hasta)}`; })()}</p>
+    <div class="lbl">Versión</div><div class="ops ver" id="e-ver"></div>
+    <div class="lbl">Local o visita</div><div class="ops kit" id="e-kit"></div>
+    <div class="lbl">Manga</div><div class="ops man" id="e-man"></div>
+    <div class="lbl">Talla <a href="#tallas" data-cerrar style="font-weight:600;text-transform:none;letter-spacing:0">· ver guía</a></div><div class="ops tal" id="e-tal"></div>
+    <div class="lbl">Personalización (incluida)</div>
+    <div class="fila2"><div class="campo"><label for="e-nom">Nombre</label><input id="e-nom" maxlength="14" placeholder="Ej.: Ronaldo" autocomplete="off"></div>
+      <div class="campo"><label for="e-num">Número</label><input id="e-num" inputmode="numeric" maxlength="2" placeholder="7" autocomplete="off"></div></div>
+    <div class="campo"><label for="e-par">Parche</label><select id="e-par">${PARCHES.map(x => `<option>${x}</option>`).join("")}</select></div>
+    <div class="campo" id="e-parw" hidden><label for="e-paro">¿Cuál parche?</label><input id="e-paro" maxlength="40" placeholder="Ej.: Eliminatorias + Campeón del Mundo"></div>
+    <div class="lbl">Póster</div><div class="ops pos" id="e-pos"></div>
+    <div class="campo" id="e-posw" hidden style="margin-top:8px"><label for="e-pde">¿De quién querés el póster?</label><input id="e-pde" maxlength="30" placeholder="Ej.: Messi"></div>
+    <div class="precio-h"><span>Precio</span><b id="e-pr"></b></div>
+    <p class="err" id="e-err"></p>
+    <button class="b b-azul b-bloque" id="e-ok">Agregar al pedido</button>`, (h, cerrar) => {
+    const pint = () => {
+      $("#e-ver", h).innerHTML = vs.map(v => `<button class="${v === s.ver ? "si" : ""}" data-ver="${v}">${v}<small>${crc(DB.precios[v])}</small></button>`).join("");
+      $("#e-kit", h).innerHTML = KITS.map(k => `<button class="${k === s.kit ? "si" : ""}" data-kit="${k}">${k}</button>`).join("");
+      $("#e-man", h).innerHTML = ["Corta","Larga"].map(k => `<button class="${k === s.man ? "si" : ""}" data-man="${k}">${k}</button>`).join("");
+      $("#e-tal", h).innerHTML = TALLAS.map(t => `<button class="${t === s.tal ? "si" : ""}" data-tal="${t}">${t}${enStock(p, s.ver, t) ? "<small>⚡ ya</small>" : ""}</button>`).join("");
+      $("#e-pos", h).innerHTML = [["No", false], ["Sí, con póster", true]].map(([l, v]) => `<button class="${s.pos === v ? "si" : ""}" data-pos="${v}">${l}${v ? `<small>+${crc(DB.precios.poster)}</small>` : ""}</button>`).join("");
+      $("#e-posw", h).hidden = !s.pos;
+      $("#e-esp", h).innerHTML = camisa(p, { espalda: true, nom: s.nom || "Tu nombre", num: s.num || "10" }) + `<small>Espalda</small>`;
+      $("#e-pr", h).textContent = crc(precioDe(p, s.ver, s.pos));
+    };
+    pint();
+    h.addEventListener("click", e => {
+      const b = e.target.closest("button"); if (!b) return;
+      if (b.dataset.ver) s.ver = b.dataset.ver; else if (b.dataset.kit) s.kit = b.dataset.kit; else if (b.dataset.man) s.man = b.dataset.man;
+      else if (b.dataset.tal) { s.tal = b.dataset.tal; $("#e-err", h).textContent = ""; } else if (b.dataset.pos) s.pos = b.dataset.pos === "true";
+      if (b.dataset.ver || b.dataset.kit || b.dataset.man || b.dataset.tal || b.dataset.pos) pint();
+      if (b.id === "e-ok") {
+        if (!s.tal) { $("#e-err", h).textContent = "Escogé tu talla."; return; }
+        if (s.pos && !$("#e-pde", h).value.trim()) { $("#e-err", h).textContent = "Decinos de quién querés el póster."; $("#e-pde", h).focus(); return; }
+        s.posDe = $("#e-pde", h).value.trim(); s.parOtro = $("#e-paro", h).value.trim();
+        pedido.push({ p: id, ...s, ya: enStock(p, s.ver, s.tal) });
+        cerrar(); pintar(); toast(`${titulo(p)} ${s.ver}, talla ${s.tal}, agregada ✓`);
+      }
+    });
+    const nom = $("#e-nom", h), num = $("#e-num", h);
+    nom.addEventListener("input", () => { s.nom = nom.value; pint(); });
+    num.addEventListener("input", () => { num.value = num.value.replace(/\D/g, ""); s.num = num.value; pint(); });
+    $("#e-par", h).addEventListener("change", e => { s.par = e.target.value; $("#e-parw", h).hidden = s.par !== "Otro"; });
+  });
+}
+const parcheTxt = x => x.par === "Otro" ? (x.parOtro || "Otro") : x.par;
+const lineaItem = (x, i) => { const p = prod(x.p); if (!p) return "";
+  return `${i + 1}) ${titulo(p)}${x.ya ? " ⚡ entrega inmediata" : ""}
+   Versión: ${x.ver.toUpperCase()} · ${x.kit.toUpperCase()} · Manga ${x.man.toLowerCase()} · Talla ${x.tal}
+   Nombre: ${x.nom.trim() || "—"} · #${x.num || "—"} · Parche: ${parcheTxt(x)}
+   Póster: ${x.pos ? "SÍ (" + x.posDe + ")" : "NO"} — ${crc(precioDe(p, x.ver, x.pos))}`; };
+function verPedido(){
+  hoja(`<div class="hoja-cab"><h3>Mi pedido</h3><button class="x" data-cerrar aria-label="Cerrar">×</button></div><div id="pp"></div>`, (h, cerrar) => {
+    const pint = () => {
+      if (!pedido.length) { $("#pp", h).innerHTML = `<p style="color:var(--suave)">Todavía no has agregado chemas. Tocá una del catálogo para empezar.</p><button class="b b-claro b-bloque" data-cerrar>Ver catálogo</button>`; return; }
+      const total = pedido.reduce((a, x) => { const p = prod(x.p); return a + (p ? precioDe(p, x.ver, x.pos) : 0); }, 0), n = DB.negocio, e = textoEncargo();
+      const hayEnc = pedido.some(x => !x.ya), adel = Math.round(total * n.adelanto / 100);
+      $("#pp", h).innerHTML = pedido.map((x, i) => { const p = prod(x.p); if (!p) return "";
+        return `<div class="item"><div class="t"><b>${esc(titulo(p))}${x.ya ? " ⚡" : ""}</b><span>${crc(precioDe(p, x.ver, x.pos))} <button data-q="${i}">Quitar</button></span></div>
+          <div class="cel"><span class="c-v">${esc(x.ver)}</span><span class="c-k">${esc(x.kit)}</span><span class="c-m">${esc(x.man)}</span><span class="c-t">${esc(x.tal)}</span>
+            ${x.nom.trim() ? `<span class="c-n">${esc(x.nom.trim())}</span>` : ""}${x.num ? `<span class="c-n">#${esc(x.num)}</span>` : ""}<span class="c-n">${esc(parcheTxt(x))}</span><span class="c-p">${x.pos ? "Póster: " + esc(x.posDe) : "Sin póster"}</span></div></div>`; }).join("")
+        + `<div class="res"><div class="total"><span>Total</span><span>${crc(total)}</span></div>
+            ${hayEnc ? `<div class="adel"><span>Para encargar (${n.adelanto}%)</span><span>${crc(adel)}</span></div><div style="color:var(--suave);font-size:13.5px"><span>El resto, cuando esté lista para entregar.</span></div>` : ""}</div>
+          <div class="aviso">✅ Incluye personalización, calcomanía del equipo, cajita y <b>envío gratis</b>.${hayEnc ? `<br>📅 Próximo encargo ${e.cuando}: llega entre el <b>${fmtC(e.desde)}</b> y el <b>${fmtC(e.hasta)}</b>` : ""}</div>
+          <div class="lbl">Tus datos para el envío</div>
+          <div class="campo"><label for="d-nom">Nombre completo</label><input id="d-nom" autocomplete="name"></div>
+          <div class="fila3" style="grid-template-columns:1fr 1fr"><div class="campo"><label for="d-tel">Teléfono</label><input id="d-tel" inputmode="tel" autocomplete="tel" placeholder="88887777"></div>
+            <div class="campo"><label for="d-cor">Correo</label><input id="d-cor" type="email" autocomplete="email"></div></div>
+          <div class="fila3"><div class="campo"><label for="d-pro">Provincia</label><select id="d-pro">${["","San José","Alajuela","Cartago","Heredia","Guanacaste","Puntarenas","Limón"].map(x => `<option>${x}</option>`).join("")}</select></div>
+            <div class="campo"><label for="d-can">Cantón</label><input id="d-can"></div><div class="campo"><label for="d-dis">Distrito</label><input id="d-dis"></div></div>
+          <div class="campo"><label for="d-dir">Dirección exacta</label><textarea id="d-dir" rows="2"></textarea></div>
+          <p class="nota" style="margin-top:-4px">Podés dejar los datos para después: Chemas te los pide cuando llegue tu chema.</p>
+          <button class="b b-ig b-bloque" id="pp-ig" style="margin-top:8px">Validar disponibilidad por Instagram</button>
+          <p class="nota" style="text-align:center">Se copia tu pedido y se abre el chat: solo <b>pegalo y envialo</b>.</p>
+          <details style="margin-top:6px"><summary class="nota" style="cursor:pointer">Ver el mensaje que se envía</summary><textarea class="msj" id="pp-msj" readonly></textarea></details>`;
+      const armar = () => {
+        const v = s => ($(s, h)?.value || "").trim();
+        const datos = [["Nombre completo", v("#d-nom")], ["Teléfono", v("#d-tel").replace(/\D/g, "")], ["Correo", v("#d-cor")], ["Provincia", v("#d-pro")], ["Cantón", v("#d-can")], ["Distrito", v("#d-dis")], ["Dirección exacta", v("#d-dir")]].filter(d => d[1]);
+        const m = [`Hola pura vida! 👋 Quiero validar si tienen disponible:`, "", ...pedido.map(lineaItem).filter(Boolean), "",
+          `Total: ${crc(total)}${hayEnc ? ` · Adelanto ${n.adelanto}%: ${crc(adel)}` : ""}`,
+          datos.length ? "\nMis datos para el envío:\n" + datos.map(d => `${d[0]}: ${d[1]}`).join("\n") : null,
+          "", "¿Me confirman disponibilidad? 🙏"].filter(l => l !== null).join("\n");
+        $("#pp-msj", h).value = m; return m;
+      };
+      armar(); h.querySelectorAll("input,select,textarea:not(#pp-msj)").forEach(i => i.addEventListener("input", armar));
+      $("#pp-ig", h).addEventListener("click", async () => {
+        const m = armar(), ok = await copiar(m);
+        window.open(igLink(), "_blank", "noopener");
+        toast(ok ? "📋 Pedido copiado: pegalo en el chat de Instagram" : "Copiá el mensaje de abajo y pegalo en Instagram");
+        if (!ok) h.querySelector("details").open = true;
+        if (!igUser()) setTimeout(() => toast(`Página de ejemplo: en la real se abre el chat de @${n.instagramMuestra}`), 3000);
+      });
+    };
+    pint();
+    h.addEventListener("click", e => { const q2 = e.target.closest("[data-q]"); if (q2) { pedido.splice(+q2.dataset.q, 1); pint(); pintar(); } });
+  });
+}
+
+/* ---- ¿No encontrás tu chema? Mandá la foto ---- */
+let refArchivo = null;
+$("#refFoto").addEventListener("change", e => {
+  refArchivo = e.target.files[0] || null; if (!refArchivo) return;
+  const u = URL.createObjectURL(refArchivo);
+  $("#refTxt").innerHTML = `<img src="${u}" alt="Tu foto de referencia"><br><small>Tocá para cambiarla</small>`;
+});
+$("#refEnviar").addEventListener("click", async () => {
+  const v = s => $(s).value.trim();
+  const m = [`Hola pura vida! 👋 Ando buscando esta chema:`, `Equipo: ${v("#refEq") || "—"}`, `Año: ${v("#refAn") || "—"}`, `Versión: ${v("#refVe")}`, `Talla: ${v("#refTa")}`, v("#refNo") ? `Detalles: ${v("#refNo")}` : null, "", "¿Me ayudan a encontrarla? 🙏"].filter(Boolean).join("\n");
+  const ok = await copiar(m);
+  // En el celular se puede compartir la foto directo a Instagram (o WhatsApp) con el menú de compartir.
+  if (refArchivo && navigator.canShare && navigator.canShare({ files: [refArchivo] })) {
+    try { await navigator.share({ files: [refArchivo], text: m, title: "Chema que busco" }); $("#refNota").textContent = "Si Instagram no pegó el texto, pegalo vos: ya está copiado 📋"; return; }
+    catch (x) { if (x && x.name === "AbortError") return; }
+  }
+  window.open(igLink(), "_blank", "noopener");
+  $("#refNota").textContent = refArchivo ? "📋 Mensaje copiado. En el chat pegalo y adjuntá la foto con el botón de galería." : "📋 Mensaje copiado. Pegalo en el chat y, si tenés, mandá también una foto.";
+});
+
+/* ===================== ADMINISTRACIÓN ===================== */
+let aTab = "inv", admin = false;
+$("#abrir-admin").addEventListener("click", () => {
+  if (admin) return abrirAdmin();
+  hoja(`<div class="hoja-cab"><h3>Administrar</h3><button class="x" data-cerrar aria-label="Cerrar">×</button></div>
+    <div class="campo"><label for="ac">Contraseña</label><input id="ac" type="password" autocomplete="current-password"></div>
+    <p class="err" id="ae"></p><button class="b b-azul b-bloque" id="aok">Entrar</button>
+    <p class="nota" style="text-align:center">Versión de prueba · contraseña: <b style="user-select:all">${CLAVE_DEMO}</b></p>`, (h, cerrar) => {
+    const ir = () => { if ($("#ac", h).value === CLAVE_DEMO) { admin = true; cerrar(); abrirAdmin(); } else $("#ae", h).textContent = "Contraseña incorrecta."; };
+    $("#aok", h).addEventListener("click", ir); $("#ac", h).addEventListener("keydown", e => { if (e.key === "Enter") ir(); });
+    setTimeout(() => $("#ac", h).focus(), 50);
+  });
+});
+$("#cerrar-admin").addEventListener("click", () => { $("#admin").hidden = true; document.body.style.overflow = ""; pintar(); });
+$("#a-tabs").addEventListener("click", e => { const b = e.target.closest("[data-at]"); if (!b) return; aTab = b.dataset.at; pintarAdmin(); });
+function abrirAdmin(){ $("#admin").hidden = false; document.body.style.overflow = "hidden"; pintarAdmin(); }
+
+function pintarAdmin(){
+  document.querySelectorAll("#a-tabs button").forEach(b => b.classList.toggle("si", b.dataset.at === aTab));
+  const c = $("#a-cuerpo");
+  if (aTab === "inv") {
+    c.innerHTML = `<p style="color:var(--suave);margin:10px 0">Marcá las tallas que tenés <b>ya en mano</b>. Esas camisas salen con ⚡ Entrega inmediata; lo demás queda por encargo.</p>
+      <div class="alist inv">${DB.productos.filter(p => !p.oculto).map(p => `<div class="arow" style="align-items:flex-start"><div class="mini">${vista(p)}</div><div class="tx"><b>${esc(titulo(p))} · ${esc(p.kit)}</b>
+        ${versiones(p).map(v => `<div class="tl"><span style="font-size:12px;color:var(--suave);width:48px">${v}</span>${TALLAS.map(t => `<button class="${(p.stock?.[v] || []).includes(t) ? "si" : ""}" data-st="${p.id}:${v}:${t}">${t}</button>`).join("")}</div>`).join("")}</div></div>`).join("")}</div>`;
+    c.querySelectorAll("[data-st]").forEach(b => b.onclick = () => { const [id, v, t] = b.dataset.st.split(":"), p = prod(id); p.stock ||= {}; const l = p.stock[v] ||= [];
+      const i = l.indexOf(t); if (i >= 0) l.splice(i, 1); else l.push(t);
+      p.entrega = Object.values(p.stock).some(x => x.length) ? "inmediata" : "encargo"; guardar(); pintarAdmin(); });
+  } else if (aTab === "prod") {
+    c.innerHTML = `<button class="b b-azul" id="nuevo-p" style="margin-top:10px">+ Agregar camisa</button>
+      <div class="alist">${DB.productos.map(p => `<div class="arow"><div class="mini">${vista(p)}</div><div class="tx"><b>${esc(titulo(p))}</b><span>${esc(p.kit)} · ${esc(p.liga)}${p.entrega === "inmediata" ? " · ⚡" : ""}${p.nuevo ? " · Nuevo" : ""}${p.oculto ? " · Oculta" : ""}</span></div><button data-ed="${p.id}">Editar</button></div>`).join("")}</div>`;
+    $("#nuevo-p").onclick = () => editar(null);
+    c.querySelectorAll("[data-ed]").forEach(b => b.onclick = () => editar(b.dataset.ed));
+  } else if (aTab === "precios") {
+    const pr = DB.precios;
+    c.innerHTML = `<div style="margin:12px 0 40px">${[["Fan","Versión Fan"],["Player","Versión Player"],["Retro","Retro"],["poster","Póster (se suma al precio)"]].map(([k, l]) => `<div class="campo"><label>${l} (₡)</label><input inputmode="numeric" data-pr="${k}" value="${pr[k]}"></div>`).join("")}
+      <p class="nota">Ejemplo: Fan ₡27.000 · Player ₡29.000 · Player con póster ₡31.900.</p>
+      <button class="b b-azul" id="pr-g" style="margin-top:8px">Guardar precios</button></div>`;
+    $("#pr-g").onclick = () => { c.querySelectorAll("[data-pr]").forEach(i => pr[i.dataset.pr] = +i.value.replace(/\D/g, "") || 0); guardar(); pintar(); toast("Precios guardados"); };
+  } else if (aTab === "tallas") {
+    c.innerHTML = `<div style="margin:12px 0 40px">
+      <div class="lbl">Foto de la guía de tallas</div>
+      <p class="nota" style="margin-top:0">Si ya tenés la imagen con las medidas (la que mandás por Instagram), subila y sale arriba de las tablas.</p>
+      ${DB.guiaFoto ? `<img src="${DB.guiaFoto}" alt="" style="max-height:200px;border-radius:12px;display:block;margin:8px 0">` : ""}
+      <div class="acc" style="margin-top:8px"><label class="b b-claro" style="cursor:pointer">📷 ${DB.guiaFoto ? "Cambiar" : "Subir"} foto<input type="file" accept="image/*" id="gf" hidden></label>${DB.guiaFoto ? `<button class="b b-claro" id="gf-x">Quitar foto</button>` : ""}</div>
+      ${["Fan","Player"].map(v => `<div class="lbl">Medidas versión ${v} (ancho · largo en cm)</div>${DB.medidas[v].map((r, i) => `<div class="fila3" style="grid-template-columns:60px 1fr 1fr;align-items:center"><b>${r[0]}</b><input class="buscar" style="margin:0 0 6px" data-md="${v}:${i}:1" value="${esc(r[1])}" aria-label="${v} ${r[0]} ancho"><input class="buscar" style="margin:0 0 6px" data-md="${v}:${i}:2" value="${esc(r[2])}" aria-label="${v} ${r[0]} largo"></div>`).join("")}`).join("")}
+      <button class="b b-azul" id="md-g" style="margin-top:8px">Guardar medidas</button></div>`;
+    $("#gf").onchange = async e => { const f = e.target.files[0]; if (!f) return; try { DB.guiaFoto = await comprimir(f, 1200); guardar(); pintar(); pintarAdmin(); toast("Guía de tallas lista"); } catch { toast("No se pudo leer la foto."); } };
+    $("#gf-x")?.addEventListener("click", () => { DB.guiaFoto = ""; guardar(); pintar(); pintarAdmin(); });
+    $("#md-g").onclick = () => { c.querySelectorAll("[data-md]").forEach(i => { const [v, r, k] = i.dataset.md.split(":"); DB.medidas[v][+r][+k] = i.value.trim(); }); guardar(); pintar(); toast("Medidas guardadas"); };
+  } else if (aTab === "datos") {
+    const n = DB.negocio;
+    c.innerHTML = `<div style="margin:12px 0 40px">
+      <div class="campo"><label>Instagram que recibe los pedidos (sin @; vacío = para probar sin escribirle al negocio)</label><input data-n="instagram" value="${esc(n.instagram)}" placeholder="${esc(n.instagramMuestra)}"></div>
+      <div class="campo"><label>Días de encargo (separados por coma)</label><input id="dn-dias" value="${esc(n.diasEncargo.join(", "))}"></div>
+      <div class="fila3"><div class="campo"><label>Llega desde (días)</label><input inputmode="numeric" data-nn="llegaMin" value="${n.llegaMin}"></div><div class="campo"><label>Hasta (días)</label><input inputmode="numeric" data-nn="llegaMax" value="${n.llegaMax}"></div><div class="campo"><label>Adelanto (%)</label><input inputmode="numeric" data-nn="adelanto" value="${n.adelanto}"></div></div>
+      <div class="campo"><label>Envío</label><input data-n="envio" value="${esc(n.envio)}"></div>
+      <button class="b b-azul" id="d-g">Guardar datos</button>
+      <button class="b b-claro" id="d-reset" style="margin-left:6px">Volver al ejemplo</button></div>`;
+    $("#d-g").onclick = () => {
+      c.querySelectorAll("[data-n]").forEach(i => n[i.dataset.n] = i.value.trim().replace(/^@/, ""));
+      c.querySelectorAll("[data-nn]").forEach(i => n[i.dataset.nn] = Math.max(0, +i.value.replace(/\D/g, "") || 0));
+      const d = $("#dn-dias").value.split(/[,\s]+/).map(Number).filter(x => x >= 1 && x <= 28); if (d.length) n.diasEncargo = [...new Set(d)].sort((a, b) => a - b);
+      guardar(); pintar(); pintarAdmin(); toast("Datos guardados");
+    };
+    $("#d-reset").onclick = () => { if (!confirm("¿Volver a los datos de ejemplo? Se borran tus cambios de prueba.")) return; DB = structuredClone(BASE); guardar(); pintar(); pintarAdmin(); toast("Listo"); };
+  }
+}
+function editar(id){
+  const nuevo = !id, p = nuevo ? P("p" + Date.now(), "", "25/26", "Local", "Otras ligas", {c1:"#3b6cff",c2:"#ffffff",cuello:"#ffffff",pat:"liso"}, {nuevo:true}) : structuredClone(prod(id));
+  const ligas = [...new Set(["Mundial 2026","Premier League","LaLiga","Serie A","Otras ligas","Costa Rica","Retro", ...DB.productos.map(x => x.liga)])];
+  hoja(`<div class="hoja-cab"><h3>${nuevo ? "Nueva camisa" : "Editar camisa"}</h3><button class="x" data-cerrar aria-label="Cerrar">×</button></div>
+    <div class="prev"><div class="ft" id="ed-prev"></div><div style="display:grid;gap:8px;align-content:center"><label class="b b-claro" style="cursor:pointer">📷 ${p.foto ? "Cambiar foto" : "Subir foto real"}<input type="file" accept="image/*" id="ed-foto" hidden></label>${p.foto ? `<button class="b b-claro" id="ed-fx">Usar el dibujo</button>` : ""}</div></div>
+    <div class="fila2" style="grid-template-columns:1fr 110px"><div class="campo"><label>Equipo o selección</label><input id="ed-e" value="${esc(p.equipo)}" placeholder="Ej.: Portugal"></div><div class="campo"><label>Temporada</label><input id="ed-t" value="${esc(p.temporada)}" placeholder="2026"></div></div>
+    <div class="fila2" style="grid-template-columns:1fr 1fr"><div class="campo"><label>Tipo</label><select id="ed-k">${KITS.map(k => `<option ${k === p.kit ? "selected" : ""}>${k}</option>`).join("")}</select></div>
+      <div class="campo"><label>Sección</label><select id="ed-l">${ligas.map(l => `<option ${l === p.liga ? "selected" : ""}>${esc(l)}</option>`).join("")}</select></div></div>
+    <div class="lbl">Colores del dibujo</div>
+    <div class="fila3" style="grid-template-columns:repeat(4,minmax(0,1fr))">${[["c1","Principal"],["c2","Segundo"],["cuello","Cuello"]].map(([k, l]) => `<div class="campo"><label>${l}</label><input type="color" data-dc="${k}" value="${p.dib[k]}" style="height:44px;padding:4px"></div>`).join("")}
+      <div class="campo"><label>Diseño</label><select id="ed-pat">${[["liso","Liso"],["rayas","Rayas"],["aros","Aros"],["mitad","Mitad"],["banda","Banda"],["franja","Franja"]].map(([v, l]) => `<option value="${v}" ${v === p.dib.pat ? "selected" : ""}>${l}</option>`).join("")}</select></div></div>
+    <label class="check"><input type="checkbox" id="ed-r" ${p.retro ? "checked" : ""}> Es <b>retro</b> (precio de retro)</label>
+    <label class="check"><input type="checkbox" id="ed-nu" ${p.nuevo ? "checked" : ""}> Marcar como <b>Nueva</b></label>
+    <label class="check"><input type="checkbox" id="ed-oc" ${p.oculto ? "checked" : ""}> <b>Ocultar</b> del catálogo</label>
+    <p class="err" id="ed-err"></p>
+    <button class="b b-azul b-bloque" id="ed-g">Guardar</button>
+    ${nuevo ? "" : `<button class="b b-bloque" id="ed-b" style="background:none;color:var(--rosa);margin-top:6px">Borrar esta camisa</button>`}`, (h, cerrar) => {
+    const prev = () => { $("#ed-prev", h).innerHTML = vista(p); };
+    prev();
+    h.querySelectorAll("[data-dc]").forEach(i => i.addEventListener("input", () => { p.dib[i.dataset.dc] = i.value; p.dib.mangas = ""; prev(); }));
+    $("#ed-pat", h).addEventListener("change", e => { p.dib.pat = e.target.value; prev(); });
+    $("#ed-foto", h).addEventListener("change", async e => { const f = e.target.files[0]; if (!f) return; try { p.foto = await comprimir(f); prev(); toast("Foto lista. Tocá Guardar."); } catch { toast("No se pudo leer la foto."); } });
+    $("#ed-fx", h)?.addEventListener("click", () => { p.foto = ""; prev(); });
+    $("#ed-g", h).addEventListener("click", () => {
+      p.equipo = $("#ed-e", h).value.trim(); p.temporada = $("#ed-t", h).value.trim(); p.kit = $("#ed-k", h).value; p.liga = $("#ed-l", h).value;
+      p.retro = $("#ed-r", h).checked; p.nuevo = $("#ed-nu", h).checked; p.oculto = $("#ed-oc", h).checked;
+      if (p.equipo.length < 2) { $("#ed-err", h).textContent = "Escribí el equipo o la selección."; return; }
+      if (nuevo) DB.productos.unshift(p); else DB.productos[DB.productos.findIndex(x => x.id === p.id)] = p;
+      guardar(); cerrar(); pintar(); pintarAdmin(); toast("Guardado");
+    });
+    $("#ed-b", h)?.addEventListener("click", () => { if (!confirm(`¿Borrar "${titulo(p)}"?`)) return; DB.productos = DB.productos.filter(x => x.id !== p.id); guardar(); cerrar(); pintar(); pintarAdmin(); toast("Borrada"); });
+  });
+}
+function comprimir(file, max = 900, q = .82){
+  return new Promise((ok, mal) => { const r = new FileReader(); r.onload = () => { const im = new Image(); im.onload = () => {
+    const s = Math.min(1, max / Math.max(im.width, im.height)), cv = document.createElement("canvas"); cv.width = Math.round(im.width * s); cv.height = Math.round(im.height * s);
+    cv.getContext("2d").drawImage(im, 0, 0, cv.width, cv.height); ok(cv.toDataURL("image/jpeg", q)); }; im.onerror = mal; im.src = r.result; }; r.onerror = mal; r.readAsDataURL(file); });
+}
+pintar();
+</script>
+</body>
+</html>
