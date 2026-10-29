@@ -171,6 +171,12 @@ window.Tarjetas = (() => {
     else { const e = await F.getDoc(F.doc(db, PRO, PROMOS_EJEMPLO[0].id)); if (!e.exists() || e.data().producto !== PROMOS_EJEMPLO[0].producto) await cargarPromosEjemplo(); }
   }
   // Top 10 de clientes por sellos acumulados (en la versión real, solo la dueña con su acceso seguro).
+  // Todos los clientes (solo en el modo prueba; con clientes reales lo ve la dueña con su acceso seguro).
+  async function listarClientes() {
+    await iniciar();
+    const s = await F.getDocs(F.query(F.collection(db, COL), F.orderBy("nombre"), F.limit(500)));
+    return s.docs.map(d => normal({ token: d.id, ...d.data() }));
+  }
   async function top10() {
     await iniciar();
     const s = await F.getDocs(F.query(F.collection(db, COL), F.orderBy("total", "desc"), F.limit(10)));
@@ -252,5 +258,5 @@ window.Tarjetas = (() => {
     await iniciar();
     return F.onSnapshot(F.doc(db, COL, token), s => alCambiar(s.exists() ? normal({ token, ...s.data() }) : null), e => alFallar && alFallar(e));
   }
-  return { importar, LISTA_EJEMPLO, limpiarTel, guardarCorreo, limpiarCorreo, publicarPromo, borrarPromo, escucharPromos, prueba: PRUEBA, KEY, url, EJEMPLOS, cargarEjemplos, asegurarEjemplos, borrarPrueba, top10, normal, iniciar, buscarPorCedula, obtener, crear, crearAcceso, ingresar, sumar, canjear, escuchar, link, tokenDeTexto, soloDigitos };
+  return { listarClientes, importar, LISTA_EJEMPLO, limpiarTel, guardarCorreo, limpiarCorreo, publicarPromo, borrarPromo, escucharPromos, prueba: PRUEBA, KEY, url, EJEMPLOS, cargarEjemplos, asegurarEjemplos, borrarPrueba, top10, normal, iniciar, buscarPorCedula, obtener, crear, crearAcceso, ingresar, sumar, canjear, escuchar, link, tokenDeTexto, soloDigitos };
 })();
