@@ -1,0 +1,552 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Genki Sushi &amp; Ramen · Menú (propuesta)</title>
+<meta name="description" content="Propuesta de menú digital con pedidos para llevar, hecha por RBM Solutions CR.">
+<meta name="theme-color" content="#0e0e10">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🍜%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shojumaru&family=Permanent+Marker&family=Noto+Sans:wght@400;500;600;700;800&family=Noto+Serif:wght@600;700&display=swap" rel="stylesheet">
+<style>
+/* Diseño: el mismo mundo del local. Negro de sus afiches, verde limón y rojo de sus letras de pincel,
+   y las olas azules de la pared como textura. Las fotos son de sus propios afiches. */
+:root{
+  --negro:#0e0e10; --panel:#17171b; --panel2:#202027; --linea:rgba(255,255,255,.1);
+  --verde:#8cc63f; --verde2:#6fa52a; --rojo:#e3262e; --crema:#f4efe6; --azul:#2c5d8c; --azul2:#1b3b5c;
+  --texto:#f2f0ea; --suave:#b5b2aa; --gris:#85827b;
+  --f-tit:"Shojumaru","Noto Serif",serif; --f-pin:"Permanent Marker","Noto Sans",cursive;
+  --f-txt:"Noto Sans",system-ui,-apple-system,"Segoe UI",sans-serif; --f-logo:"Noto Serif",Georgia,serif;
+  --gl:max(16px,env(safe-area-inset-left,0px)); --gr:max(16px,env(safe-area-inset-right,0px));
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:64px}
+body{margin:0;background:var(--negro);color:var(--texto);font:400 16px/1.55 var(--f-txt);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+[hidden]{display:none!important}
+button,input,select,textarea{font:inherit;color:inherit}
+h1,h2,h3,p{margin:0}
+a{color:var(--verde)}
+img{display:block;max-width:100%}
+:focus-visible{outline:3px solid var(--verde);outline-offset:2px;border-radius:8px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}html{scroll-behavior:auto}}
+.wrap{max-width:1100px;margin:0 auto;padding-left:var(--gl);padding-right:var(--gr)}
+.demo{background:var(--rojo);color:#fff;font-size:12.5px;text-align:center;padding:6px var(--gr) 6px var(--gl);padding-top:calc(6px + env(safe-area-inset-top,0px))}
+.demo b{font-weight:800}
+
+/* logo en texto */
+.logo{display:inline-grid;justify-items:center;gap:6px;line-height:1}
+.logo b{font:700 clamp(40px,10vw,74px)/1 var(--f-logo);letter-spacing:.04em;color:#fff}
+.logo b i{display:inline-block;width:.16em;height:.16em;border-radius:50%;background:var(--rojo);vertical-align:.3em;margin:0 .06em}
+.logo span{background:var(--verde);color:#fff;font:800 clamp(12px,2.6vw,17px)/1 var(--f-txt);letter-spacing:.12em;padding:6px 14px;border-radius:999px;text-transform:uppercase}
+.logo.chico b{font-size:24px}.logo.chico span{font-size:9.5px;padding:3px 8px}
+
+/* barra superior */
+.barra{position:sticky;top:0;z-index:30;background:rgba(14,14,16,.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--linea)}
+.barra .wrap{display:flex;align-items:center;gap:12px;padding-block:8px}
+.barra nav{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;margin-left:auto}
+.barra nav::-webkit-scrollbar{display:none}
+.barra nav a{flex:none;color:var(--suave);text-decoration:none;font-weight:700;font-size:14px;padding:8px 12px;border-radius:999px}
+.barra nav a:hover{color:#fff;background:var(--panel2)}
+.barra nav a.pedir{background:var(--verde);color:#10200a}
+
+/* portada */
+.hero{position:relative;overflow:hidden;border-bottom:4px solid var(--verde)}
+.hero::before{content:"";position:absolute;top:0;bottom:0;right:0;width:min(62%,1100px);background:url(f/olas.jpg) center/cover no-repeat;opacity:.8}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,var(--negro) 0 38%,rgba(14,14,16,.6) 62%,rgba(14,14,16,.15))}
+.hero .wrap{position:relative;z-index:1;display:grid;gap:22px;padding-block:44px 52px}
+.hero .lema{font:400 clamp(24px,5.6vw,40px)/1.15 var(--f-pin);color:var(--crema);max-width:18ch}
+.hero .lema em{font-style:normal;color:var(--verde)}
+.hero p.sub{color:var(--suave);max-width:46ch;font-size:16.5px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips span,.chips a{font-size:13.5px;font-weight:700;border:1px solid var(--linea);background:rgba(23,23,27,.85);border-radius:999px;padding:6px 12px;color:var(--texto);text-decoration:none}
+.chips .abierto{color:var(--verde);border-color:rgba(140,198,63,.5)}
+.chips .cerrado{color:#ff8a8f;border-color:rgba(227,38,46,.5)}
+.acciones{display:flex;flex-wrap:wrap;gap:10px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:2px solid var(--verde);background:transparent;color:var(--verde);font-weight:800;border-radius:12px;padding:12px 18px;cursor:pointer;text-decoration:none;font-size:15px}
+.btn.pri{background:var(--verde);color:#10200a}
+.btn.rojo{background:var(--rojo);border-color:var(--rojo);color:#fff}
+.btn.wa{background:#25d366;border-color:#25d366;color:#05300f}
+.btn.sm{padding:7px 12px;font-size:14px;border-radius:10px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+
+/* secciones */
+section{padding-block:40px}
+.tit{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.tit h2{font:400 clamp(28px,6vw,40px)/1.05 var(--f-tit);color:#fff}
+.tit h2 em{font-style:normal;color:var(--rojo)}
+.tit p{color:var(--suave)}
+
+/* novedades (afiches del local) */
+.nov{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(220px,280px);gap:14px;overflow-x:auto;scrollbar-width:none;padding-bottom:6px}
+.nov::-webkit-scrollbar{display:none}
+.afiche{position:relative;border-radius:16px;overflow:hidden;border:1px solid var(--linea);background:var(--panel);cursor:pointer;padding:0;text-align:left;display:grid}
+.afiche img{width:100%;aspect-ratio:3/4.4;object-fit:cover}
+.afiche.hecho{background:#0d0d0f;border:6px solid #f2f2f2;outline:1px solid var(--linea);aspect-ratio:3/4.4;display:flex;flex-direction:column;align-items:center;padding:16px 12px 52px;gap:8px}
+.afiche.hecho .t1{font:400 clamp(26px,3vw,34px)/.95 var(--f-pin);color:var(--verde);transform:rotate(-2deg)}
+.afiche.hecho .t2{font:400 clamp(28px,3.2vw,38px)/.95 var(--f-pin);color:var(--rojo);margin-top:-4px}
+.afiche.hecho .nv{align-self:flex-start;font:400 16px var(--f-pin);background:var(--rojo);color:#fff;padding:2px 10px;transform:rotate(-8deg);margin:-2px 0 -10px 6px;z-index:1}
+.afiche.hecho img{width:72%;aspect-ratio:auto;flex:1;min-height:0;object-fit:cover;border-radius:10px;box-shadow:0 12px 24px -10px #000}
+.afiche.hecho small{color:#ddd;font-size:12.5px;text-align:center}
+.afiche .pie{position:absolute;left:10px;right:10px;bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:8px;background:rgba(14,14,16,.88);border-radius:10px;padding:8px 10px;font-weight:800;font-size:14px}
+.afiche .pie span:last-child{color:var(--verde)}
+
+/* promo sake */
+.promo{display:grid;grid-template-columns:auto minmax(0,1fr);gap:16px;align-items:center;background:linear-gradient(110deg,var(--azul2),#0f2236);border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:16px 18px;margin-top:18px}
+.promo .ic{width:54px;height:54px;border-radius:14px;background:rgba(255,255,255,.08);display:grid;place-items:center;font-size:28px}
+.promo b{font:400 20px var(--f-pin);color:#fff}
+.promo span{color:#cfdcea;font-size:14.5px}
+
+/* categorías y menú */
+.cats{position:sticky;top:55px;z-index:20;background:rgba(14,14,16,.94);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-block:1px solid var(--linea)}
+.cats .wrap{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-block:10px}
+.cats .wrap::-webkit-scrollbar{display:none}
+.cats button{flex:none;border:1px solid var(--linea);background:var(--panel);border-radius:999px;padding:8px 14px;font-weight:800;font-size:14px;cursor:pointer;color:var(--suave)}
+.cats button[aria-pressed="true"]{background:var(--rojo);border-color:var(--rojo);color:#fff}
+.cat{padding-block:26px 6px}
+.cat h3{font:400 clamp(26px,5vw,34px)/1.1 var(--f-pin);color:var(--verde);margin-bottom:4px}
+.cat h3 small{font:600 14px var(--f-txt);color:var(--gris);margin-left:8px}
+.cat .desc-cat{color:var(--suave);font-size:14.5px;margin-bottom:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+.prod{position:relative;display:grid;grid-template-rows:auto auto 1fr auto;gap:6px;text-align:left;background:var(--panel);border:1px solid var(--linea);border-radius:18px;padding:12px;cursor:pointer;color:var(--texto);transition:transform .15s,border-color .15s;min-width:0}
+.prod:hover{transform:translateY(-2px);border-color:rgba(140,198,63,.45)}
+.prod .foto{height:150px;border-radius:12px;overflow:hidden;background:radial-gradient(circle at 50% 60%,#2a2a33,#141418);display:grid;place-items:center;position:relative}
+.prod .foto img{width:100%;height:100%;object-fit:cover}
+.prod .foto svg{width:66%;height:86%}
+.prod h4{margin:4px 0 0;font-size:17px;font-weight:800}
+.prod p{font-size:13.5px;color:var(--suave)}
+.prod .pie{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:4px}
+.precio{font-weight:800;font-variant-numeric:tabular-nums;color:#fff}
+.precio small{font-weight:600;color:var(--gris);font-size:12px}
+.mas{width:36px;height:36px;border-radius:50%;background:var(--verde);color:#10200a;display:grid;place-items:center;font-size:22px;font-weight:800;line-height:1}
+.etq{position:absolute;top:18px;left:18px;z-index:2;font:400 13px var(--f-pin);background:var(--rojo);color:#fff;border-radius:6px;padding:2px 9px;transform:rotate(-4deg)}
+.prod.agotado{opacity:.5;cursor:not-allowed}
+.prod.agotado .etq{background:#444}
+.ej{color:var(--gris);font-size:12px}
+
+/* info */
+.dos{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:14px}
+.caja{background:var(--panel);border:1px solid var(--linea);border-radius:18px;padding:18px;display:grid;gap:10px;align-content:start}
+.caja h3{font:400 22px var(--f-pin);color:var(--verde)}
+.horas{display:grid;gap:6px;font-size:15px}
+.horas div{display:flex;justify-content:space-between;gap:10px;border-bottom:1px dashed var(--linea);padding-bottom:6px}
+.horas div.hoy{font-weight:800;color:#fff}
+.horas div.cerr span:last-child{color:#ff8a8f}
+.fila-btn{display:flex;gap:8px;flex-wrap:wrap}
+.nota{font-size:13.5px;color:var(--suave)}
+.resena{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.resena .num{font:700 44px/1 var(--f-logo);color:#fff}
+.resena .est{color:#f6c344;letter-spacing:2px;font-size:20px}
+.dichos{display:flex;flex-wrap:wrap;gap:8px}
+.dichos span{background:var(--panel2);border:1px solid var(--linea);border-radius:999px;padding:6px 12px;font-size:14px;font-weight:600}
+
+footer{border-top:4px solid var(--verde);background:#09090a;padding:28px var(--gr) 110px var(--gl);text-align:center;color:var(--gris);font-size:13.5px;display:grid;gap:12px;justify-items:center}
+footer button{border:0;background:none;color:var(--gris);text-decoration:underline;cursor:pointer;font-size:13px}
+
+/* pedido flotante */
+.carrito{position:fixed;z-index:35;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));width:min(560px,calc(100% - 32px));display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--verde);color:#10200a;border:0;border-radius:16px;padding:14px 18px;font-weight:800;font-size:16px;cursor:pointer;box-shadow:0 14px 34px -10px rgba(0,0,0,.8)}
+.carrito .n{background:#10200a;color:var(--verde);border-radius:999px;padding:2px 10px;margin-right:8px}
+
+/* hojas */
+.velo{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.6);opacity:0;pointer-events:none;transition:opacity .2s}
+.velo.on{opacity:1;pointer-events:auto}
+.hoja{position:fixed;z-index:50;left:0;right:0;bottom:0;margin:0 auto;max-width:620px;max-height:92vh;overflow-y:auto;background:var(--panel);border:1px solid var(--linea);border-bottom:0;border-radius:24px 24px 0 0;padding:10px var(--gr) calc(22px + env(safe-area-inset-bottom,0px)) var(--gl);transform:translateY(105%);transition:transform .28s cubic-bezier(.2,.8,.2,1)}
+.hoja.on{transform:none}
+.asa{width:46px;height:5px;border-radius:9px;background:#444;margin:0 auto 14px}
+.hoja h2{font:400 28px var(--f-pin);color:#fff}
+.hoja .x{float:right;width:38px;height:38px;border-radius:50%;border:1px solid var(--linea);background:var(--panel2);font-size:20px;cursor:pointer;line-height:1}
+.hoja .foto-g{height:190px;border-radius:14px;overflow:hidden;background:radial-gradient(circle at 50% 60%,#2a2a33,#141418);display:grid;place-items:center;margin-top:12px}
+.hoja .foto-g img{width:100%;height:100%;object-fit:cover}
+.hoja .foto-g svg{height:88%}
+.grupo{display:grid;gap:8px;margin-top:16px}
+.grupo>b{font-size:13px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--gris)}
+.ops{display:flex;flex-wrap:wrap;gap:8px}
+.ops button{border:1px solid var(--linea);background:var(--panel2);border-radius:12px;padding:9px 13px;font-weight:700;cursor:pointer;font-size:14.5px;color:var(--texto)}
+.ops button small{color:var(--gris);font-weight:600;margin-left:4px}
+.ops button[aria-pressed="true"]{border-color:var(--verde);background:rgba(140,198,63,.16);color:#fff}
+.combo{display:flex;gap:12px;align-items:center;border:1px dashed rgba(140,198,63,.5);border-radius:14px;padding:12px;cursor:pointer}
+.combo input{width:22px;height:22px;accent-color:var(--verde)}
+.combo small{display:block;color:var(--suave);font-size:13px}
+.cant{display:flex;align-items:center;gap:12px}
+.cant button{width:40px;height:40px;border-radius:50%;border:2px solid var(--verde);background:none;font-size:22px;font-weight:800;color:var(--verde);cursor:pointer;line-height:1}
+.cant b{min-width:28px;text-align:center;font-size:18px}
+.pie-hoja{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:20px;flex-wrap:wrap}
+.item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;padding:12px 0;border-bottom:1px dashed var(--linea)}
+.item small{color:var(--suave);font-size:13.5px}
+.item .acc{grid-column:2;grid-row:1/3;display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.item .acc button{border:0;background:none;color:#ff8a8f;font-size:13px;cursor:pointer;text-decoration:underline}
+.total{display:flex;justify-content:space-between;font-size:20px;font-weight:800;margin-top:12px}
+label.c{display:grid;gap:5px;font-size:14px;font-weight:700;color:var(--suave)}
+label.c input,label.c select,label.c textarea{border:1px solid var(--linea);border-radius:12px;background:var(--negro);padding:11px 12px;font-weight:600;color:var(--texto);width:100%;min-width:0}
+label.c textarea{min-height:64px;resize:vertical}
+.err{color:#ff8a8f;font-weight:700;font-size:14px;min-height:1em}
+.adm{display:grid;grid-template-columns:minmax(0,1fr) 100px;gap:6px 10px;align-items:center;padding:10px 0;border-bottom:1px dashed var(--linea)}
+.adm input[type=number]{border:1px solid var(--linea);background:var(--negro);border-radius:10px;padding:7px 8px;width:100%;font-weight:700}
+.adm .flags{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:14px;font-size:13.5px;color:var(--suave)}
+.adm .flags label{display:flex;gap:5px;align-items:center;cursor:pointer}
+.adm-cat{font:400 18px var(--f-pin);color:var(--verde);margin-top:16px}
+.toast{position:fixed;z-index:60;left:50%;transform:translate(-50%,20px);bottom:calc(90px + env(safe-area-inset-bottom,0px));background:#fff;color:#111;padding:10px 16px;border-radius:12px;font-weight:700;opacity:0;pointer-events:none;transition:.2s;max-width:calc(100% - 32px);text-align:center}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+@media (max-width:560px){
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .prod{padding:9px;border-radius:14px}.prod .foto{height:118px}.prod h4{font-size:15px}.prod p{display:none}
+  .barra .logo{display:none}
+  .sin-cel{display:none}
+  .barra nav{margin-left:0}
+  .hero .der svg{width:190px}
+  .hero .der{justify-self:center;margin-top:-6px}
+  .hero::before{width:100%;top:auto;height:300px;opacity:.6}
+  .hero::after{background:linear-gradient(180deg,var(--negro) 0 52%,rgba(14,14,16,.35))}
+}
+@media (min-width:860px){
+  .hero .wrap{grid-template-columns:1.1fr .9fr;align-items:center;padding-block:70px 78px}
+  .hero .der{justify-self:end}
+}
+/* RBM-ANCHO: en computadora la página usa todo el ancho */
+@media (min-width:1100px){.wrap{max-width:1680px;padding-left:clamp(32px,4.5vw,96px);padding-right:clamp(32px,4.5vw,96px)}.grid{grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}.cats{top:57px}}
+</style>
+</head>
+<body>
+
+<div class="demo">🍜 <b>Propuesta de RBM Solutions CR para Genki</b> · versión de prueba · los precios con * son de ejemplo</div>
+
+<header class="barra">
+  <div class="wrap">
+    <a href="#inicio" class="logo chico" aria-label="Genki Sushi & Ramen" style="text-decoration:none"><b>GEN<i></i>KI</b><span>Sushi &amp; Ramen</span></a>
+    <nav aria-label="Secciones"><a href="#novedades">Novedades</a><a href="#menu">Menú</a><a href="#info">Horario<span class="sin-cel"> y ubicación</span></a><a class="pedir" href="#menu">Pedir</a></nav>
+  </div>
+</header>
+
+<section class="hero" id="inicio" style="padding:0">
+  <div class="wrap">
+    <div style="display:grid;gap:18px">
+      <div class="logo" style="justify-self:start"><b>GEN<i></i>KI</b><span>Sushi &amp; Ramen</span></div>
+      <h1 class="lema">Comida japonesa <em>auténtica</em> en San Pedro</h1>
+      <p class="sub">Ramen, sushi, onigiri y curry. Pedí desde aquí, pasá a recogerlo o quedate a comer con nosotros.</p>
+      <div class="chips"><span id="estado">…</span><span>🥡 Para llevar</span><span>⭐ 4,5 en Google</span><a href="#info">📍 Frente al C. G. La Gata</a></div>
+      <div class="acciones"><a class="btn pri" href="#menu">Ver el menú</a><a class="btn" href="#novedades">Lo nuevo</a></div>
+    </div>
+    <div class="der" aria-hidden="true">
+      <svg viewBox="0 0 260 220" width="320" style="max-width:100%;filter:drop-shadow(0 20px 30px rgba(0,0,0,.6))">
+        <ellipse cx="130" cy="196" rx="104" ry="12" fill="#000" opacity=".45"/>
+        <path d="M18 104h224c0 56-50 92-112 92S18 160 18 104Z" fill="#e3262e"/>
+        <path d="M18 104h224" stroke="#fff" stroke-opacity=".2" stroke-width="3"/>
+        <path d="M36 128c40 10 148 10 188 0" stroke="#fff" stroke-opacity=".18" stroke-width="2" fill="none"/>
+        <ellipse cx="130" cy="104" rx="112" ry="22" fill="#f1c27d"/>
+        <path d="M40 106c20-10 30 8 48-2s30 10 50 0 30 8 48-2 22 8 30 2" stroke="#f7dca4" stroke-width="6" fill="none" stroke-linecap="round"/>
+        <circle cx="96" cy="98" r="18" fill="#fff"/><circle cx="96" cy="98" r="8" fill="#f6b31c"/>
+        <path d="M150 88c18-6 34 2 40 12-14 6-30 8-40-2Z" fill="#c9785a"/><path d="M152 92c12-2 24 2 30 8" stroke="#f3d7c8" stroke-width="2" fill="none"/>
+        <rect x="120" y="86" width="22" height="14" rx="3" fill="#2b5d2b" transform="rotate(-12 131 93)"/>
+        <path d="M62 96l8-6M74 100l6-8M200 104l8-6" stroke="#8cc63f" stroke-width="5" stroke-linecap="round"/>
+        <path d="M150 10l-40 92M176 14l-46 90" stroke="#c99a5b" stroke-width="7" stroke-linecap="round"/>
+        <path d="M86 30c-6-12 6-16 0-28M120 36c-6-12 6-16 0-28" stroke="#fff" stroke-opacity=".35" stroke-width="4" fill="none" stroke-linecap="round"/>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<main>
+  <section id="novedades">
+    <div class="wrap">
+      <div class="tit"><h2>Lo <em>nuevo</em></h2><p>Tocá una novedad para agregarla a tu pedido.</p></div>
+      <div class="nov" id="nov"></div>
+      <div class="promo"><span class="ic">🍶</span><div><b>Sake Pure Dawn + Crunchy Salmon</b><br><span>Por la compra de una botella de sake Pure Dawn, recibís un 50 % de descuento en el nuevo Crunchy Salmon Tempura Roll.</span></div></div>
+    </div>
+  </section>
+
+  <nav class="cats" aria-label="Categorías del menú" id="menu"><div class="wrap" id="cats"></div></nav>
+  <div class="wrap" id="carta" style="padding-bottom:20px"></div>
+
+  <section id="opiniones">
+    <div class="wrap">
+      <div class="tit"><h2>Lo que <em>dicen</em></h2></div>
+      <div class="caja" style="gap:14px">
+        <div class="resena"><span class="num">4,5</span><div><div class="est">★★★★★</div><span class="nota">Más de 360 reseñas en Google</span></div></div>
+        <div class="dichos"><span>🍜 Porciones grandes</span><span>⚡ Servicio rápido</span><span>😊 Personal muy amable</span><span>🐟 Comida fresca</span><span>🧼 Lugar limpio</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="info">
+    <div class="wrap">
+      <div class="tit"><h2>Horario y <em>ubicación</em></h2></div>
+      <div class="dos">
+        <div class="caja"><h3>Horario</h3><div class="horas" id="horas"></div></div>
+        <div class="caja"><h3>Dónde estamos</h3>
+          <p>San Pedro de Montes de Oca, frente al Centro Gastronómico La Gata.</p>
+          <div class="fila-btn"><a class="btn sm" target="_blank" rel="noopener" href="https://waze.com/ul?ll=9.9321623,-84.0503649&navigate=yes">Waze</a><a class="btn sm" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=9.9321623,-84.0503649">Google Maps</a></div>
+          <p class="nota">🅿️ El parqueo de enfrente es compartido. Si está lleno, hay parqueos privados a pocos metros.</p>
+        </div>
+        <div class="caja"><h3>Contacto</h3>
+          <p>📞 <a href="tel:+50644178246">4417-8246</a></p>
+          <div class="fila-btn"><a class="btn sm" target="_blank" rel="noopener" href="https://www.instagram.com/genkisushiramen">📸 Instagram</a><a class="btn sm" target="_blank" rel="noopener" href="https://www.facebook.com/GenkiSushiCR">👍 Facebook</a></div>
+          <p class="nota">Aceptamos efectivo, tarjeta y SINPE Móvil.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="logo chico"><b>GEN<i></i>KI</b><span>Sushi &amp; Ramen</span></div>
+  <span>Propuesta de página hecha por <a href="https://rbmsolutionscr.com" target="_blank" rel="noopener">RBM Solutions CR</a> · los precios con * son de ejemplo</span>
+  <button type="button" id="abrirAdmin">🔒 Administrar menú</button>
+</footer>
+
+<button class="carrito" id="carrito" type="button" hidden><span><span class="n" id="carN">0</span>Ver mi pedido</span><span id="carT">₡0</span></button>
+<div class="velo" id="velo"></div>
+<div class="hoja" id="hoja" role="dialog" aria-modal="true" aria-labelledby="hojaT"><div id="hojaC"></div></div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(() => {
+"use strict";
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const crc = n => "₡" + Math.round(n).toLocaleString("es-CR").replace(/\s/g, ".");
+const lsGet = (k, d) => { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch { return d; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
+function toast(t){ const el = $("#toast"); el.textContent = t; el.classList.add("on"); clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.remove("on"), 2400); }
+
+/* ===== Datos (en la versión real el dueño los cambia desde "Administrar menú") =====
+   ej:true = precio de ejemplo (no lo encontramos publicado). */
+const WHATSAPP = "50661572339";   // demo: llega a RBM. En la versión real, el WhatsApp de Genki.
+const CLAVE = "demo1234";
+const CATS = [
+  ["ramen","Ramen","Caldo hecho en casa. Escogé pollo o cerdo y el tamaño."],
+  ["sushi","Sushi rolls","Rolls clásicos y de la casa."],
+  ["onigiri","Onigiri","Bolitas de arroz japonesas. 2 piezas por orden."],
+  ["bowls","Bowls y curry","Platos fuertes con arroz japonés."],
+  ["sando","Sando y tempura","Para acompañar o para compartir."],
+  ["postres","Postres",""],
+  ["bebidas","Bebidas","Bebidas y cervezas japonesas."]
+];
+const OPC = {
+  tamRamen: [["Pequeño",0],["Grande",2200]],
+  proteina: [["Pollo",0],["Cerdo",0]],
+  proteinaCurry: [["Pollo",0],["Cerdo",0],["Camarón tempura",800]],
+  onigiri: [["Vegetariano (shiitake)",0],["Atún",400],["Salmón",1000]],
+  helado: [["Vainilla",0],["Chocolate",0],["Fresa",0],["Té verde",0]],
+  picante: [["Sin picante",0],["Poco",0],["Picante",0]]
+};
+const COMBO = 2200;
+const BASE = [
+  {id:"r1", cat:"ramen", nombre:"Ramen de cerdo", desc:"Caldo con fideos, chashu de cerdo, huevo marinado, cebollín y alga.", precio:3300, opc:["tamRamen","picante"], combo:true, dib:"ramen"},
+  {id:"r2", cat:"ramen", nombre:"Ramen de pollo", desc:"Caldo ligero de pollo con fideos, pollo, huevo marinado y vegetales.", precio:3300, opc:["tamRamen","picante"], combo:true, dib:"ramen"},
+  {id:"r3", cat:"ramen", nombre:"Ramen picante", desc:"Nuestro ramen con aceite de chile de la casa.", precio:3600, ej:true, opc:["tamRamen","proteina"], combo:true, dib:"ramenRojo"},
+  {id:"s1", cat:"sushi", nombre:"Crunchy Salmon Tempura Roll", desc:"Salmón en tempura, aguacate y topping crujiente.", precio:6500, nuevo:true, foto:"f/crunchy.jpg", combo:true},
+  {id:"s2", cat:"sushi", nombre:"California roll", desc:"Kanikama, aguacate y pepino, cubierto de ajonjolí.", precio:4800, ej:true, combo:true, dib:"roll"},
+  {id:"s3", cat:"sushi", nombre:"Tempura roll", desc:"Camarón en tempura con queso crema y salsa de anguila.", precio:5200, ej:true, combo:true, dib:"rollTemp"},
+  {id:"s4", cat:"sushi", nombre:"Alaska roll", desc:"Salmón, aguacate y queso crema.", precio:5500, ej:true, combo:true, dib:"rollSalmon"},
+  {id:"s5", cat:"sushi", nombre:"Caterpillar roll", desc:"Anguila y pepino, cubierto de aguacate.", precio:6200, ej:true, combo:true, dib:"rollVerde"},
+  {id:"o1", cat:"onigiri", nombre:"Onigiri", desc:"2 piezas por orden. Vegetariano ₡2.500 · Atún ₡2.900 · Salmón ₡3.500.", precio:2500, nuevo:true, foto:"f/onigiri.jpg", opc:["onigiri"]},
+  {id:"b1", cat:"bowls", nombre:"Bowl de res", desc:"Res salteada con cebolla y salsa dulce sobre arroz japonés.", precio:5200, ej:true, combo:true, dib:"bowl"},
+  {id:"b2", cat:"bowls", nombre:"Bowl de salmón", desc:"Salmón fresco, aguacate, pepino y arroz japonés.", precio:6500, ej:true, combo:true, dib:"bowlSalmon"},
+  {id:"b3", cat:"bowls", nombre:"Curry japonés", desc:"Curry suave con papa y zanahoria sobre arroz. Escogé la proteína.", precio:4900, ej:true, opc:["proteinaCurry"], combo:true, dib:"curry"},
+  {id:"t1", cat:"sando", nombre:"Tonkatsu Sando", desc:"Sándwich de cerdo empanizado al estilo japonés.", precio:4200, ej:true, nuevo:true, foto:"f/sando.jpg", combo:true},
+  {id:"t2", cat:"sando", nombre:"Tempura de camarón", desc:"Camarones en tempura con salsa tentsuyu.", precio:4500, ej:true, dib:"tempura"},
+  {id:"d1", cat:"postres", nombre:"Helado tempura", desc:"Helado frito en tempura. Vainilla, chocolate, fresa o té verde.", precio:2500, foto:"f/helado.jpg", opc:["helado"]},
+  {id:"v1", cat:"bebidas", nombre:"Cerveza japonesa", desc:"Pregunte por las marcas disponibles.", precio:2800, ej:true, dib:"cerveza"},
+  {id:"v2", cat:"bebidas", nombre:"Refresco", desc:"Lata o vaso mediano.", precio:1600, dib:"refresco"},
+  {id:"v3", cat:"bebidas", nombre:"Té verde frío", desc:"Té verde japonés, sin azúcar.", precio:1500, ej:true, dib:"te"},
+  {id:"v4", cat:"bebidas", nombre:"Sake Pure Dawn (botella)", desc:"Con la botella, 50 % de descuento en el Crunchy Salmon Tempura Roll.", precio:18000, ej:true, dib:"sake"}
+];
+const NOVEDADES = [
+  {img:"f/poster-crunchy.jpg", nombre:"Crunchy Salmon Tempura Roll", p:"s1", precio:"₡6.500"},
+  {img:"f/poster-onigiri.jpg", nombre:"Onigiri", p:"o1", precio:"desde ₡2.500"},
+  {img:"f/poster-helado.jpg", nombre:"Helado tempura", p:"d1", precio:"₡2.500"},
+  {nombre:"Tonkatsu Sando", p:"t1", precio:"Nuevo", hecho:true}
+];
+const HORARIO = [["Lunes",null,null],["Martes","11:45","21:00"],["Miércoles","11:45","21:00"],["Jueves","11:45","21:00"],["Viernes","11:45","21:00"],["Sábado","11:45","21:00"],["Domingo","11:45","21:00"]];
+
+let D = lsGet("genki-menu", null) || JSON.parse(JSON.stringify(BASE));
+// si se agregan platos nuevos al ejemplo, aparecen aunque haya cambios guardados
+BASE.forEach(b => { if (!D.find(x => x.id === b.id)) D.push(JSON.parse(JSON.stringify(b))); });
+let pedido = lsGet("genki-pedido", []), catSel = "todo", admin = false;
+const guardarD = () => lsSet("genki-menu", D);
+const guardarP = () => { lsSet("genki-pedido", pedido); pintarCarrito(); };
+
+/* ===== Dibujos (mientras llegan las fotos reales de cada plato) ===== */
+const SVG = {
+  ramen: (c = "#e3262e") => `<svg viewBox="0 0 200 160"><ellipse cx="100" cy="146" rx="78" ry="8" fill="#000" opacity=".4"/><path d="M14 70h172c0 44-38 72-86 72S14 114 14 70Z" fill="${c}"/><ellipse cx="100" cy="70" rx="86" ry="17" fill="#f1c27d"/><path d="M30 72c16-8 24 6 38-2s24 8 38 0 24 6 38-2 18 6 24 2" stroke="#f7dca4" stroke-width="5" fill="none" stroke-linecap="round"/><circle cx="76" cy="66" r="13" fill="#fff"/><circle cx="76" cy="66" r="6" fill="#f6b31c"/><path d="M114 58c14-5 26 1 31 9-11 5-23 6-31-2Z" fill="#c9785a"/><rect x="95" y="54" width="16" height="11" rx="2" fill="#2b5d2b" transform="rotate(-12 103 60)"/><path d="M50 64l6-5M150 70l6-5" stroke="#8cc63f" stroke-width="4" stroke-linecap="round"/><path d="M118 4l-30 66M138 8l-34 64" stroke="#c99a5b" stroke-width="6" stroke-linecap="round"/></svg>`,
+  ramenRojo: () => SVG.ramen("#9c1a1f").replace("#f1c27d", "#d9542a").replace("#f7dca4", "#f2a35c"),
+  roll: (a = "#ffffff", b = "#f29a8b", top = "#e8e1cf") => `<svg viewBox="0 0 200 160"><ellipse cx="100" cy="140" rx="84" ry="8" fill="#000" opacity=".4"/>${[30, 78, 126].map((x, i) => `<g transform="translate(${x} ${i % 2 ? 48 : 58})"><circle cx="22" cy="36" r="30" fill="#1d2b1d"/><circle cx="22" cy="36" r="25" fill="${a}"/><circle cx="22" cy="36" r="25" fill="${top}" opacity=".25"/><circle cx="17" cy="32" r="7" fill="${b}"/><circle cx="29" cy="40" r="6" fill="#8cc63f"/><circle cx="25" cy="29" r="4" fill="#f6d36b"/></g>`).join("")}</svg>`,
+  rollTemp: () => SVG.roll("#f6e7c9", "#f2b46b", "#c98a3e"),
+  rollSalmon: () => SVG.roll("#ffffff", "#f07c52", "#f6a07c"),
+  rollVerde: () => SVG.roll("#ffffff", "#5a3a26", "#8cc63f").replace(/#1d2b1d/g, "#5f8f2f"),
+  bowl: (top = "#7a4a2a", extra = "#f1d37a") => `<svg viewBox="0 0 200 160"><ellipse cx="100" cy="146" rx="70" ry="8" fill="#000" opacity=".4"/><path d="M24 72h152c0 40-34 70-76 70S24 112 24 72Z" fill="#1b1b1f" stroke="#e3262e" stroke-width="4"/><path d="M40 72c10-30 110-30 120 0Z" fill="#fff"/><path d="M50 70c10-18 40-26 60-20s34 12 40 20Z" fill="${top}"/><path d="M62 58c10-4 20-2 26 2M100 52c10-2 20 2 26 8" stroke="${extra}" stroke-width="4" fill="none" stroke-linecap="round"/><circle cx="132" cy="58" r="4" fill="#8cc63f"/><circle cx="70" cy="62" r="3" fill="#8cc63f"/></svg>`,
+  bowlSalmon: () => SVG.bowl("#f07c52", "#ffd9c4").replace('<circle cx="132"', '<circle cx="132" r="0"').replace("</svg>", '<path d="M128 56c8-6 18-4 22 4-8 4-16 4-22-4Z" fill="#7bb661"/></svg>'),
+  curry: () => `<svg viewBox="0 0 200 160"><ellipse cx="100" cy="140" rx="86" ry="9" fill="#000" opacity=".4"/><ellipse cx="100" cy="100" rx="88" ry="38" fill="#f4efe6"/><ellipse cx="100" cy="96" rx="76" ry="30" fill="#e8e1d2"/><path d="M30 96c0-20 36-30 66-26 4 16-4 40-30 50-22-2-36-10-36-24Z" fill="#fff"/><path d="M96 70c40-4 76 8 74 26s-40 32-76 28c16-14 18-34 2-54Z" fill="#b5651d"/><circle cx="128" cy="92" r="9" fill="#e9a84b"/><rect x="140" y="98" width="14" height="10" rx="3" fill="#f08a2e"/><path d="M104 90c10-2 20 0 26 6" stroke="#d98a3a" stroke-width="5" fill="none"/></svg>`,
+  tempura: () => `<svg viewBox="0 0 200 160"><ellipse cx="100" cy="140" rx="84" ry="8" fill="#000" opacity=".4"/><rect x="16" y="96" width="168" height="34" rx="14" fill="#1b1b1f" stroke="#444" stroke-width="2"/>${[0, 1, 2].map(i => `<g transform="translate(${38 + i * 46} ${60 + (i % 2) * 8}) rotate(${-20 + i * 10})"><path d="M0 40c-6-20 4-40 22-44 14 2 16 30 6 48-10 6-22 6-28-4Z" fill="#e9b55b"/><path d="M8 0c4-8 12-10 16-6-2 6-8 8-16 6Z" fill="#e3262e"/><path d="M4 14c6 2 14 0 18-4M2 26c8 2 16 0 22-4" stroke="#c98a3e" stroke-width="2" fill="none"/></g>`).join("")}</svg>`,
+  cerveza: () => `<svg viewBox="0 0 200 160"><ellipse cx="100" cy="148" rx="40" ry="6" fill="#000" opacity=".4"/><rect x="74" y="34" width="52" height="112" rx="10" fill="#d9d4c7"/><rect x="74" y="64" width="52" height="54" fill="#e3262e"/><circle cx="100" cy="91" r="14" fill="#fff"/><circle cx="100" cy="91" r="7" fill="#e3262e"/><rect x="80" y="26" width="40" height="10" rx="4" fill="#bfb9aa"/></svg>`,
+  refresco: () => `<svg viewBox="0 0 200 160"><ellipse cx="100" cy="148" rx="40" ry="6" fill="#000" opacity=".4"/><path d="M72 40h56l-6 106H78Z" fill="#2c5d8c"/><path d="M72 40h56l-2 20H74Z" fill="#fff" opacity=".85"/><path d="M110 40l18-30" stroke="#8cc63f" stroke-width="6" stroke-linecap="round"/><path d="M80 80h40M82 100h36" stroke="#fff" stroke-opacity=".3" stroke-width="4"/></svg>`,
+  te: () => `<svg viewBox="0 0 200 160"><ellipse cx="100" cy="148" rx="40" ry="6" fill="#000" opacity=".4"/><path d="M70 40h60l-8 106H78Z" fill="#9cc65a"/><path d="M70 40h60" stroke="#fff" stroke-width="4"/><rect x="82" y="56" width="14" height="14" rx="3" fill="#fff" opacity=".5"/><rect x="104" y="70" width="12" height="12" rx="3" fill="#fff" opacity=".4"/></svg>`,
+  sake: () => `<svg viewBox="0 0 200 160"><ellipse cx="100" cy="150" rx="34" ry="5" fill="#000" opacity=".4"/><path d="M90 8h20v26c18 10 24 24 24 44v66H66V78c0-20 6-34 24-44Z" fill="#dfe7ee"/><rect x="88" y="4" width="24" height="12" rx="3" fill="#9aa7b4"/><rect x="74" y="84" width="52" height="40" rx="4" fill="#fff"/><path d="M84 96c8 6 20-6 32 2M84 108c10 4 22-4 32 2" stroke="#2c5d8c" stroke-width="2" fill="none"/></svg>`
+};
+const fotoHTML = p => p.foto ? `<img src="${esc(p.foto)}" alt="${esc(p.nombre)}" loading="lazy">` : (SVG[p.dib] ? SVG[p.dib]() : SVG.ramen());
+
+/* ===== Horario ===== */
+const aMin = h => { const [a, b] = h.split(":").map(Number); return a * 60 + (b || 0); };
+const h12 = m => { let a = Math.floor(m / 60), b = m % 60; const pm = a >= 12; a = a % 12 || 12; return `${a}:${String(b).padStart(2, "0")} ${pm ? "p. m." : "a. m."}`; };
+const ahoraCR = () => new Date(Date.now() - 6 * 3600e3);
+const hoyI = () => (ahoraCR().getUTCDay() + 6) % 7;
+function pintarHorario() {
+  const n = ahoraCR(), min = n.getUTCHours() * 60 + n.getUTCMinutes(), h = HORARIO[hoyI()];
+  const abierto = h[1] && min >= aMin(h[1]) && min < aMin(h[2]);
+  const e = $("#estado");
+  e.textContent = abierto ? `● Abierto · cierra ${h12(aMin(h[2]))}` : h[1] && min < aMin(h[1]) ? `Abre hoy ${h12(aMin(h[1]))}` : !h[1] ? "Hoy lunes cerramos" : "Cerrado · abrimos mañana";
+  e.className = abierto ? "abierto" : "cerrado";
+  $("#horas").innerHTML = HORARIO.map(([d, a, b], i) => `<div class="${i === hoyI() ? "hoy" : ""}${a ? "" : " cerr"}"><span>${d}${i === hoyI() ? " (hoy)" : ""}</span><span>${a ? `${h12(aMin(a))} – ${h12(aMin(b))}` : "Cerrado"}</span></div>`).join("");
+}
+function horasRetiro() {
+  const n = ahoraCR(), min = n.getUTCHours() * 60 + n.getUTCMinutes(), h = HORARIO[hoyI()], out = [];
+  if (h[1]) for (let m = Math.max(aMin(h[1]), Math.ceil((min + 20) / 15) * 15); m <= aMin(h[2]) - 15; m += 15) out.push(h12(m));
+  return out;
+}
+
+/* ===== Menú ===== */
+function pintarNovedades() {
+  $("#nov").innerHTML = NOVEDADES.map(n => n.hecho
+    ? `<button type="button" class="afiche hecho" data-p="${n.p}" aria-label="Agregar ${esc(n.nombre)}"><span class="t1">Tonkatsu</span><span class="t2">Sando</span><span class="nv">Nuevo</span><img src="f/sando.jpg" alt="Tonkatsu Sando" loading="lazy"><small>Sándwich de cerdo empanizado</small><span class="pie"><span>${esc(n.nombre)}</span><span>${esc(n.precio)}</span></span></button>`
+    : `<button type="button" class="afiche" data-p="${n.p}" aria-label="Agregar ${esc(n.nombre)}">
+    <img src="${esc(n.img)}" alt="Afiche: ${esc(n.nombre)}" loading="lazy"><span class="pie"><span>${esc(n.nombre)}</span><span>${esc(n.precio)}</span></span></button>`).join("");
+}
+function pintarCats() {
+  $("#cats").innerHTML = [["todo","Todo"], ...CATS].map(([k, l]) => `<button type="button" data-cat="${k}" aria-pressed="${catSel === k}">${l}</button>`).join("");
+}
+function pintarCarta() {
+  const vis = D.filter(p => !p.oculto);
+  $("#carta").innerHTML = CATS.filter(([k]) => catSel === "todo" || catSel === k).map(([k, l, d]) => {
+    const ps = vis.filter(p => p.cat === k); if (!ps.length) return "";
+    return `<div class="cat" id="cat-${k}"><h3>${esc(l)}</h3>${d ? `<p class="desc-cat">${esc(d)}</p>` : ""}<div class="grid">${ps.map(p => `
+      <button type="button" class="prod${p.agotado ? " agotado" : ""}" data-p="${p.id}" ${p.agotado ? 'aria-disabled="true"' : ""}>
+        ${p.agotado ? '<span class="etq">Agotado hoy</span>' : p.nuevo ? '<span class="etq">¡Nuevo!</span>' : ""}
+        <div class="foto">${fotoHTML(p)}</div>
+        <h4>${esc(p.nombre)}</h4><p>${esc(p.desc)}</p>
+        <div class="pie"><span class="precio">${p.opc && p.opc.some(o => OPC[o].some(x => x[1])) ? "<small>desde </small>" : ""}${crc(p.precio)}${p.ej ? '<span class="ej" title="Precio de ejemplo">*</span>' : ""}</span>${p.agotado ? "" : '<span class="mas" aria-hidden="true">+</span>'}</div>
+      </button>`).join("")}</div></div>`;
+  }).join("") || `<p class="nota" style="padding:30px 0">No hay platos en esta categoría.</p>`;
+}
+
+/* ===== Hojas ===== */
+function abrirHoja(html) { $("#hojaC").innerHTML = html; $("#hoja").classList.add("on"); $("#velo").classList.add("on"); $("#hoja").scrollTop = 0; }
+function cerrarHoja() { $("#hoja").classList.remove("on"); $("#velo").classList.remove("on"); }
+$("#velo").addEventListener("click", cerrarHoja);
+document.addEventListener("keydown", e => { if (e.key === "Escape") cerrarHoja(); });
+
+const TIT_OPC = {tamRamen:"Tamaño", proteina:"Proteína", proteinaCurry:"Proteína", onigiri:"Relleno", helado:"Sabor", picante:"Picante"};
+let arm = null;
+function precioArm() {
+  const p = D.find(x => x.id === arm.id); let u = p.precio;
+  (p.opc || []).forEach(o => { const s = OPC[o].find(x => x[0] === arm.op[o]); if (s) u += s[1]; });
+  if (arm.combo) u += COMBO;
+  return u * arm.cant;
+}
+function pintarArmar() {
+  const p = D.find(x => x.id === arm.id);
+  const grupos = (p.opc || []).map(o => `<div class="grupo"><b>${TIT_OPC[o]}</b><div class="ops">${OPC[o].map(([n, ex]) =>
+    `<button type="button" data-op="${o}" data-v="${esc(n)}" aria-pressed="${arm.op[o] === n}">${esc(n)}${ex ? `<small>+${crc(ex)}</small>` : ""}</button>`).join("")}</div></div>`).join("");
+  abrirHoja(`<div class="asa"></div><button class="x" type="button" data-cerrar aria-label="Cerrar">×</button>
+    <h2 id="hojaT">${esc(p.nombre)}</h2><p class="nota" style="margin-top:4px">${esc(p.desc)}</p>
+    <div class="foto-g">${fotoHTML(p)}</div>${grupos}
+    ${p.combo ? `<div class="grupo"><label class="combo"><input type="checkbox" id="combo" ${arm.combo ? "checked" : ""}><span><b>Hacelo combo +${crc(COMBO)}</b><small>Con acompañamiento y bebida (ejemplo).</small></span></label></div>` : ""}
+    <div class="grupo"><label class="c">Nota para la cocina (opcional)<input id="aNota" maxlength="80" placeholder="Ej.: sin cebollín" value="${esc(arm.nota)}"></label></div>
+    <div class="pie-hoja"><div class="cant"><button type="button" data-cant="-1" aria-label="Menos">−</button><b>${arm.cant}</b><button type="button" data-cant="1" aria-label="Más">+</button></div>
+      <button class="btn pri" type="button" data-agregar>Agregar · ${crc(precioArm())}</button></div>`);
+}
+function abrirPlato(id) {
+  const p = D.find(x => x.id === id); if (!p) return;
+  if (p.agotado) return toast("Ese plato está agotado hoy.");
+  const op = {}; (p.opc || []).forEach(o => op[o] = OPC[o][0][0]);
+  arm = {id, op, combo:false, cant:1, nota:""}; pintarArmar();
+}
+const detalle = it => [...Object.values(it.op || {}), it.combo ? "en combo" : "", it.nota ? `nota: ${it.nota}` : ""].filter(Boolean).join(", ");
+function pintarPedido() {
+  if (!pedido.length) { cerrarHoja(); return; }
+  const total = pedido.reduce((a, it) => a + it.total, 0), horas = horasRetiro();
+  abrirHoja(`<div class="asa"></div><button class="x" type="button" data-cerrar aria-label="Cerrar">×</button>
+    <h2 id="hojaT">Mi pedido</h2>
+    <div>${pedido.map((it, i) => `<div class="item"><b>${it.cant} × ${esc(it.nombre)}</b><small>${esc(detalle(it))}</small>
+      <div class="acc"><span class="precio">${crc(it.total)}</span><button type="button" data-quitar="${i}">Quitar</button></div></div>`).join("")}</div>
+    <div class="total"><span>Total</span><span>${crc(total)}</span></div>
+    <div class="grupo"><label class="c">Tu nombre<input id="pNom" maxlength="40" autocomplete="name" placeholder="Para llamarte cuando esté listo"></label>
+      <div class="grupo" style="margin-top:4px"><b>¿Cómo lo querés?</b><div class="ops" id="modo"><button type="button" data-modo="Para llevar" aria-pressed="true">🥡 Para llevar</button><button type="button" data-modo="Comer aquí" aria-pressed="false">🍽️ Comer aquí</button></div></div>
+      <label class="c">¿A qué hora pasás?<select id="pHora">${horas.length ? `<option>Lo antes posible</option>` + horas.map(h => `<option>${h}</option>`).join("") : `<option>Mañana (martes a domingo desde las 11:45 a. m.)</option>`}</select></label>
+      <label class="c">Nota (opcional)<textarea id="pNota" maxlength="200" placeholder="Ej.: palillos extra, por favor"></textarea></label>
+      <p class="err" id="pErr"></p>
+      <button class="btn wa" type="button" data-enviar>Enviar pedido por WhatsApp</button>
+      <p class="nota">Se abre WhatsApp con tu pedido listo. Pagás al recoger: efectivo, tarjeta o SINPE. <b>En esta prueba el pedido llega a RBM, no al restaurante.</b></p>
+      <a class="btn sm" id="waLink" target="_blank" rel="noopener" hidden>¿No se abrió WhatsApp? Tocá aquí</a></div>`);
+  $("#pNom").value = lsGet("genki-nombre", "");
+}
+function pintarCarrito() {
+  const n = pedido.reduce((a, it) => a + it.cant, 0);
+  $("#carrito").hidden = !n; $("#carN").textContent = n; $("#carT").textContent = crc(pedido.reduce((a, it) => a + it.total, 0));
+}
+function enviar() {
+  const nom = $("#pNom").value.trim(), err = $("#pErr");
+  if (nom.length < 2) { err.textContent = "Escribí tu nombre."; $("#pNom").focus(); return; }
+  lsSet("genki-nombre", nom);
+  const modo = document.querySelector('#modo [aria-pressed="true"]').dataset.modo, total = pedido.reduce((a, it) => a + it.total, 0), nota = $("#pNota").value.trim();
+  const msg = `¡Hola Genki! 🍜 Quiero hacer un pedido:\n\n${pedido.map(it => `• ${it.cant} × ${it.nombre}${detalle(it) ? ` (${detalle(it)})` : ""} — ${crc(it.total)}`).join("\n")}\n\n*Total: ${crc(total)}*\n${modo} · ${$("#pHora").value}\nA nombre de: ${nom}${nota ? `\nNota: ${nota}` : ""}`;
+  const url = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`;
+  const w = window.open(url, "_blank", "noopener"); const a = $("#waLink"); a.href = url; a.hidden = false;
+  if (w) { pedido = []; guardarP(); setTimeout(cerrarHoja, 400); toast("¡Pedido listo en WhatsApp!"); }
+}
+
+/* ===== Panel del dueño (demo: se guarda en este navegador) ===== */
+function pintarAdmin() {
+  if (!admin) {
+    abrirHoja(`<div class="asa"></div><button class="x" type="button" data-cerrar aria-label="Cerrar">×</button><h2 id="hojaT">Administrar menú</h2>
+      <p class="nota" style="margin-top:6px">El dueño entra aquí desde su celular para cambiar precios y marcar lo agotado.</p>
+      <div class="grupo"><label class="c">Contraseña<input id="aClave" type="password" autocomplete="current-password"></label><p class="err" id="aErr"></p>
+      <button class="btn pri" type="button" data-entrar>Entrar</button><p class="nota">Demo: la contraseña es <b>${CLAVE}</b>. Los cambios se guardan solo en este navegador.</p></div>`);
+    setTimeout(() => $("#aClave")?.focus(), 300); return;
+  }
+  abrirHoja(`<div class="asa"></div><button class="x" type="button" data-cerrar aria-label="Cerrar">×</button><h2 id="hojaT">Administrar menú</h2>
+    <p class="nota" style="margin-top:6px">Cambiá el precio y marcá lo nuevo, lo agotado o lo que no querés mostrar. Se actualiza al instante.</p>
+    ${CATS.map(([k, l]) => { const ps = D.filter(p => p.cat === k); return ps.length ? `<p class="adm-cat">${esc(l)}</p>` + ps.map(p => `<div class="adm"><b>${esc(p.nombre)}</b>
+      <input type="number" min="0" step="100" value="${p.precio}" data-precio="${p.id}" aria-label="Precio de ${esc(p.nombre)}">
+      <div class="flags"><label><input type="checkbox" data-flag="nuevo" data-id="${p.id}" ${p.nuevo ? "checked" : ""}> Nuevo</label><label><input type="checkbox" data-flag="agotado" data-id="${p.id}" ${p.agotado ? "checked" : ""}> Agotado hoy</label><label><input type="checkbox" data-flag="oculto" data-id="${p.id}" ${p.oculto ? "checked" : ""}> Ocultar</label></div></div>`).join("") : ""; }).join("")}
+    <div class="pie-hoja"><button class="btn sm" type="button" data-reset>Volver al ejemplo</button><button class="btn sm rojo" type="button" data-salir>Salir</button></div>`);
+}
+
+/* ===== Eventos ===== */
+document.addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.dataset.cat) { catSel = b.dataset.cat; pintarCats(); pintarCarta(); document.getElementById("menu").scrollIntoView({behavior:"smooth"}); return; }
+  if (b.dataset.p) { abrirPlato(b.dataset.p); return; }
+  if (b.hasAttribute("data-cerrar")) { cerrarHoja(); return; }
+  if (b.dataset.op) { arm.op[b.dataset.op] = b.dataset.v; arm.nota = $("#aNota")?.value || arm.nota; pintarArmar(); return; }
+  if (b.dataset.cant) { arm.cant = Math.max(1, Math.min(20, arm.cant + Number(b.dataset.cant))); arm.nota = $("#aNota")?.value || arm.nota; pintarArmar(); return; }
+  if (b.hasAttribute("data-agregar")) {
+    const p = D.find(x => x.id === arm.id); arm.nota = ($("#aNota")?.value || "").trim();
+    pedido.push({id:p.id, nombre:p.nombre, op:{...arm.op}, combo:arm.combo, nota:arm.nota, cant:arm.cant, total:precioArm()});
+    guardarP(); cerrarHoja(); toast(`${p.nombre} agregado`); return;
+  }
+  if (b.id === "carrito") { pintarPedido(); return; }
+  if (b.dataset.quitar !== undefined) { pedido.splice(Number(b.dataset.quitar), 1); guardarP(); pintarPedido(); return; }
+  if (b.dataset.modo) { document.querySelectorAll("#modo button").forEach(x => x.setAttribute("aria-pressed", x === b)); return; }
+  if (b.hasAttribute("data-enviar")) { enviar(); return; }
+  if (b.id === "abrirAdmin") { pintarAdmin(); return; }
+  if (b.hasAttribute("data-entrar")) { if ($("#aClave").value === CLAVE) { admin = true; pintarAdmin(); } else $("#aErr").textContent = "Contraseña incorrecta."; return; }
+  if (b.hasAttribute("data-salir")) { admin = false; cerrarHoja(); return; }
+  if (b.hasAttribute("data-reset")) { D = JSON.parse(JSON.stringify(BASE)); guardarD(); pintarCarta(); pintarAdmin(); toast("Menú de ejemplo restaurado"); return; }
+});
+document.addEventListener("change", e => {
+  const t = e.target;
+  if (t.id === "combo") { arm.combo = t.checked; arm.nota = $("#aNota")?.value || arm.nota; pintarArmar(); return; }
+  if (t.dataset.precio) { const p = D.find(x => x.id === t.dataset.precio); p.precio = Math.max(0, Math.round(Number(t.value) || 0)); delete p.ej; guardarD(); pintarCarta(); toast("Precio actualizado"); return; }
+  if (t.dataset.flag) { const p = D.find(x => x.id === t.dataset.id); p[t.dataset.flag] = t.checked; guardarD(); pintarCarta(); return; }
+});
+document.addEventListener("keydown", e => { if (e.key === "Enter" && e.target.id === "aClave") document.querySelector("[data-entrar]")?.click(); });
+
+pintarHorario(); setInterval(pintarHorario, 60000);
+pintarNovedades(); pintarCats(); pintarCarta(); pintarCarrito();
+})();
+</script>
+</body>
+</html>
