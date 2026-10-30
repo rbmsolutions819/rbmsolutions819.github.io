@@ -52,9 +52,9 @@ function libresDe(lista, n, f){
   if (desde < R_FIN) out.push([desde, R_FIN]); return out;
 }
 // Cómo está cada rancho un día: lo apartado y lo que queda libre
-function resumenDia(lista, f, { verNombre = false, yo = "" } = {}){
+function resumenDia(lista, f, { verNombre = false, yo = "", privado = false } = {}){
   return `<div class="rdia">${RANCHOS.map(R => { const l = activasDe(lista, R.n, f), lib = libresDe(lista, R.n, f);
-    return `<div class="rcard"><b>🏕️ ${R.nombre}</b>${l.map(r => `<span class="ocup">🔴 ${horario(r)} · ${r.resId === yo ? "Tu reserva" : "Casa " + esc(r.casa)}${verNombre ? ` (${esc(r.nombre)})` : ""}${r.nota ? ` · ${esc(r.nota)}` : ""}</span>`).join("")}
+    return `<div class="rcard"><b>🏕️ ${R.nombre}</b>${l.map(r => `<span class="ocup">🔴 ${horario(r)} · ${r.resId === yo ? "Tu reserva" : privado ? "Reservado" : "Casa " + esc(r.casa)}${verNombre ? ` (${esc(r.nombre)})` : ""}${r.nota && (!privado || r.resId === yo) ? ` · ${esc(r.nota)}` : ""}</span>`).join("")}
       <span class="lib">🟢 ${lib.length ? "Libre " + lib.map(([a, b]) => `${h12(a)} – ${h12(b)}`).join(" · ") : "Sin horas libres"}</span></div>`; }).join("")}</div>`;
 }
 
@@ -289,7 +289,7 @@ function panelRanchos(ses, cont){
   cont.innerHTML = `<section class="caja"><h2>🏕️ Reservar un rancho</h2><p class="nota" style="margin-top:-4px">Se reservan de 8:00 a. m. a 9:00 p. m., hasta 6 horas seguidas. Todos los residentes ven qué horas ya están apartadas, y seguridad y la administración reciben la reserva.</p>
       <h3 class="sub">1. ¿Cuál rancho?</h3><div class="ranchos" id="rSel"></div>
       <h3 class="sub">2. ¿Qué día?</h3><div class="dias-r" id="rDias"></div>
-      <h3 class="sub">3. ¿A qué hora?</h3><p class="nota" style="margin:-4px 0 8px">Tocá la hora en que empezás y después la última hora que lo vas a usar.</p><div class="bloques" id="rHoras"></div>
+      <h3 class="sub">3. ¿A qué hora empezás?</h3><p class="nota" style="margin:-4px 0 8px">Tocá la hora de inicio y después escogé abajo cuántas horas lo vas a usar.</p><div class="bloques" id="rHoras"></div>
       <div id="rForm"></div></section>
     <section class="caja"><h2 id="rDiaT"></h2><div id="rDia"></div></section>
     <section class="caja"><h2>Mis reservas</h2><div class="lista" id="rMis"></div></section>`;
@@ -297,7 +297,10 @@ function panelRanchos(ses, cont){
   function pintarForm(){
     const f = $("#rForm", cont);
     if (a === null) { f.innerHTML = ""; return; }
-    f.innerHTML = `<div class="res-box" style="margin-top:14px"><b>${rancho(rSel).nombre} · ${diaTxt(fSel, true)}</b><br>De ${h12(a)} a ${h12(b)} (${(b - a) / 60} ${b - a === 60 ? "hora" : "horas"})</div>
+    const durs = []; for (let n = 1; n <= R_MAX / 60; n++) { const fin = a + n * 60; durs.push([n, fin <= R_FIN && !act().some(r => r.ini < fin && a < r.fin)]); }
+    f.innerHTML = `<h3 class="sub">4. ¿Cuántas horas?</h3><div class="durs">${durs.map(([n, ok]) => `<button type="button" data-dur="${n}" aria-pressed="${b - a === n * 60}" ${ok ? "" : "disabled"}>${n} ${n === 1 ? "hora" : "horas"}<small>hasta ${h12(a + n * 60)}</small></button>`).join("")}</div>
+      ${durs.some(([, ok]) => !ok) ? `<p class="nota">Las opciones apagadas chocan con otra reserva o pasan de las 9:00 p. m.</p>` : ""}
+      <div class="res-box" style="margin-top:14px"><b>${rancho(rSel).nombre} · ${diaTxt(fSel, true)}</b><br>De ${h12(a)} a ${h12(b)} (${(b - a) / 60} ${b - a === 60 ? "hora" : "horas"})</div>
       <div class="campo"><label for="rNota">¿Para qué es? (opcional)</label><input id="rNota" maxlength="60" placeholder="Ej.: cumpleaños, almuerzo familiar" value="${esc(nota)}"></div>
       <p class="err" id="rErr"></p><button class="btn pri bloque" type="button" id="rOk">Reservar ${rancho(rSel).nombre}</button>`;
     $("#rNota", f).oninput = e => nota = e.target.value;
@@ -318,10 +321,10 @@ function panelRanchos(ses, cont){
     let bl = ""; for (let m = R_INI; m < R_FIN; m += 60) {
       const oc = act().find(r => r.ini < m + 60 && m < r.fin), pas = fSel === hoy && m < ahora, sel = a !== null && m >= a && m < b;
       const cl = oc ? "ocup" + (oc.resId === ses.id ? " mia" : "") : pas ? "pas" : sel ? "sel" : "lib";
-      bl += `<button type="button" class="${cl}" data-h="${m}" ${oc || pas ? "disabled" : ""}><b>${h12(m)}</b><span>${oc ? (oc.resId === ses.id ? "Tu reserva" : "Casa " + esc(oc.casa)) : pas ? "Ya pasó" : sel ? "✓ Elegida" : "Libre"}</span></button>`; }
+      bl += `<button type="button" class="${cl}" data-h="${m}" ${oc || pas ? "disabled" : ""}><b>${h12(m)}</b><span>${oc ? (oc.resId === ses.id ? "Tu reserva" : "Reservado") : pas ? "Ya pasó" : sel ? (m === a ? "✓ Inicio" : "✓ Elegida") : "Libre"}</span></button>`; }
     $("#rHoras", cont).innerHTML = bl;
     $("#rDiaT", cont).textContent = `Así están los ranchos · ${diaTxt(fSel, true)}`;
-    $("#rDia", cont).innerHTML = resumenDia(reservas, fSel, { yo: ses.id });
+    $("#rDia", cont).innerHTML = resumenDia(reservas, fSel, { yo: ses.id, privado: true });
     const mias = reservas.filter(r => r.resId === ses.id).sort((x, y) => (y.fecha + y.ini).localeCompare(x.fecha + x.ini));
     const futura = r => r.estado === "activa" && (r.fecha > hoy || (r.fecha === hoy && r.fin > ahora));
     $("#rMis", cont).innerHTML = mias.length ? mias.map(r => `<div class="caso" style="cursor:default;${futura(r) ? "" : "opacity:.6"}"><span class="ic">🏕️</span>
@@ -334,12 +337,12 @@ function panelRanchos(ses, cont){
     const f = e.target.closest("[data-f]"); if (f) { fSel = f.dataset.f; a = b = null; pintar(); pintarForm(); return; }
     const h = e.target.closest("[data-h]");
     if (h && !h.disabled) { const m = +h.dataset.h;
-      if (a !== null && b - a === 60 && m === a) a = b = null;
-      else if (a !== null && b - a === 60 && m > a) { const fin = m + 60;
-        if (fin - a > R_MAX) { aviso("Se puede reservar hasta 6 horas seguidas."); return; }
-        if (act().some(r => r.ini < fin && a < r.fin)) { aviso("Hay otra reserva en medio. Escogé horas seguidas libres."); a = m; b = m + 60; } else b = fin; }
-      else { a = m; b = m + 60; }
-      pintar(); pintarForm(); return; }
+      if (a === m) a = b = null;
+      else { const dur = a !== null ? b - a : 60, fin = m + dur;
+        a = m; b = fin <= R_FIN && !act().some(r => r.ini < fin && m < r.fin) ? fin : m + 60; }
+      pintar(); pintarForm(); if (a !== null) $("#rForm", cont).scrollIntoView({ behavior: "smooth", block: "nearest" }); return; }
+    const d = e.target.closest("[data-dur]");
+    if (d && !d.disabled) { b = a + +d.dataset.dur * 60; pintar(); pintarForm(); return; }
     const c = e.target.closest("[data-cancelar]");
     if (c) { const id = c.dataset.cancelar; if (confirmar !== id) { confirmar = id; pintar(); setTimeout(() => { if (confirmar === id) { confirmar = null; pintar(); } }, 4000); return; }
       confirmar = null; const rr = reservas.find(x => x.id === id);
