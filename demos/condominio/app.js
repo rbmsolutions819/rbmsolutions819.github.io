@@ -79,10 +79,21 @@ function comprimir(file, max = 900, q = .78){
     const s = Math.min(1, max / Math.max(im.width, im.height)), cv = document.createElement("canvas"); cv.width = Math.round(im.width * s); cv.height = Math.round(im.height * s);
     cv.getContext("2d").drawImage(im, 0, 0, cv.width, cv.height); ok(cv.toDataURL("image/jpeg", q)); }; im.onerror = mal; im.src = r.result; }; r.onerror = mal; r.readAsDataURL(file); });
 }
-function encabezado(rol, extra = ""){
-  return `<header class="top"><div class="wrap"><div class="logo" aria-hidden="true">🏘️</div>
+const LOGO = `<svg viewBox="0 0 92 78" aria-hidden="true" class="logo-pe"><g fill="currentColor"><rect x="0" y="4" width="58" height="11"/><rect x="0" y="4" width="11" height="42"/><rect x="0" y="35" width="42" height="11"/><rect x="63" y="0" width="11" height="11"/><rect x="77" y="0" width="11" height="11"/><rect x="63" y="14" width="11" height="11"/><rect x="77" y="14" width="11" height="11"/><rect x="77" y="30" width="11" height="45"/><rect x="14" y="64" width="74" height="11"/></g></svg>`;
+const nombreCorto = () => nombreCondo().replace(/^condominio\s+/i, "");
+const marca = (sub = "Condominio") => `<div class="marca">${LOGO}<div><b>${esc(nombreCorto())}</b><span>${esc(sub)}</span></div></div>`;
+function encabezado(rol, extra = "", portada = true){
+  document.body.classList.remove("ingreso");
+  const saludo = MODO === "residente" ? "Bienvenido a casa" : MODO === "seguridad" ? "Monitoreo del condominio" : "Panel de la administración";
+  return `<header class="top"><div class="wrap"><div class="logo" aria-hidden="true">${LOGO}</div>
     <div><h1>${esc(nombreCondo())}</h1><small>${rol}</small></div>
-    <div class="der">${extra}<button class="btn sm" type="button" data-salir>Salir</button></div></div></header>`;
+    <div class="der">${extra}<button class="btn sm" type="button" data-salir>Salir</button></div></div></header>
+    ${portada ? `<div class="wrap"><div class="portada ${MODO === "residente" ? "alta" : ""}">${marca(saludo)}</div></div>` : ""}`;
+}
+function encIngreso(rol){
+  const h = encabezado(rol, "", false).replace(/<button class="btn sm" type="button" data-salir>Salir<\/button>/, "");
+  document.body.classList.add("ingreso");
+  return h + `<div class="wrap">${marca()}</div>`;
 }
 document.addEventListener("click", e => { if (e.target.closest("[data-salir]")) { lsSet("condo-ses-" + MODO, null); location.hash = ""; location.reload(); } });
 
@@ -199,7 +210,7 @@ const filaCaso = (c, { verReportante = true } = {}) => { const [, ic, nom] = tip
 
 /* ===================== INGRESO DE SEGURIDAD Y ADMINISTRACIÓN ===================== */
 function loginUsuario(rol, titulo, ico, alEntrar){
-  app.innerHTML = `${encabezado(titulo).replace(/<button class="btn sm" type="button" data-salir>Salir<\/button>/, "")}
+  app.innerHTML = `${encIngreso(titulo)}
     <main class="wrap"><form class="caja login" id="fLogin" novalidate><div class="ico">${ico}</div><h2 style="margin-top:6px">${titulo}</h2>
       <div class="campo"><label for="lu">Usuario</label><input id="lu" autocomplete="username" autocapitalize="none"></div>
       <div class="campo"><label for="lc">Contraseña</label><input id="lc" type="password" autocomplete="current-password"></div>
@@ -354,7 +365,7 @@ function panelRanchos(ses, cont){
   pintar(); setInterval(pintar, 60000);
 }
 function loginResidente(){
-  app.innerHTML = `${encabezado("Residentes").replace(/<button class="btn sm" type="button" data-salir>Salir<\/button>/, "")}
+  app.innerHTML = `${encIngreso("Residentes")}
     <main class="wrap"><form class="caja login" id="fLogin" novalidate><div class="ico">🏠</div><h2 style="margin-top:6px">Ingresá para reportar</h2>
       <div class="campo"><label for="lu">Cédula o usuario</label><input id="lu" autocomplete="username" autocapitalize="none" placeholder="Ej.: 1 1111 1111"></div>
       <div class="campo"><label for="lc">Contraseña</label><input id="lc" type="password" autocomplete="current-password"></div>
@@ -373,7 +384,7 @@ function loginResidente(){
     } catch { $("#le").textContent = "No se pudo ingresar. Revisá tu conexión."; $("#lb").disabled = false; } });
 }
 async function activar(id){
-  app.innerHTML = `${encabezado("Residentes").replace(/<button class="btn sm" type="button" data-salir>Salir<\/button>/, "")}<main class="wrap"><div class="caja login"><p class="nota">Cargando…</p></div></main>`;
+  app.innerHTML = `${encIngreso("Residentes")}<main class="wrap"><div class="caja login"><p class="nota">Cargando…</p></div></main>`;
   let r = null; try { r = await Datos.obtenerResidente(id); } catch {}
   const box = $(".login");
   if (!r) { box.innerHTML = `<div class="ico">⚠️</div><h2>Este link no es válido</h2><p class="nota">Pedile a la administración que te lo envíe de nuevo.</p>`; return; }

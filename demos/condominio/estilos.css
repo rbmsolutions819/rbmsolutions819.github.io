@@ -17,7 +17,8 @@ h1,h2,h3{font-family:var(--ft);margin:0;line-height:1.15}
 .demo b{color:var(--verdeC)}
 .top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--fondo) 92%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--linea)}
 .top .wrap{display:flex;align-items:center;gap:10px;min-height:58px}
-.logo{width:36px;height:36px;border-radius:10px;background:var(--verde);display:grid;place-items:center;color:#fff;font-size:19px;flex:none}
+.logo{width:38px;height:38px;border-radius:10px;background:#fff;border:1px solid var(--linea);display:grid;place-items:center;color:#b42d24;flex:none;padding:6px}
+.logo .logo-pe{width:100%;height:auto}
 .top h1{font-size:17px}
 .top small{display:block;font-size:12px;color:var(--suave);font-weight:600}
 .top .der{margin-left:auto;display:flex;gap:6px;align-items:center}
@@ -183,3 +184,26 @@ tr.clic:hover td{background:var(--panel2)}
 .durs button[aria-pressed="true"]{background:var(--verde);border-color:var(--verde);color:#fff}
 .durs button[aria-pressed="true"] small{color:#fff}
 .durs button:disabled{opacity:.4;cursor:not-allowed}
+
+/* portada con la foto de la entrada */
+.portada{position:relative;margin-top:14px;min-height:118px;border-radius:18px;overflow:hidden;display:flex;align-items:flex-end;padding:16px;color:#fff;
+  background:linear-gradient(to top,rgba(6,14,13,.78),rgba(6,14,13,.15) 65%,rgba(6,14,13,.05)),url(f/portada.jpg) center 42%/cover;box-shadow:0 8px 24px rgba(0,0,0,.12)}
+.portada.alta{min-height:170px}
+@media(max-width:640px){.portada{background-image:linear-gradient(to top,rgba(6,14,13,.78),rgba(6,14,13,.15) 65%,rgba(6,14,13,.05)),url(f/portada-m.jpg)}}
+@media(min-width:900px){.portada{min-height:150px}.portada.alta{min-height:220px}}
+.marca{display:flex;align-items:center;gap:12px;color:#fff}
+.marca .logo-pe{width:46px;height:auto;color:#e0483d;background:#fff;border-radius:12px;padding:7px;flex:none;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+.marca b{display:block;font-family:var(--ft);font-size:24px;letter-spacing:.06em;text-transform:uppercase;line-height:1.05;text-shadow:0 2px 10px rgba(0,0,0,.45)}
+.marca span{display:block;font-size:12.5px;letter-spacing:.22em;text-transform:uppercase;font-weight:600;opacity:.92;text-shadow:0 1px 6px rgba(0,0,0,.5)}
+@media(min-width:900px){.marca b{font-size:30px}.marca .logo-pe{width:56px}}
+
+/* pantallas de ingreso: la foto de fondo */
+body.ingreso{background:#0b1514}
+body.ingreso::before{content:"";position:fixed;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(6,14,13,.35),rgba(6,14,13,.72)),url(f/portada.jpg) center 40%/cover}
+@media(max-width:640px){body.ingreso::before{background-image:linear-gradient(180deg,rgba(6,14,13,.35),rgba(6,14,13,.72)),url(f/portada-m.jpg)}}
+body.ingreso .top{background:rgba(6,14,13,.35);border-bottom-color:rgba(255,255,255,.12);color:#fff}
+body.ingreso .top small{color:rgba(255,255,255,.75)}
+body.ingreso .marca{justify-content:center;margin:34px auto 0;max-width:420px}
+body.ingreso .login{margin-top:18px;box-shadow:0 20px 50px rgba(0,0,0,.35);border-color:transparent}
+body.ingreso .login .ico{display:none}
+body.ingreso .login>h2{margin-top:0!important}
