@@ -58,6 +58,38 @@ function resumenDia(lista, f, { verNombre = false, yo = "", privado = false } = 
       <span class="lib">🟢 ${lib.length ? "Libre " + lib.map(([a, b]) => `${h12(a)} – ${h12(b)}`).join(" · ") : "Sin horas libres"}</span></div>`; }).join("")}</div>`;
 }
 
+/* ===================== NOTICIAS Y EMPRENDIMIENTOS ===================== */
+const NT_TIPOS = [["aviso","📢","Aviso"],["evento","🎉","Evento"],["mant","🛠️","Mantenimiento"],["importante","⚠️","Importante"]];
+const ntTipo = k => NT_TIPOS.find(t => t[0] === k) || NT_TIPOS[0];
+const EMP_CAT = [["comida","🍰","Comida"],["servicios","🛠️","Servicios"],["clases","📚","Clases"],["belleza","💅","Belleza"],["productos","🛍️","Productos"],["mascotas","🐾","Mascotas"],["tecno","💻","Tecnología"],["otro","📦","Otro"]];
+const empCat = k => EMP_CAT.find(t => t[0] === k) || EMP_CAT[EMP_CAT.length - 1];
+const parrafos = t => esc(t).replace(/\n/g, "<br>");
+const telWa = t => { const d = String(t || "").replace(/\D/g, ""); return d.length === 8 ? "506" + d : d; };
+const telVer = t => { const d = String(t || "").replace(/\D/g, ""); return d.length === 8 ? d.slice(0, 4) + "-" + d.slice(4) : d; };
+const ordenNoticias = l => [...l].sort((a, b) => (b.fijada ? 1 : 0) - (a.fijada ? 1 : 0) || b.creado - a.creado);
+function tarjetaNoticia(n, acciones = ""){
+  const [k, ic, nom] = ntTipo(n.tipo);
+  return `<article class="noticia t-${k}${n.fijada ? " fija" : ""}">${n.foto ? `<img class="nt-foto" src="${esc(n.foto)}" alt="" loading="lazy">` : ""}
+    <div class="nt-cuerpo"><div class="nt-meta"><span class="nt-tipo">${ic} ${nom}</span>${n.fijada ? `<span class="nt-fija">📌 Fijada</span>` : ""}<span class="nt-t">${n.creado ? hace(n.creado) : ""}</span></div>
+    <h3>${esc(n.titulo)}</h3>${n.fecha ? `<p class="nt-fecha">📅 ${esc(diaTxt(n.fecha, true))}</p>` : ""}<p class="nt-texto">${parrafos(n.texto)}</p>${acciones}</div></article>`;
+}
+const noticiasHTML = (l, acc = () => "") => l.length ? `<div class="noticias">${ordenNoticias(l).map(n => tarjetaNoticia(n, acc(n))).join("")}</div>` : `<p class="vacio">Todavía no hay noticias.</p>`;
+function tarjetaEmp(e, acciones = ""){
+  const [, ic, nom] = empCat(e.categoria), w = telWa(e.tel);
+  const msg = `Hola ${String(e.resNombre || "").split(" ")[0]} 👋, vi tu emprendimiento "${e.nombre}" en la app del ${nombreCondo()}.`;
+  return `<article class="emp">${e.foto ? `<img class="emp-foto" src="${esc(e.foto)}" alt="" loading="lazy">` : `<div class="emp-foto sin c-${esc(e.categoria)}" aria-hidden="true">${ic}</div>`}
+    <div class="emp-cuerpo"><span class="emp-cat">${ic} ${nom}</span><h3>${esc(e.nombre)}</h3><p class="emp-desc">${parrafos(e.descripcion)}</p>
+      <p class="emp-de">🏠 Casa ${esc(e.casa)} · ${esc(e.resNombre)}</p>
+      <div class="emp-acc">${w ? `<a class="btn sm wa" target="_blank" rel="noopener" href="https://wa.me/${w}?text=${encodeURIComponent(msg)}">💬 WhatsApp ${telVer(e.tel)}</a>` : ""}${acciones}</div></div></article>`;
+}
+// Catálogo con filtro por categoría (solo los aprobados)
+function catalogoEmp(l, cat){
+  const ok = l.filter(e => e.estado === "aprobado"), cats = EMP_CAT.filter(([k]) => ok.some(e => e.categoria === k)), ver = ok.filter(e => !cat || e.categoria === cat);
+  return `<div class="chips"><button type="button" data-ecat="" aria-pressed="${!cat}">Todos (${ok.length})</button>${cats.map(([k, ic, n]) => `<button type="button" data-ecat="${k}" aria-pressed="${cat === k}">${ic} ${n}</button>`).join("")}</div>
+    ${ver.length ? `<div class="emps">${ver.map(e => tarjetaEmp(e)).join("")}</div>` : `<p class="vacio">Todavía no hay emprendimientos publicados.</p>`}`;
+}
+const EST_EMP = { pendiente: ["en_atencion", "🕒 En revisión"], aprobado: ["cerrado", "✅ Publicado"], rechazado: ["nuevo", "No aprobado"] };
+
 /* ===================== UTILIDADES ===================== */
 const min = (a, b) => Math.round((b - a) / 60000);
 function hace(t){ const m = min(t, Date.now()); if (m < 1) return "recién"; if (m < 60) return `hace ${m} min`; const h = Math.floor(m / 60); if (h < 24) return `hace ${h} h`; const d = Math.floor(h / 24); return d === 1 ? "ayer" : `hace ${d} días`; }
@@ -163,7 +195,7 @@ function generarEjemplo(){
       historial: [{ t: cr, quien: `${rep.nombre} (casa ${rep.casa})`, txt: "Reporte enviado" }, { t: at, quien: ag, txt: "Va en camino" }, { t: ce, quien: ag, txt: "Cerrado: 📋 Pasado a administración" }, { t: ce + 60000, quien: ag, txt: "🚩 Escalado a administración: " + nota }] }; };
   casos.push(esc1("mascotas", "Una casa", "14", "El perro de la casa 14 está suelto otra vez y se metió al jardín.", "Es la cuarta vez este mes. Ya se le llamó la atención y no cambia. Pedimos que la administración hable con el dueño.", residentes[2], 30, "Oficial Rojas"));
   casos.push(esc1("parqueo", "Una casa", "8", "La visita de la casa 8 se parquea en mi espacio todos los fines de semana.", "El residente de la casa 8 no colabora con seguridad. Se necesita aplicar el reglamento de parqueo.", residentes[5], 52, "Oficial Mora"));
-  return { casos, residentes, reservas: generarReservas(residentes) };
+  return { casos, residentes, reservas: generarReservas(residentes), ...extrasEjemplo() };
 }
 function generarReservas(rs){
   const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
@@ -174,10 +206,30 @@ function generarReservas(rs){
     R(rs[7], 2, dia(-5), 12, 16, "Almuerzo"), R(rs[8], 3, dia(-2), 14, 18, "Cumpleaños")];
 }
 let sembrando = false;
+function extrasEjemplo(){
+  const H = 36e5, D = 864e5, ahora = Date.now(), en = n => { const d = new Date(); d.setDate(d.getDate() + n); return isoL(d); };
+  let fiesta = `${new Date().getFullYear()}-12-13`; if (fiesta < hoyL()) fiesta = en(30);
+  const nt = (tipo, titulo, fecha, texto, hrs, fijada = false) => ({ tipo, titulo, fecha, texto, foto: "", fijada, creado: ahora - hrs * H });
+  const noticias = [
+    nt("importante", "Corte de agua programado", en(2), "El AyA nos informó que habrá un corte de agua de 8:00 a. m. a 2:00 p. m. por trabajos en la tubería principal.\nLes recomendamos guardar agua desde la noche anterior.", 3, true),
+    nt("evento", "Fiesta de fin de año del condominio", fiesta, "¡Están todos invitados! Será en el Rancho 2 a partir de las 4:00 p. m. Habrá música, inflables para los chiquitos e intercambio de regalos opcional (₡5.000).\nPor favor confirmen su asistencia con la administración.", 26),
+    nt("mant", "Mantenimiento de la piscina", en(5), "La piscina va a estar cerrada todo el día por limpieza profunda y revisión de las bombas. Disculpen las molestias.", 50),
+    nt("aviso", "Recordatorio: cuota de mantenimiento", "", "La cuota del mes vence el día 10. Pueden pagar por SINPE Móvil o transferencia y enviar el comprobante a la administración.", 96),
+    nt("aviso", "Nuevo horario del portón de visitas", "", "A partir de este mes, después de las 10:00 p. m. las visitas deben anunciarse en la caseta de seguridad. Gracias por su colaboración.", 190)];
+  const em = (nombre, categoria, descripcion, casa, resNombre, tel, estado, dias) => ({ nombre, categoria, descripcion, tel, foto: "", casa, resNombre, resId: "", estado, motivo: "", creado: ahora - dias * D, ...(estado === "aprobado" ? { revisado: ahora - (dias - .5) * D } : {}) });
+  const emprend = [
+    em("Repostería Doña Patri", "comida", "Queques, tres leches, galletas y bocadillos por encargo para cumpleaños y reuniones. Pedidos con 2 días de anticipación.", "21", "Patricia Rojas", "87012121", "aprobado", 12),
+    em("Clases de inglés con Andrea", "clases", "Clases de inglés para niños y adultos, presenciales o virtuales. Ayuda con tareas y preparación para exámenes.", "8", "Andrea Solano", "87020808", "aprobado", 10),
+    em("Electricista Esteban Vargas", "servicios", "Instalaciones eléctricas, cambio de tomas, lámparas y breakers, revisión de cortos. Atiendo dentro del condominio el mismo día.", "27", "Esteban Vargas", "87032727", "aprobado", 9),
+    em("Huevos de gallina libre", "productos", "Huevos frescos de gallinas criadas libres. Cartón de 30 a ₡4.500, se los llevo hasta la casa.", "40", "Jorge Chaves", "87044040", "aprobado", 6),
+    em("Uñas Sofi", "belleza", "Manicure, pedicure y uñas acrílicas a domicilio dentro del condominio. Con cita.", "45", "Sofía Castro", "87054545", "pendiente", 1),
+    em("Paseo de perros", "mascotas", "Saco a pasear a tu perro en las mañanas o en las tardes, 30 o 60 minutos. También cuido mascotas en vacaciones.", "33", "Daniela Mora", "87063333", "pendiente", .2)];
+  return { noticias, emprend };
+}
 async function asegurarEjemplo(casos){
   if (casos.length || sembrando || lsGet("condo-sembrado-vacio", false)) return false;
   sembrando = true;
-  try { const e = generarEjemplo(); await Datos.sembrar(e.casos, e.residentes, e.reservas); return true; } catch (x) { console.warn(x); return false; } finally { sembrando = false; }
+  try { const e = generarEjemplo(); await Datos.sembrar(e.casos, e.residentes, e.reservas, e.noticias, e.emprend); return true; } catch (x) { console.warn(x); return false; } finally { sembrando = false; }
 }
 
 /* ===================== DETALLE DE UN CASO ===================== */
@@ -230,10 +282,13 @@ function residente(){
   if (act) return activar(act[1]);
   if (!ses || !ses.id) return loginResidente();
   let casos = [], sel = null, foto = "", antes = {};
-  let rtab = location.hash === "#ranchos" ? "ran" : lsGet("condo-res-tab", "rep");
+  let rtab = location.hash === "#ranchos" ? "ran" : lsGet("condo-res-tab", "not");
+  if (!["not", "rep", "ran", "emp"].includes(rtab)) rtab = "not";
   app.innerHTML = `${encabezado(`Casa ${esc(ses.casa)} · ${esc(ses.nombre)}`)}
     <main class="wrap">
-      <div class="tabs" id="rTabs"><button type="button" data-rt="rep" aria-pressed="${rtab === "rep"}">📢 Reportes</button><button type="button" data-rt="ran" aria-pressed="${rtab === "ran"}">🏕️ Ranchos</button></div>
+      <div class="tabs" id="rTabs">${[["not","📰 Noticias<span class=\"n\" id=\"nNt\" hidden></span>"],["rep","📢 Reportes"],["ran","🏕️ Ranchos"],["emp","🛍️ Emprendimientos"]].map(([k, l]) => `<button type="button" data-rt="${k}" aria-pressed="${rtab === k}">${l}</button>`).join("")}</div>
+      <div id="vNot" ${rtab === "not" ? "" : "hidden"}></div>
+      <div id="vEmp" ${rtab === "emp" ? "" : "hidden"}></div>
       <div id="vRan" ${rtab === "ran" ? "" : "hidden"}></div>
       <div id="vRep" ${rtab === "rep" ? "" : "hidden"}>
       <section class="caja"><h2>Reportar un problema</h2><p class="nota" style="margin-top:-4px">Tu reporte le llega al instante al oficial de seguridad. Solo lo ven seguridad y la administración.</p>
@@ -249,8 +304,11 @@ function residente(){
       <section class="caja"><h2>Mis reportes</h2><div class="lista" id="mis"></div></section></div>
     </main>`;
   $("#rTabs").addEventListener("click", e => { const b = e.target.closest("[data-rt]"); if (!b) return; rtab = b.dataset.rt; lsSet("condo-res-tab", rtab);
-    document.querySelectorAll("#rTabs button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); $("#vRep").hidden = rtab !== "rep"; $("#vRan").hidden = rtab !== "ran"; });
+    document.querySelectorAll("#rTabs button").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+    ["not", "rep", "ran", "emp"].forEach(k => $("#v" + mayus(k)).hidden = rtab !== k); if (rtab === "not") verNoticias(); });
   panelRanchos(ses, $("#vRan"));
+  const verNoticias = panelNoticiasRes($("#vNot"), () => rtab === "not");
+  panelEmpRes(ses, $("#vEmp"));
   const pintarLugar = () => { const casa = $("#rl").value === "Una casa"; $("#rcw").hidden = !casa; $("#rdw").hidden = casa; };
   $("#rl").addEventListener("change", pintarLugar);
   $("#tipos").addEventListener("click", e => { const b = e.target.closest("[data-tipo]"); if (!b) return; sel = b.dataset.tipo;
@@ -364,6 +422,62 @@ function panelRanchos(ses, cont){
     pintar(); }, () => { $("#rDia", cont).innerHTML = `<p class="vacio">No se pudo conectar. Revisá tu conexión.</p>`; }).catch(() => {});
   pintar(); setInterval(pintar, 60000);
 }
+function panelNoticiasRes(cont, abierta){
+  let lista = null;
+  cont.innerHTML = `<section class="caja"><h2>📰 Noticias del condominio</h2><p class="nota" style="margin-top:-4px">Avisos, eventos y mantenimientos que publica la administración.</p><div id="ntL" style="margin-top:12px"><p class="vacio">Cargando…</p></div></section>`;
+  const marcar = () => { lsSet("condo-nt-visto", Date.now()); const b = $("#nNt"); if (b) b.hidden = true; };
+  const pintar = () => { $("#ntL", cont).innerHTML = noticiasHTML(lista || []);
+    const visto = lsGet("condo-nt-visto", 0), n = (lista || []).filter(x => x.creado > visto).length, b = $("#nNt");
+    if (abierta()) marcar(); else if (b) { b.hidden = !n; b.textContent = n; } };
+  Datos.escucharCol("nt", l => { if (lista) { const nuevas = l.filter(x => !lista.some(y => y.id === x.id)); if (nuevas.length) aviso(`📰 Nueva noticia: ${nuevas[0].titulo}`); }
+    lista = l; pintar(); }, () => { $("#ntL", cont).innerHTML = `<p class="vacio">No se pudo conectar. Revisá tu conexión.</p>`; }).catch(() => {});
+  setInterval(() => lista && pintar(), 60000);
+  return marcar;
+}
+function panelEmpRes(ses, cont){
+  let lista = [], cat = "", foto = "", conf = null;
+  cont.innerHTML = `<section class="caja"><h2>🛍️ Emprendimientos de vecinos</h2><p class="nota" style="margin-top:-4px">Apoyá lo local: productos y servicios de residentes del condominio, aprobados por la administración.</p><div id="eCat"></div></section>
+    <section class="caja"><h2>¿Tenés un emprendimiento?</h2><p class="nota" style="margin-top:-4px">Envialo y la administración lo revisa antes de publicarlo, para que la sección no se llene de spam.</p>
+      <button class="btn pri" type="button" id="eAbrir" style="margin-top:10px">➕ Publicar mi emprendimiento</button>
+      <form id="fEmp" hidden novalidate>
+        <div class="campo"><label for="eN">Nombre del emprendimiento</label><input id="eN" maxlength="60" placeholder="Ej.: Repostería Doña Patri"></div>
+        <div class="fila2"><div class="campo"><label for="eC">Categoría</label><select id="eC">${EMP_CAT.map(([k, ic, n]) => `<option value="${k}">${ic} ${n}</option>`).join("")}</select></div>
+          <div class="campo"><label for="eT">WhatsApp</label><input id="eT" inputmode="tel" maxlength="12" placeholder="Ej.: 8888 7777"></div></div>
+        <div class="campo"><label for="eD">¿Qué ofrecés?</label><textarea id="eD" maxlength="400" placeholder="Ej.: Queques y bocadillos por encargo. Pedidos con 2 días de anticipación."></textarea></div>
+        <div class="campo"><label>Foto o logo (opcional)</label><div class="foto-in"><label class="btn sm" style="cursor:pointer">📷 Agregar foto<input type="file" id="eF" accept="image/*" hidden></label><span id="eFv"></span></div></div>
+        <p class="err" id="eE"></p><button class="btn pri bloque" type="submit" id="eB">Enviar a la administración</button></form></section>
+    <section class="caja"><h2>Mis solicitudes</h2><div class="lista" id="eMis"></div></section>`;
+  $("#eAbrir", cont).onclick = () => { $("#fEmp", cont).hidden = false; $("#eAbrir", cont).hidden = true; $("#eN", cont).focus(); };
+  $("#eF", cont).addEventListener("change", async e => { const f = e.target.files[0]; if (!f) return;
+    try { foto = await comprimir(f, 700); $("#eFv", cont).innerHTML = `<img src="${foto}" alt="Foto adjunta"> <button class="btn sm" type="button" id="eFq">Quitar</button>`; $("#eFq", cont).onclick = () => { foto = ""; $("#eFv", cont).innerHTML = ""; }; } catch { aviso("No se pudo leer la foto."); } });
+  $("#fEmp", cont).addEventListener("submit", async e => { e.preventDefault();
+    const nombre = $("#eN", cont).value.trim(), desc = $("#eD", cont).value.trim(), tel = Datos.soloDigitos($("#eT", cont).value);
+    if (nombre.length < 3) { $("#eE", cont).textContent = "Escribí el nombre del emprendimiento."; return; }
+    if (desc.length < 10) { $("#eE", cont).textContent = "Contá un poco más de lo que ofrecés."; return; }
+    if (tel.length < 8) { $("#eE", cont).textContent = "Escribí un número de WhatsApp."; return; }
+    $("#eE", cont).textContent = ""; $("#eB", cont).disabled = true;
+    try { await Datos.crearDoc("em", { nombre: nombre.slice(0, 60), categoria: $("#eC", cont).value, descripcion: desc.slice(0, 400), tel: tel.slice(0, 12), foto, casa: ses.casa, resNombre: ses.nombre, resId: ses.id, estado: "pendiente", motivo: "" });
+      aviso("✅ Enviado. La administración lo va a revisar."); $("#fEmp", cont).reset(); foto = ""; $("#eFv", cont).innerHTML = ""; $("#fEmp", cont).hidden = true; $("#eAbrir", cont).hidden = false;
+    } catch { $("#eE", cont).textContent = "No se pudo enviar. Revisá tu conexión."; }
+    $("#eB", cont).disabled = false; });
+  const pintar = () => {
+    $("#eCat", cont).innerHTML = catalogoEmp(lista, cat);
+    const mias = lista.filter(e => e.resId === ses.id);
+    $("#eMis", cont).innerHTML = mias.length ? mias.map(e => { const [cl, t] = EST_EMP[e.estado] || EST_EMP.pendiente, [, ic] = empCat(e.categoria);
+      return `<div class="caso" style="cursor:default"><span class="ic">${ic}</span><span><b>${esc(e.nombre)}</b><span class="meta">${e.estado === "pendiente" ? "Enviado " + hace(e.creado) + " · esperando aprobación" : e.estado === "aprobado" ? "Ya lo ven todos los residentes" : "Motivo: " + esc(e.motivo || "sin detalle")}</span></span>
+        <span class="der"><span class="est ${cl}">${t}</span><button class="btn sm" type="button" data-equitar="${esc(e.id)}">${conf === e.id ? "¿Seguro?" : "Quitar"}</button></span></div>`; }).join("")
+      : `<p class="vacio">Todavía no has enviado ningún emprendimiento.</p>`;
+  };
+  cont.addEventListener("click", async e => {
+    const c = e.target.closest("[data-ecat]"); if (c) { cat = c.dataset.ecat; pintar(); return; }
+    const q = e.target.closest("[data-equitar]"); if (!q) return; const id = q.dataset.equitar;
+    if (conf !== id) { conf = id; pintar(); setTimeout(() => { if (conf === id) { conf = null; pintar(); } }, 4000); return; }
+    conf = null; try { await Datos.borrarDoc("em", id); aviso("Emprendimiento quitado"); } catch { aviso("No se pudo quitar."); } });
+  let antes = null;
+  Datos.escucharCol("em", l => {
+    if (antes) l.filter(e => e.resId === ses.id && antes.get(e.id) === "pendiente" && e.estado !== "pendiente").forEach(e => aviso(e.estado === "aprobado" ? `🎉 ¡Tu emprendimiento "${e.nombre}" ya está publicado!` : `Tu emprendimiento "${e.nombre}" no fue aprobado.`));
+    antes = new Map(l.map(e => [e.id, e.estado])); lista = l; pintar(); }, () => { $("#eCat", cont).innerHTML = `<p class="vacio">No se pudo conectar. Revisá tu conexión.</p>`; }).catch(() => {});
+}
 function loginResidente(){
   app.innerHTML = `${encIngreso("Residentes")}
     <main class="wrap"><form class="caja login" id="fLogin" novalidate><div class="ico">🏠</div><h2 style="margin-top:6px">Ingresá para reportar</h2>
@@ -406,18 +520,18 @@ async function activar(id){
 /* ===================== PANEL DE SEGURIDAD (monitoreo) ===================== */
 function seguridad(){
   if (!lsGet("condo-ses-seguridad", null)) return loginUsuario("seguridad", "Seguridad · Monitoreo", "🛡️", seguridad);
-  let casos = [], vista = "pend", conocidos = null, sonido = false, oficial = lsGet("condo-oficial", OFICIALES[0]), reservas = [], conocidasR = null;
+  let casos = [], vista = "pend", conocidos = null, sonido = false, oficial = lsGet("condo-oficial", OFICIALES[0]), reservas = [], conocidasR = null, noticias = [], emprend = [], eCat = "", conocidasN = null;
   app.innerHTML = `${encabezado("🛡️ Seguridad · Monitoreo", `<select id="ofi" class="btn sm" aria-label="Oficial de turno">${OFICIALES.map(o => `<option ${o === oficial ? "selected" : ""}>${o}</option>`).join("")}</select>`)}
     <main class="wrap">
       <div class="contadores"><div class="r"><b id="cN">0</b><span>Nuevos</span></div><div class="a"><b id="cA">0</b><span>En atención</span></div><div class="v"><b id="cC">0</b><span>Cerrados hoy</span></div></div>
       <button class="btn bloque" type="button" id="alertas" style="margin-top:10px">🔔 Activar sonido y alertas de reportes nuevos</button>
-      <div class="tabs" id="vistas"><button type="button" data-v="pend" aria-pressed="true">Pendientes</button><button type="button" data-v="hoy" aria-pressed="false">Cerrados hoy</button><button type="button" data-v="todos" aria-pressed="false">Últimos 50</button><button type="button" data-v="ran" aria-pressed="false">🏕️ Ranchos<span class="n" id="cR" hidden>0</span></button></div>
+      <div class="tabs" id="vistas"><button type="button" data-v="pend" aria-pressed="true">Pendientes</button><button type="button" data-v="hoy" aria-pressed="false">Cerrados hoy</button><button type="button" data-v="todos" aria-pressed="false">Últimos 50</button><button type="button" data-v="ran" aria-pressed="false">🏕️ Ranchos<span class="n" id="cR" hidden>0</span></button><button type="button" data-v="not" aria-pressed="false">📰 Noticias</button><button type="button" data-v="emp" aria-pressed="false">🛍️ Emprendimientos</button></div>
       <div class="lista" id="lista"></div></main>`;
   $("#ofi").addEventListener("change", e => { oficial = e.target.value; lsSet("condo-oficial", oficial); });
   $("#alertas").addEventListener("click", async () => { sonido = true; pitar(); try { if ("Notification" in window) await Notification.requestPermission(); } catch {}
     $("#alertas").textContent = "🔔 Alertas activadas: suena cuando entra un reporte"; $("#alertas").disabled = true; });
   $("#vistas").addEventListener("click", e => { const b = e.target.closest("[data-v]"); if (!b) return; vista = b.dataset.v; document.querySelectorAll("#vistas button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); pintar(); });
-  $("#lista").addEventListener("click", e => { const b = e.target.closest("[data-caso]"); if (b) abrir(b.dataset.caso); });
+  $("#lista").addEventListener("click", e => { const k = e.target.closest("[data-ecat]"); if (k) { eCat = k.dataset.ecat; pintar(); return; } const b = e.target.closest("[data-caso]"); if (b) abrir(b.dataset.caso); });
   let ctx = null;
   function pitar(){ try { ctx = ctx || new (window.AudioContext || window.webkitAudioContext)(); [0, .25].forEach(d => { const o = ctx.createOscillator(), g = ctx.createGain(); o.frequency.value = 880; o.connect(g); g.connect(ctx.destination); g.gain.setValueAtTime(.25, ctx.currentTime + d); g.gain.exponentialRampToValueAtTime(.001, ctx.currentTime + d + .2); o.start(ctx.currentTime + d); o.stop(ctx.currentTime + d + .22); }); } catch {} }
   const inicioHoy = () => { const d = new Date(); d.setHours(0, 0, 0, 0); return d.getTime(); };
@@ -429,6 +543,8 @@ function seguridad(){
     const hoyF = hoyL(), deHoy = reservas.filter(r => r.estado === "activa" && r.fecha === hoyF).length;
     $("#cR").hidden = !deHoy; $("#cR").textContent = deHoy; $("#cR").style.background = "var(--verde)";
     if (vista === "ran") { $("#lista").innerHTML = ranchosSeg(); return; }
+    if (vista === "not") { $("#lista").innerHTML = noticiasHTML(noticias); return; }
+    if (vista === "emp") { $("#lista").innerHTML = `<p class="nota" style="margin:6px 0 0">Emprendimientos de residentes aprobados por la administración.</p>` + catalogoEmp(emprend, eCat); return; }
     const l = vista === "pend" ? pend : vista === "hoy" ? hoy : casos.slice(0, 50);
     $("#lista").innerHTML = l.length ? l.map(c => filaCaso(c)).join("") : `<p class="vacio">${vista === "pend" ? "✅ No hay reportes pendientes." : "No hay casos."}</p>`;
     document.title = (nuevos.length ? `(${nuevos.length}) ` : "") + "Seguridad · " + nombreCondo();
@@ -490,23 +606,102 @@ function seguridad(){
         aviso(r.estado === "cancelada" ? `🏕️ Reserva cancelada: ${t}` : `🏕️ Nueva reserva: ${t}`); if (sonido) pitar();
         try { if (document.hidden && Notification.permission === "granted") new Notification(r.estado === "cancelada" ? "Reserva de rancho cancelada" : "Nueva reserva de rancho", { body: t }); } catch {} }); }
     conocidasR = new Map(l.map(r => [r.id, r.estado])); reservas = l; pintar(); }).catch(() => {});
+  Datos.escucharCol("nt", l => { if (conocidasN) { const n = l.find(x => !conocidasN.has(x.id)); if (n) aviso(`📰 Nueva noticia: ${n.titulo}`); } conocidasN = new Set(l.map(x => x.id)); noticias = l; if (vista === "not") pintar(); }).catch(() => {});
+  Datos.escucharCol("em", l => { emprend = l; if (vista === "emp") pintar(); }).catch(() => {});
   setInterval(pintar, 30000);
 }
 
 /* ===================== PANEL DE ADMINISTRACIÓN ===================== */
 function admin(){
   if (!lsGet("condo-ses-admin", null)) return loginUsuario("admin", "Administración", "📊", admin);
+  let noticias = [], emprend = [], ntEdit = null, ntTipoSel = "aviso", ntFoto = "", ntConf = null, emConf = null;
   let ultimoLink = null, casos = [], residentes = [], reservas = [], rFil = { rancho: 0, cuando: "prox" }, rConf = null, tab = lsGet("condo-admin-tab", "est"), periodo = 30, filtro = { estado: "", tipo: "", q: "" };
   app.innerHTML = `${encabezado("📊 Administración")}
     <main class="wrap">
-      <div class="tabs" id="tabs">${[["est","📊 Estadísticas"],["rep","📋 Reportes"],["esc","🚩 Escalados<span class=\"n\" id=\"nEsc\" hidden></span>"],["ran","🏕️ Ranchos"],["res","👥 Residentes"],["aj","⚙️ Ajustes"]].map(([k, l]) => `<button type="button" data-t="${k}" aria-pressed="${k === tab}">${l}</button>`).join("")}</div>
+      <div class="tabs" id="tabs">${[["est","📊 Estadísticas"],["rep","📋 Reportes"],["esc","🚩 Escalados<span class=\"n\" id=\"nEsc\" hidden></span>"],["not","📰 Noticias"],["emp","🛍️ Emprendimientos<span class=\"n\" id=\"nEmp\" hidden></span>"],["ran","🏕️ Ranchos"],["res","👥 Residentes"],["aj","⚙️ Ajustes"]].map(([k, l]) => `<button type="button" data-t="${k}" aria-pressed="${k === tab}">${l}</button>`).join("")}</div>
       <div id="cuerpo"></div></main>`;
   $("#tabs").addEventListener("click", e => { const b = e.target.closest("[data-t]"); if (!b) return; tab = b.dataset.t; lsSet("condo-admin-tab", tab); document.querySelectorAll("#tabs button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); pintar(); });
   const cuerpo = $("#cuerpo");
   cuerpo.addEventListener("click", e => {
     const p = e.target.closest("[data-p]"); if (p) { periodo = +p.dataset.p; pintar(); return; }
     const c = e.target.closest("[data-caso]"); if (c) { abrirCaso(c.dataset.caso); return; }
+    const ne = e.target.closest("[data-ntedit]"); if (ne) { editarNoticia(ne.dataset.ntedit); return; }
+    const nf = e.target.closest("[data-ntfijar]"); if (nf) { const n = noticias.find(x => x.id === nf.dataset.ntfijar); if (n) Datos.cambiarDoc("nt", n.id, { fijada: !n.fijada }).then(() => aviso(n.fijada ? "Noticia desfijada" : "📌 Noticia fijada arriba")).catch(() => aviso("No se pudo cambiar.")); return; }
+    const nb = e.target.closest("[data-ntborrar]"); if (nb) { const id = nb.dataset.ntborrar;
+      if (ntConf !== id) { ntConf = id; pintarNt(); setTimeout(() => { if (ntConf === id) { ntConf = null; pintarNt(); } }, 4000); return; }
+      ntConf = null; Datos.borrarDoc("nt", id).then(() => aviso("Noticia borrada")).catch(() => aviso("No se pudo borrar.")); return; }
+    const ea = e.target.closest("[data-emapr]"); if (ea) { const x = emprend.find(y => y.id === ea.dataset.emapr); if (x) Datos.cambiarDoc("em", x.id, { estado: "aprobado", motivo: "", revisado: true }).then(() => aviso(`✅ "${x.nombre}" publicado`)).catch(() => aviso("No se pudo aprobar.")); return; }
+    const er = e.target.closest("[data-emrech]"); if (er) { rechazarEmp(er.dataset.emrech); return; }
+    const eq = e.target.closest("[data-emquitar]"); if (eq) { const id = eq.dataset.emquitar;
+      if (emConf !== id) { emConf = id; pintarEm(); setTimeout(() => { if (emConf === id) { emConf = null; pintarEm(); } }, 4000); return; }
+      emConf = null; Datos.cambiarDoc("em", id, { estado: "rechazado", motivo: "Quitado por la administración", revisado: true }).then(() => aviso("Publicación quitada")).catch(() => aviso("No se pudo quitar.")); return; }
   });
+  /* ---- noticias ---- */
+  function noticiasV(){
+    return `<section class="caja" id="ntForm"><h2 id="ntFT">📰 Publicar una noticia</h2><p class="nota" style="margin-top:-4px">La ven al instante los residentes y seguridad, con aviso en la app.</p>
+      <form id="fNt" novalidate><div class="campo"><label>Tipo</label><div class="ops" id="ntTipos">${NT_TIPOS.map(([k, ic, n]) => `<button type="button" data-ntt="${k}" aria-pressed="${k === ntTipoSel}">${ic} ${n}</button>`).join("")}</div></div>
+        <div class="campo"><label for="ntT">Título</label><input id="ntT" maxlength="90" placeholder="Ej.: Corte de agua el jueves"></div>
+        <div class="campo"><label for="ntF">Fecha de lo que va a pasar (opcional)</label><input id="ntF" type="date"></div>
+        <div class="campo"><label for="ntX">Detalle</label><textarea id="ntX" maxlength="1500" style="min-height:120px" placeholder="Ej.: El AyA va a cortar el agua de 8:00 a. m. a 2:00 p. m. Les recomendamos guardar agua."></textarea></div>
+        <div class="campo"><label>Foto (opcional)</label><div class="foto-in"><label class="btn sm" style="cursor:pointer">📷 Agregar foto<input type="file" id="ntP" accept="image/*" hidden></label><span id="ntPv"></span></div></div>
+        <label style="display:flex;gap:8px;align-items:center;margin-top:12px;font-weight:700"><input type="checkbox" id="ntFij" style="width:20px;height:20px"> 📌 Fijar arriba (para avisos importantes)</label>
+        <p class="err" id="ntE"></p><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn pri" type="submit" id="ntB">Publicar noticia</button><button class="btn" type="button" id="ntCan" hidden>Cancelar edición</button></div></form></section>
+      <section class="caja"><h2>Publicadas (<span id="ntN">0</span>)</h2><div id="ntLista" style="margin-top:12px"></div></section>`;
+  }
+  function pintarNt(){
+    const l = $("#ntLista"); if (!l) return; $("#ntN").textContent = noticias.length;
+    l.innerHTML = noticiasHTML(noticias, n => `<div class="nt-acc"><button class="btn sm" type="button" data-ntedit="${esc(n.id)}">✏️ Editar</button><button class="btn sm" type="button" data-ntfijar="${esc(n.id)}">${n.fijada ? "Desfijar" : "📌 Fijar"}</button><button class="btn sm" type="button" data-ntborrar="${esc(n.id)}">${ntConf === n.id ? "¿Seguro? Tocá otra vez" : "🗑️ Borrar"}</button></div>`);
+  }
+  function fotoNt(){ $("#ntPv").innerHTML = ntFoto ? `<img src="${esc(ntFoto)}" alt="Foto"> <button class="btn sm" type="button" id="ntPq">Quitar</button>` : ""; const q = $("#ntPq"); if (q) q.onclick = () => { ntFoto = ""; fotoNt(); }; }
+  function limpiarNt(){ ntEdit = null; ntFoto = ""; ntTipoSel = "aviso"; const f = $("#fNt"); if (!f) return; f.reset(); fotoNt(); $("#ntFT").textContent = "📰 Publicar una noticia"; $("#ntB").textContent = "Publicar noticia"; $("#ntCan").hidden = true;
+    document.querySelectorAll("#ntTipos button").forEach(x => x.setAttribute("aria-pressed", String(x.dataset.ntt === ntTipoSel))); }
+  function editarNoticia(id){
+    const n = noticias.find(x => x.id === id); if (!n) return;
+    ntEdit = id; ntTipoSel = n.tipo; ntFoto = n.foto || "";
+    $("#ntT").value = n.titulo; $("#ntF").value = n.fecha || ""; $("#ntX").value = n.texto; $("#ntFij").checked = !!n.fijada; fotoNt();
+    document.querySelectorAll("#ntTipos button").forEach(x => x.setAttribute("aria-pressed", String(x.dataset.ntt === ntTipoSel)));
+    $("#ntFT").textContent = "✏️ Editar noticia"; $("#ntB").textContent = "Guardar cambios"; $("#ntCan").hidden = false;
+    $("#ntForm").scrollIntoView({ behavior: "smooth", block: "start" }); setTimeout(() => $("#ntT").focus(), 300);
+  }
+  function conectarNt(){
+    $("#ntTipos").onclick = e => { const b = e.target.closest("[data-ntt]"); if (!b) return; ntTipoSel = b.dataset.ntt; document.querySelectorAll("#ntTipos button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); };
+    $("#ntP").onchange = async e => { const f = e.target.files[0]; if (!f) return; try { ntFoto = await comprimir(f, 1100); fotoNt(); } catch { aviso("No se pudo leer la foto."); } };
+    $("#ntCan").onclick = limpiarNt;
+    $("#fNt").onsubmit = async e => { e.preventDefault();
+      const titulo = $("#ntT").value.trim(), texto = $("#ntX").value.trim();
+      if (titulo.length < 4) { $("#ntE").textContent = "Escribí un título."; $("#ntT").focus(); return; }
+      if (texto.length < 5) { $("#ntE").textContent = "Escribí el detalle de la noticia."; $("#ntX").focus(); return; }
+      $("#ntE").textContent = ""; $("#ntB").disabled = true;
+      const datos = { titulo: titulo.slice(0, 90), texto: texto.slice(0, 1500), tipo: ntTipoSel, fecha: $("#ntF").value || "", foto: ntFoto, fijada: $("#ntFij").checked };
+      try { if (ntEdit) { await Datos.cambiarDoc("nt", ntEdit, { ...datos, editado: true }); aviso("✅ Noticia actualizada"); } else { await Datos.crearDoc("nt", datos); aviso("📰 Noticia publicada"); } limpiarNt(); }
+      catch { $("#ntE").textContent = "No se pudo guardar. Revisá la conexión."; }
+      $("#ntB").disabled = false; };
+    pintarNt();
+  }
+  /* ---- emprendimientos ---- */
+  function emprendV(){
+    return `<section class="caja"><h2>🕒 Solicitudes por aprobar (<span id="emNP">0</span>)</h2><p class="nota" style="margin-top:-4px">Los residentes envían su emprendimiento y solo se publica cuando lo aprobás. Así se evita el spam.</p><div id="emPend"></div></section>
+      <section class="caja"><h2>✅ Publicados (<span id="emNA">0</span>)</h2><p class="nota" style="margin-top:-4px">Los ven los residentes y seguridad.</p><div id="emAprob"></div></section>
+      <section class="caja"><h2>No aprobados</h2><div class="lista" id="emRech"></div></section>`;
+  }
+  function pintarEm(){
+    const n = emprend.filter(e => e.estado === "pendiente"), b = $("#nEmp"); if (b) { b.hidden = !n.length; b.textContent = n.length; }
+    if (!$("#emPend")) return;
+    const ap = emprend.filter(e => e.estado === "aprobado"), re = emprend.filter(e => e.estado === "rechazado");
+    $("#emNP").textContent = n.length; $("#emNA").textContent = ap.length;
+    $("#emPend").innerHTML = n.length ? `<div class="emps">${n.map(e => tarjetaEmp(e, `<span class="pend-t">Enviado ${hace(e.creado)}</span><button class="btn sm pri" type="button" data-emapr="${esc(e.id)}">✅ Aprobar</button><button class="btn sm" type="button" data-emrech="${esc(e.id)}">✖️ Rechazar</button>`)).join("")}</div>` : `<p class="vacio">✅ No hay solicitudes pendientes.</p>`;
+    $("#emAprob").innerHTML = ap.length ? `<div class="emps">${ap.map(e => tarjetaEmp(e, `<button class="btn sm" type="button" data-emquitar="${esc(e.id)}">${emConf === e.id ? "¿Seguro?" : "Quitar"}</button>`)).join("")}</div>` : `<p class="vacio">Todavía no hay emprendimientos publicados.</p>`;
+    $("#emRech").innerHTML = re.length ? re.map(e => `<div class="caso" style="cursor:default"><span class="ic">${empCat(e.categoria)[1]}</span><span><b>${esc(e.nombre)}</b><span class="meta">Casa ${esc(e.casa)} · ${esc(e.resNombre)} · ${esc(e.motivo || "Sin motivo")}</span></span>
+      <span class="der"><button class="btn sm" type="button" data-emapr="${esc(e.id)}">Aprobar</button></span></div>`).join("") : `<p class="vacio">Ninguno.</p>`;
+  }
+  function rechazarEmp(id){
+    const x = emprend.find(y => y.id === id); if (!x) return;
+    hoja(`<h2 style="font-size:19px">✖️ Rechazar "${esc(x.nombre)}"</h2><p class="nota">El residente de la casa ${esc(x.casa)} va a ver el motivo en su app.</p>
+      <div class="campo"><label for="emM">Motivo</label><textarea id="emM" maxlength="150" placeholder="Ej.: No se permiten ventas de ese tipo dentro del condominio."></textarea></div>
+      <div style="display:flex;gap:8px;margin-top:12px"><button class="btn rojo" type="button" id="emMok">Rechazar</button><button class="btn" type="button" data-cerrar>Cancelar</button></div>`, (h, cerrar) => {
+      $("#emMok", h).onclick = async () => { try { await Datos.cambiarDoc("em", id, { estado: "rechazado", motivo: $("#emM", h).value.trim().slice(0, 150), revisado: true }); aviso("Solicitud rechazada"); cerrar(); } catch { aviso("No se pudo guardar."); } };
+      setTimeout(() => $("#emM", h).focus(), 100); });
+  }
   const waCasa = (casa, txt) => { const r = residentes.find(x => String(x.casa) === String(casa) && x.tel); if (!r) return "";
     const t = r.tel.length === 8 ? "506" + r.tel : r.tel; return `<a class="btn sm" style="background:#25d366;border-color:#25d366;color:#062b14" target="_blank" rel="noopener" href="https://wa.me/${t}?text=${encodeURIComponent(txt)}">WhatsApp casa ${esc(casa)}</a>`; };
   function abrirCaso(id){
@@ -626,12 +821,14 @@ function admin(){
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><a class="btn" href="seguridad.html${location.search}" target="_blank" rel="noopener">🛡️ Panel de seguridad</a><a class="btn" href="residente.html${location.search}" target="_blank" rel="noopener">🏠 Panel de residentes</a></div></section>
       <section class="caja"><h2>Nombre del condominio</h2><div class="campo"><input id="aN" maxlength="50" value="${esc(nombreCondo())}"></div><button class="btn pri" type="button" id="aNg" style="margin-top:10px">Guardar</button>
         <p class="nota">En la demo el nombre se guarda en este celular.</p></section>
-      <section class="caja"><h2>Datos de prueba</h2><p class="nota" style="margin-top:-4px">Borra todos los reportes, residentes y reservas de ranchos y vuelve a cargar un mes de ejemplo.</p><button class="btn rojo" type="button" id="aR" style="margin-top:10px">Reiniciar datos de ejemplo</button></section>`;
+      <section class="caja"><h2>Datos de prueba</h2><p class="nota" style="margin-top:-4px">Borra todos los reportes, residentes, reservas, noticias y emprendimientos y vuelve a cargar un mes de ejemplo.</p><button class="btn rojo" type="button" id="aR" style="margin-top:10px">Reiniciar datos de ejemplo</button></section>`;
   }
   function pintar(){
     const sc = scrollY;
     const nE = casos.filter(c => c.escalado === "pendiente").length, bE = $("#nEsc"); if (bE) { bE.hidden = !nE; bE.textContent = nE; }
-    cuerpo.innerHTML = tab === "est" ? estadisticas() : tab === "rep" ? reportes() : tab === "esc" ? escalados() : tab === "ran" ? ranchosV() : tab === "res" ? residentesV() : ajustes();
+    cuerpo.innerHTML = tab === "est" ? estadisticas() : tab === "rep" ? reportes() : tab === "esc" ? escalados() : tab === "not" ? noticiasV() : tab === "emp" ? emprendV() : tab === "ran" ? ranchosV() : tab === "res" ? residentesV() : ajustes();
+    if (tab === "not") { ntEdit = null; ntFoto = ""; ntTipoSel = "aviso"; conectarNt(); }
+    pintarEm();
     if (tab === "ran") {
       $("#rfR").onchange = e => { rFil.rancho = +e.target.value; pintar(); }; $("#rfC").onchange = e => { rFil.cuando = e.target.value; pintar(); };
       cuerpo.querySelectorAll("[data-rcan]").forEach(b => b.onclick = async () => { const id = b.dataset.rcan;
@@ -664,12 +861,16 @@ function admin(){
       $("#aNg").onclick = () => { lsSet("condo-nombre", $("#aN").value.trim() || "Condominio Puerto España"); aviso("Nombre guardado"); admin(); };
       let seguro = false;
       $("#aR").onclick = async () => { if (!seguro) { seguro = true; $("#aR").textContent = "Tocá otra vez para confirmar"; setTimeout(() => { seguro = false; const b = $("#aR"); if (b) b.textContent = "Reiniciar datos de ejemplo"; }, 4000); return; }
-        $("#aR").disabled = true; try { await Datos.borrarTodo(); const e = generarEjemplo(); await Datos.sembrar(e.casos, e.residentes, e.reservas); aviso("Datos de ejemplo cargados"); } catch { aviso("No se pudo reiniciar."); } $("#aR").disabled = false; };
+        $("#aR").disabled = true; try { await Datos.borrarTodo(); const e = generarEjemplo(); await Datos.sembrar(e.casos, e.residentes, e.reservas, e.noticias, e.emprend); aviso("Datos de ejemplo cargados"); } catch { aviso("No se pudo reiniciar."); } $("#aR").disabled = false; };
     }
     if (tab !== "rep" || document.activeElement?.id !== "fq") scrollTo(0, sc);
   }
-  Datos.escuchar(async lista => { if (await asegurarEjemplo(lista)) return; casos = lista; if (tab !== "res") pintar(); }, () => { cuerpo.innerHTML = `<p class="vacio">No se pudo conectar. Revisá la conexión.</p>`; }).catch(() => {});
+  Datos.escuchar(async lista => { if (await asegurarEjemplo(lista)) return; casos = lista; if (!["res", "not", "emp"].includes(tab)) pintar(); }, () => { cuerpo.innerHTML = `<p class="vacio">No se pudo conectar. Revisá la conexión.</p>`; }).catch(() => {});
   Datos.escucharReservas(l => { reservas = l; if (tab === "ran") pintar(); }).catch(() => {});
+  Datos.escucharCol("nt", l => { noticias = l; pintarNt(); }).catch(() => {});
+  let emAntes = null;
+  Datos.escucharCol("em", l => { if (emAntes) { const n = l.find(e => e.estado === "pendiente" && !emAntes.has(e.id)); if (n) aviso(`🛍️ Nueva solicitud de emprendimiento: ${n.nombre} (casa ${n.casa})`); }
+    emAntes = new Set(l.map(e => e.id)); emprend = l; pintarEm(); }).catch(() => {});
   Datos.escucharResidentes(l => { const nuevo = residentes.length !== l.length || JSON.stringify(residentes.map(r => [r.id, r.activo, r.conClave])) !== JSON.stringify(l.map(r => [r.id, r.activo, r.conClave])); residentes = l; if (tab === "res" && nuevo) { pintar(); if (ultimoLink) mostrarLink(ultimoLink, $("#nuevoLink")); } }).catch(() => {});
   pintar();
 }
@@ -678,7 +879,9 @@ function admin(){
 document.title = ({ residente: "Reportes", seguridad: "Seguridad", admin: "Administración" })[MODO] + " · " + nombreCondo();
 // Versión 2 de los datos de ejemplo: agrega ranchos y casos escalados (se recarga una sola vez para todos).
 async function actualizarEjemplo(){
-  try { if ((await Datos.version()) >= 2) return; await Datos.ponerVersion(2); await Datos.borrarTodo(); const e = generarEjemplo(); await Datos.sembrar(e.casos, e.residentes, e.reservas); } catch (x) { console.warn(x); }
+  try { const v = await Datos.version(); if (v >= 3) return; await Datos.ponerVersion(3);
+    if (v < 2) { await Datos.borrarTodo(); const e = generarEjemplo(); await Datos.sembrar(e.casos, e.residentes, e.reservas, e.noticias, e.emprend); }
+    else { const x = extrasEjemplo(); await Datos.sembrarExtras(x.noticias, x.emprend); } } catch (x) { console.warn(x); }
 }
 actualizarEjemplo().finally(() => {
   if (MODO === "residente") { residente(); Datos.escuchar(l => asegurarEjemplo(l)).catch(() => {}); }

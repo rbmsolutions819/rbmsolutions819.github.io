@@ -386,6 +386,22 @@ service cloud.firestore {
       allow create: if request.resource.data.keys().hasOnly(['r']) && request.resource.data.r is string;
       allow update: if false;
     }
+    match /demo_condo_noticias/{id} {
+      allow read, delete: if true;
+      allow create, update: if request.resource.data.keys().hasOnly(['titulo','texto','tipo','fecha','foto','fijada','creado','editado'])
+        && request.resource.data.titulo is string && request.resource.data.titulo.size() <= 90
+        && request.resource.data.texto is string && request.resource.data.texto.size() <= 1500
+        && request.resource.data.tipo in ['aviso', 'evento', 'mant', 'importante']
+        && (!('foto' in request.resource.data) || (request.resource.data.foto is string && request.resource.data.foto.size() < 500000));
+    }
+    match /demo_condo_emprend/{id} {
+      allow read, delete: if true;
+      allow create, update: if request.resource.data.keys().hasOnly(['nombre','categoria','descripcion','tel','foto','casa','resNombre','resId','estado','motivo','creado','revisado'])
+        && request.resource.data.nombre is string && request.resource.data.nombre.size() <= 60
+        && request.resource.data.descripcion is string && request.resource.data.descripcion.size() <= 400
+        && request.resource.data.estado in ['pendiente', 'aprobado', 'rechazado']
+        && (!('foto' in request.resource.data) || (request.resource.data.foto is string && request.resource.data.foto.size() < 500000));
+    }
     match /demo_condo_acceso/{h} {
       allow read, delete: if true;
       allow create, update: if h.size() == 64 && request.resource.data.keys().hasOnly(['t']) && request.resource.data.t is string && request.resource.data.t.size() <= 40;

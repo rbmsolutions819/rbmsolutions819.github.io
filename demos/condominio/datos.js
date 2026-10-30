@@ -10,14 +10,14 @@ window.Datos = (() => {
     messagingSenderId: "602522235911",
     appId: "1:602522235911:web:bd4fe58dcecb79edefe6a2"
   };
-  const CASOS = "demo_condo_casos", META = "demo_condo_meta", RES = "demo_condo_residentes", ACC = "demo_condo_acceso", RR = "demo_condo_ranchos", RS = "demo_condo_rslots";
+  const CASOS = "demo_condo_casos", META = "demo_condo_meta", RES = "demo_condo_residentes", ACC = "demo_condo_acceso", RR = "demo_condo_ranchos", RS = "demo_condo_rslots", NT = "demo_condo_noticias", EM = "demo_condo_emprend";
   const LOCAL = /[?&]local\b/.test(location.search);
   const BASE = "https://www.gstatic.com/firebasejs/10.12.2/";
   let F = null, db = null, listo = null;
 
   // ---------- versión local (solo este navegador) ----------
   const LK = "condo-demo-v1", subs = [];
-  const vacio = () => ({ n: 1000, casos: {}, res: {}, acc: {}, rr: {}, v: 0 });
+  const vacio = () => ({ n: 1000, casos: {}, res: {}, acc: {}, rr: {}, nt: {}, em: {}, v: 0 });
   const lLeer = () => { try { return { ...vacio(), ...JSON.parse(localStorage.getItem(LK)) }; } catch { return vacio(); } };
   const lGuardar = d => { localStorage.setItem(LK, JSON.stringify(d)); subs.forEach(f => f()); };
   addEventListener("storage", e => { if (e.key === LK) subs.forEach(f => f()); });
@@ -169,11 +169,45 @@ window.Datos = (() => {
     const w = F.writeBatch(db); w.update(F.doc(db, RR, r.id), { estado: "cancelada", canceladoPor: quien });
     slotIds(r).forEach(id => w.delete(F.doc(db, RS, id))); await w.commit();
   }
+  /* ================= NOTICIAS Y EMPRENDIMIENTOS ================= */
+  // Colecciones sencillas: la administración publica noticias; los residentes envían emprendimientos y la administración los aprueba.
+  const COLS = { nt: NT, em: EM };
+  const limpiarDoc = (id, d) => ({ id, ...d, creado: ms(d.creado), revisado: ms(d.revisado), editado: ms(d.editado) });
+  async function escucharCol(k, alCambiar, alFallar) {
+    await iniciar();
+    if (LOCAL) { const f = () => alCambiar(Object.entries(lLeer()[k]).map(([id, d]) => limpiarDoc(id, d)).sort((a, b) => b.creado - a.creado)); subs.push(f); setTimeout(f, 0); return () => {}; }
+    return F.onSnapshot(F.collection(db, COLS[k]), s => alCambiar(s.docs.map(x => limpiarDoc(x.id, x.data({ serverTimestamps: "estimate" }))).sort((a, b) => b.creado - a.creado)), e => alFallar && alFallar(e));
+  }
+  async function crearDoc(k, datos) {
+    await iniciar();
+    if (LOCAL) { const d = lLeer(), id = k + Date.now(); d[k][id] = { ...datos, creado: Date.now() }; lGuardar(d); return id; }
+    const ref = F.doc(F.collection(db, COLS[k])); await F.setDoc(ref, { ...datos, creado: F.serverTimestamp() }); return ref.id;
+  }
+  async function cambiarDoc(k, id, cambios) {
+    await iniciar(); const c = { ...cambios };
+    if (LOCAL) { const d = lLeer(); if (!d[k][id]) throw new Error("no-existe"); ["revisado", "editado"].forEach(x => { if (c[x] === true) c[x] = Date.now(); }); d[k][id] = { ...d[k][id], ...c }; lGuardar(d); return; }
+    ["revisado", "editado"].forEach(x => { if (c[x] === true) c[x] = F.serverTimestamp(); });
+    await F.updateDoc(F.doc(db, COLS[k], id), c);
+  }
+  async function borrarDoc(k, id) {
+    await iniciar();
+    if (LOCAL) { const d = lLeer(); delete d[k][id]; lGuardar(d); return; }
+    await F.deleteDoc(F.doc(db, COLS[k], id));
+  }
+  // Carga noticias y emprendimientos de ejemplo (sin tocar lo demás).
+  async function sembrarExtras(noticias = [], emprend = []) {
+    await iniciar();
+    if (LOCAL) { const d = lLeer(); noticias.forEach((n, i) => d.nt["en" + i] = n); emprend.forEach((e, i) => d.em["ee" + i] = e); lGuardar(d); return; }
+    const w = F.writeBatch(db);
+    noticias.forEach(n => w.set(F.doc(F.collection(db, NT)), { ...n, creado: ts(n.creado) }));
+    emprend.forEach(e => w.set(F.doc(F.collection(db, EM)), { ...e, creado: ts(e.creado), ...(e.revisado ? { revisado: ts(e.revisado) } : {}) }));
+    await w.commit();
+  }
   async function version() { await iniciar(); if (LOCAL) return lLeer().v || 0; const s = await F.getDoc(F.doc(db, META, "version")); return s.exists() ? s.data().n : 0; }
   async function ponerVersion(n) { await iniciar(); if (LOCAL) { const d = lLeer(); d.v = n; lGuardar(d); return; } await F.setDoc(F.doc(db, META, "version"), { n }); }
 
   /* ================= DATOS DE EJEMPLO ================= */
-  async function sembrar(casos, residentes, reservas = []) {
+  async function sembrar(casos, residentes, reservas = [], noticias = [], emprend = []) {
     await iniciar();
     const filas = [];
     for (const r of residentes) {
@@ -185,6 +219,7 @@ window.Datos = (() => {
       reservas.forEach((r, i) => { d.rr["e" + i] = { ...r, estado: "activa", canceladoPor: "", creado: Date.now() }; });
       filas.forEach(f => { d.res[f.id] = { ...f.r, creado: Date.now() }; if (f.acc) d.acc[f.acc] = f.id; });
       casos.forEach((c, i) => { d.n++; d.casos["s" + i] = { ...c, num: d.n }; });
+      noticias.forEach((n, i) => d.nt["en" + i] = n); emprend.forEach((e, i) => d.em["ee" + i] = e);
       lGuardar(d); return;
     }
     let w = F.writeBatch(db), k = 0;
@@ -196,15 +231,16 @@ window.Datos = (() => {
       for (const id of slotIds(r)) { w.set(F.doc(db, RS, id), { r: ref.id }); await paso(); } }
     w.set(F.doc(db, META, "contador"), { n });
     await w.commit();
+    await sembrarExtras(noticias, emprend);
   }
   async function borrarTodo() {
     await iniciar();
     if (LOCAL) { lGuardar({ ...vacio(), v: lLeer().v }); return; }
-    for (const c of [CASOS, RES, ACC, RR, RS]) {
+    for (const c of [CASOS, RES, ACC, RR, RS, NT, EM]) {
       const s = await F.getDocs(F.collection(db, c));
       for (let i = 0; i < s.docs.length; i += 400) { const w = F.writeBatch(db); s.docs.slice(i, i + 400).forEach(d => w.delete(d.ref)); await w.commit(); }
     }
     await F.setDoc(F.doc(db, META, "contador"), { n: 1000 });
   }
-  return { LOCAL, soloDigitos, escucharReservas, reservar, cancelarReserva, version, ponerVersion, asegurarResidente, escuchar, crear, actualizar, escucharResidentes, crearResidente, obtenerResidente, cambiarResidente, crearClave, ingresar, sembrar, borrarTodo };
+  return { LOCAL, soloDigitos, escucharCol, crearDoc, cambiarDoc, borrarDoc, sembrarExtras, escucharReservas, reservar, cancelarReserva, version, ponerVersion, asegurarResidente, escuchar, crear, actualizar, escucharResidentes, crearResidente, obtenerResidente, cambiarResidente, crearClave, ingresar, sembrar, borrarTodo };
 })();
