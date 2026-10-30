@@ -90,6 +90,31 @@ function catalogoEmp(l, cat){
 }
 const EST_EMP = { pendiente: ["en_atencion", "🕒 En revisión"], aprobado: ["cerrado", "✅ Publicado"], rechazado: ["nuevo", "No aprobado"] };
 
+/* ===================== VISITAS ===================== */
+const VI_TIPOS = [["visita","👥","Visita"],["entrega","📦","Entrega o delivery"],["servicio","🔧","Servicio o técnico"],["transporte","🚕","Taxi o Uber"]];
+const viTipo = k => VI_TIPOS.find(t => t[0] === k) || VI_TIPOS[0];
+const viHasta = v => v.hasta || v.fecha;
+const viVarios = v => viHasta(v) !== v.fecha;
+const viVigente = v => v.fecha <= hoyL() && hoyL() <= viHasta(v);
+const viEstado = v => v.estado === "autorizada" && viHasta(v) < hoyL() ? "vencida" : v.estado;
+// Puede entrar hoy: autorizada y vigente, o de varios días que ya salió y vuelve otro día
+const viPuedeEntrar = v => viVigente(v) && (v.estado === "autorizada" || (v.estado === "salio" && viVarios(v)));
+const EST_VI = { autorizada: ["en_atencion", "🕒 Autorizada"], adentro: ["cerrado", "🟢 Adentro"], salio: ["sal", "🚪 Salió"], cancelada: ["nuevo", "Cancelada"], vencida: ["sal", "Vencida"] };
+const viEstHTML = v => { const e = viEstado(v), [cl, t] = EST_VI[e] || EST_VI.autorizada; return `<span class="est ${cl}">${e === "salio" && viPuedeEntrar(v) ? "🕒 Puede volver" : t}</span>`; };
+const diaCorto = f => mayus(deIsoL(f).toLocaleDateString("es-CR", { weekday: "short", day: "numeric", month: "short" }));
+const viCuando = v => viVarios(v) ? `Del ${diaCorto(v.fecha)} al ${diaCorto(viHasta(v))}` : diaTxt(v.fecha);
+const hora = t => t ? new Date(t).toLocaleTimeString("es-CR", { hour: "numeric", minute: "2-digit" }) : "";
+const h24a12 = hh => { if (!hh) return ""; const [h, m] = hh.split(":").map(Number); return h12(h * 60 + m); };
+const nuevoCodigo = () => String(1000 + Math.floor(Math.random() * 9000));
+function filaVisita(v, { verCasa = true, acciones = "" } = {}){
+  const [, ic, nom] = viTipo(v.tipo);
+  const mov = v.estado === "adentro" ? `Entró ${hace(v.ingreso)} (${hora(v.ingreso)})` : v.estado === "salio" ? `Entró ${hora(v.ingreso)} · salió ${hora(v.salida)}` : "";
+  return `<div class="caso visita${v.estado === "adentro" ? " uso" : ""}" style="cursor:default;${["cancelada", "vencida"].includes(viEstado(v)) ? "opacity:.6" : ""}"><span class="ic">${ic}</span>
+    <span><b>${esc(v.nombre)}${v.placa ? ` · 🚗 ${esc(v.placa)}` : ""}</b><span class="meta">${verCasa ? `Casa ${esc(v.casa)} · ` : ""}${esc(nom)} · ${esc(viCuando(v))}${v.hora ? ` · ~${esc(h24a12(v.hora))}` : ""}${v.codigo ? ` · Código <b>${esc(v.codigo)}</b>` : ""}${v.registradaPor ? ` · Sin anunciar (${esc(v.registradaPor)})` : ""}${mov ? ` · ${mov}` : ""}${v.nota ? ` · ${esc(v.nota)}` : ""}</span></span>
+    <span class="der">${viEstHTML(v)}${acciones}</span></div>`;
+}
+const mensajeVisita = v => `Hola ${String(v.nombre).split(" ")[0]} 👋, ya autoricé tu entrada al ${nombreCondo()} (${viCuando(v).toLowerCase()}). En la caseta de seguridad decí que vas a la casa ${v.casa} y da este código: *${v.codigo}*`;
+
 /* ===================== UTILIDADES ===================== */
 const min = (a, b) => Math.round((b - a) / 60000);
 function hace(t){ const m = min(t, Date.now()); if (m < 1) return "recién"; if (m < 60) return `hace ${m} min`; const h = Math.floor(m / 60); if (h < 24) return `hace ${h} h`; const d = Math.floor(h / 24); return d === 1 ? "ayer" : `hace ${d} días`; }
@@ -224,12 +249,41 @@ function extrasEjemplo(){
     em("Huevos de gallina libre", "productos", "Huevos frescos de gallinas criadas libres. Cartón de 30 a ₡4.500, se los llevo hasta la casa.", "40", "Jorge Chaves", "87044040", "aprobado", 6),
     em("Uñas Sofi", "belleza", "Manicure, pedicure y uñas acrílicas a domicilio dentro del condominio. Con cita.", "45", "Sofía Castro", "87054545", "pendiente", 1),
     em("Paseo de perros", "mascotas", "Saco a pasear a tu perro en las mañanas o en las tardes, 30 o 60 minutos. También cuido mascotas en vacaciones.", "33", "Daniela Mora", "87063333", "pendiente", .2)];
-  return { noticias, emprend };
+  return { noticias, emprend, visitas: visitasEjemplo() };
+}
+function visitasEjemplo(){
+  const ahora = Date.now(), M = 60000, en = n => { const d = new Date(); d.setDate(d.getDate() + n); return isoL(d); };
+  const hoyA = (h, m = 0) => { const d = new Date(); d.setHours(h, m, 0, 0); return Math.min(d.getTime(), ahora - 5 * M); };
+  const diaA = (n, h, m = 0) => { const d = new Date(); d.setDate(d.getDate() + n); d.setHours(h, m, 0, 0); return d.getTime(); };
+  const P = { ric: ["18", RICARDO.nombre, "ej-" + RICARDO.cedula], mar: ["12", "María Fernández", "ej-101110111"], car: ["5", "Carlos Jiménez", "ej-202220222"], and: ["8", "Andrea Solano", "ej-303330333"],
+    pat: ["21", "Patricia Rojas", "ej-505550555"], est: ["27", "Esteban Vargas", "ej-606660666"], dan: ["33", "Daniela Mora", "ej-707770777"], jor: ["40", "Jorge Chaves", "ej-808880888"] };
+  const V = (q, nombre, tipo, placa, fecha, hasta, hh, nota, codigo, estado, ingreso, salida, creado, extra = {}) => { const [casa, resNombre, resId] = P[q] || [q, "", ""];
+    const mov = [...(ingreso ? [{ t: ingreso, tipo: "in", of: "Oficial Mora" }] : []), ...(salida ? [{ t: salida, tipo: "out", of: "Oficial Rojas" }] : [])];
+    return { nombre, tipo, placa, fecha, hasta: hasta || fecha, hora: hh, nota, codigo, casa, resNombre, resId, estado, ingreso: ingreso || null, salida: salida || null, mov, registradaPor: "", creado, ...extra }; };
+  const hoy = hoyL();
+  return [
+    // Ricardo (casa 18): para ver la demo como residente
+    V("ric", "Técnico de Kölbi", "servicio", "CL 245871", hoy, "", "14:00", "Viene a instalar el internet", "4827", "autorizada", null, null, ahora - 3 * 3600e3),
+    V("ric", "Rosa Montoya (mamá)", "visita", "BRM 512", hoy, "", "", "", "3190", "adentro", ahora - 52 * M, null, ahora - 26 * 3600e3),
+    V("ric", "Pizza Hut", "entrega", "", en(-1), "", "19:30", "", "7712", "salio", diaA(-1, 19, 41), diaA(-1, 19, 49), diaA(-1, 19, 5)),
+    V("ric", "Cumpleaños de Sofi (5 invitados)", "visita", "", en(3), "", "15:00", "Cumpleaños en el Rancho 3", "6605", "autorizada", null, null, ahora - 5 * 3600e3),
+    // otros residentes
+    V("mar", "Ana Lucía Pérez (niñera)", "visita", "", en(-10), en(20), "07:00", "Viene de lunes a viernes", "5521", "adentro", hoyA(7, 4), null, diaA(-11, 18), { mov: [{ t: diaA(-1, 7, 2), tipo: "in", of: "Oficial Vargas" }, { t: diaA(-1, 16, 5), tipo: "out", of: "Oficial Mora" }, { t: hoyA(7, 4), tipo: "in", of: "Oficial Vargas" }] }),
+    V("car", "Mudanzas Express", "servicio", "C 158233", hoy, "", "10:00", "Camión grande, va a la casa 5", "2468", "salio", hoyA(9, 48), hoyA(12, 30), ahora - 22 * 3600e3),
+    V("and", "Uber · Toyota Corolla gris", "transporte", "BTV 908", hoy, "", "", "", "9034", "autorizada", null, null, ahora - 12 * M),
+    V("pat", "Amigas del café", "visita", "", hoy, "", "16:00", "Son 3 personas", "1188", "autorizada", null, null, ahora - 4 * 3600e3),
+    V("est", "Rappi", "entrega", "", hoy, "", "", "", "", "salio", hoyA(11, 15), hoyA(11, 22), hoyA(11, 15), { registradaPor: "Oficial Mora" }),
+    V("dan", "Veterinaria a domicilio", "servicio", "MVR 330", en(1), "", "09:00", "Vacunas del perro", "7350", "autorizada", null, null, ahora - 2 * 3600e3),
+    V("jor", "Familia Chaves Ulate", "visita", "BKP 774", en(-2), "", "12:00", "Almuerzo familiar", "6011", "salio", diaA(-2, 12, 10), diaA(-2, 18, 40), diaA(-3, 20)),
+    V("mar", "Fontanero Don Luis", "servicio", "", en(-4), "", "08:00", "", "3377", "salio", diaA(-4, 8, 20), diaA(-4, 10, 5), diaA(-5, 17)),
+    V("est", "Amigos del fútbol", "visita", "", en(-6), "", "20:00", "", "8420", "salio", diaA(-6, 20, 15), diaA(-6, 23, 50), diaA(-6, 14)),
+    V("car", "Juan Carlos (primo)", "visita", "", en(-3), "", "", "Al final no vino", "4410", "cancelada", null, null, diaA(-4, 9)),
+    V("dan", "Correos de Costa Rica", "entrega", "", en(-1), "", "", "", "", "salio", diaA(-1, 10, 30), diaA(-1, 10, 36), diaA(-1, 10, 30), { registradaPor: "Oficial Rojas" })];
 }
 async function asegurarEjemplo(casos){
   if (casos.length || sembrando || lsGet("condo-sembrado-vacio", false)) return false;
   sembrando = true;
-  try { const e = generarEjemplo(); await Datos.sembrar(e.casos, e.residentes, e.reservas, e.noticias, e.emprend); return true; } catch (x) { console.warn(x); return false; } finally { sembrando = false; }
+  try { const e = generarEjemplo(); await Datos.sembrar(e.casos, e.residentes, e.reservas, e.noticias, e.emprend, e.visitas); return true; } catch (x) { console.warn(x); return false; } finally { sembrando = false; }
 }
 
 /* ===================== DETALLE DE UN CASO ===================== */
@@ -282,13 +336,14 @@ function residente(){
   if (act) return activar(act[1]);
   if (!ses || !ses.id) return loginResidente();
   let casos = [], sel = null, foto = "", antes = {};
-  let rtab = location.hash === "#ranchos" ? "ran" : lsGet("condo-res-tab", "not");
-  if (!["not", "rep", "ran", "emp"].includes(rtab)) rtab = "not";
+  let rtab = location.hash === "#ranchos" ? "ran" : location.hash === "#visitas" ? "vis" : lsGet("condo-res-tab", "not");
+  if (!["not", "rep", "vis", "ran", "emp"].includes(rtab)) rtab = "not";
   app.innerHTML = `${encabezado(`Casa ${esc(ses.casa)} · ${esc(ses.nombre)}`)}
     <main class="wrap">
-      <div class="tabs" id="rTabs">${[["not","📰 Noticias<span class=\"n\" id=\"nNt\" hidden></span>"],["rep","📢 Reportes"],["ran","🏕️ Ranchos"],["emp","🛍️ Emprendimientos"]].map(([k, l]) => `<button type="button" data-rt="${k}" aria-pressed="${rtab === k}">${l}</button>`).join("")}</div>
+      <div class="tabs" id="rTabs">${[["not","📰 Noticias<span class=\"n\" id=\"nNt\" hidden></span>"],["rep","📢 Reportes"],["vis","🚗 Visitas"],["ran","🏕️ Ranchos"],["emp","🛍️ Emprendimientos"]].map(([k, l]) => `<button type="button" data-rt="${k}" aria-pressed="${rtab === k}">${l}</button>`).join("")}</div>
       <div id="vNot" ${rtab === "not" ? "" : "hidden"}></div>
       <div id="vEmp" ${rtab === "emp" ? "" : "hidden"}></div>
+      <div id="vVis" ${rtab === "vis" ? "" : "hidden"}></div>
       <div id="vRan" ${rtab === "ran" ? "" : "hidden"}></div>
       <div id="vRep" ${rtab === "rep" ? "" : "hidden"}>
       <section class="caja"><h2>Reportar un problema</h2><p class="nota" style="margin-top:-4px">Tu reporte le llega al instante al oficial de seguridad. Solo lo ven seguridad y la administración.</p>
@@ -305,8 +360,9 @@ function residente(){
     </main>`;
   $("#rTabs").addEventListener("click", e => { const b = e.target.closest("[data-rt]"); if (!b) return; rtab = b.dataset.rt; lsSet("condo-res-tab", rtab);
     document.querySelectorAll("#rTabs button").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
-    ["not", "rep", "ran", "emp"].forEach(k => $("#v" + mayus(k)).hidden = rtab !== k); if (rtab === "not") verNoticias(); });
+    ["not", "rep", "vis", "ran", "emp"].forEach(k => $("#v" + mayus(k)).hidden = rtab !== k); if (rtab === "not") verNoticias(); });
   panelRanchos(ses, $("#vRan"));
+  panelVisitasRes(ses, $("#vVis"));
   const verNoticias = panelNoticiasRes($("#vNot"), () => rtab === "not");
   panelEmpRes(ses, $("#vEmp"));
   const pintarLugar = () => { const casa = $("#rl").value === "Una casa"; $("#rcw").hidden = !casa; $("#rdw").hidden = casa; };
@@ -422,6 +478,62 @@ function panelRanchos(ses, cont){
     pintar(); }, () => { $("#rDia", cont).innerHTML = `<p class="vacio">No se pudo conectar. Revisá tu conexión.</p>`; }).catch(() => {});
   pintar(); setInterval(pintar, 60000);
 }
+function panelVisitasRes(ses, cont){
+  let lista = [], tSel = "visita", dSel = "hoy", conf = null, antes = null;
+  cont.innerHTML = `<section class="caja"><h2>🚗 Autorizar una visita</h2><p class="nota" style="margin-top:-4px">Seguridad recibe la autorización al instante. Le pasás el código a tu visita y la dejan entrar sin tener que llamarte.</p>
+      <form id="fVis" novalidate>
+        <div class="campo"><label>¿Quién viene?</label><div class="ops" id="vTipos">${VI_TIPOS.map(([k, ic, n]) => `<button type="button" data-vt="${k}" aria-pressed="${k === tSel}">${ic} ${n}</button>`).join("")}</div></div>
+        <div class="fila2"><div class="campo"><label for="vN">Nombre</label><input id="vN" maxlength="60" placeholder="Ej.: Rosa Montoya"></div>
+          <div class="campo"><label for="vP">Placa (opcional)</label><input id="vP" maxlength="10" autocapitalize="characters" placeholder="Ej.: BRM 512"></div></div>
+        <div class="campo"><label>¿Qué día?</label><div class="ops" id="vDias"><button type="button" data-vd="hoy" aria-pressed="true">Hoy</button><button type="button" data-vd="man" aria-pressed="false">Mañana</button><button type="button" data-vd="otro" aria-pressed="false">📅 Otro día</button><button type="button" data-vd="varios" aria-pressed="false">🔁 Varios días</button></div></div>
+        <div class="fila2" id="vFechas" hidden><div class="campo"><label for="vF">Desde</label><input id="vF" type="date"></div><div class="campo" id="vHw"><label for="vH">Hasta</label><input id="vH" type="date"></div></div>
+        <p class="nota" id="vVarN" hidden>Para quien viene seguido: niñera, empleada, jardinero. Puede entrar y salir todos los días de ese período con el mismo código.</p>
+        <div class="fila2"><div class="campo"><label for="vHo">Hora aproximada (opcional)</label><input id="vHo" type="time"></div>
+          <div class="campo"><label for="vNo">Nota para seguridad (opcional)</label><input id="vNo" maxlength="150" placeholder="Ej.: Son 3 personas"></div></div>
+        <p class="err" id="vE"></p><button class="btn pri bloque" type="submit" id="vB">Autorizar visita</button></form><div id="vPase"></div></section>
+    <section class="caja"><h2>Mis visitas</h2><div class="lista" id="vMis"></div></section>`;
+  const f = id => $(id, cont);
+  const pintarDias = () => { f("#vFechas").hidden = !["otro", "varios"].includes(dSel); f("#vHw").hidden = dSel !== "varios"; f("#vVarN").hidden = dSel !== "varios";
+    f("#vDias").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", String(x.dataset.vd === dSel))); };
+  f("#vF").min = f("#vH").min = hoyL(); f("#vF").value = hoyL();
+  const pase = v => { const box = f("#vPase");
+    box.innerHTML = `<div class="pase"><span>Código de entrada</span><b>${esc(v.codigo)}</b><small>${esc(v.nombre)} · Casa ${esc(v.casa)} · ${esc(viCuando(v))}</small>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:10px"><a class="btn sm wa" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(mensajeVisita(v))}">💬 Enviar por WhatsApp</a><button class="btn sm" type="button" id="vCp">📋 Copiar mensaje</button><button class="btn sm" type="button" id="vX">Listo</button></div></div>`;
+    f("#vCp").onclick = async () => { try { await navigator.clipboard.writeText(mensajeVisita(v).replace(/\*/g, "")); aviso("Mensaje copiado"); } catch { aviso("Código: " + v.codigo); } };
+    f("#vX").onclick = () => box.innerHTML = ""; box.scrollIntoView({ behavior: "smooth", block: "center" }); };
+  f("#fVis").addEventListener("submit", async e => { e.preventDefault();
+    const nombre = f("#vN").value.trim(), man = (() => { const d = new Date(); d.setDate(d.getDate() + 1); return isoL(d); })();
+    const fecha = dSel === "hoy" ? hoyL() : dSel === "man" ? man : f("#vF").value, hasta = dSel === "varios" ? f("#vH").value : fecha;
+    if (nombre.length < 3) { f("#vE").textContent = "Escribí el nombre de la visita."; f("#vN").focus(); return; }
+    if (!fecha || fecha < hoyL()) { f("#vE").textContent = "Escogé un día de hoy en adelante."; return; }
+    if (dSel === "varios" && (!hasta || hasta < fecha)) { f("#vE").textContent = "Escogé hasta qué día puede venir."; return; }
+    f("#vE").textContent = ""; f("#vB").disabled = true;
+    const v = { nombre: nombre.slice(0, 60), tipo: tSel, placa: f("#vP").value.trim().toUpperCase().slice(0, 10), fecha, hasta, hora: f("#vHo").value || "", nota: f("#vNo").value.trim().slice(0, 150),
+      codigo: nuevoCodigo(), casa: ses.casa, resNombre: ses.nombre, resId: ses.id, estado: "autorizada", ingreso: null, salida: null, mov: [], registradaPor: "" };
+    try { await Datos.crearDoc("vi", v); aviso(`✅ ${v.nombre} autorizado. Seguridad ya lo sabe.`); f("#fVis").reset(); dSel = "hoy"; f("#vF").value = hoyL(); pintarDias(); pase(v); }
+    catch { f("#vE").textContent = "No se pudo autorizar. Revisá tu conexión."; }
+    f("#vB").disabled = false; });
+  const pintar = () => {
+    const mias = lista.filter(v => v.resId === ses.id), hoy = hoyL();
+    const act = mias.filter(v => viHasta(v) >= hoy && v.estado !== "cancelada").sort((a, b) => a.fecha.localeCompare(b.fecha) || (a.hora || "").localeCompare(b.hora || ""));
+    const pas = mias.filter(v => !act.includes(v)).sort((a, b) => b.creado - a.creado).slice(0, 15);
+    const acc = v => v.estado === "autorizada" ? `<span style="display:flex;gap:4px"><button class="btn sm" type="button" data-vcod="${esc(v.id)}">Código</button><button class="btn sm" type="button" data-vcan="${esc(v.id)}">${conf === v.id ? "¿Seguro?" : "Cancelar"}</button></span>` : "";
+    f("#vMis").innerHTML = (act.length ? `<h3 class="dia-t" style="margin-top:4px">Hoy y próximas</h3>` + act.map(v => filaVisita(v, { verCasa: false, acciones: acc(v) })).join("") : `<p class="vacio">No tenés visitas autorizadas para hoy ni para los próximos días.</p>`)
+      + (pas.length ? `<h3 class="dia-t">Anteriores</h3>` + pas.map(v => filaVisita(v, { verCasa: false })).join("") : "");
+  };
+  cont.addEventListener("click", async e => {
+    const t = e.target.closest("[data-vt]"); if (t) { tSel = t.dataset.vt; f("#vTipos").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", String(x === t))); return; }
+    const d = e.target.closest("[data-vd]"); if (d) { dSel = d.dataset.vd; pintarDias(); return; }
+    const c = e.target.closest("[data-vcod]"); if (c) { const v = lista.find(x => x.id === c.dataset.vcod); if (v) pase(v); return; }
+    const x = e.target.closest("[data-vcan]"); if (!x) return; const id = x.dataset.vcan;
+    if (conf !== id) { conf = id; pintar(); setTimeout(() => { if (conf === id) { conf = null; pintar(); } }, 4000); return; }
+    conf = null; try { await Datos.cambiarDoc("vi", id, { estado: "cancelada" }); aviso("Visita cancelada. Seguridad ya no la va a dejar pasar."); } catch { aviso("No se pudo cancelar."); } });
+  Datos.escucharCol("vi", l => {
+    if (antes) l.filter(v => v.resId === ses.id && antes.get(v.id) && antes.get(v.id) !== v.estado).forEach(v => {
+      if (v.estado === "adentro") aviso(`🚗 ${v.nombre} ya ingresó al condominio`); else if (v.estado === "salio") aviso(`🚪 ${v.nombre} salió del condominio`); });
+    antes = new Map(l.map(v => [v.id, v.estado])); lista = l; pintar(); }, () => { f("#vMis").innerHTML = `<p class="vacio">No se pudo conectar. Revisá tu conexión.</p>`; }).catch(() => {});
+  setInterval(pintar, 60000);
+}
 function panelNoticiasRes(cont, abierta){
   let lista = null;
   cont.innerHTML = `<section class="caja"><h2>📰 Noticias del condominio</h2><p class="nota" style="margin-top:-4px">Avisos, eventos y mantenimientos que publica la administración.</p><div id="ntL" style="margin-top:12px"><p class="vacio">Cargando…</p></div></section>`;
@@ -520,17 +632,24 @@ async function activar(id){
 /* ===================== PANEL DE SEGURIDAD (monitoreo) ===================== */
 function seguridad(){
   if (!lsGet("condo-ses-seguridad", null)) return loginUsuario("seguridad", "Seguridad · Monitoreo", "🛡️", seguridad);
-  let casos = [], vista = "pend", conocidos = null, sonido = false, oficial = lsGet("condo-oficial", OFICIALES[0]), reservas = [], conocidasR = null, noticias = [], emprend = [], eCat = "", conocidasN = null;
+  let casos = [], vista = "pend", conocidos = null, sonido = false, oficial = lsGet("condo-oficial", OFICIALES[0]), reservas = [], conocidasR = null, noticias = [], emprend = [], eCat = "", conocidasN = null, visitas = [], conocidasV = null, vq = "";
   app.innerHTML = `${encabezado("🛡️ Seguridad · Monitoreo", `<select id="ofi" class="btn sm" aria-label="Oficial de turno">${OFICIALES.map(o => `<option ${o === oficial ? "selected" : ""}>${o}</option>`).join("")}</select>`)}
     <main class="wrap">
       <div class="contadores"><div class="r"><b id="cN">0</b><span>Nuevos</span></div><div class="a"><b id="cA">0</b><span>En atención</span></div><div class="v"><b id="cC">0</b><span>Cerrados hoy</span></div></div>
       <button class="btn bloque" type="button" id="alertas" style="margin-top:10px">🔔 Activar sonido y alertas de reportes nuevos</button>
-      <div class="tabs" id="vistas"><button type="button" data-v="pend" aria-pressed="true">Pendientes</button><button type="button" data-v="hoy" aria-pressed="false">Cerrados hoy</button><button type="button" data-v="todos" aria-pressed="false">Últimos 50</button><button type="button" data-v="ran" aria-pressed="false">🏕️ Ranchos<span class="n" id="cR" hidden>0</span></button><button type="button" data-v="not" aria-pressed="false">📰 Noticias</button><button type="button" data-v="emp" aria-pressed="false">🛍️ Emprendimientos</button></div>
+      <div class="tabs" id="vistas"><button type="button" data-v="pend" aria-pressed="true">Pendientes</button><button type="button" data-v="hoy" aria-pressed="false">Cerrados hoy</button><button type="button" data-v="todos" aria-pressed="false">Últimos 50</button><button type="button" data-v="vis" aria-pressed="false">🚗 Visitas<span class="n" id="cV" hidden>0</span></button><button type="button" data-v="ran" aria-pressed="false">🏕️ Ranchos<span class="n" id="cR" hidden>0</span></button><button type="button" data-v="not" aria-pressed="false">📰 Noticias</button><button type="button" data-v="emp" aria-pressed="false">🛍️ Emprendimientos</button></div>
       <div class="lista" id="lista"></div></main>`;
   $("#ofi").addEventListener("change", e => { oficial = e.target.value; lsSet("condo-oficial", oficial); });
   $("#alertas").addEventListener("click", async () => { sonido = true; pitar(); try { if ("Notification" in window) await Notification.requestPermission(); } catch {}
     $("#alertas").textContent = "🔔 Alertas activadas: suena cuando entra un reporte"; $("#alertas").disabled = true; });
   $("#vistas").addEventListener("click", e => { const b = e.target.closest("[data-v]"); if (!b) return; vista = b.dataset.v; document.querySelectorAll("#vistas button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); pintar(); });
+  $("#lista").addEventListener("input", e => { if (e.target.id === "vq") { vq = e.target.value; const p = e.target.selectionStart; pintar(); const i = $("#vq"); if (i) { i.focus(); i.setSelectionRange(p, p); } } });
+  $("#lista").addEventListener("click", async e => {
+    const vi = e.target.closest("[data-vin]"), vo = e.target.closest("[data-vout]");
+    if (vi || vo) { const v = visitas.find(x => x.id === (vi || vo).dataset[vi ? "vin" : "vout"]); if (!v) return; const t = Date.now();
+      try { await Datos.cambiarDoc("vi", v.id, vi ? { estado: "adentro", ingreso: t, salida: null, mov: [...(v.mov || []), { t, tipo: "in", of: oficial }].slice(-80) } : { estado: "salio", salida: t, mov: [...(v.mov || []), { t, tipo: "out", of: oficial }].slice(-80) });
+        aviso(vi ? `✅ Entrada de ${v.nombre} registrada (casa ${v.casa})` : `🚪 Salida de ${v.nombre} registrada`); } catch { aviso("No se pudo guardar. Revisá la conexión."); } return; }
+    if (e.target.closest("#vSin")) { sinAnunciar(); return; } });
   $("#lista").addEventListener("click", e => { const k = e.target.closest("[data-ecat]"); if (k) { eCat = k.dataset.ecat; pintar(); return; } const b = e.target.closest("[data-caso]"); if (b) abrir(b.dataset.caso); });
   let ctx = null;
   function pitar(){ try { ctx = ctx || new (window.AudioContext || window.webkitAudioContext)(); [0, .25].forEach(d => { const o = ctx.createOscillator(), g = ctx.createGain(); o.frequency.value = 880; o.connect(g); g.connect(ctx.destination); g.gain.setValueAtTime(.25, ctx.currentTime + d); g.gain.exponentialRampToValueAtTime(.001, ctx.currentTime + d + .2); o.start(ctx.currentTime + d); o.stop(ctx.currentTime + d + .22); }); } catch {} }
@@ -542,6 +661,8 @@ function seguridad(){
     const pend = [...nuevos.sort((a, b) => prio[a.prioridad] - prio[b.prioridad] || a.creado - b.creado), ...aten.sort((a, b) => a.creado - b.creado)];
     const hoyF = hoyL(), deHoy = reservas.filter(r => r.estado === "activa" && r.fecha === hoyF).length;
     $("#cR").hidden = !deHoy; $("#cR").textContent = deHoy; $("#cR").style.background = "var(--verde)";
+    const esperadas = visitas.filter(viPuedeEntrar).length; $("#cV").hidden = !esperadas; $("#cV").textContent = esperadas; $("#cV").style.background = "var(--ambar)";
+    if (vista === "vis") { $("#lista").innerHTML = visitasSeg(); return; }
     if (vista === "ran") { $("#lista").innerHTML = ranchosSeg(); return; }
     if (vista === "not") { $("#lista").innerHTML = noticiasHTML(noticias); return; }
     if (vista === "emp") { $("#lista").innerHTML = `<p class="nota" style="margin:6px 0 0">Emprendimientos de residentes aprobados por la administración.</p>` + catalogoEmp(emprend, eCat); return; }
@@ -549,6 +670,38 @@ function seguridad(){
     $("#lista").innerHTML = l.length ? l.map(c => filaCaso(c)).join("") : `<p class="vacio">${vista === "pend" ? "✅ No hay reportes pendientes." : "No hay casos."}</p>`;
     document.title = (nuevos.length ? `(${nuevos.length}) ` : "") + "Seguridad · " + nombreCondo();
   }
+  function visitasSeg(){
+    const q = vq.trim().toLowerCase(), hoy = hoyL(), ini = (() => { const d = new Date(); d.setHours(0, 0, 0, 0); return d.getTime(); })();
+    const busca = v => !q || `${v.codigo} ${v.nombre} ${v.placa} casa ${v.casa} ${v.resNombre}`.toLowerCase().includes(q);
+    const esp = visitas.filter(v => viPuedeEntrar(v) && busca(v)).sort((a, b) => (a.hora || "99").localeCompare(b.hora || "99"));
+    const den = visitas.filter(v => v.estado === "adentro" && busca(v)).sort((a, b) => a.ingreso - b.ingreso);
+    const sal = visitas.filter(v => v.estado === "salio" && v.salida >= ini && !viPuedeEntrar(v) && busca(v)).sort((a, b) => b.salida - a.salida);
+    const man = visitas.filter(v => v.estado === "autorizada" && v.fecha > hoy && busca(v)).sort((a, b) => a.fecha.localeCompare(b.fecha)).slice(0, 10);
+    const btnIn = v => `<button class="btn sm pri" type="button" data-vin="${esc(v.id)}">✅ Entró</button>`, btnOut = v => `<button class="btn sm" type="button" data-vout="${esc(v.id)}">🚪 Salió</button>`;
+    return `<div class="visbus"><input id="vq" type="search" placeholder="🔎 Buscar por código, nombre, placa o casa" value="${esc(vq)}" autocomplete="off" inputmode="search"><button class="btn sm" type="button" id="vSin">➕ Visita sin anunciar</button></div>
+      <h3 class="dia-t">🕒 Esperadas hoy (${esp.length})</h3>${esp.map(v => filaVisita(v, { acciones: btnIn(v) })).join("") || `<p class="vacio">${q ? "No hay ninguna autorizada con esos datos. Si no está, llamá a la casa." : "No hay más visitas esperadas hoy."}</p>`}
+      <h3 class="dia-t">🟢 Adentro ahora (${den.length})</h3>${den.map(v => filaVisita(v, { acciones: btnOut(v) })).join("") || `<p class="vacio">No hay visitas adentro.</p>`}
+      ${sal.length ? `<h3 class="dia-t">🚪 Salieron hoy (${sal.length})</h3>${sal.map(v => filaVisita(v)).join("")}` : ""}
+      ${man.length && !q ? `<h3 class="dia-t">📅 Próximos días</h3>${man.map(v => filaVisita(v)).join("")}` : ""}`;
+  }
+  function sinAnunciar(){
+    hoja(`<div class="hoja-cab"><h3>➕ Visita sin anunciar</h3><button class="x" type="button" data-cerrar aria-label="Cerrar">×</button></div>
+      <p class="nota">Para quien llega sin autorización. Llamá o escribile a la casa y, si el residente dice que sí, registrala aquí. Queda en la bitácora.</p>
+      <div class="ops" id="sTipos">${VI_TIPOS.map(([k, ic, n], i) => `<button type="button" data-st="${k}" aria-pressed="${i === 0}">${ic} ${n}</button>`).join("")}</div>
+      <div class="fila2"><div class="campo"><label for="sN">Nombre</label><input id="sN" maxlength="60"></div><div class="campo"><label for="sC">Casa</label><input id="sC" maxlength="10" inputmode="numeric"></div></div>
+      <div class="fila2"><div class="campo"><label for="sP">Placa (opcional)</label><input id="sP" maxlength="10" autocapitalize="characters"></div><div class="campo"><label for="sNo">Nota</label><input id="sNo" maxlength="150" value="Se llamó a la casa y autorizó"></div></div>
+      <p class="err" id="sE"></p><button class="btn pri bloque" type="button" id="sOk" style="margin-top:8px">Registrar entrada</button>`, (h, cerrar) => {
+      let st = "visita"; $("#sTipos", h).onclick = e => { const b = e.target.closest("[data-st]"); if (!b) return; st = b.dataset.st; h.querySelectorAll("#sTipos button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); };
+      $("#sOk", h).onclick = async () => { const nombre = $("#sN", h).value.trim(), casa = $("#sC", h).value.trim();
+        if (nombre.length < 2) { $("#sE", h).textContent = "Escribí el nombre."; return; } if (!casa) { $("#sE", h).textContent = "Escribí la casa a la que va."; return; }
+        const t = Date.now(), r = lista_res(casa);
+        try { await Datos.crearDoc("vi", { nombre: nombre.slice(0, 60), tipo: st, placa: $("#sP", h).value.trim().toUpperCase().slice(0, 10), fecha: hoyL(), hasta: hoyL(), hora: "", nota: $("#sNo", h).value.trim().slice(0, 150), codigo: "",
+            casa: casa.slice(0, 10), resNombre: r ? r.nombre : "", resId: r ? r.id : "", estado: "adentro", ingreso: t, salida: null, mov: [{ t, tipo: "in", of: oficial }], registradaPor: oficial });
+          aviso(`✅ Entrada de ${nombre} registrada (casa ${casa})`); cerrar(); } catch { $("#sE", h).textContent = "No se pudo guardar. Revisá la conexión."; } };
+      setTimeout(() => $("#sN", h).focus(), 100); });
+  }
+  let residentesSeg = []; const lista_res = casa => residentesSeg.find(r => String(r.casa) === String(casa) && r.activo);
+  Datos.escucharResidentes(l => { residentesSeg = l; }).catch(() => {});
   function ranchosSeg(){
     const ahora = minAhora(); let h = `<p class="nota" style="margin:6px 0 0">Reservas de los ranchos para hoy y los próximos 7 días. Te avisa cuando un residente reserva o cancela.</p>`;
     for (let i = 0; i < 8; i++) { const d = new Date(); d.setDate(d.getDate() + i); const f = isoL(d);
@@ -608,17 +761,24 @@ function seguridad(){
     conocidasR = new Map(l.map(r => [r.id, r.estado])); reservas = l; pintar(); }).catch(() => {});
   Datos.escucharCol("nt", l => { if (conocidasN) { const n = l.find(x => !conocidasN.has(x.id)); if (n) aviso(`📰 Nueva noticia: ${n.titulo}`); } conocidasN = new Set(l.map(x => x.id)); noticias = l; if (vista === "not") pintar(); }).catch(() => {});
   Datos.escucharCol("em", l => { emprend = l; if (vista === "emp") pintar(); }).catch(() => {});
-  setInterval(pintar, 30000);
+  Datos.escucharCol("vi", l => {
+    if (conocidasV) { const n = l.filter(v => !conocidasV.has(v.id) && v.estado === "autorizada");
+      n.forEach(v => { const t = `${v.nombre} → Casa ${v.casa} · ${viCuando(v)}${v.hora ? " · ~" + h24a12(v.hora) : ""}`; aviso(`🚗 Visita autorizada: ${t}`); if (sonido) pitar();
+        try { if (document.hidden && Notification.permission === "granted") new Notification("Nueva visita autorizada", { body: t }); } catch {} });
+      l.filter(v => conocidasV.get(v.id) === "autorizada" && v.estado === "cancelada").forEach(v => aviso(`✖️ Visita cancelada: ${v.nombre} (casa ${v.casa})`)); }
+    conocidasV = new Map(l.map(v => [v.id, v.estado])); visitas = l; if (document.activeElement?.id !== "vq" || vista !== "vis") pintar(); else { const i = $("#vq"), p = i.selectionStart; pintar(); const j = $("#vq"); j.focus(); j.setSelectionRange(p, p); } }).catch(() => {});
+  setInterval(() => { if (document.activeElement?.id !== "vq") pintar(); }, 30000);
 }
 
 /* ===================== PANEL DE ADMINISTRACIÓN ===================== */
 function admin(){
   if (!lsGet("condo-ses-admin", null)) return loginUsuario("admin", "Administración", "📊", admin);
   let noticias = [], emprend = [], ntEdit = null, ntTipoSel = "aviso", ntFoto = "", ntConf = null, emConf = null;
+  let visitas = [], vFil = { periodo: 7, q: "" };
   let ultimoLink = null, casos = [], residentes = [], reservas = [], rFil = { rancho: 0, cuando: "prox" }, rConf = null, tab = lsGet("condo-admin-tab", "est"), periodo = 30, filtro = { estado: "", tipo: "", q: "" };
   app.innerHTML = `${encabezado("📊 Administración")}
     <main class="wrap">
-      <div class="tabs" id="tabs">${[["est","📊 Estadísticas"],["rep","📋 Reportes"],["esc","🚩 Escalados<span class=\"n\" id=\"nEsc\" hidden></span>"],["not","📰 Noticias"],["emp","🛍️ Emprendimientos<span class=\"n\" id=\"nEmp\" hidden></span>"],["ran","🏕️ Ranchos"],["res","👥 Residentes"],["aj","⚙️ Ajustes"]].map(([k, l]) => `<button type="button" data-t="${k}" aria-pressed="${k === tab}">${l}</button>`).join("")}</div>
+      <div class="tabs" id="tabs">${[["est","📊 Estadísticas"],["rep","📋 Reportes"],["esc","🚩 Escalados<span class=\"n\" id=\"nEsc\" hidden></span>"],["not","📰 Noticias"],["emp","🛍️ Emprendimientos<span class=\"n\" id=\"nEmp\" hidden></span>"],["vis","🚗 Visitas"],["ran","🏕️ Ranchos"],["res","👥 Residentes"],["aj","⚙️ Ajustes"]].map(([k, l]) => `<button type="button" data-t="${k}" aria-pressed="${k === tab}">${l}</button>`).join("")}</div>
       <div id="cuerpo"></div></main>`;
   $("#tabs").addEventListener("click", e => { const b = e.target.closest("[data-t]"); if (!b) return; tab = b.dataset.t; lsSet("condo-admin-tab", tab); document.querySelectorAll("#tabs button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); pintar(); });
   const cuerpo = $("#cuerpo");
@@ -731,6 +891,29 @@ function admin(){
       <div class="lista">${p.map(fila).join("") || `<p class="vacio">✅ No hay casos escalados pendientes.</p>`}</div></section>
       <section class="caja"><h2>Resueltos recientemente</h2><div class="lista">${r.map(fila).join("") || `<p class="vacio">Todavía no hay.</p>`}</div></section>`;
   }
+  function visitasV(){
+    const hoy = hoyL(), desde = vFil.periodo ? (() => { const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() - (vFil.periodo - 1)); return d.getTime(); })() : 0;
+    const mes = Date.now() - 30 * 864e5, entradas = visitas.flatMap(v => (v.mov || []).filter(m => m.tipo === "in" && m.t >= mes));
+    const q = vFil.q.trim().toLowerCase();
+    const l = visitas.filter(v => (v.ingreso || v.creado) >= desde || (vFil.periodo === 1 && viPuedeEntrar(v)))
+      .filter(v => !q || `${v.codigo} ${v.nombre} ${v.placa} ${v.casa} ${v.resNombre} ${v.registradaPor}`.toLowerCase().includes(q))
+      .sort((a, b) => (b.ingreso || b.creado) - (a.ingreso || a.creado));
+    const porCasa = contar(visitas.filter(v => (v.mov || []).some(m => m.tipo === "in" && m.t >= mes)), v => `Casa ${v.casa}`).slice(0, 6);
+    return `<div class="kpis">
+        <div><span>Esperadas hoy</span><b>${visitas.filter(viPuedeEntrar).length}</b><small>autorizadas que no han entrado</small></div>
+        <div><span>Adentro ahora</span><b>${visitas.filter(v => v.estado === "adentro").length}</b><small>visitas dentro del condominio</small></div>
+        <div><span>Entradas (30 días)</span><b>${entradas.length}</b><small>${visitas.filter(v => v.registradaPor && v.creado >= mes).length} sin anunciar</small></div></div>
+      <div class="graficos"><section class="caja"><h2>¿Quién viene?</h2>${barras(contar(visitas.filter(v => (v.ingreso || v.creado) >= mes), v => `${viTipo(v.tipo)[1]} ${viTipo(v.tipo)[2]}`))}</section>
+        <section class="caja"><h2>Casas con más visitas</h2>${barras(porCasa, { top: 1 })}</section></div>
+      <section class="caja"><h2>📒 Bitácora de visitas</h2><p class="nota" style="margin-top:-4px">Quién autorizó, a qué hora entró y salió, y qué oficial lo registró.</p>
+        <div class="filtros"><select id="vfP" aria-label="Período">${[[1,"Hoy"],[7,"Últimos 7 días"],[30,"Últimos 30 días"],[0,"Todo"]].map(([p, t]) => `<option value="${p}" ${vFil.periodo === p ? "selected" : ""}>${t}</option>`).join("")}</select>
+          <input id="vfQ" type="search" placeholder="Buscar nombre, placa, casa…" value="${esc(vFil.q)}"><button class="btn sm" type="button" id="vCsv">⬇️ Descargar Excel (CSV)</button></div>
+        <div class="tabla-wrap"><table><tr><th>Visita</th><th>Tipo</th><th>Placa</th><th>Casa</th><th>Autorizó</th><th>Día</th><th>Entró</th><th>Salió</th><th>Estado</th></tr>
+          ${l.slice(0, 300).map(v => { const ins = (v.mov || []).filter(m => m.tipo === "in"); return `<tr><td><b>${esc(v.nombre)}</b>${v.nota ? `<br><small class="nota">${esc(v.nota)}</small>` : ""}</td><td>${viTipo(v.tipo)[1]} ${esc(viTipo(v.tipo)[2])}</td><td>${esc(v.placa || "—")}</td><td>${esc(v.casa)}</td>
+            <td>${v.registradaPor ? `⚠️ Sin anunciar<br><small class="nota">${esc(v.registradaPor)}</small>` : esc(v.resNombre || "—")}</td><td>${esc(viCuando(v))}</td>
+            <td>${v.ingreso ? `${fecha(v.ingreso)}${ins.length ? `<br><small class="nota">${esc(ins[ins.length - 1].of)}${ins.length > 1 ? ` · ${ins.length} entradas` : ""}</small>` : ""}` : "—"}</td><td>${v.salida && v.estado === "salio" ? fecha(v.salida) : "—"}</td><td>${viEstHTML(v)}</td></tr>`; }).join("")}</table></div>
+        <p class="nota">${l.length} visita${l.length === 1 ? "" : "s"}.</p></section>`;
+  }
   function ranchosV(){
     const hoyF = hoyL(), mes = reservas.filter(r => r.estado === "activa" && r.fecha.slice(0, 7) === hoyF.slice(0, 7));
     const l = reservas.filter(r => (!rFil.rancho || r.rancho === rFil.rancho) && (rFil.cuando === "prox" ? r.fecha >= hoyF : r.fecha < hoyF))
@@ -821,12 +1004,12 @@ function admin(){
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><a class="btn" href="seguridad.html${location.search}" target="_blank" rel="noopener">🛡️ Panel de seguridad</a><a class="btn" href="residente.html${location.search}" target="_blank" rel="noopener">🏠 Panel de residentes</a></div></section>
       <section class="caja"><h2>Nombre del condominio</h2><div class="campo"><input id="aN" maxlength="50" value="${esc(nombreCondo())}"></div><button class="btn pri" type="button" id="aNg" style="margin-top:10px">Guardar</button>
         <p class="nota">En la demo el nombre se guarda en este celular.</p></section>
-      <section class="caja"><h2>Datos de prueba</h2><p class="nota" style="margin-top:-4px">Borra todos los reportes, residentes, reservas, noticias y emprendimientos y vuelve a cargar un mes de ejemplo.</p><button class="btn rojo" type="button" id="aR" style="margin-top:10px">Reiniciar datos de ejemplo</button></section>`;
+      <section class="caja"><h2>Datos de prueba</h2><p class="nota" style="margin-top:-4px">Borra todos los reportes, residentes, reservas, visitas, noticias y emprendimientos y vuelve a cargar un mes de ejemplo.</p><button class="btn rojo" type="button" id="aR" style="margin-top:10px">Reiniciar datos de ejemplo</button></section>`;
   }
   function pintar(){
     const sc = scrollY;
     const nE = casos.filter(c => c.escalado === "pendiente").length, bE = $("#nEsc"); if (bE) { bE.hidden = !nE; bE.textContent = nE; }
-    cuerpo.innerHTML = tab === "est" ? estadisticas() : tab === "rep" ? reportes() : tab === "esc" ? escalados() : tab === "not" ? noticiasV() : tab === "emp" ? emprendV() : tab === "ran" ? ranchosV() : tab === "res" ? residentesV() : ajustes();
+    cuerpo.innerHTML = tab === "est" ? estadisticas() : tab === "rep" ? reportes() : tab === "esc" ? escalados() : tab === "not" ? noticiasV() : tab === "emp" ? emprendV() : tab === "ran" ? ranchosV() : tab === "vis" ? visitasV() : tab === "res" ? residentesV() : ajustes();
     if (tab === "not") { ntEdit = null; ntFoto = ""; ntTipoSel = "aviso"; conectarNt(); }
     pintarEm();
     if (tab === "ran") {
@@ -834,6 +1017,16 @@ function admin(){
       cuerpo.querySelectorAll("[data-rcan]").forEach(b => b.onclick = async () => { const id = b.dataset.rcan;
         if (rConf !== id) { rConf = id; pintar(); setTimeout(() => { if (rConf === id) { rConf = null; if (tab === "ran") pintar(); } }, 4000); return; }
         rConf = null; try { await Datos.cancelarReserva(reservas.find(r => r.id === id), "Administración"); aviso("Reserva cancelada"); } catch { aviso("No se pudo cancelar."); } });
+    }
+    if (tab === "vis") {
+      $("#vfP").onchange = e => { vFil.periodo = +e.target.value; pintar(); };
+      $("#vfQ").oninput = e => { vFil.q = e.target.value; const p = e.target.selectionStart; pintar(); const i = $("#vfQ"); i.focus(); i.setSelectionRange(p, p); };
+      $("#vCsv").onclick = () => { const filas = [["Visita","Tipo","Placa","Casa","Autorizó","Desde","Hasta","Hora aprox.","Código","Entró","Salió","Oficial entrada","Oficial salida","Estado","Nota"],
+        ...visitas.sort((a, b) => (b.ingreso || b.creado) - (a.ingreso || a.creado)).map(v => { const ins = (v.mov || []).filter(m => m.tipo === "in"), outs = (v.mov || []).filter(m => m.tipo === "out");
+          return [v.nombre, viTipo(v.tipo)[2], v.placa, v.casa, v.registradaPor ? "Sin anunciar (" + v.registradaPor + ")" : v.resNombre, v.fecha, viHasta(v), v.hora, v.codigo, v.ingreso ? fecha(v.ingreso) : "", v.salida && v.estado === "salio" ? fecha(v.salida) : "",
+            ins.length ? ins[ins.length - 1].of : "", outs.length ? outs[outs.length - 1].of : "", (EST_VI[viEstado(v)] || ["", ""])[1].replace(/^\S+ /, ""), v.nota]; })];
+        const csv = "\ufeff" + filas.map(f => f.map(x => `"${String(x ?? "").replace(/"/g, '""')}"`).join(";")).join("\n");
+        const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" })); a.download = "bitacora-visitas.csv"; a.click(); };
     }
     if (tab === "rep") {
       $("#fe").onchange = e => { filtro.estado = e.target.value; pintar(); }; $("#ft").onchange = e => { filtro.tipo = e.target.value; pintar(); };
@@ -861,12 +1054,13 @@ function admin(){
       $("#aNg").onclick = () => { lsSet("condo-nombre", $("#aN").value.trim() || "Condominio Puerto España"); aviso("Nombre guardado"); admin(); };
       let seguro = false;
       $("#aR").onclick = async () => { if (!seguro) { seguro = true; $("#aR").textContent = "Tocá otra vez para confirmar"; setTimeout(() => { seguro = false; const b = $("#aR"); if (b) b.textContent = "Reiniciar datos de ejemplo"; }, 4000); return; }
-        $("#aR").disabled = true; try { await Datos.borrarTodo(); const e = generarEjemplo(); await Datos.sembrar(e.casos, e.residentes, e.reservas, e.noticias, e.emprend); aviso("Datos de ejemplo cargados"); } catch { aviso("No se pudo reiniciar."); } $("#aR").disabled = false; };
+        $("#aR").disabled = true; try { await Datos.borrarTodo(); const e = generarEjemplo(); await Datos.sembrar(e.casos, e.residentes, e.reservas, e.noticias, e.emprend, e.visitas); aviso("Datos de ejemplo cargados"); } catch { aviso("No se pudo reiniciar."); } $("#aR").disabled = false; };
     }
-    if (tab !== "rep" || document.activeElement?.id !== "fq") scrollTo(0, sc);
+    if (!["fq", "vfQ"].includes(document.activeElement?.id)) scrollTo(0, sc);
   }
   Datos.escuchar(async lista => { if (await asegurarEjemplo(lista)) return; casos = lista; if (!["res", "not", "emp"].includes(tab)) pintar(); }, () => { cuerpo.innerHTML = `<p class="vacio">No se pudo conectar. Revisá la conexión.</p>`; }).catch(() => {});
   Datos.escucharReservas(l => { reservas = l; if (tab === "ran") pintar(); }).catch(() => {});
+  Datos.escucharCol("vi", l => { visitas = l; if (tab === "vis" && document.activeElement?.id !== "vfQ") pintar(); }).catch(() => {});
   Datos.escucharCol("nt", l => { noticias = l; pintarNt(); }).catch(() => {});
   let emAntes = null;
   Datos.escucharCol("em", l => { if (emAntes) { const n = l.find(e => e.estado === "pendiente" && !emAntes.has(e.id)); if (n) aviso(`🛍️ Nueva solicitud de emprendimiento: ${n.nombre} (casa ${n.casa})`); }
@@ -877,11 +1071,11 @@ function admin(){
 
 /* ===================== ARRANQUE ===================== */
 document.title = ({ residente: "Reportes", seguridad: "Seguridad", admin: "Administración" })[MODO] + " · " + nombreCondo();
-// Versión 2 de los datos de ejemplo: agrega ranchos y casos escalados (se recarga una sola vez para todos).
+// Versiones de los datos de ejemplo: 2 ranchos y escalados, 3 noticias y emprendimientos, 4 visitas (cada una se carga una sola vez para todos).
 async function actualizarEjemplo(){
-  try { const v = await Datos.version(); if (v >= 3) return; await Datos.ponerVersion(3);
-    if (v < 2) { await Datos.borrarTodo(); const e = generarEjemplo(); await Datos.sembrar(e.casos, e.residentes, e.reservas, e.noticias, e.emprend); }
-    else { const x = extrasEjemplo(); await Datos.sembrarExtras(x.noticias, x.emprend); } } catch (x) { console.warn(x); }
+  try { const v = await Datos.version(); if (v >= 4) return; await Datos.ponerVersion(4);
+    if (v < 2) { await Datos.borrarTodo(); const e = generarEjemplo(); await Datos.sembrar(e.casos, e.residentes, e.reservas, e.noticias, e.emprend, e.visitas); }
+    else { const x = extrasEjemplo(); await Datos.sembrarExtras(v < 3 ? x.noticias : [], v < 3 ? x.emprend : [], x.visitas); } } catch (x) { console.warn(x); }
 }
 actualizarEjemplo().finally(() => {
   if (MODO === "residente") { residente(); Datos.escuchar(l => asegurarEjemplo(l)).catch(() => {}); }

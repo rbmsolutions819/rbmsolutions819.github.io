@@ -10,14 +10,14 @@ window.Datos = (() => {
     messagingSenderId: "602522235911",
     appId: "1:602522235911:web:bd4fe58dcecb79edefe6a2"
   };
-  const CASOS = "demo_condo_casos", META = "demo_condo_meta", RES = "demo_condo_residentes", ACC = "demo_condo_acceso", RR = "demo_condo_ranchos", RS = "demo_condo_rslots", NT = "demo_condo_noticias", EM = "demo_condo_emprend";
+  const CASOS = "demo_condo_casos", META = "demo_condo_meta", RES = "demo_condo_residentes", ACC = "demo_condo_acceso", RR = "demo_condo_ranchos", RS = "demo_condo_rslots", NT = "demo_condo_noticias", EM = "demo_condo_emprend", VI = "demo_condo_visitas";
   const LOCAL = /[?&]local\b/.test(location.search);
   const BASE = "https://www.gstatic.com/firebasejs/10.12.2/";
   let F = null, db = null, listo = null;
 
   // ---------- versión local (solo este navegador) ----------
   const LK = "condo-demo-v1", subs = [];
-  const vacio = () => ({ n: 1000, casos: {}, res: {}, acc: {}, rr: {}, nt: {}, em: {}, v: 0 });
+  const vacio = () => ({ n: 1000, casos: {}, res: {}, acc: {}, rr: {}, nt: {}, em: {}, vi: {}, v: 0 });
   const lLeer = () => { try { return { ...vacio(), ...JSON.parse(localStorage.getItem(LK)) }; } catch { return vacio(); } };
   const lGuardar = d => { localStorage.setItem(LK, JSON.stringify(d)); subs.forEach(f => f()); };
   addEventListener("storage", e => { if (e.key === LK) subs.forEach(f => f()); });
@@ -170,8 +170,9 @@ window.Datos = (() => {
     slotIds(r).forEach(id => w.delete(F.doc(db, RS, id))); await w.commit();
   }
   /* ================= NOTICIAS Y EMPRENDIMIENTOS ================= */
-  // Colecciones sencillas: la administración publica noticias; los residentes envían emprendimientos y la administración los aprueba.
-  const COLS = { nt: NT, em: EM };
+  // Colecciones sencillas: la administración publica noticias; los residentes envían emprendimientos y la administración los aprueba;
+  // los residentes autorizan visitas y seguridad marca la entrada y la salida.
+  const COLS = { nt: NT, em: EM, vi: VI };
   const limpiarDoc = (id, d) => ({ id, ...d, creado: ms(d.creado), revisado: ms(d.revisado), editado: ms(d.editado) });
   async function escucharCol(k, alCambiar, alFallar) {
     await iniciar();
@@ -195,10 +196,11 @@ window.Datos = (() => {
     await F.deleteDoc(F.doc(db, COLS[k], id));
   }
   // Carga noticias y emprendimientos de ejemplo (sin tocar lo demás).
-  async function sembrarExtras(noticias = [], emprend = []) {
+  async function sembrarExtras(noticias = [], emprend = [], visitas = []) {
     await iniciar();
-    if (LOCAL) { const d = lLeer(); noticias.forEach((n, i) => d.nt["en" + i] = n); emprend.forEach((e, i) => d.em["ee" + i] = e); lGuardar(d); return; }
+    if (LOCAL) { const d = lLeer(); noticias.forEach((n, i) => d.nt["en" + i] = n); emprend.forEach((e, i) => d.em["ee" + i] = e); visitas.forEach((v, i) => d.vi["ev" + i] = v); lGuardar(d); return; }
     const w = F.writeBatch(db);
+    visitas.forEach(v => w.set(F.doc(F.collection(db, VI)), { ...v, creado: ts(v.creado) }));
     noticias.forEach(n => w.set(F.doc(F.collection(db, NT)), { ...n, creado: ts(n.creado) }));
     emprend.forEach(e => w.set(F.doc(F.collection(db, EM)), { ...e, creado: ts(e.creado), ...(e.revisado ? { revisado: ts(e.revisado) } : {}) }));
     await w.commit();
@@ -207,7 +209,7 @@ window.Datos = (() => {
   async function ponerVersion(n) { await iniciar(); if (LOCAL) { const d = lLeer(); d.v = n; lGuardar(d); return; } await F.setDoc(F.doc(db, META, "version"), { n }); }
 
   /* ================= DATOS DE EJEMPLO ================= */
-  async function sembrar(casos, residentes, reservas = [], noticias = [], emprend = []) {
+  async function sembrar(casos, residentes, reservas = [], noticias = [], emprend = [], visitas = []) {
     await iniciar();
     const filas = [];
     for (const r of residentes) {
@@ -219,7 +221,7 @@ window.Datos = (() => {
       reservas.forEach((r, i) => { d.rr["e" + i] = { ...r, estado: "activa", canceladoPor: "", creado: Date.now() }; });
       filas.forEach(f => { d.res[f.id] = { ...f.r, creado: Date.now() }; if (f.acc) d.acc[f.acc] = f.id; });
       casos.forEach((c, i) => { d.n++; d.casos["s" + i] = { ...c, num: d.n }; });
-      noticias.forEach((n, i) => d.nt["en" + i] = n); emprend.forEach((e, i) => d.em["ee" + i] = e);
+      noticias.forEach((n, i) => d.nt["en" + i] = n); emprend.forEach((e, i) => d.em["ee" + i] = e); visitas.forEach((v, i) => d.vi["ev" + i] = v);
       lGuardar(d); return;
     }
     let w = F.writeBatch(db), k = 0;
@@ -231,12 +233,12 @@ window.Datos = (() => {
       for (const id of slotIds(r)) { w.set(F.doc(db, RS, id), { r: ref.id }); await paso(); } }
     w.set(F.doc(db, META, "contador"), { n });
     await w.commit();
-    await sembrarExtras(noticias, emprend);
+    await sembrarExtras(noticias, emprend, visitas);
   }
   async function borrarTodo() {
     await iniciar();
     if (LOCAL) { lGuardar({ ...vacio(), v: lLeer().v }); return; }
-    for (const c of [CASOS, RES, ACC, RR, RS, NT, EM]) {
+    for (const c of [CASOS, RES, ACC, RR, RS, NT, EM, VI]) {
       const s = await F.getDocs(F.collection(db, c));
       for (let i = 0; i < s.docs.length; i += 400) { const w = F.writeBatch(db); s.docs.slice(i, i + 400).forEach(d => w.delete(d.ref)); await w.commit(); }
     }

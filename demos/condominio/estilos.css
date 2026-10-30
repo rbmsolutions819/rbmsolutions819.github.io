@@ -250,3 +250,12 @@ body.ingreso .login>h2{margin-top:0!important}
 .emp-acc{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:auto;padding-top:10px}
 .btn.wa{background:#25d366;border-color:#25d366;color:#062b14}
 .pend-t{font-size:12.5px;color:var(--suave);width:100%}
+/* Visitas */
+.est.sal{background:var(--panel2);color:var(--suave)}
+.pase{margin-top:14px;text-align:center;border:2px dashed var(--verde);border-radius:16px;padding:16px;background:var(--verdeC)}
+.pase span{display:block;font-size:13px;font-weight:800;color:var(--verde2);text-transform:uppercase;letter-spacing:.06em}
+.pase b{display:block;font:700 46px/1.1 var(--ft);letter-spacing:.12em;margin:4px 0}
+.pase small{display:block;color:var(--suave);font-size:13.5px}
+.visbus{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.visbus input{flex:1 1 240px;border:1px solid var(--linea);background:var(--panel);border-radius:12px;padding:11px 12px;font-size:16px;min-width:0}
+.caso.visita .meta{white-space:normal;overflow:visible;text-overflow:clip;display:block}
