@@ -10,14 +10,14 @@ window.Datos = (() => {
     messagingSenderId: "602522235911",
     appId: "1:602522235911:web:bd4fe58dcecb79edefe6a2"
   };
-  const CASOS = "demo_condo_casos", META = "demo_condo_meta", RES = "demo_condo_residentes", ACC = "demo_condo_acceso";
+  const CASOS = "demo_condo_casos", META = "demo_condo_meta", RES = "demo_condo_residentes", ACC = "demo_condo_acceso", RR = "demo_condo_ranchos", RS = "demo_condo_rslots";
   const LOCAL = /[?&]local\b/.test(location.search);
   const BASE = "https://www.gstatic.com/firebasejs/10.12.2/";
   let F = null, db = null, listo = null;
 
   // ---------- versión local (solo este navegador) ----------
   const LK = "condo-demo-v1", subs = [];
-  const vacio = () => ({ n: 1000, casos: {}, res: {}, acc: {} });
+  const vacio = () => ({ n: 1000, casos: {}, res: {}, acc: {}, rr: {}, v: 0 });
   const lLeer = () => { try { return { ...vacio(), ...JSON.parse(localStorage.getItem(LK)) }; } catch { return vacio(); } };
   const lGuardar = d => { localStorage.setItem(LK, JSON.stringify(d)); subs.forEach(f => f()); };
   addEventListener("storage", e => { if (e.key === LK) subs.forEach(f => f()); });
@@ -34,7 +34,7 @@ window.Datos = (() => {
   }
   const ms = v => v == null ? null : typeof v === "number" ? v : v.toMillis ? v.toMillis() : +v;
   const ts = v => v == null ? null : F.Timestamp.fromMillis(v);
-  const limpiar = (id, d) => ({ id, ...d, creado: ms(d.creado), atendido: ms(d.atendido), cerrado: ms(d.cerrado),
+  const limpiar = (id, d) => ({ id, ...d, creado: ms(d.creado), atendido: ms(d.atendido), cerrado: ms(d.cerrado), escaladoT: ms(d.escaladoT),
     historial: (d.historial || []).map(h => ({ ...h, t: ms(h.t) })) });
   const soloDigitos = s => String(s || "").replace(/\D/g, "");
   async function huella(texto) {
@@ -69,12 +69,12 @@ window.Datos = (() => {
     await iniciar();
     const ahora = Date.now(), cc = { ...cambios };
     if (LOCAL) { const d = lLeer(), c = d.casos[id]; if (!c) throw new Error("no-existe");
-      ["atendido", "cerrado"].forEach(k => { if (cc[k] === true) cc[k] = ahora; });
+      ["atendido", "cerrado", "escaladoT"].forEach(k => { if (cc[k] === true) cc[k] = ahora; });
       d.casos[id] = { ...c, ...cc, historial: [...(c.historial || []), ...(evento ? [{ ...evento, t: ahora }] : [])] }; lGuardar(d); return; }
     const ref = F.doc(db, CASOS, id);
     await F.runTransaction(db, async tx => {
       const s = await tx.get(ref); if (!s.exists()) throw new Error("no-existe");
-      ["atendido", "cerrado"].forEach(k => { if (cc[k] === true) cc[k] = ts(ahora); });
+      ["atendido", "cerrado", "escaladoT"].forEach(k => { if (cc[k] === true) cc[k] = ts(ahora); });
       tx.update(ref, { ...cc, historial: [...(s.data().historial || []), ...(evento ? [{ ...evento, t: ts(ahora) }] : [])].slice(-30) });
     });
   }
@@ -143,8 +143,37 @@ window.Datos = (() => {
     w.set(F.doc(db, ACC, h), { t: id });
     await w.commit();
   }
+  /* ================= RANCHOS ================= */
+  // Cada hora apartada tiene su propio "candado" (rN_fecha_HH): si dos personas reservan la misma hora a la vez, solo una lo logra.
+  const slotIds = r => { const o = []; for (let m = r.ini; m < r.fin; m += 60) o.push(`r${r.rancho}_${r.fecha}_${String(m / 60).padStart(2, "0")}`); return o; };
+  const traslapa = (a, b) => a.rancho === b.rancho && a.fecha === b.fecha && a.ini < b.fin && b.ini < a.fin;
+  async function escucharReservas(alCambiar, alFallar) {
+    await iniciar();
+    if (LOCAL) { const f = () => alCambiar(Object.entries(lLeer().rr).map(([id, r]) => ({ id, ...r }))); subs.push(f); setTimeout(f, 0); return () => {}; }
+    return F.onSnapshot(F.collection(db, RR), s => alCambiar(s.docs.map(x => { const d = x.data({ serverTimestamps: "estimate" }); return { id: x.id, ...d, creado: ms(d.creado) }; })), e => alFallar && alFallar(e));
+  }
+  async function reservar(r) {
+    await iniciar();
+    const nueva = { ...r, estado: "activa", canceladoPor: "" };
+    if (LOCAL) { const d = lLeer(); if (Object.values(d.rr).some(x => x.estado === "activa" && traslapa(x, r))) throw new Error("ocupado");
+      const id = "rr" + Date.now(); d.rr[id] = { ...nueva, creado: Date.now() }; lGuardar(d); return id; }
+    const ref = F.doc(F.collection(db, RR)), w = F.writeBatch(db);
+    w.set(ref, { ...nueva, creado: F.serverTimestamp() });
+    slotIds(r).forEach(id => w.set(F.doc(db, RS, id), { r: ref.id }));
+    try { await w.commit(); } catch (e) { console.warn(e); throw new Error("ocupado"); }
+    return ref.id;
+  }
+  async function cancelarReserva(r, quien) {
+    await iniciar();
+    if (LOCAL) { const d = lLeer(); if (d.rr[r.id]) { d.rr[r.id].estado = "cancelada"; d.rr[r.id].canceladoPor = quien; } lGuardar(d); return; }
+    const w = F.writeBatch(db); w.update(F.doc(db, RR, r.id), { estado: "cancelada", canceladoPor: quien });
+    slotIds(r).forEach(id => w.delete(F.doc(db, RS, id))); await w.commit();
+  }
+  async function version() { await iniciar(); if (LOCAL) return lLeer().v || 0; const s = await F.getDoc(F.doc(db, META, "version")); return s.exists() ? s.data().n : 0; }
+  async function ponerVersion(n) { await iniciar(); if (LOCAL) { const d = lLeer(); d.v = n; lGuardar(d); return; } await F.setDoc(F.doc(db, META, "version"), { n }); }
+
   /* ================= DATOS DE EJEMPLO ================= */
-  async function sembrar(casos, residentes) {
+  async function sembrar(casos, residentes, reservas = []) {
     await iniciar();
     const filas = [];
     for (const r of residentes) {
@@ -152,7 +181,8 @@ window.Datos = (() => {
       filas.push({ id, r: { nombre: r.nombre, ced4: ced.slice(-4), cedH: await huella("ced:" + ced), casa: r.casa, tel: "", activo: true, conClave: !!r.clave }, acc: r.clave ? await huella("acc:" + ced + ":" + r.clave) : null });
     }
     if (LOCAL) {
-      const d = vacio();
+      const d = { ...vacio(), v: lLeer().v };
+      reservas.forEach((r, i) => { d.rr["e" + i] = { ...r, estado: "activa", canceladoPor: "", creado: Date.now() }; });
       filas.forEach(f => { d.res[f.id] = { ...f.r, creado: Date.now() }; if (f.acc) d.acc[f.acc] = f.id; });
       casos.forEach((c, i) => { d.n++; d.casos["s" + i] = { ...c, num: d.n }; });
       lGuardar(d); return;
@@ -162,17 +192,19 @@ window.Datos = (() => {
     for (const f of filas) { w.set(F.doc(db, RES, f.id), { ...f.r, creado: F.serverTimestamp() }); await paso(); if (f.acc) { w.set(F.doc(db, ACC, f.acc), { t: f.id }); await paso(); } }
     let n = 1000;
     for (const c of casos) { n++; w.set(F.doc(F.collection(db, CASOS)), { ...c, num: n, creado: ts(c.creado), atendido: ts(c.atendido), cerrado: ts(c.cerrado), historial: c.historial.map(h => ({ ...h, t: ts(h.t) })) }); await paso(); }
+    for (const r of reservas) { const ref = F.doc(F.collection(db, RR)); w.set(ref, { ...r, estado: "activa", canceladoPor: "", creado: F.serverTimestamp() }); await paso();
+      for (const id of slotIds(r)) { w.set(F.doc(db, RS, id), { r: ref.id }); await paso(); } }
     w.set(F.doc(db, META, "contador"), { n });
     await w.commit();
   }
   async function borrarTodo() {
     await iniciar();
-    if (LOCAL) { lGuardar(vacio()); return; }
-    for (const c of [CASOS, RES, ACC]) {
+    if (LOCAL) { lGuardar({ ...vacio(), v: lLeer().v }); return; }
+    for (const c of [CASOS, RES, ACC, RR, RS]) {
       const s = await F.getDocs(F.collection(db, c));
       for (let i = 0; i < s.docs.length; i += 400) { const w = F.writeBatch(db); s.docs.slice(i, i + 400).forEach(d => w.delete(d.ref)); await w.commit(); }
     }
     await F.setDoc(F.doc(db, META, "contador"), { n: 1000 });
   }
-  return { LOCAL, soloDigitos, asegurarResidente, escuchar, crear, actualizar, escucharResidentes, crearResidente, obtenerResidente, cambiarResidente, crearClave, ingresar, sembrar, borrarTodo };
+  return { LOCAL, soloDigitos, escucharReservas, reservar, cancelarReserva, version, ponerVersion, asegurarResidente, escuchar, crear, actualizar, escucharResidentes, crearResidente, obtenerResidente, cambiarResidente, crearClave, ingresar, sembrar, borrarTodo };
 })();

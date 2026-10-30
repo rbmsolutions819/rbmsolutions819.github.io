@@ -24,7 +24,39 @@ const ESTADOS = { nuevo: "Nuevo", en_atencion: "En atención", cerrado: "Cerrado
 const OFICIALES = ["Oficial Mora", "Oficial Rojas", "Oficial Vargas"];
 const USUARIOS = { seguridad: { usuario: "seguridad", clave: "demo1234", otros: [] }, admin: { usuario: "administrador", clave: "demo1234", otros: ["administracion", "admin"] } };
 const RICARDO = { nombre: "José Ricardo Montoya", cedula: "1111111", casa: "18", clave: "demo1234", usuario: "ricardo" };
-const nombreCondo = () => lsGet("condo-nombre", "Condominio Vista Verde");
+const nombreCondo = () => { const n = lsGet("condo-nombre", ""); return !n || n === "Condominio Vista Verde" ? "Condominio Puerto España" : n; };
+
+/* ===================== RANCHOS ===================== */
+const RANCHOS = [
+  { n: 1, nombre: "Rancho 1", desc: "Junto a la piscina · hasta 20 personas" },
+  { n: 2, nombre: "Rancho 2", desc: "Con parrilla · hasta 30 personas" },
+  { n: 3, nombre: "Rancho 3", desc: "Frente al parque infantil · hasta 15 personas" }];
+const R_INI = 8 * 60, R_FIN = 21 * 60, R_MAX = 6 * 60, R_DIAS = 30;   // se reserva de 8 a. m. a 9 p. m., máximo 6 horas
+const rancho = n => RANCHOS.find(r => r.n === n) || { n, nombre: "Rancho " + n, desc: "" };
+const isoL = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+const deIsoL = f => { const [y, m, d] = f.split("-").map(Number); return new Date(y, m - 1, d); };
+const hoyL = () => isoL(new Date());
+const minAhora = () => { const d = new Date(); return d.getHours() * 60 + d.getMinutes(); };
+const h12 = m => { let h = Math.floor(m / 60), mm = m % 60; const pm = h >= 12; h = h % 12 || 12; return `${h}:${String(mm).padStart(2, "0")} ${pm ? "p. m." : "a. m."}`; };
+const horario = r => `${h12(r.ini)} – ${h12(r.fin)}`;
+const mayus = t => t.charAt(0).toUpperCase() + t.slice(1);
+function diaTxt(f, largo){
+  const d = mayus(deIsoL(f).toLocaleDateString("es-CR", largo ? { weekday: "long", day: "numeric", month: "long" } : { weekday: "short", day: "numeric", month: "short" }));
+  const man = new Date(); man.setDate(man.getDate() + 1);
+  return f === hoyL() ? `Hoy · ${d}` : f === isoL(man) ? `Mañana · ${d}` : d;
+}
+const activasDe = (lista, n, f) => lista.filter(r => r.estado === "activa" && r.rancho === n && r.fecha === f).sort((a, b) => a.ini - b.ini);
+function libresDe(lista, n, f){
+  let desde = R_INI; if (f === hoyL()) desde = Math.max(desde, Math.ceil(minAhora() / 60) * 60);
+  const out = []; for (const r of activasDe(lista, n, f)) { if (r.ini > desde) out.push([desde, r.ini]); desde = Math.max(desde, r.fin); }
+  if (desde < R_FIN) out.push([desde, R_FIN]); return out;
+}
+// Cómo está cada rancho un día: lo apartado y lo que queda libre
+function resumenDia(lista, f, { verNombre = false, yo = "" } = {}){
+  return `<div class="rdia">${RANCHOS.map(R => { const l = activasDe(lista, R.n, f), lib = libresDe(lista, R.n, f);
+    return `<div class="rcard"><b>🏕️ ${R.nombre}</b>${l.map(r => `<span class="ocup">🔴 ${horario(r)} · ${r.resId === yo ? "Tu reserva" : "Casa " + esc(r.casa)}${verNombre ? ` (${esc(r.nombre)})` : ""}${r.nota ? ` · ${esc(r.nota)}` : ""}</span>`).join("")}
+      <span class="lib">🟢 ${lib.length ? "Libre " + lib.map(([a, b]) => `${h12(a)} – ${h12(b)}`).join(" · ") : "Sin horas libres"}</span></div>`; }).join("")}</div>`;
+}
 
 /* ===================== UTILIDADES ===================== */
 const min = (a, b) => Math.round((b - a) / 60000);
@@ -79,6 +111,8 @@ function generarEjemplo(){
     averia: ["Lámpara de la calle apagada.", "Fuga de agua frente a la casa.", "El portón no cierra bien."],
     velocidad: ["Carro pasó muy rápido por la calle interna.", "Moto a exceso de velocidad cerca del parque."],
     seguridad: ["Persona desconocida rondando las casas.", "Visita entró sin autorización."], otro: ["Otro asunto para revisar."] };
+  const NOTA_ESC = ["Reincidente: ya se le llamó la atención varias veces.", "El residente no colabora con seguridad.", "Requiere reunión con la administración.", "Hay que revisar el reglamento con la casa."];
+  const RESP_ADM = ["Se habló con el residente y se le envió una advertencia por escrito.", "Se le aplicó la multa según el reglamento.", "Reunión con el residente: se comprometió a no repetirlo."];
   const PROB = ["El residente no abrió la puerta.", "Se negaron a bajar el volumen a la primera.", "Se tuvo que volver dos veces.", "Hubo discusión entre vecinos.", "Se llamó a la Fuerza Pública."];
   const RESOL = { resuelto: "Se atendió y quedó resuelto.", llamado: "Se habló con los residentes y bajaron el volumen.", no_encontrado: "Se revisó la zona y no se encontró el problema.", falsa: "Era una actividad autorizada.", escalado: "Se pasó a la administración para seguimiento." };
   const ahora = Date.now(), casos = [];
@@ -95,10 +129,12 @@ function generarEjemplo(){
     const cerr = aten + (5 + rnd() * 40) * 60000;
     const res = t === "ruido" ? peso({ llamado: 6, resuelto: 2, no_encontrado: 1, falsa: 1 }) : peso({ resuelto: 7, escalado: 2, no_encontrado: 1 });
     const prob = rnd() < .15, ag = de(OFICIALES), cal = rnd() < .6 ? peso({"5": 5, "4": 4, "3": 2, "2": 1}) : null;
+    const escl = res === "escalado" ? "resuelto" : "", notaE = escl ? de(NOTA_ESC) : "", respA = escl ? de(RESP_ADM) : "";
     casos.push({ tipo: t, lugar, contraCasa: contra, donde: "", descripcion: de(TXT[t]), foto: "", casa: rep.casa, nombre: rep.nombre, resId: "ej-" + rep.cedula, prioridad: tipo(t)[3],
       estado: "cerrado", agente: ag, resultado: res, resolucion: RESOL[res], problema: prob, problemaNota: prob ? de(PROB) : "", calificacion: cal ? +cal : null, comentarioRes: "",
-      creado, atendido: aten, cerrado: cerr,
-      historial: [{ t: creado, quien: `${rep.nombre} (casa ${rep.casa})`, txt: "Reporte enviado" }, { t: aten, quien: ag, txt: "Va en camino" }, { t: cerr, quien: ag, txt: `Cerrado: ${resultado(res)}` }] });
+      creado, atendido: aten, cerrado: cerr, escalado: escl, escaladoNota: notaE, escaladoPor: escl ? ag : "", escaladoT: escl ? cerr : null, adminNota: respA,
+      historial: [{ t: creado, quien: `${rep.nombre} (casa ${rep.casa})`, txt: "Reporte enviado" }, { t: aten, quien: ag, txt: "Va en camino" }, { t: cerr, quien: ag, txt: `Cerrado: ${resultado(res)}` },
+        ...(escl ? [{ t: cerr + 60000, quien: ag, txt: "🚩 Escalado a administración: " + notaE }, { t: cerr + 2 * 864e5, quien: "Administración", txt: "✅ Resuelto por administración: " + respA }] : [])] });
   }
   // dos casos abiertos ahora mismo
   const r1 = residentes[0], r2 = residentes[4];
@@ -108,19 +144,36 @@ function generarEjemplo(){
   casos.push({ tipo: "sucio", lugar: "Rancho / BBQ", contraCasa: "", donde: "Rancho 2", descripcion: "Dejaron la parrilla sucia y basura en la mesa.", foto: "", casa: r2.casa, nombre: r2.nombre, resId: "ej-" + r2.cedula, prioridad: "baja",
     estado: "en_atencion", agente: "Oficial Mora", resultado: "", resolucion: "", problema: false, problemaNota: "", calificacion: null, comentarioRes: "", creado: ahora - 28 * 60000, atendido: ahora - 14 * 60000, cerrado: null,
     historial: [{ t: ahora - 28 * 60000, quien: `${r2.nombre} (casa ${r2.casa})`, txt: "Reporte enviado" }, { t: ahora - 14 * 60000, quien: "Oficial Mora", txt: "Va en camino" }] });
-  return { casos, residentes };
+  // dos casos escalados esperando a la administración
+  const esc1 = (t, lugar, contra, txt, nota, rep, horas, ag) => { const cr = ahora - horas * 3600e3, at = cr + 9 * 60000, ce = at + 20 * 60000;
+    return { tipo: t, lugar, contraCasa: contra, donde: "", descripcion: txt, foto: "", casa: rep.casa, nombre: rep.nombre, resId: "ej-" + rep.cedula, prioridad: tipo(t)[3],
+      estado: "cerrado", agente: ag, resultado: "escalado", resolucion: "Se pasó a la administración para seguimiento.", problema: false, problemaNota: "", calificacion: null, comentarioRes: "",
+      creado: cr, atendido: at, cerrado: ce, escalado: "pendiente", escaladoNota: nota, escaladoPor: ag, escaladoT: ce, adminNota: "",
+      historial: [{ t: cr, quien: `${rep.nombre} (casa ${rep.casa})`, txt: "Reporte enviado" }, { t: at, quien: ag, txt: "Va en camino" }, { t: ce, quien: ag, txt: "Cerrado: 📋 Pasado a administración" }, { t: ce + 60000, quien: ag, txt: "🚩 Escalado a administración: " + nota }] }; };
+  casos.push(esc1("mascotas", "Una casa", "14", "El perro de la casa 14 está suelto otra vez y se metió al jardín.", "Es la cuarta vez este mes. Ya se le llamó la atención y no cambia. Pedimos que la administración hable con el dueño.", residentes[2], 30, "Oficial Rojas"));
+  casos.push(esc1("parqueo", "Una casa", "8", "La visita de la casa 8 se parquea en mi espacio todos los fines de semana.", "El residente de la casa 8 no colabora con seguridad. Se necesita aplicar el reglamento de parqueo.", residentes[5], 52, "Oficial Mora"));
+  return { casos, residentes, reservas: generarReservas(residentes) };
+}
+function generarReservas(rs){
+  const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
+  const dia = n => { const d = new Date(hoy); d.setDate(d.getDate() + n); return isoL(d); };
+  const sab = (6 - hoy.getDay() + 7) % 7, R = (p, n, f, a, b, nota) => ({ rancho: n, fecha: f, ini: a * 60, fin: b * 60, casa: p.casa, nombre: p.nombre, resId: "ej-" + p.cedula, nota });
+  return [R(rs[0], 3, dia(sab), 13, 16, "Cumpleaños de mi hija"), R(rs[5], 1, dia(sab), 10, 14, "Almuerzo familiar"), R(rs[1], 2, dia(sab + 1), 12, 17, "Parrillada"),
+    R(rs[6], 1, dia(1), 18, 21, "Reunión de amigos"), R(rs[4], 2, dia(0), 16, 19, "Café con vecinas"), R(rs[3], 3, dia(3), 9, 12, "Clase de yoga"),
+    R(rs[7], 2, dia(-5), 12, 16, "Almuerzo"), R(rs[8], 3, dia(-2), 14, 18, "Cumpleaños")];
 }
 let sembrando = false;
 async function asegurarEjemplo(casos){
   if (casos.length || sembrando || lsGet("condo-sembrado-vacio", false)) return false;
   sembrando = true;
-  try { const e = generarEjemplo(); await Datos.sembrar(e.casos, e.residentes); return true; } catch (x) { console.warn(x); return false; } finally { sembrando = false; }
+  try { const e = generarEjemplo(); await Datos.sembrar(e.casos, e.residentes, e.reservas); return true; } catch (x) { console.warn(x); return false; } finally { sembrando = false; }
 }
 
 /* ===================== DETALLE DE UN CASO ===================== */
-function detalleHTML(c, { verReportante = true } = {}){
+function detalleHTML(c, { verReportante = true, esquina = "" } = {}){
   const [, ic, nom] = tipo(c.tipo);
-  return `<div class="hoja-cab"><div><span class="est ${c.estado}">${ESTADOS[c.estado]}</span><h3 style="margin-top:6px">${ic} ${esc(nom)} · #${c.num}</h3></div><button class="x" type="button" data-cerrar aria-label="Cerrar">×</button></div>
+  return `<div class="hoja-cab"><div><span class="est ${c.estado}">${ESTADOS[c.estado]}</span>${c.escalado === "pendiente" ? ' <span class="est esc">🚩 Escalado</span>' : ""}<h3 style="margin-top:6px">${ic} ${esc(nom)} · #${c.num}</h3></div>
+      <div class="esquina">${esquina}<button class="x" type="button" data-cerrar aria-label="Cerrar">×</button></div></div>
     <dl class="datos"><dt>Dónde</dt><dd>${esc(donde(c)) || "—"}</dd>
       ${verReportante ? `<dt>Reportó</dt><dd>${esc(c.nombre || "Residente")} · Casa ${esc(c.casa)}</dd>` : ""}
       <dt>Hora</dt><dd>${fecha(c.creado)} (${hace(c.creado)})</dd>
@@ -132,14 +185,17 @@ function detalleHTML(c, { verReportante = true } = {}){
     ${c.estado === "cerrado" ? `<div class="res-box${c.problema ? " prob" : ""}"><b>${esc(resultado(c.resultado))}</b>${c.resolucion ? `<br>${esc(c.resolucion)}` : ""}
       ${c.problema ? `<br><b>⚠️ Hubo problemas:</b> ${esc(c.problemaNota || "Sí")}` : ""}<br><small>Cerrado ${fecha(c.cerrado)} · ${dur(min(c.creado, c.cerrado))} en total</small>
       ${c.calificacion ? `<br><small>Calificación del residente: ${"★".repeat(c.calificacion)}${"☆".repeat(5 - c.calificacion)}${c.comentarioRes ? ` · “${esc(c.comentarioRes)}”` : ""}</small>` : ""}</div>` : ""}
+    ${c.escalado ? `<div class="esc-box ${c.escalado}"><b>${c.escalado === "pendiente" ? "🚩 Pasado a la administración" : "✅ Resuelto por la administración"}</b>
+      ${verReportante ? `<br>${esc(c.escaladoNota)}<br><small>Escaló ${esc(c.escaladoPor)} · ${fecha(c.escaladoT)}</small>` : c.escalado === "pendiente" ? "<br>La administración le dará seguimiento." : ""}
+      ${c.adminNota ? `<br><b>Administración:</b> ${esc(c.adminNota)}` : ""}</div>` : ""}
     <h3 style="font-size:15px;margin-top:16px">Historial</h3>
-    <ul class="linea-t">${(c.historial || []).map(h => `<li>${esc(h.txt)}<small>${esc(h.quien)} · ${fecha(h.t)}</small></li>`).join("")}</ul>`;
+    <ul class="linea-t">${(c.historial || []).map(h => `<li class="${h.quien === "Administración" ? "adm" : ""}">${esc(h.txt)}<small>${esc(h.quien)} · ${fecha(h.t)}</small></li>`).join("")}</ul>`;
 }
 const filaCaso = (c, { verReportante = true } = {}) => { const [, ic, nom] = tipo(c.tipo), tarde = c.estado !== "cerrado" && min(c.creado, Date.now()) > 15;
   return `<button type="button" class="caso ${c.estado}${c.prioridad === "alta" && c.estado !== "cerrado" ? " alta" : ""}" data-caso="${esc(c.id)}">
     <span class="ic" aria-hidden="true">${ic}</span>
     <span><b>${esc(nom)} · ${esc(donde(c)) || "Sin lugar"}</b><span class="meta">#${c.num}${verReportante ? ` · Casa ${esc(c.casa)}` : ""} · ${esc(c.descripcion)}</span></span>
-    <span class="der"><span class="est ${c.estado}">${ESTADOS[c.estado]}</span><span class="tiempo${tarde ? " tarde" : ""}">${hace(c.creado)}</span></span></button>`; };
+    <span class="der">${c.escalado === "pendiente" ? '<span class="est esc">🚩 Escalado</span>' : ""}<span class="est ${c.estado}">${ESTADOS[c.estado]}</span><span class="tiempo${tarde ? " tarde" : ""}">${hace(c.creado)}</span></span></button>`; };
 
 /* ===================== INGRESO DE SEGURIDAD Y ADMINISTRACIÓN ===================== */
 function loginUsuario(rol, titulo, ico, alEntrar){
@@ -163,8 +219,12 @@ function residente(){
   if (act) return activar(act[1]);
   if (!ses || !ses.id) return loginResidente();
   let casos = [], sel = null, foto = "", antes = {};
+  let rtab = location.hash === "#ranchos" ? "ran" : lsGet("condo-res-tab", "rep");
   app.innerHTML = `${encabezado(`Casa ${esc(ses.casa)} · ${esc(ses.nombre)}`)}
     <main class="wrap">
+      <div class="tabs" id="rTabs"><button type="button" data-rt="rep" aria-pressed="${rtab === "rep"}">📢 Reportes</button><button type="button" data-rt="ran" aria-pressed="${rtab === "ran"}">🏕️ Ranchos</button></div>
+      <div id="vRan" ${rtab === "ran" ? "" : "hidden"}></div>
+      <div id="vRep" ${rtab === "rep" ? "" : "hidden"}>
       <section class="caja"><h2>Reportar un problema</h2><p class="nota" style="margin-top:-4px">Tu reporte le llega al instante al oficial de seguridad. Solo lo ven seguridad y la administración.</p>
         <div class="tipos" id="tipos" style="margin-top:12px">${TIPOS.map(([k, ic, n]) => `<button type="button" data-tipo="${k}" aria-pressed="false"><i aria-hidden="true">${ic}</i>${n}</button>`).join("")}</div>
         <form id="fRep" hidden novalidate>
@@ -175,8 +235,11 @@ function residente(){
           <div class="campo"><label>Foto (opcional)</label><div class="foto-in"><label class="btn sm" style="cursor:pointer">📷 Agregar foto<input type="file" id="rf" accept="image/*" hidden></label><span id="rfv"></span></div></div>
           <p class="err" id="re"></p><button class="btn pri bloque" type="submit" id="rb">Enviar reporte</button>
         </form></section>
-      <section class="caja"><h2>Mis reportes</h2><div class="lista" id="mis"></div></section>
+      <section class="caja"><h2>Mis reportes</h2><div class="lista" id="mis"></div></section></div>
     </main>`;
+  $("#rTabs").addEventListener("click", e => { const b = e.target.closest("[data-rt]"); if (!b) return; rtab = b.dataset.rt; lsSet("condo-res-tab", rtab);
+    document.querySelectorAll("#rTabs button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); $("#vRep").hidden = rtab !== "rep"; $("#vRan").hidden = rtab !== "ran"; });
+  panelRanchos(ses, $("#vRan"));
   const pintarLugar = () => { const casa = $("#rl").value === "Una casa"; $("#rcw").hidden = !casa; $("#rdw").hidden = casa; };
   $("#rl").addEventListener("change", pintarLugar);
   $("#tipos").addEventListener("click", e => { const b = e.target.closest("[data-tipo]"); if (!b) return; sel = b.dataset.tipo;
@@ -212,12 +275,80 @@ function residente(){
   }
   Datos.escuchar(lista => {
     casos = lista;
-    lista.filter(c => c.resId === ses.id).forEach(c => { const a = antes[c.id];
+    lista.filter(c => c.resId === ses.id).forEach(c => { const a = antes[c.id], nAdm = (c.historial || []).filter(h => h.quien === "Administración").length;
+      if (a && antes["adm" + c.id] != null && nAdm > antes["adm" + c.id]) aviso(`💬 La administración respondió tu reporte #${c.num}`);
+      antes["adm" + c.id] = nAdm;
       if (a && a !== c.estado) aviso(c.estado === "en_atencion" ? `🚶 ${c.agente || "Seguridad"} va en camino (#${c.num})` : c.estado === "cerrado" ? `✅ Tu reporte #${c.num} se cerró: ${resultado(c.resultado)}` : "");
       antes[c.id] = c.estado; });
     pintar();
   }, () => { $("#mis").innerHTML = `<p class="vacio">No se pudo conectar. Revisá tu conexión.</p>`; }).catch(() => {});
   setInterval(pintar, 60000);
+}
+function panelRanchos(ses, cont){
+  let reservas = [], rSel = 1, fSel = hoyL(), a = null, b = null, nota = "", confirmar = null, guardando = false;
+  cont.innerHTML = `<section class="caja"><h2>🏕️ Reservar un rancho</h2><p class="nota" style="margin-top:-4px">Se reservan de 8:00 a. m. a 9:00 p. m., hasta 6 horas seguidas. Todos los residentes ven qué horas ya están apartadas, y seguridad y la administración reciben la reserva.</p>
+      <h3 class="sub">1. ¿Cuál rancho?</h3><div class="ranchos" id="rSel"></div>
+      <h3 class="sub">2. ¿Qué día?</h3><div class="dias-r" id="rDias"></div>
+      <h3 class="sub">3. ¿A qué hora?</h3><p class="nota" style="margin:-4px 0 8px">Tocá la hora en que empezás y después la última hora que lo vas a usar.</p><div class="bloques" id="rHoras"></div>
+      <div id="rForm"></div></section>
+    <section class="caja"><h2 id="rDiaT"></h2><div id="rDia"></div></section>
+    <section class="caja"><h2>Mis reservas</h2><div class="lista" id="rMis"></div></section>`;
+  const act = () => activasDe(reservas, rSel, fSel);
+  function pintarForm(){
+    const f = $("#rForm", cont);
+    if (a === null) { f.innerHTML = ""; return; }
+    f.innerHTML = `<div class="res-box" style="margin-top:14px"><b>${rancho(rSel).nombre} · ${diaTxt(fSel, true)}</b><br>De ${h12(a)} a ${h12(b)} (${(b - a) / 60} ${b - a === 60 ? "hora" : "horas"})</div>
+      <div class="campo"><label for="rNota">¿Para qué es? (opcional)</label><input id="rNota" maxlength="60" placeholder="Ej.: cumpleaños, almuerzo familiar" value="${esc(nota)}"></div>
+      <p class="err" id="rErr"></p><button class="btn pri bloque" type="button" id="rOk">Reservar ${rancho(rSel).nombre}</button>`;
+    $("#rNota", f).oninput = e => nota = e.target.value;
+    $("#rOk", f).onclick = async () => {
+      $("#rOk", f).disabled = true; guardando = true;
+      const r = { rancho: rSel, fecha: fSel, ini: a, fin: b, casa: ses.casa, nombre: ses.nombre, resId: ses.id, nota: nota.trim().slice(0, 60) };
+      try { await Datos.reservar(r); guardando = false;
+        aviso(`✅ ${rancho(r.rancho).nombre} reservado: ${diaTxt(r.fecha, true)}, ${h12(r.ini)} – ${h12(r.fin)}`); a = b = null; nota = ""; pintar(); pintarForm();
+      } catch (x) { guardando = false; $("#rErr", f).textContent = x.message === "ocupado" ? "Alguien acaba de reservar alguna de esas horas. Escogé otras." : "No se pudo reservar. Revisá tu conexión."; $("#rOk", f).disabled = false; }
+    };
+  }
+  function pintar(){
+    const hoy = hoyL(), ahora = minAhora();
+    $("#rSel", cont).innerHTML = RANCHOS.map(R => `<button type="button" data-r="${R.n}" aria-pressed="${R.n === rSel}"><b>🏕️ ${R.nombre}</b><small>${esc(R.desc)}</small></button>`).join("");
+    let dias = ""; for (let i = 0; i < R_DIAS; i++) { const d = new Date(); d.setDate(d.getDate() + i); const f = isoL(d), n = activasDe(reservas, rSel, f).length;
+      dias += `<button type="button" data-f="${f}" aria-pressed="${f === fSel}"><span>${i === 0 ? "Hoy" : i === 1 ? "Mañana" : mayus(d.toLocaleDateString("es-CR", { weekday: "short" }).replace(".", ""))}</span><b>${d.getDate()}</b><i>${n ? `${n} reserva${n === 1 ? "" : "s"}` : ""}</i></button>`; }
+    $("#rDias", cont).innerHTML = dias;
+    let bl = ""; for (let m = R_INI; m < R_FIN; m += 60) {
+      const oc = act().find(r => r.ini < m + 60 && m < r.fin), pas = fSel === hoy && m < ahora, sel = a !== null && m >= a && m < b;
+      const cl = oc ? "ocup" + (oc.resId === ses.id ? " mia" : "") : pas ? "pas" : sel ? "sel" : "lib";
+      bl += `<button type="button" class="${cl}" data-h="${m}" ${oc || pas ? "disabled" : ""}><b>${h12(m)}</b><span>${oc ? (oc.resId === ses.id ? "Tu reserva" : "Casa " + esc(oc.casa)) : pas ? "Ya pasó" : sel ? "✓ Elegida" : "Libre"}</span></button>`; }
+    $("#rHoras", cont).innerHTML = bl;
+    $("#rDiaT", cont).textContent = `Así están los ranchos · ${diaTxt(fSel, true)}`;
+    $("#rDia", cont).innerHTML = resumenDia(reservas, fSel, { yo: ses.id });
+    const mias = reservas.filter(r => r.resId === ses.id).sort((x, y) => (y.fecha + y.ini).localeCompare(x.fecha + x.ini));
+    const futura = r => r.estado === "activa" && (r.fecha > hoy || (r.fecha === hoy && r.fin > ahora));
+    $("#rMis", cont).innerHTML = mias.length ? mias.map(r => `<div class="caso" style="cursor:default;${futura(r) ? "" : "opacity:.6"}"><span class="ic">🏕️</span>
+      <span><b>${rancho(r.rancho).nombre} · ${diaTxt(r.fecha)}</b><span class="meta">${horario(r)}${r.nota ? " · " + esc(r.nota) : ""}</span></span>
+      <span class="der">${r.estado === "cancelada" ? `<span class="est nuevo">Cancelada</span>` : futura(r) ? `<button class="btn sm" type="button" data-cancelar="${esc(r.id)}">${confirmar === r.id ? "¿Seguro? Tocá otra vez" : "Cancelar"}</button>` : `<span class="est cerrado">Usada</span>`}</span></div>`).join("")
+      : `<p class="vacio">Todavía no has reservado ningún rancho.</p>`;
+  }
+  cont.addEventListener("click", async e => {
+    const r = e.target.closest("[data-r]"); if (r) { rSel = +r.dataset.r; a = b = null; pintar(); pintarForm(); return; }
+    const f = e.target.closest("[data-f]"); if (f) { fSel = f.dataset.f; a = b = null; pintar(); pintarForm(); return; }
+    const h = e.target.closest("[data-h]");
+    if (h && !h.disabled) { const m = +h.dataset.h;
+      if (a !== null && b - a === 60 && m === a) a = b = null;
+      else if (a !== null && b - a === 60 && m > a) { const fin = m + 60;
+        if (fin - a > R_MAX) { aviso("Se puede reservar hasta 6 horas seguidas."); return; }
+        if (act().some(r => r.ini < fin && a < r.fin)) { aviso("Hay otra reserva en medio. Escogé horas seguidas libres."); a = m; b = m + 60; } else b = fin; }
+      else { a = m; b = m + 60; }
+      pintar(); pintarForm(); return; }
+    const c = e.target.closest("[data-cancelar]");
+    if (c) { const id = c.dataset.cancelar; if (confirmar !== id) { confirmar = id; pintar(); setTimeout(() => { if (confirmar === id) { confirmar = null; pintar(); } }, 4000); return; }
+      confirmar = null; const rr = reservas.find(x => x.id === id);
+      try { await Datos.cancelarReserva(rr, `${ses.nombre} (casa ${ses.casa})`); aviso("Reserva cancelada. El rancho quedó libre otra vez."); } catch { aviso("No se pudo cancelar."); } }
+  });
+  Datos.escucharReservas(l => { reservas = l;
+    if (!guardando && a !== null && act().some(r => r.ini < b && a < r.fin)) { a = b = null; aviso("Alguien acaba de reservar esas horas. Escogé otras."); pintarForm(); }
+    pintar(); }, () => { $("#rDia", cont).innerHTML = `<p class="vacio">No se pudo conectar. Revisá tu conexión.</p>`; }).catch(() => {});
+  pintar(); setInterval(pintar, 60000);
 }
 function loginResidente(){
   app.innerHTML = `${encabezado("Residentes").replace(/<button class="btn sm" type="button" data-salir>Salir<\/button>/, "")}
@@ -261,12 +392,12 @@ async function activar(id){
 /* ===================== PANEL DE SEGURIDAD (monitoreo) ===================== */
 function seguridad(){
   if (!lsGet("condo-ses-seguridad", null)) return loginUsuario("seguridad", "Seguridad · Monitoreo", "🛡️", seguridad);
-  let casos = [], vista = "pend", conocidos = null, sonido = false, oficial = lsGet("condo-oficial", OFICIALES[0]);
+  let casos = [], vista = "pend", conocidos = null, sonido = false, oficial = lsGet("condo-oficial", OFICIALES[0]), reservas = [], conocidasR = null;
   app.innerHTML = `${encabezado("🛡️ Seguridad · Monitoreo", `<select id="ofi" class="btn sm" aria-label="Oficial de turno">${OFICIALES.map(o => `<option ${o === oficial ? "selected" : ""}>${o}</option>`).join("")}</select>`)}
     <main class="wrap">
       <div class="contadores"><div class="r"><b id="cN">0</b><span>Nuevos</span></div><div class="a"><b id="cA">0</b><span>En atención</span></div><div class="v"><b id="cC">0</b><span>Cerrados hoy</span></div></div>
       <button class="btn bloque" type="button" id="alertas" style="margin-top:10px">🔔 Activar sonido y alertas de reportes nuevos</button>
-      <div class="tabs" id="vistas"><button type="button" data-v="pend" aria-pressed="true">Pendientes</button><button type="button" data-v="hoy" aria-pressed="false">Cerrados hoy</button><button type="button" data-v="todos" aria-pressed="false">Últimos 50</button></div>
+      <div class="tabs" id="vistas"><button type="button" data-v="pend" aria-pressed="true">Pendientes</button><button type="button" data-v="hoy" aria-pressed="false">Cerrados hoy</button><button type="button" data-v="todos" aria-pressed="false">Últimos 50</button><button type="button" data-v="ran" aria-pressed="false">🏕️ Ranchos<span class="n" id="cR" hidden>0</span></button></div>
       <div class="lista" id="lista"></div></main>`;
   $("#ofi").addEventListener("change", e => { oficial = e.target.value; lsSet("condo-oficial", oficial); });
   $("#alertas").addEventListener("click", async () => { sonido = true; pitar(); try { if ("Notification" in window) await Notification.requestPermission(); } catch {}
@@ -281,14 +412,31 @@ function seguridad(){
     const nuevos = casos.filter(c => c.estado === "nuevo"), aten = casos.filter(c => c.estado === "en_atencion"), hoy = casos.filter(c => c.estado === "cerrado" && c.cerrado >= inicioHoy());
     $("#cN").textContent = nuevos.length; $("#cA").textContent = aten.length; $("#cC").textContent = hoy.length;
     const pend = [...nuevos.sort((a, b) => prio[a.prioridad] - prio[b.prioridad] || a.creado - b.creado), ...aten.sort((a, b) => a.creado - b.creado)];
+    const hoyF = hoyL(), deHoy = reservas.filter(r => r.estado === "activa" && r.fecha === hoyF).length;
+    $("#cR").hidden = !deHoy; $("#cR").textContent = deHoy; $("#cR").style.background = "var(--verde)";
+    if (vista === "ran") { $("#lista").innerHTML = ranchosSeg(); return; }
     const l = vista === "pend" ? pend : vista === "hoy" ? hoy : casos.slice(0, 50);
     $("#lista").innerHTML = l.length ? l.map(c => filaCaso(c)).join("") : `<p class="vacio">${vista === "pend" ? "✅ No hay reportes pendientes." : "No hay casos."}</p>`;
     document.title = (nuevos.length ? `(${nuevos.length}) ` : "") + "Seguridad · " + nombreCondo();
   }
+  function ranchosSeg(){
+    const ahora = minAhora(); let h = `<p class="nota" style="margin:6px 0 0">Reservas de los ranchos para hoy y los próximos 7 días. Te avisa cuando un residente reserva o cancela.</p>`;
+    for (let i = 0; i < 8; i++) { const d = new Date(); d.setDate(d.getDate() + i); const f = isoL(d);
+      const l = reservas.filter(r => r.fecha === f).sort((x, y) => x.ini - y.ini || x.rancho - y.rancho); if (!l.length) continue;
+      h += `<h3 class="dia-t">${diaTxt(f, true)}</h3>` + l.map(r => { const uso = r.estado === "activa" && i === 0 && r.ini <= ahora && ahora < r.fin;
+        return `<div class="caso${uso ? " uso" : ""}" style="cursor:default;${r.estado === "cancelada" ? "opacity:.55" : ""}"><span class="ic">🏕️</span>
+          <span><b>${rancho(r.rancho).nombre} · ${horario(r)}</b><span class="meta">Casa ${esc(r.casa)} · ${esc(r.nombre)}${r.nota ? " · " + esc(r.nota) : ""}</span></span>
+          <span class="der">${r.estado === "cancelada" ? `<span class="est nuevo">Cancelada</span>` : uso ? `<span class="est en_atencion">En uso ahora</span>` : `<span class="est cerrado">Reservado</span>`}</span></div>`; }).join(""); }
+    return h.includes("dia-t") ? h : h + `<p class="vacio">No hay reservas en los próximos 7 días.</p>`;
+  }
   function abrir(id){
     const c = casos.find(x => x.id === id); if (!c) return;
     let res = "", prob = false;
-    hoja(detalleHTML(c) + (c.estado === "nuevo" ? `<button class="btn pri bloque" type="button" id="tomar" style="margin-top:16px">🚶 Voy en camino</button>`
+    hoja(detalleHTML(c, { esquina: c.escalado ? "" : `<button class="btn sm esc-btn" type="button" id="escalar">🚩 Escalar a administración</button>` })
+      + `<div class="caja esc-form" id="escForm" hidden><h2 style="font-size:17px">🚩 Escalar a administración</h2><p class="nota" style="margin-top:-4px">El caso le llega a la administración para que lo valide con la casa afectada.</p>
+        <div class="campo"><label for="escN">¿Por qué se escala?</label><textarea id="escN" maxlength="300" placeholder="Ej.: Es la cuarta vez que se reporta a la casa 27 por ruido. Se necesita que la administración hable con el residente."></textarea></div>
+        <p class="err" id="escE"></p><button class="btn rojo bloque" type="button" id="escOk">Enviar a administración</button></div>`
+      + (c.estado === "nuevo" ? `<button class="btn pri bloque" type="button" id="tomar" style="margin-top:16px">🚶 Voy en camino</button>`
       : c.estado === "en_atencion" ? `<div class="caja"><h2 style="font-size:17px">Cerrar el caso</h2>
         <div class="campo"><label>¿Cómo terminó?</label><div class="ops" id="resu">${RESULTADOS.map(([k, l]) => `<button type="button" data-r="${k}" aria-pressed="false">${l}</button>`).join("")}</div></div>
         <div class="campo"><label for="cres">¿Qué se hizo?</label><textarea id="cres" maxlength="300" placeholder="Ej.: Se habló con los residentes de la casa 27 y bajaron el volumen."></textarea></div>
@@ -296,6 +444,11 @@ function seguridad(){
         <div class="campo" id="cpw" hidden><label for="cpn">¿Qué pasó?</label><input id="cpn" maxlength="150" placeholder="Ej.: No abrieron la puerta, se tuvo que volver."></div>
         <div class="campo"><label for="cnota">Nota sin cerrar (opcional)</label><div style="display:flex;gap:6px"><input id="cnota" maxlength="150" placeholder="Ej.: Llegué, sigo verificando"><button class="btn sm" type="button" id="bnota">Agregar</button></div></div>
         <p class="err" id="cerr"></p><button class="btn pri bloque" type="button" id="bcerrar" style="margin-top:6px">Cerrar caso</button></div>` : ""), (h, cerrar) => {
+      $("#escalar", h)?.addEventListener("click", () => { const f = $("#escForm", h); f.hidden = false; f.scrollIntoView({ behavior: "smooth", block: "center" }); setTimeout(() => $("#escN", h).focus(), 250); });
+      $("#escOk", h)?.addEventListener("click", async () => { const t = $("#escN", h).value.trim();
+        if (t.length < 5) { $("#escE", h).textContent = "Explicá brevemente por qué se escala."; return; }
+        try { await Datos.actualizar(c.id, { escalado: "pendiente", escaladoNota: t.slice(0, 300), escaladoPor: oficial, escaladoT: true }, { quien: oficial, txt: "🚩 Escalado a administración: " + t.slice(0, 300) });
+          aviso(`🚩 Caso #${c.num} enviado a la administración`); cerrar(); } catch { aviso("No se pudo escalar. Revisá la conexión."); } });
       $("#tomar", h)?.addEventListener("click", async () => { try { await Datos.actualizar(c.id, { estado: "en_atencion", atendido: true, agente: oficial }, { quien: oficial, txt: "Va en camino" }); aviso(`Caso #${c.num}: vas en camino`); cerrar(); setTimeout(() => abrir(c.id), 400); } catch { aviso("No se pudo actualizar."); } });
       $("#resu", h)?.addEventListener("click", e => { const b = e.target.closest("[data-r]"); if (!b) return; res = b.dataset.r; h.querySelectorAll("#resu button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); });
       $("#cprob", h)?.addEventListener("change", e => { prob = e.target.checked; $("#cpw", h).hidden = !prob; });
@@ -304,7 +457,8 @@ function seguridad(){
         const txt = $("#cres", h).value.trim();
         if (!res) { $("#cerr", h).textContent = "Escogé cómo terminó."; return; }
         if (txt.length < 3) { $("#cerr", h).textContent = "Escribí qué se hizo."; $("#cres", h).focus(); return; }
-        try { await Datos.actualizar(c.id, { estado: "cerrado", cerrado: true, agente: c.agente || oficial, resultado: res, resolucion: txt, problema: prob, problemaNota: prob ? $("#cpn", h).value.trim() : "" }, { quien: oficial, txt: `Cerrado: ${resultado(res)}` });
+        const extra = res === "escalado" && !c.escalado ? { escalado: "pendiente", escaladoNota: txt, escaladoPor: oficial, escaladoT: true } : {};
+        try { await Datos.actualizar(c.id, { estado: "cerrado", cerrado: true, agente: c.agente || oficial, resultado: res, resolucion: txt, problema: prob, problemaNota: prob ? $("#cpn", h).value.trim() : "", ...extra }, { quien: oficial, txt: `Cerrado: ${resultado(res)}` });
           aviso(`✅ Caso #${c.num} cerrado`); cerrar(); } catch { aviso("No se pudo cerrar. Revisá la conexión."); }
       });
     });
@@ -316,23 +470,73 @@ function seguridad(){
         try { if (document.hidden && Notification.permission === "granted") new Notification(`Nuevo reporte #${c.num}`, { body: `${tipo(c.tipo)[2]} · ${donde(c)}` }); } catch {} } }
     conocidos = new Set(lista.map(c => c.id)); casos = lista; pintar();
   }, () => { $("#lista").innerHTML = `<p class="vacio">No se pudo conectar. Revisá la conexión.</p>`; }).catch(() => {});
+  Datos.escucharReservas(l => {
+    if (conocidasR) { const cam = l.filter(r => conocidasR.get(r.id) !== r.estado);
+      cam.forEach(r => { const t = `${rancho(r.rancho).nombre} · ${diaTxt(r.fecha)} · ${horario(r)} · Casa ${r.casa}`;
+        aviso(r.estado === "cancelada" ? `🏕️ Reserva cancelada: ${t}` : `🏕️ Nueva reserva: ${t}`); if (sonido) pitar();
+        try { if (document.hidden && Notification.permission === "granted") new Notification(r.estado === "cancelada" ? "Reserva de rancho cancelada" : "Nueva reserva de rancho", { body: t }); } catch {} }); }
+    conocidasR = new Map(l.map(r => [r.id, r.estado])); reservas = l; pintar(); }).catch(() => {});
   setInterval(pintar, 30000);
 }
 
 /* ===================== PANEL DE ADMINISTRACIÓN ===================== */
 function admin(){
   if (!lsGet("condo-ses-admin", null)) return loginUsuario("admin", "Administración", "📊", admin);
-  let ultimoLink = null, casos = [], residentes = [], tab = lsGet("condo-admin-tab", "est"), periodo = 30, filtro = { estado: "", tipo: "", q: "" };
+  let ultimoLink = null, casos = [], residentes = [], reservas = [], rFil = { rancho: 0, cuando: "prox" }, rConf = null, tab = lsGet("condo-admin-tab", "est"), periodo = 30, filtro = { estado: "", tipo: "", q: "" };
   app.innerHTML = `${encabezado("📊 Administración")}
     <main class="wrap">
-      <div class="tabs" id="tabs">${[["est","📊 Estadísticas"],["rep","📋 Reportes"],["res","👥 Residentes"],["aj","⚙️ Ajustes"]].map(([k, l]) => `<button type="button" data-t="${k}" aria-pressed="${k === tab}">${l}</button>`).join("")}</div>
+      <div class="tabs" id="tabs">${[["est","📊 Estadísticas"],["rep","📋 Reportes"],["esc","🚩 Escalados<span class=\"n\" id=\"nEsc\" hidden></span>"],["ran","🏕️ Ranchos"],["res","👥 Residentes"],["aj","⚙️ Ajustes"]].map(([k, l]) => `<button type="button" data-t="${k}" aria-pressed="${k === tab}">${l}</button>`).join("")}</div>
       <div id="cuerpo"></div></main>`;
   $("#tabs").addEventListener("click", e => { const b = e.target.closest("[data-t]"); if (!b) return; tab = b.dataset.t; lsSet("condo-admin-tab", tab); document.querySelectorAll("#tabs button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); pintar(); });
   const cuerpo = $("#cuerpo");
   cuerpo.addEventListener("click", e => {
     const p = e.target.closest("[data-p]"); if (p) { periodo = +p.dataset.p; pintar(); return; }
-    const c = e.target.closest("[data-caso]"); if (c) { const k = casos.find(x => x.id === c.dataset.caso); if (k) hoja(detalleHTML(k) + `<p class="nota" style="margin-top:14px">👁️ Vista de solo lectura: el caso lo atiende seguridad.</p>`); return; }
+    const c = e.target.closest("[data-caso]"); if (c) { abrirCaso(c.dataset.caso); return; }
   });
+  const waCasa = (casa, txt) => { const r = residentes.find(x => String(x.casa) === String(casa) && x.tel); if (!r) return "";
+    const t = r.tel.length === 8 ? "506" + r.tel : r.tel; return `<a class="btn sm" style="background:#25d366;border-color:#25d366;color:#062b14" target="_blank" rel="noopener" href="https://wa.me/${t}?text=${encodeURIComponent(txt)}">WhatsApp casa ${esc(casa)}</a>`; };
+  function abrirCaso(id){
+    const c = casos.find(x => x.id === id); if (!c) return;
+    const msg = `Hola, le escribe la administración de ${nombreCondo()} sobre el reporte #${c.num}.`;
+    hoja(detalleHTML(c) + `<div class="caja"><h2 style="font-size:17px">💬 Comentario de la administración</h2>
+      <p class="nota" style="margin-top:-4px">Queda en el historial del caso: lo ven seguridad y el residente que reportó.</p>
+      ${c.escalado === "pendiente" ? `<div class="res-box" style="background:var(--panel2)">Para validar: reportó la <b>casa ${esc(c.casa)}</b>${c.contraCasa ? ` · afectación de la <b>casa ${esc(c.contraCasa)}</b>` : ""}.
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">${waCasa(c.casa, msg)}${c.contraCasa ? waCasa(c.contraCasa, msg) : ""}</div></div>` : ""}
+      <div class="campo"><label for="aCom">Comentario o respuesta</label><textarea id="aCom" maxlength="300" placeholder="Ej.: Ya hablamos con el residente de la casa ${esc(c.contraCasa || "27")} y se le envió una advertencia por escrito."></textarea></div>
+      <p class="err" id="aErr"></p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><button class="btn pri" type="button" id="aComOk">Agregar comentario</button>${c.escalado === "pendiente" ? `<button class="btn" type="button" id="aRes">✅ Comentar y marcar resuelto</button>` : ""}</div></div>`, (h, cerrar) => {
+      const enviar = async resolver => { const t = $("#aCom", h).value.trim();
+        if (t.length < 3) { $("#aErr", h).textContent = "Escribí el comentario."; $("#aCom", h).focus(); return; }
+        try { await Datos.actualizar(c.id, { adminNota: t.slice(0, 300), ...(resolver ? { escalado: "resuelto" } : {}) }, { quien: "Administración", txt: (resolver ? "✅ Resuelto por administración: " : "💬 ") + t.slice(0, 300) });
+          aviso(resolver ? `✅ Caso #${c.num} resuelto` : "Comentario agregado"); cerrar(); setTimeout(() => abrirCaso(c.id), 350); } catch { aviso("No se pudo guardar. Revisá la conexión."); } };
+      $("#aComOk", h).onclick = () => enviar(false); const r = $("#aRes", h); if (r) r.onclick = () => enviar(true);
+    });
+  }
+  function escalados(){
+    const p = casos.filter(c => c.escalado === "pendiente").sort((a, b) => (a.escaladoT || 0) - (b.escaladoT || 0));
+    const r = casos.filter(c => c.escalado === "resuelto").sort((a, b) => (b.escaladoT || 0) - (a.escaladoT || 0)).slice(0, 20);
+    const fila = c => { const [, ic, nom] = tipo(c.tipo); return `<button type="button" class="caso${c.escalado === "pendiente" ? " alta" : ""}" data-caso="${esc(c.id)}"><span class="ic">${ic}</span>
+      <span><b>${esc(nom)} · ${esc(donde(c)) || "Sin lugar"}</b><span class="meta">#${c.num} · Reportó casa ${esc(c.casa)} · 🚩 ${esc(c.escaladoNota || c.descripcion)}</span></span>
+      <span class="der"><span class="est ${c.escalado === "pendiente" ? "esc" : "cerrado"}">${c.escalado === "pendiente" ? "Pendiente" : "Resuelto"}</span><span class="tiempo">${esc(c.escaladoPor || "")} · ${c.escaladoT ? hace(c.escaladoT) : ""}</span></span></button>`; };
+    return `<section class="caja"><h2>🚩 Escalados por seguridad (${p.length})</h2><p class="nota" style="margin-top:-4px">Casos que seguridad pasó a la administración para validarlos con la casa afectada. Abrí uno para comentar o marcarlo resuelto.</p>
+      <div class="lista">${p.map(fila).join("") || `<p class="vacio">✅ No hay casos escalados pendientes.</p>`}</div></section>
+      <section class="caja"><h2>Resueltos recientemente</h2><div class="lista">${r.map(fila).join("") || `<p class="vacio">Todavía no hay.</p>`}</div></section>`;
+  }
+  function ranchosV(){
+    const hoyF = hoyL(), mes = reservas.filter(r => r.estado === "activa" && r.fecha.slice(0, 7) === hoyF.slice(0, 7));
+    const l = reservas.filter(r => (!rFil.rancho || r.rancho === rFil.rancho) && (rFil.cuando === "prox" ? r.fecha >= hoyF : r.fecha < hoyF))
+      .sort((a, b) => rFil.cuando === "prox" ? (a.fecha + a.ini).localeCompare(b.fecha + b.ini) : (b.fecha + b.ini).localeCompare(a.fecha + a.ini));
+    return `<div class="kpis">${RANCHOS.map(R => { const m = mes.filter(r => r.rancho === R.n); return `<div><span>🏕️ ${R.nombre}</span><b>${m.length}</b><small>reserva${m.length === 1 ? "" : "s"} este mes · ${m.reduce((t, r) => t + (r.fin - r.ini) / 60, 0)} h</small></div>`; }).join("")}</div>
+      <section class="caja"><h2>Hoy</h2>${resumenDia(reservas, hoyF, { verNombre: true })}</section>
+      <section class="caja"><h2>Reservas por rancho</h2>
+        <div class="filtros"><select id="rfR" aria-label="Rancho"><option value="0">Todos los ranchos</option>${RANCHOS.map(R => `<option value="${R.n}" ${rFil.rancho === R.n ? "selected" : ""}>${R.nombre}</option>`).join("")}</select>
+          <select id="rfC" aria-label="Cuándo"><option value="prox" ${rFil.cuando === "prox" ? "selected" : ""}>Próximas</option><option value="pas" ${rFil.cuando === "pas" ? "selected" : ""}>Pasadas</option></select></div>
+        <div class="tabla-wrap"><table><tr><th>Día</th><th>Rancho</th><th>Hora</th><th>Casa</th><th>Residente</th><th>Para</th><th>Estado</th><th></th></tr>
+          ${l.map(r => `<tr><td>${diaTxt(r.fecha)}</td><td>${rancho(r.rancho).nombre}</td><td>${horario(r)}</td><td>${esc(r.casa)}</td><td>${esc(r.nombre)}</td><td>${esc(r.nota || "—")}</td>
+            <td><span class="est ${r.estado === "activa" ? "cerrado" : "nuevo"}">${r.estado === "activa" ? "Reservado" : "Cancelada"}</span>${r.estado === "cancelada" && r.canceladoPor ? `<br><small class="nota">por ${esc(r.canceladoPor)}</small>` : ""}</td>
+            <td>${r.estado === "activa" && r.fecha >= hoyF ? `<button class="btn sm" type="button" data-rcan="${esc(r.id)}">${rConf === r.id ? "¿Seguro?" : "Cancelar"}</button>` : ""}</td></tr>`).join("")}</table></div>
+        <p class="nota">${l.length} reserva${l.length === 1 ? "" : "s"}.</p></section>`;
+  }
   function barras(pares, { top = 0 } = {}){
     const max = Math.max(1, ...pares.map(p => p[1]));
     return pares.length ? `<div class="barras">${pares.map(([l, n], i) => `<div class="barra${i < top ? " top" : ""}"><span title="${esc(l)}">${esc(l)}</span><i style="width:${Math.max(2, n / max * 100)}%"></i><b>${n}</b></div>`).join("")}</div>` : `<p class="nota">Sin datos en este período.</p>`;
@@ -371,7 +575,7 @@ function admin(){
   function reportes(){
     const q = filtro.q.trim().toLowerCase();
     const l = casos.filter(c => (!filtro.estado || c.estado === filtro.estado) && (!filtro.tipo || c.tipo === filtro.tipo) && (!q || `${c.num} ${c.casa} ${c.nombre} ${donde(c)} ${c.descripcion} ${c.agente}`.toLowerCase().includes(q)));
-    return `<section class="caja"><h2>Todos los reportes</h2><p class="nota" style="margin-top:-4px">👁️ Solo lectura: los casos los atiende y cierra seguridad.</p>
+    return `<section class="caja"><h2>Todos los reportes</h2><p class="nota" style="margin-top:-4px">Los casos los atiende y cierra seguridad. Tocá uno para ver su historial o dejar un comentario de la administración.</p>
       <div class="filtros"><select id="fe" aria-label="Estado"><option value="">Todos los estados</option>${Object.entries(ESTADOS).map(([k, v]) => `<option value="${k}" ${filtro.estado === k ? "selected" : ""}>${v}</option>`).join("")}</select>
         <select id="ft" aria-label="Tipo"><option value="">Todos los tipos</option>${TIPOS.map(([k, ic, n]) => `<option value="${k}" ${filtro.tipo === k ? "selected" : ""}>${ic} ${n}</option>`).join("")}</select>
         <input id="fq" type="search" placeholder="Buscar casa, nombre, texto…" value="${esc(filtro.q)}"><button class="btn sm" type="button" id="csv">⬇️ Descargar Excel (CSV)</button></div>
@@ -408,11 +612,18 @@ function admin(){
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><a class="btn" href="seguridad.html${location.search}" target="_blank" rel="noopener">🛡️ Panel de seguridad</a><a class="btn" href="residente.html${location.search}" target="_blank" rel="noopener">🏠 Panel de residentes</a></div></section>
       <section class="caja"><h2>Nombre del condominio</h2><div class="campo"><input id="aN" maxlength="50" value="${esc(nombreCondo())}"></div><button class="btn pri" type="button" id="aNg" style="margin-top:10px">Guardar</button>
         <p class="nota">En la demo el nombre se guarda en este celular.</p></section>
-      <section class="caja"><h2>Datos de prueba</h2><p class="nota" style="margin-top:-4px">Borra todos los reportes y residentes y vuelve a cargar un mes de ejemplo.</p><button class="btn rojo" type="button" id="aR" style="margin-top:10px">Reiniciar datos de ejemplo</button></section>`;
+      <section class="caja"><h2>Datos de prueba</h2><p class="nota" style="margin-top:-4px">Borra todos los reportes, residentes y reservas de ranchos y vuelve a cargar un mes de ejemplo.</p><button class="btn rojo" type="button" id="aR" style="margin-top:10px">Reiniciar datos de ejemplo</button></section>`;
   }
   function pintar(){
     const sc = scrollY;
-    cuerpo.innerHTML = tab === "est" ? estadisticas() : tab === "rep" ? reportes() : tab === "res" ? residentesV() : ajustes();
+    const nE = casos.filter(c => c.escalado === "pendiente").length, bE = $("#nEsc"); if (bE) { bE.hidden = !nE; bE.textContent = nE; }
+    cuerpo.innerHTML = tab === "est" ? estadisticas() : tab === "rep" ? reportes() : tab === "esc" ? escalados() : tab === "ran" ? ranchosV() : tab === "res" ? residentesV() : ajustes();
+    if (tab === "ran") {
+      $("#rfR").onchange = e => { rFil.rancho = +e.target.value; pintar(); }; $("#rfC").onchange = e => { rFil.cuando = e.target.value; pintar(); };
+      cuerpo.querySelectorAll("[data-rcan]").forEach(b => b.onclick = async () => { const id = b.dataset.rcan;
+        if (rConf !== id) { rConf = id; pintar(); setTimeout(() => { if (rConf === id) { rConf = null; if (tab === "ran") pintar(); } }, 4000); return; }
+        rConf = null; try { await Datos.cancelarReserva(reservas.find(r => r.id === id), "Administración"); aviso("Reserva cancelada"); } catch { aviso("No se pudo cancelar."); } });
+    }
     if (tab === "rep") {
       $("#fe").onchange = e => { filtro.estado = e.target.value; pintar(); }; $("#ft").onchange = e => { filtro.tipo = e.target.value; pintar(); };
       $("#fq").oninput = e => { filtro.q = e.target.value; const p = e.target.selectionStart; pintar(); const i = $("#fq"); i.focus(); i.setSelectionRange(p, p); };
@@ -436,21 +647,28 @@ function admin(){
         try { await Datos.cambiarResidente(r.id, { activo: !r.activo }); aviso(r.activo ? `${r.nombre} desactivado: ya no puede ingresar` : `${r.nombre} activado`); } catch { aviso("No se pudo cambiar."); } });
     }
     if (tab === "aj") {
-      $("#aNg").onclick = () => { lsSet("condo-nombre", $("#aN").value.trim() || "Condominio Vista Verde"); aviso("Nombre guardado"); admin(); };
+      $("#aNg").onclick = () => { lsSet("condo-nombre", $("#aN").value.trim() || "Condominio Puerto España"); aviso("Nombre guardado"); admin(); };
       let seguro = false;
       $("#aR").onclick = async () => { if (!seguro) { seguro = true; $("#aR").textContent = "Tocá otra vez para confirmar"; setTimeout(() => { seguro = false; const b = $("#aR"); if (b) b.textContent = "Reiniciar datos de ejemplo"; }, 4000); return; }
-        $("#aR").disabled = true; try { await Datos.borrarTodo(); const e = generarEjemplo(); await Datos.sembrar(e.casos, e.residentes); aviso("Datos de ejemplo cargados"); } catch { aviso("No se pudo reiniciar."); } $("#aR").disabled = false; };
+        $("#aR").disabled = true; try { await Datos.borrarTodo(); const e = generarEjemplo(); await Datos.sembrar(e.casos, e.residentes, e.reservas); aviso("Datos de ejemplo cargados"); } catch { aviso("No se pudo reiniciar."); } $("#aR").disabled = false; };
     }
     if (tab !== "rep" || document.activeElement?.id !== "fq") scrollTo(0, sc);
   }
   Datos.escuchar(async lista => { if (await asegurarEjemplo(lista)) return; casos = lista; if (tab !== "res") pintar(); }, () => { cuerpo.innerHTML = `<p class="vacio">No se pudo conectar. Revisá la conexión.</p>`; }).catch(() => {});
+  Datos.escucharReservas(l => { reservas = l; if (tab === "ran") pintar(); }).catch(() => {});
   Datos.escucharResidentes(l => { const nuevo = residentes.length !== l.length || JSON.stringify(residentes.map(r => [r.id, r.activo, r.conClave])) !== JSON.stringify(l.map(r => [r.id, r.activo, r.conClave])); residentes = l; if (tab === "res" && nuevo) { pintar(); if (ultimoLink) mostrarLink(ultimoLink, $("#nuevoLink")); } }).catch(() => {});
   pintar();
 }
 
 /* ===================== ARRANQUE ===================== */
 document.title = ({ residente: "Reportes", seguridad: "Seguridad", admin: "Administración" })[MODO] + " · " + nombreCondo();
-if (MODO === "residente") { residente(); Datos.escuchar(l => asegurarEjemplo(l)).catch(() => {}); }
-else if (MODO === "seguridad") seguridad();
-else admin();
+// Versión 2 de los datos de ejemplo: agrega ranchos y casos escalados (se recarga una sola vez para todos).
+async function actualizarEjemplo(){
+  try { if ((await Datos.version()) >= 2) return; await Datos.ponerVersion(2); await Datos.borrarTodo(); const e = generarEjemplo(); await Datos.sembrar(e.casos, e.residentes, e.reservas); } catch (x) { console.warn(x); }
+}
+actualizarEjemplo().finally(() => {
+  if (MODO === "residente") { residente(); Datos.escuchar(l => asegurarEjemplo(l)).catch(() => {}); }
+  else if (MODO === "seguridad") seguridad();
+  else admin();
+});
 })();
