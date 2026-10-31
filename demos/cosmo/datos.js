@@ -175,8 +175,9 @@ window.Pedidos = (() => {
   const VACIA = "data:image/gif;base64,R0lGODlhAQABAAAAACw=";
   const src = f => { f = String(f || ""); if (!f.startsWith("f:")) return `src="${f.replace(/"/g, "")}"`; const id = f.slice(2).replace(/[^a-z0-9]/gi, "");
     return cacheF[id] ? `src="${cacheF[id]}"` : `src="${VACIA}" data-fid="${id}"`; };
+  const fotoUrl = async f => { f = String(f || ""); return f.startsWith("f:") ? await fotoData(f.slice(2).replace(/[^a-z0-9]/gi, "")) : f; };
   function llenar(root) { root.querySelectorAll?.("img[data-fid]").forEach(img => { const id = img.dataset.fid; img.removeAttribute("data-fid"); fotoData(id).then(d => { if (d) img.src = d; }); }); }
   if (typeof MutationObserver !== "undefined") new MutationObserver(m => m.forEach(r => r.addedNodes.forEach(n => n.nodeType === 1 && (n.matches?.("img[data-fid]") ? llenar(n.parentNode || n) : llenar(n))))).observe(document.documentElement, { childList: true, subtree: true });
 
-  return { LOCAL, PK_BASE, TALLAS, CAT_BASE, catalogo, escucharCatalogo, guardarCatalogo, subirFoto, src, precioPaquetes, crear, escucharUno, escucharTodos, cambiar, ajustes, guardarAjustes, sembrar, totales, codigo };
+  return { LOCAL, PK_BASE, TALLAS, CAT_BASE, catalogo, escucharCatalogo, guardarCatalogo, subirFoto, src, fotoUrl, precioPaquetes, crear, escucharUno, escucharTodos, cambiar, ajustes, guardarAjustes, sembrar, totales, codigo };
 })();

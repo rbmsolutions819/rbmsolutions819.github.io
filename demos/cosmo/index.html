@@ -213,6 +213,26 @@ footer a{color:var(--lima)}
 @media(min-width:600px){.det{grid-template-columns:220px 1fr}}
 .det .ft{aspect-ratio:4/5;border-radius:16px;overflow:hidden;background:#eceee8}
 .det .ft img{width:100%;height:100%;object-fit:cover;object-position:center 25%}
+.det .ft .zoom{all:unset;display:block;width:100%;height:100%;position:relative;cursor:zoom-in}
+.lupa{position:absolute;right:10px;bottom:10px;background:rgba(13,14,16,.82);color:#fff;border-radius:999px;padding:6px 12px 6px 9px;font:600 12.5px var(--f-t);display:inline-flex;align-items:center;gap:6px;pointer-events:none}
+.lupa svg{width:15px;height:15px}
+.card{position:relative}
+.amp{position:absolute;top:10px;right:10px;width:38px;height:38px;border-radius:50%;border:0;background:rgba(255,255,255,.92);color:#0d0e10;display:grid;place-items:center;box-shadow:0 2px 10px rgba(0,0,0,.18);z-index:2;cursor:zoom-in}
+.amp svg{width:18px;height:18px}
+.visor{position:fixed;inset:0;z-index:90;background:#0b0c0e;color:#fff;display:flex;flex-direction:column;touch-action:pan-y}
+.visor-cab{display:flex;align-items:center;gap:12px;padding:12px 14px 12px 18px}
+.visor-cab b{font:700 17px var(--f-t);display:block}
+.visor-cab small{color:#b9bdc4;font-size:13.5px}
+.visor-cab .x{margin-left:auto;width:44px;height:44px;border-radius:50%;border:0;background:#24272b;color:#fff;font-size:26px;line-height:1;cursor:pointer}
+.visor-ft{flex:1;min-height:0;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.visor-ft img{max-width:100%;max-height:100%;object-fit:contain;transition:transform .2s;cursor:zoom-in;user-select:none;-webkit-user-drag:none}
+.visor-ft img.zoomed{cursor:zoom-out}
+.visor-ft .nav{position:absolute;top:50%;transform:translateY(-50%);width:48px;height:48px;border-radius:50%;border:0;background:rgba(36,39,43,.85);color:#fff;font-size:24px;cursor:pointer;display:grid;place-items:center}
+.visor-ft .nav.izq{left:12px}.visor-ft .nav.der{right:12px}
+.visor-tira{display:flex;gap:8px;overflow-x:auto;padding:12px 14px calc(14px + env(safe-area-inset-bottom));scrollbar-width:none;justify-content:safe center}
+.visor-tira button{flex:none;width:56px;height:70px;border-radius:10px;overflow:hidden;border:2px solid transparent;padding:0;background:#24272b;cursor:pointer;opacity:.6}
+.visor-tira button[aria-pressed="true"]{border-color:var(--lima);opacity:1}
+.visor-tira img{width:100%;height:100%;object-fit:cover}
 .det .pr{font:700 26px var(--f-t)}
 .det .ds{color:var(--suave);font-size:15px;margin-top:6px}
 .lbl{font:600 14px var(--f-t);margin:16px 0 8px}
@@ -469,7 +489,7 @@ function pintar(){
   $("#filtros").innerHTML = ["Todo", ...new Set(P.map(p => p.linea))].map(l => `<button type="button" data-f="${esc(l)}" aria-pressed="${l === filtro}">${l === "Todo" ? "Todo" : esc(l)}</button>`).join("");
   $("#grid").innerHTML = P.filter(p => filtro === "Todo" || p.linea === filtro).map(p => {
     const act = p.cmap[vistaCard[p.id]] ? vistaCard[p.id] : p.colores[0], vis = p.colores.slice(0, 7);
-    return `<article class="card"><button type="button" class="ft" data-elegir="${p.id}" aria-label="Ver ${esc(p.nombre)}"><img ${Pedidos.src(p.foto(act))} alt="${esc(p.nombre)} ${esc(col(p, act).nombre)}" loading="lazy"></button>
+    return `<article class="card"><button type="button" class="amp" data-amp="${p.id}" aria-label="Ver fotos de ${esc(p.nombre)} en grande"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5M11 8v6M8 11h6"/></svg></button><button type="button" class="ft" data-elegir="${p.id}" aria-label="Ver ${esc(p.nombre)}"><img ${Pedidos.src(p.foto(act))} alt="${esc(p.nombre)} ${esc(col(p, act).nombre)}" loading="lazy"></button>
       <div class="in"><span class="mk">${esc(p.linea)}</span><h3>${esc(p.nombre)}</h3>
         <div class="pr">${crc(p.precio)}${p.promo ? `<small>${promoTxt()}</small>` : ""}</div>
         <div class="sw" role="group" aria-label="Colores">${vis.map(c => `<button type="button" style="background:${col(p, c).hex}" data-sw="${p.id}:${c}" aria-pressed="${c === act}" aria-label="${esc(col(p, c).nombre)}" title="${esc(col(p, c).nombre)}"></button>`).join("")}${p.colores.length > vis.length ? `<span class="mas">+${p.colores.length - vis.length}</span>` : ""}</div>
@@ -481,6 +501,7 @@ function pintar(){
 document.addEventListener("click", e => {
   const f = e.target.closest("[data-f]"); if (f) { filtro = f.dataset.f; pintar(); return; }
   const s = e.target.closest("[data-sw]"); if (s) { const [p, c] = s.dataset.sw.split(":"); vistaCard[p] = c; pintar(); return; }
+  const am = e.target.closest("[data-amp]"); if (am) { const p = prod(am.dataset.amp); visor(p, p.cmap[vistaCard[p.id]] ? vistaCard[p.id] : p.colores[0], c => { vistaCard[p.id] = c; pintar(); }); return; }
   const el = e.target.closest("[data-elegir]"); if (el) { elegir(el.dataset.elegir); return; }
   if (e.target.closest("[data-pedido]")) verPedido();
 });
@@ -517,7 +538,7 @@ function elegir(id){
     <p class="err" id="e-err" role="alert"></p>
     <button type="button" class="b b-negro b-bloque" id="e-ok">Agregar al pedido</button>`, (h, cerrar) => {
     const pint = () => {
-      $("#e-ft", h).innerHTML = `<img ${Pedidos.src(p.foto(c))} alt="${esc(p.nombre)} ${esc(col(p, c).nombre)}">`; $("#e-cn", h).textContent = col(p, c).nombre;
+      $("#e-ft", h).innerHTML = `<button type="button" class="zoom" data-zoom aria-label="Ver foto en grande"><img ${Pedidos.src(p.foto(c))} alt="${esc(p.nombre)} ${esc(col(p, c).nombre)}"><span class="lupa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5M11 8v6M8 11h6"/></svg>Ver en grande</span></button>`; $("#e-cn", h).textContent = col(p, c).nombre;
       $("#e-col", h).innerHTML = p.colores.map(x => `<button type="button" data-col="${x}" aria-pressed="${x === c}"><i style="background:${col(p, x).hex}"></i>${esc(col(p, x).nombre)}</button>`).join("");
       if ($("#e-tal", h)) $("#e-tal", h).innerHTML = p.tallas.map(x => `<button type="button" data-t="${x}" aria-pressed="${x === t}">${x}</button>`).join("");
       if ($("#e-lar", h)) $("#e-lar", h).innerHTML = LARGOS.map(([n, cm]) => `<button type="button" data-l="${n}" aria-pressed="${n === largo}">${n} · ${cm}</button>`).join("");
@@ -525,6 +546,7 @@ function elegir(id){
     };
     pint();
     h.addEventListener("click", e => {
+      if (e.target.closest("[data-zoom]")) { visor(p, c, nc => { c = nc; vistaCard[id] = c; pint(); pintar(); }); return; }
       const k = e.target.closest("[data-col]"); if (k) { c = k.dataset.col; vistaCard[id] = c; pint(); pintar(); }
       const tt = e.target.closest("[data-t]"); if (tt) { t = tt.dataset.t; $("#e-err", h).textContent = ""; pint(); }
       const ll = e.target.closest("[data-l]"); if (ll) { largo = ll.dataset.l; pint(); }
@@ -537,6 +559,43 @@ function elegir(id){
       }
     });
   });
+}
+
+/* ---- visor de fotos en grande ---- */
+function visor(p, c, alCambiar){
+  let i = Math.max(0, p.colores.indexOf(c)), zoom = false, turno = 0;
+  const v = document.createElement("div"); v.className = "visor"; v.setAttribute("role", "dialog"); v.setAttribute("aria-modal", "true"); v.setAttribute("aria-label", "Fotos de " + p.nombre);
+  v.innerHTML = `<div class="visor-cab"><span><b>${esc(p.nombre)}</b><small id="v-cn"></small></span><button type="button" class="x" data-vx aria-label="Cerrar">×</button></div>
+    <div class="visor-ft"><img id="v-img" alt="">${p.colores.length > 1 ? `<button type="button" class="nav izq" data-vn="-1" aria-label="Foto anterior">‹</button><button type="button" class="nav der" data-vn="1" aria-label="Foto siguiente">›</button>` : ""}</div>
+    ${p.colores.length > 1 ? `<div class="visor-tira">${p.colores.map((x, j) => `<button type="button" data-vi="${j}" aria-label="${esc(col(p, x).nombre)}"><img ${Pedidos.src(p.foto(x))} alt=""></button>`).join("")}</div>` : ""}`;
+  document.body.append(v); const antes = document.body.style.overflow; document.body.style.overflow = "hidden";
+  const img = $("#v-img", v);
+  const pint = () => { const x = p.colores[i]; zoom = false; img.classList.remove("zoomed"); img.style.transform = "";
+    const k = ++turno; Pedidos.fotoUrl(p.foto(x)).then(u => { if (k === turno) img.src = u; });
+    img.alt = `${p.nombre} ${col(p, x).nombre}`; $("#v-cn", v).textContent = `${p.modelo ? "Modelo" : "Color"}: ${col(p, x).nombre}${p.colores.length > 1 ? ` · ${i + 1} de ${p.colores.length}` : ""}`;
+    v.querySelectorAll("[data-vi]").forEach(b => b.setAttribute("aria-pressed", +b.dataset.vi === i));
+    v.querySelector(`[data-vi="${i}"]`)?.scrollIntoView({ block: "nearest", inline: "center" }); alCambiar?.(x); };
+  const mover = d => { i = (i + d + p.colores.length) % p.colores.length; pint(); };
+  const cerrar = () => { v.remove(); document.body.style.overflow = antes; document.removeEventListener("keydown", tecla); };
+  const tecla = e => { if (e.key === "Escape") cerrar(); else if (e.key === "ArrowRight") mover(1); else if (e.key === "ArrowLeft") mover(-1); };
+  document.addEventListener("keydown", tecla);
+  v.addEventListener("click", e => {
+    if (e.target.closest("[data-vx]")) return cerrar();
+    const n = e.target.closest("[data-vn]"); if (n) return mover(+n.dataset.vn);
+    const t = e.target.closest("[data-vi]"); if (t) { i = +t.dataset.vi; return pint(); }
+    if (e.target === img) { zoom = !zoom; img.classList.toggle("zoomed", zoom);
+      if (zoom) { const r = img.getBoundingClientRect(); img.style.transformOrigin = `${((e.clientX - r.left) / r.width) * 100}% ${((e.clientY - r.top) / r.height) * 100}%`; img.style.transform = "scale(2.2)"; } else img.style.transform = ""; }
+    else if (e.target.classList.contains("visor-ft")) cerrar();
+  });
+  // deslizar con el dedo para cambiar de foto
+  let x0 = null, y0 = null;
+  img.addEventListener("touchstart", e => { if (zoom || e.touches.length > 1) { x0 = null; return; } x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; }, { passive: true });
+  img.addEventListener("touchend", e => { if (x0 == null) return; const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0; x0 = null;
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) mover(dx < 0 ? 1 : -1); });
+  // con zoom, mover el dedo o el mouse recorre la foto
+  img.addEventListener("mousemove", e => { if (!zoom) return; const r = img.parentNode.getBoundingClientRect(); img.style.transformOrigin = `${((e.clientX - r.left) / r.width) * 100}% ${((e.clientY - r.top) / r.height) * 100}%`; });
+  img.addEventListener("touchmove", e => { if (!zoom) return; const t = e.touches[0], r = img.parentNode.getBoundingClientRect(); img.style.transformOrigin = `${((t.clientX - r.left) / r.width) * 100}% ${((t.clientY - r.top) / r.height) * 100}%`; }, { passive: true });
+  pint(); $("[data-vx]", v).focus();
 }
 const itemsPedido = () => pedido.map(x => { const p = prod(x.p); return { nombre: p.nombre, linea: p.linea, color: col(p, x.c).nombre, talla: p.tallas.length > 1 ? x.t : "", largo: x.largo || "", cant: x.cant, precio: p.precio, promo: p.promo, ...(p.promo ? { pk: CAT.promo.pk } : {}), foto: p.foto(x.c), disp: null }; });
 const calcular = () => Pedidos.totales(itemsPedido());
