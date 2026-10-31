@@ -437,6 +437,17 @@ service cloud.firestore {
       allow read: if true;
       allow create, update: if request.resource.data.keys().hasOnly(['n']) && request.resource.data.n is int;
     }
+    match /cosmo_meta/catalogo {
+      allow read: if true;
+      allow create, update: if request.resource.data.keys().hasOnly(['promo','productos','actualizado'])
+        && request.resource.data.productos is list && request.resource.data.productos.size() <= 40
+        && request.resource.data.promo is map;
+    }
+    match /cosmo_fotos/{id} {
+      allow read: if true;
+      allow create: if id.size() <= 24 && request.resource.data.keys().hasOnly(['data','creado'])
+        && request.resource.data.data is string && request.resource.data.data.size() < 900000;
+    }
     match /cosmo_meta/ajustes {
       allow read: if true;
       allow create, update: if request.resource.data.keys().hasOnly(['sinpe','titular','banco','cuenta','whatsapp'])

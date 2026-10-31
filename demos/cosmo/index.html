@@ -303,12 +303,8 @@ footer a{color:var(--lima)}
 </div></div>
 
 <section class="oscuro" id="promos"><div class="wrap">
-  <div class="cab"><div class="k">Promociones Cosmo</div><h2>Entre más lleva, más ahorra</h2><p>Aplica en cualquier estilo y color de la línea Cosmo. Pueden combinar tallas: ideal para pedir con compañeros de trabajo.</p></div>
-  <div class="promos">
-    <div class="promo"><div class="n">1 uniforme</div><div class="p">₡33.800</div><div class="u">Precio por unidad</div></div>
-    <div class="promo"><div class="n">2 uniformes</div><div class="p">₡59.800</div><div class="u">₡29.900 cada uno</div><span class="ah">Ahorra ₡7.800</span></div>
-    <div class="promo destacada"><span class="et">Mejor precio</span><div class="n">3 uniformes</div><div class="p">₡86.400</div><div class="u">₡28.800 cada uno</div><span class="ah">Ahorra ₡15.000</span></div>
-  </div>
+  <div class="cab"><div class="k" id="promo-nom">Promociones Cosmo</div><h2>Entre más lleva, más ahorra</h2><p>Aplica en cualquier estilo y color de <span id="promo-lin">la línea Cosmo</span>. Pueden combinar tallas: ideal para pedir con compañeros de trabajo.</p></div>
+  <div class="promos" id="promo-cards"></div>
   <div class="promo-nota"><span><svg class="i" data-ic="truck"></svg>Envío gratis a todo Costa Rica</span><span><svg class="i" data-ic="check"></svg>El descuento se aplica solo en su pedido</span><span><svg class="i" data-ic="clock"></svg>Promoción por tiempo limitado</span></div>
 </div></section>
 
@@ -411,34 +407,8 @@ footer a{color:var(--lima)}
 /* ===================== DATOS ===================== */
 // Número que recibe los pedidos. Vacío en la demo: WhatsApp deja escoger a quién mandarlo, para probar sin escribirle al negocio.
 const NEGOCIO = { nombre: "Cosmo Scrubs Medical", whatsapp: "", whatsappReal: "6131-9025" };
-const C = {
-  "negro":["Negro","#1b1c1f"], "rosado":["Rosado","#e98fb0"], "vino":["Vino","#6e1428"], "lila":["Lila","#9b7be0"], "gris-acero":["Gris acero","#5a5a72"],
-  "verde-botella":["Verde botella","#1f5a44"], "durazno":["Durazno","#f0a596"], "malva":["Malva","#d79ab8"], "turquesa":["Turquesa","#2ab2c4"],
-  "degradado-lila":["Degradado lila","linear-gradient(180deg,#e6d4f5,#6d2cc0)"], "degradado-celeste":["Degradado celeste","linear-gradient(180deg,#bff0ee,#5b25b5)"],
-  "coral":["Coral","#f0566f"], "morado":["Morado","#7a1fcf"], "palo-rosa":["Palo rosa","#dba3a3"], "rosado-claro":["Rosado claro","#f6b9d3"],
-  "verde-jade":["Verde jade","#0b7f7a"], "verde-salvia":["Verde salvia","#8fa684"], "grafito":["Grafito","#3a3b40"], "beige":["Beige","#c9a882"],
-  "gris-oxford":["Gris oxford","#55575c"], "rojo":["Rojo","#cf1f35"], "gris-claro":["Gris claro","#a5a8ae"], "verde-olivo":["Verde olivo","#3d4a2c"],
-  "fucsia":["Fucsia","#e0218a"], "azul-marino":["Azul marino","#1b2440"], "blanco":["Blanco","#f6f6f4"], "cafe":["Café","#5a3a28"], "azul-rey":["Azul rey","#1f45c9"],
-  "con-botones":["Con botones","#f6f6f4"], "con-cierre":["Con cierre","#f6f6f4"]
-};
-const T_MUJER = ["XXS","XS","S","M","L","XL","XXL","XXXL"], T_GAB = ["XS","S","M","L","XL","XXL"];
-const P = [
-  { id:"cosmo", linea:"Cosmo", nombre:"Uniforme Cosmo", precio:33800, promo:true, tallas:T_MUJER, largo:true,
-    desc:"Blusa cuello mao con escote en V y pantalón cargo con cordón. Tela colombiana antifluidos y stretch.",
-    colores:["negro","rosado","vino","lila","gris-acero","verde-botella","durazno","malva","turquesa"], foto:c => `fotos/cosmo-${c}.jpg` },
-  { id:"aloha", linea:"Aloha", nombre:"Uniforme Aloha", precio:32800, tallas:T_MUJER, largo:true,
-    desc:"Blusa cuello V y pantalón cargo con cordón. Disponible en colores sólidos y en degradado.",
-    colores:["degradado-lila","degradado-celeste","coral","morado","palo-rosa","vino","rosado-claro","verde-jade","verde-salvia","grafito"], foto:c => `fotos/aloha-${c}.jpg` },
-  { id:"ionik", linea:"IONIK", nombre:"Uniforme IONIK", precio:20800, tallas:T_MUJER, largo:true,
-    desc:"Blusa cuello V y pantalón jogger con puño. La opción más económica, de la línea Doctor Outlet.",
-    colores:["lila","beige","vino","gris-oxford","rojo","gris-claro","verde-olivo","fucsia","rosado","azul-marino"], foto:c => `fotos/ionik-${c}.jpg` },
-  { id:"gabacha", linea:"Gabachas", nombre:"Gabacha de laboratorio Cosmo", precio:22000, tallas:T_GAB,
-    desc:"Gabacha blanca de manga larga, con bolsas al frente. Escoja el modelo con botones o con cierre.",
-    colores:["con-botones","con-cierre"], foto:c => c === "con-cierre" ? "fotos/gabacha-cierre.jpg" : "fotos/gabacha-botones.jpg" },
-  { id:"gorro", linea:"Gorros", nombre:"Gorro quirúrgico", precio:5000, tallas:["Única"],
-    desc:"Gorro quirúrgico con amarre atrás, en la misma tela de los uniformes. Combínelo con su scrub.",
-    colores:["vino","blanco","rojo","fucsia","cafe","negro","azul-rey","rosado"], foto:c => c === "vino" ? "fotos/gorro-modelo.jpg" : `fotos/gorro-${c}.jpg` }
-];
+// El catálogo (productos, precios, colores, fotos y promo) lo administra la asesora desde panel.html y se guarda en la base de datos.
+let CAT = Pedidos.CAT_BASE, P = [];
 const TABLAS = {
   "Mujer": { cols:["Talla","Busto (cm)","Cadera (cm)"], filas:[["XXS","76–80","89–93"],["XS","81–85","90–94"],["S","86–90","95–99"],["M","91–97","100–107"],["L","98–104","108–115"],["XL","105–111","116–123"],["XXL","112–118","124–130"],["XXXL","119–125","131–137"]] },
   "Gabacha hombre": { cols:["Talla","Pecho (cm)","Cintura (cm)","Largo (cm)"], filas:[["XS","88–92","76–80","68"],["S","93–98","81–86","70"],["M","99–104","87–92","72"],["L","105–110","93–98","74"],["XL","111–116","99–104","76"],["XXL","117–122","105–110","78"]] },
@@ -470,7 +440,7 @@ document.querySelectorAll("svg[data-ic]").forEach(s => { s.setAttribute("viewBox
 const $ = (s, r = document) => r.querySelector(s);
 const esc = t => String(t ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const crc = n => "₡" + String(Math.round(+n || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-const col = id => ({ id, nombre: (C[id] || [id])[0], hex: (C[id] || [0, "#999"])[1] });
+const col = (p, id) => { const k = p.cmap[id] || {}; return { id, nombre: k.nombre || id, hex: k.hex || "#999" }; };
 const prod = id => P.find(p => p.id === id);
 const waLink = m => { const n = NEGOCIO.whatsapp.replace(/\D/g, ""); return `https://wa.me/${n ? (n.length === 8 ? "506" + n : n) : ""}?text=${encodeURIComponent(m)}`; };
 function toast(t){ const d = document.createElement("div"); d.className = "toast"; d.setAttribute("role", "status"); d.textContent = t; document.body.append(d); setTimeout(() => d.remove(), 2600); }
@@ -478,16 +448,32 @@ document.querySelectorAll("[data-wa]").forEach(a => { a.href = waLink(`Hola ${NE
 
 /* ===================== CATÁLOGO ===================== */
 let filtro = "Todo", pedido = []; const vistaCard = {};
-const LINEAS = ["Todo", ...new Set(P.map(p => p.linea))];
+const promoTxt = () => { const k = CAT.promo.pk; return `2 por ${crc(k[1])} · 3 por ${crc(k[2])}`; };
+function aplicarCatalogo(cat){
+  CAT = cat; if (!CAT.promo || !Array.isArray(CAT.promo.pk)) CAT.promo = { activa: false, nombre: "Promo", pk: Pedidos.PK_BASE };
+  P = (cat.productos || []).filter(p => p.visible !== false && p.colores && p.colores.length).map(p => ({ ...p, promo: !!(p.promo && CAT.promo.activa),
+    cmap: Object.fromEntries(p.colores.map(k => [k.id, k])), colores: p.colores.map(k => k.id), foto: c => (p.colores.find(k => k.id === c) || p.colores[0]).foto }));
+  pedido = pedido.filter(x => { const p = prod(x.p); return p && p.cmap[x.c]; });
+  if (!P.some(p => p.linea === filtro)) filtro = "Todo";
+  pintarPromos(); pintar();
+}
+function pintarPromos(){
+  const k = CAT.promo.pk, con = P.filter(p => p.promo), sec = $("#promos");
+  sec.hidden = !con.length; if (!con.length) return;
+  $("#promo-nom").textContent = CAT.promo.nombre; $("#promo-lin").textContent = con.length === 1 ? "la línea " + con[0].linea : "las líneas " + con.map(p => p.linea).join(" y ");
+  $("#promo-cards").innerHTML = `<div class="promo"><div class="n">1 uniforme</div><div class="p">${crc(k[0])}</div><div class="u">Precio por unidad</div></div>
+    <div class="promo"><div class="n">2 uniformes</div><div class="p">${crc(k[1])}</div><div class="u">${crc(k[1] / 2)} cada uno</div>${2 * k[0] > k[1] ? `<span class="ah">Ahorra ${crc(2 * k[0] - k[1])}</span>` : ""}</div>
+    <div class="promo destacada"><span class="et">Mejor precio</span><div class="n">3 uniformes</div><div class="p">${crc(k[2])}</div><div class="u">${crc(k[2] / 3)} cada uno</div>${3 * k[0] > k[2] ? `<span class="ah">Ahorra ${crc(3 * k[0] - k[2])}</span>` : ""}</div>`;
+}
 function pintar(){
-  $("#filtros").innerHTML = LINEAS.map(l => `<button type="button" data-f="${esc(l)}" aria-pressed="${l === filtro}">${l === "Todo" ? "Todo" : esc(l)}</button>`).join("");
+  $("#filtros").innerHTML = ["Todo", ...new Set(P.map(p => p.linea))].map(l => `<button type="button" data-f="${esc(l)}" aria-pressed="${l === filtro}">${l === "Todo" ? "Todo" : esc(l)}</button>`).join("");
   $("#grid").innerHTML = P.filter(p => filtro === "Todo" || p.linea === filtro).map(p => {
-    const act = vistaCard[p.id] || p.colores[0], vis = p.colores.slice(0, 7);
-    return `<article class="card"><button type="button" class="ft" data-elegir="${p.id}" aria-label="Ver ${esc(p.nombre)}"><img src="${p.foto(act)}" alt="${esc(p.nombre)} ${esc(col(act).nombre)}" loading="lazy"></button>
+    const act = p.cmap[vistaCard[p.id]] ? vistaCard[p.id] : p.colores[0], vis = p.colores.slice(0, 7);
+    return `<article class="card"><button type="button" class="ft" data-elegir="${p.id}" aria-label="Ver ${esc(p.nombre)}"><img ${Pedidos.src(p.foto(act))} alt="${esc(p.nombre)} ${esc(col(p, act).nombre)}" loading="lazy"></button>
       <div class="in"><span class="mk">${esc(p.linea)}</span><h3>${esc(p.nombre)}</h3>
-        <div class="pr">${crc(p.precio)}${p.promo ? "<small>2 por ₡59.800 · 3 por ₡86.400</small>" : ""}</div>
-        <div class="sw" role="group" aria-label="Colores">${vis.map(c => `<button type="button" style="background:${col(c).hex}" data-sw="${p.id}:${c}" aria-pressed="${c === act}" aria-label="${esc(col(c).nombre)}" title="${esc(col(c).nombre)}"></button>`).join("")}${p.colores.length > vis.length ? `<span class="mas">+${p.colores.length - vis.length}</span>` : ""}</div>
-        <span class="cn">${p.colores.length} ${p.id === "gabacha" ? "modelos" : "colores"} · ${esc(col(act).nombre)}</span>
+        <div class="pr">${crc(p.precio)}${p.promo ? `<small>${promoTxt()}</small>` : ""}</div>
+        <div class="sw" role="group" aria-label="Colores">${vis.map(c => `<button type="button" style="background:${col(p, c).hex}" data-sw="${p.id}:${c}" aria-pressed="${c === act}" aria-label="${esc(col(p, c).nombre)}" title="${esc(col(p, c).nombre)}"></button>`).join("")}${p.colores.length > vis.length ? `<span class="mas">+${p.colores.length - vis.length}</span>` : ""}</div>
+        <span class="cn">${p.colores.length} ${p.modelo ? "modelos" : "colores"} · ${esc(col(p, act).nombre)}</span>
         <button type="button" class="ir" data-elegir="${p.id}">${p.tallas.length > 1 ? "Elegir talla" : "Agregar"}</button></div></article>`;
   }).join("");
   $("#n-ped").textContent = pedido.reduce((s, x) => s + x.cant, 0);
@@ -520,19 +506,19 @@ function hoja(html, alAbrir){
 }
 function elegir(id){
   const p = prod(id); if (!p) return;
-  let c = vistaCard[id] || p.colores[0], t = p.tallas.length === 1 ? p.tallas[0] : null, largo = p.largo ? "Regular" : null, cant = 1;
+  let c = p.cmap[vistaCard[id]] ? vistaCard[id] : p.colores[0], t = p.tallas.length === 1 ? p.tallas[0] : null, largo = p.largo ? "Regular" : null, cant = 1;
   hoja(`<div class="hoja-cab"><h3>${esc(p.nombre)}</h3><button type="button" class="x" data-cerrar aria-label="Cerrar">×</button></div>
     <div class="det"><div class="ft" id="e-ft"></div><div><div class="pr">${crc(p.precio)}</div><p class="ds">${esc(p.desc)}</p>
-      ${p.promo ? `<div class="aviso">Promo Cosmo: 2 por ₡59.800 o 3 por ₡86.400. Se aplica sola en su pedido.</div>` : ""}</div></div>
-    <div class="lbl">${p.id === "gabacha" ? "Modelo" : "Color"}: <span id="e-cn"></span></div><div class="ops" id="e-col"></div>
+      ${p.promo ? `<div class="aviso">${esc(CAT.promo.nombre)}: ${promoTxt().replace(" · ", " o ")}. Se aplica sola en su pedido.</div>` : ""}</div></div>
+    <div class="lbl">${p.modelo ? "Modelo" : "Color"}: <span id="e-cn"></span></div><div class="ops" id="e-col"></div>
     ${p.tallas.length > 1 ? `<div class="lbl">Talla <span>· vea la guía de tallas más abajo en la página</span></div><div class="ops" id="e-tal"></div>` : ""}
     ${p.largo ? `<div class="lbl">Largo del pantalón</div><div class="ops" id="e-lar"></div>` : ""}
     <div class="lbl">Cantidad</div><div class="cant"><button type="button" data-c="-1" aria-label="Uno menos">−</button><b id="e-n">1</b><button type="button" data-c="1" aria-label="Uno más">+</button></div>
     <p class="err" id="e-err" role="alert"></p>
     <button type="button" class="b b-negro b-bloque" id="e-ok">Agregar al pedido</button>`, (h, cerrar) => {
     const pint = () => {
-      $("#e-ft", h).innerHTML = `<img src="${p.foto(c)}" alt="${esc(p.nombre)} ${esc(col(c).nombre)}">`; $("#e-cn", h).textContent = col(c).nombre;
-      $("#e-col", h).innerHTML = p.colores.map(x => `<button type="button" data-col="${x}" aria-pressed="${x === c}"><i style="background:${col(x).hex}"></i>${esc(col(x).nombre)}</button>`).join("");
+      $("#e-ft", h).innerHTML = `<img ${Pedidos.src(p.foto(c))} alt="${esc(p.nombre)} ${esc(col(p, c).nombre)}">`; $("#e-cn", h).textContent = col(p, c).nombre;
+      $("#e-col", h).innerHTML = p.colores.map(x => `<button type="button" data-col="${x}" aria-pressed="${x === c}"><i style="background:${col(p, x).hex}"></i>${esc(col(p, x).nombre)}</button>`).join("");
       if ($("#e-tal", h)) $("#e-tal", h).innerHTML = p.tallas.map(x => `<button type="button" data-t="${x}" aria-pressed="${x === t}">${x}</button>`).join("");
       if ($("#e-lar", h)) $("#e-lar", h).innerHTML = LARGOS.map(([n, cm]) => `<button type="button" data-l="${n}" aria-pressed="${n === largo}">${n} · ${cm}</button>`).join("");
       $("#e-n", h).textContent = cant;
@@ -547,19 +533,13 @@ function elegir(id){
         if (!t) { $("#e-err", h).textContent = "Escoja su talla."; return; }
         const ex = pedido.find(x => x.p === id && x.c === c && x.t === t && x.largo === largo);
         if (ex) ex.cant += cant; else pedido.push({ p: id, c, t, largo, cant });
-        cerrar(); pintar(); toast(`${p.nombre} ${col(c).nombre}${p.tallas.length > 1 ? ", talla " + t : ""} agregado`);
+        cerrar(); pintar(); toast(`${p.nombre} ${col(p, c).nombre}${p.tallas.length > 1 ? ", talla " + t : ""} agregado`);
       }
     });
   });
 }
-// Promo Cosmo: combina paquetes de 1, 2 y 3 al menor precio posible.
-function precioCosmo(n){ const pk = [[1, 33800], [2, 59800], [3, 86400]], m = [0]; for (let i = 1; i <= n; i++) m[i] = Math.min(...pk.filter(([k]) => k <= i).map(([k, v]) => m[i - k] + v)); return m[n]; }
-function calcular(){
-  let sub = 0, nC = 0;
-  pedido.forEach(x => { const p = prod(x.p); if (!p) return; sub += p.precio * x.cant; if (p.promo) nC += x.cant; });
-  const ahorro = nC * 33800 - precioCosmo(nC);
-  return { sub, ahorro, total: sub - ahorro, nC };
-}
+const itemsPedido = () => pedido.map(x => { const p = prod(x.p); return { nombre: p.nombre, linea: p.linea, color: col(p, x.c).nombre, talla: p.tallas.length > 1 ? x.t : "", largo: x.largo || "", cant: x.cant, precio: p.precio, promo: p.promo, ...(p.promo ? { pk: CAT.promo.pk } : {}), foto: p.foto(x.c), disp: null }; });
+const calcular = () => Pedidos.totales(itemsPedido());
 const misPedidos = () => { try { return JSON.parse(localStorage.getItem("cosmo-mis-pedidos")) || []; } catch { return []; } };
 const linkPedido = id => new URL("pedido.html?id=" + id + (Pedidos.LOCAL ? "&local" : ""), location.href).href;
 const linkPanel = cod => new URL("panel.html" + (Pedidos.LOCAL ? "?local" : "") + "#" + cod, location.href).href;
@@ -571,12 +551,12 @@ function verPedido(){
       if (!pedido.length) { $("#pp", h).innerHTML = `<p style="color:var(--suave)">Todavía no ha agregado uniformes. Toque uno del catálogo para empezar.</p><button type="button" class="b b-claro b-bloque" data-cerrar style="margin-top:16px">Ver catálogo</button>${anteriores()}`; return; }
       const r = calcular();
       $("#pp", h).innerHTML = pedido.map((x, i) => { const p = prod(x.p);
-          return `<div class="linea-p"><span><b>${x.cant} × ${esc(p.nombre)}</b><small>${esc(col(x.c).nombre)}${p.tallas.length > 1 ? " · Talla " + x.t : ""}${x.largo ? " · Largo " + x.largo.toLowerCase() : ""}</small></span><span style="text-align:right">${crc(p.precio * x.cant)}<br><button type="button" data-q="${i}">Quitar</button></span></div>`; }).join("")
+          return `<div class="linea-p"><span><b>${x.cant} × ${esc(p.nombre)}</b><small>${esc(col(p, x.c).nombre)}${p.tallas.length > 1 ? " · Talla " + x.t : ""}${x.largo ? " · Largo " + x.largo.toLowerCase() : ""}</small></span><span style="text-align:right">${crc(p.precio * x.cant)}<br><button type="button" data-q="${i}">Quitar</button></span></div>`; }).join("")
         + `<div class="res"><div><span>Subtotal</span><span>${crc(r.sub)}</span></div>
-          ${r.ahorro ? `<div class="ahorro"><span>Promo Cosmo</span><span>−${crc(r.ahorro)}</span></div>` : ""}
+          ${r.ahorro ? `<div class="ahorro"><span>${esc(CAT.promo.nombre)}</span><span>−${crc(r.ahorro)}</span></div>` : ""}
           <div><span>Envío por Correos</span><span><b style="color:var(--lima-osc)">Gratis</b></span></div>
           <div class="total"><span>Total</span><span>${crc(r.total)}</span></div></div>
-        ${r.nC % 3 === 1 && r.nC < 3 ? `<div class="aviso">Agregue otro uniforme Cosmo y le quedan 2 por ₡59.800.</div>` : r.nC === 2 ? `<div class="aviso">Con un uniforme Cosmo más le quedan 3 por ₡86.400.</div>` : ""}
+        ${r.nC % 3 === 1 && r.nC < 3 ? `<div class="aviso">Agregue otro uniforme en promo y le quedan 2 por ${crc(CAT.promo.pk[1])}.</div>` : r.nC === 2 ? `<div class="aviso">Con un uniforme en promo más le quedan 3 por ${crc(CAT.promo.pk[2])}.</div>` : ""}
         <div class="pasos-v"><b>¿Cómo sigue?</b><ol><li>Valide su pedido: se genera su número de orden.</li><li>Revisamos que todo esté disponible y le confirmamos por WhatsApp.</li><li>Con el pedido confirmado, paga y sube el comprobante en su orden.</li></ol></div>
         <div class="campo"><label for="pp-n">Nombre completo</label><input id="pp-n" autocomplete="name" value="${esc(datos.nombre)}"></div>
         <div class="campo"><label for="pp-t">WhatsApp</label><input id="pp-t" type="tel" inputmode="tel" autocomplete="tel" placeholder="Ej.: 8888 7777" value="${esc(datos.tel)}"></div>
@@ -596,13 +576,13 @@ function verPedido(){
         if (datos.tel.length < 8) { $("#pp-err", h).textContent = "Escriba su número de WhatsApp para confirmarle el pedido."; $("#pp-t", h).focus(); return; }
         if (datos.entrega.startsWith("Envío") && datos.lugar.length < 3) { $("#pp-err", h).textContent = "Escriba la provincia y el cantón para el envío."; $("#pp-d", h).focus(); return; }
         $("#pp-err", h).textContent = ""; const b = $("#pp-ok", h); b.disabled = true; b.textContent = "Generando su número de orden…";
-        const items = pedido.map(x => { const p = prod(x.p); return { nombre: p.nombre, linea: p.linea, color: col(x.c).nombre, talla: p.tallas.length > 1 ? x.t : "", largo: x.largo || "", cant: x.cant, precio: p.precio, promo: !!p.promo, foto: p.foto(x.c), disp: null }; });
+        const items = itemsPedido();
         try {
           const o = await Pedidos.crear({ cliente: { nombre: datos.nombre.slice(0, 60), tel: datos.tel, entrega: datos.entrega, lugar: datos.lugar.slice(0, 80), dir: datos.dir.slice(0, 160) }, pago: datos.pago, items });
           const lista = misPedidos(); lista.unshift({ id: o.id, codigo: o.codigo }); try { localStorage.setItem("cosmo-mis-pedidos", JSON.stringify(lista.slice(0, 10))); } catch {}
           const t = Pedidos.totales(items);
           const msg = [`Hola ${NEGOCIO.nombre}, quiero validar mi pedido *${o.codigo}*:`, ...items.map(x => `• ${x.cant} × ${x.nombre}, ${x.color}${x.talla ? ", talla " + x.talla : ""}${x.largo ? ", largo " + x.largo.toLowerCase() : ""}`), "",
-            `Total: ${crc(t.total)}${t.ahorro ? " (con promo Cosmo)" : ""}`, datos.entrega.startsWith("Envío") ? `Envío gratis por Correos a ${datos.lugar}` : "Retiro en la fábrica en San Ramón",
+            `Total: ${crc(t.total)}${t.ahorro ? " (con promo)" : ""}`, datos.entrega.startsWith("Envío") ? `Envío gratis por Correos a ${datos.lugar}` : "Retiro en la fábrica en San Ramón",
             `Pago: ${datos.pago}`, `A nombre de: ${datos.nombre}`, "", `Ver el pedido en el panel: ${linkPanel(o.codigo)}`].join("\n");
           pedido = []; pintar();
           $("#pp", h).innerHTML = `<div class="ok-orden"><span class="ok-ic"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></span>
@@ -617,7 +597,8 @@ function verPedido(){
     h.addEventListener("click", e => { const q = e.target.closest("[data-q]"); if (q) { pedido.splice(+q.dataset.q, 1); pint(); pintar(); } });
   });
 }
-pintar(); pintarTallas();
+aplicarCatalogo(JSON.parse(JSON.stringify(Pedidos.CAT_BASE))); pintarTallas();
+Pedidos.escucharCatalogo(aplicarCatalogo).catch(() => {});
 </script>
 </body>
 </html>

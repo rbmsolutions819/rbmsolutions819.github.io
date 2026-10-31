@@ -117,7 +117,7 @@ function pintar(){
       ${p.estado !== "cancelado" ? `<div class="linea">${["Recibido", "Validado", "Pagado", "Enviado"].map((n, i) => `<div class="${i < paso ? "si" : ""}">${n}</div>`).join("")}</div>` : ""}
       <div class="msg">${msg}${p.nota ? `<br><br><b>Nota de la asesora:</b> ${esc(p.nota)}` : ""}</div></div>
     <div class="caja"><h2>${I_BOX}Su pedido</h2>
-      ${p.items.map(x => `<div class="it${x.disp === false ? " agotado" : ""}"><img src="${esc(x.foto)}" alt=""><span class="t"><b>${x.cant} × ${esc(x.nombre)}</b><small>${esc(x.color)}${x.talla ? " · Talla " + esc(x.talla) : ""}${x.largo ? " · Largo " + esc(x.largo.toLowerCase()) : ""}</small>
+      ${p.items.map(x => `<div class="it${x.disp === false ? " agotado" : ""}"><img ${Pedidos.src(x.foto)} alt=""><span class="t"><b>${x.cant} × ${esc(x.nombre)}</b><small>${esc(x.color)}${x.talla ? " · Talla " + esc(x.talla) : ""}${x.largo ? " · Largo " + esc(x.largo.toLowerCase()) : ""}</small>
         ${revisado && x.disp !== null ? `<br><span class="tag ${x.disp ? "ok" : "no"}">${x.disp ? "Disponible" : "No disponible"}</span>` : ""}</span><span class="p">${crc(x.precio * x.cant)}</span></div>`).join("")}
       <div class="res"><div><span>Subtotal</span><span>${crc(t.sub)}</span></div>${t.ahorro ? `<div class="ah"><span>Promo Cosmo</span><span>−${crc(t.ahorro)}</span></div>` : ""}
         <div><span>${p.cliente.entrega.startsWith("Envío") ? "Envío por Correos a " + esc(p.cliente.lugar) : "Retiro en la fábrica"}</span><span>Gratis</span></div>
