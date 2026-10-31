@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Shojumaru&family=Permanent+Marker&family=Noto+Sans:wght@400;500;600;700;800&family=Noto+Serif:wght@600;700&display=swap" rel="stylesheet">
-<style>
+<style>svg.i{width:1em;height:1em;vertical-align:-.14em;flex:none;display:inline-block}
 /* Diseño: el mismo mundo del local. Negro de sus afiches, verde limón y rojo de sus letras de pincel,
    y las olas azules de la pared como textura. Las fotos son de sus propios afiches. */
 :root{
@@ -211,7 +211,7 @@ label.c textarea{min-height:64px;resize:vertical}
 </head>
 <body>
 
-<div class="demo">🍜 <b>Propuesta de RBM Solutions CR para Genki</b> · versión de prueba · los precios con * son de ejemplo</div>
+<div class="demo"><b>Propuesta de RBM Solutions CR para Genki</b> · versión de prueba · los precios con * son de ejemplo</div>
 
 <header class="barra">
   <div class="wrap">
@@ -226,7 +226,7 @@ label.c textarea{min-height:64px;resize:vertical}
       <div class="logo" style="justify-self:start"><b>GEN<i></i>KI</b><span>Sushi &amp; Ramen</span></div>
       <h1 class="lema">Comida japonesa <em>auténtica</em> en San Pedro</h1>
       <p class="sub">Ramen, sushi, onigiri y curry. Pedí desde aquí, pasá a recogerlo o quedate a comer con nosotros.</p>
-      <div class="chips"><span id="estado">…</span><span>🥡 Para llevar</span><span>⭐ 4,5 en Google</span><a href="#info">📍 Frente al C. G. La Gata</a></div>
+      <div class="chips"><span id="estado">…</span><span>Para llevar</span><span>4,5 en Google</span><a href="#info">Frente al C. G. La Gata</a></div>
       <div class="acciones"><a class="btn pri" href="#menu">Ver el menú</a><a class="btn" href="#novedades">Lo nuevo</a></div>
     </div>
     <div class="der" aria-hidden="true">
@@ -253,7 +253,7 @@ label.c textarea{min-height:64px;resize:vertical}
     <div class="wrap">
       <div class="tit"><h2>Lo <em>nuevo</em></h2><p>Tocá una novedad para agregarla a tu pedido.</p></div>
       <div class="nov" id="nov"></div>
-      <div class="promo"><span class="ic">🍶</span><div><b>Sake Pure Dawn + Crunchy Salmon</b><br><span>Por la compra de una botella de sake Pure Dawn, recibís un 50 % de descuento en el nuevo Crunchy Salmon Tempura Roll.</span></div></div>
+      <div class="promo"><span class="ic"><svg class="i" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 22h8M12 11v11M5 3h14l-7 8z"/></svg></span><div><b>Sake Pure Dawn + Crunchy Salmon</b><br><span>Por la compra de una botella de sake Pure Dawn, recibís un 50 % de descuento en el nuevo Crunchy Salmon Tempura Roll.</span></div></div>
     </div>
   </section>
 
@@ -265,7 +265,7 @@ label.c textarea{min-height:64px;resize:vertical}
       <div class="tit"><h2>Lo que <em>dicen</em></h2></div>
       <div class="caja" style="gap:14px">
         <div class="resena"><span class="num">4,5</span><div><div class="est">★★★★★</div><span class="nota">Más de 360 reseñas en Google</span></div></div>
-        <div class="dichos"><span>🍜 Porciones grandes</span><span>⚡ Servicio rápido</span><span>😊 Personal muy amable</span><span>🐟 Comida fresca</span><span>🧼 Lugar limpio</span></div>
+        <div class="dichos"><span>Porciones grandes</span><span>Servicio rápido</span><span>Personal muy amable</span><span>Comida fresca</span><span>Lugar limpio</span></div>
       </div>
     </div>
   </section>
@@ -281,8 +281,8 @@ label.c textarea{min-height:64px;resize:vertical}
           <p class="nota">🅿️ El parqueo de enfrente es compartido. Si está lleno, hay parqueos privados a pocos metros.</p>
         </div>
         <div class="caja"><h3>Contacto</h3>
-          <p>📞 <a href="tel:+50644178246">4417-8246</a></p>
-          <div class="fila-btn"><a class="btn sm" target="_blank" rel="noopener" href="https://www.instagram.com/genkisushiramen">📸 Instagram</a><a class="btn sm" target="_blank" rel="noopener" href="https://www.facebook.com/GenkiSushiCR">👍 Facebook</a></div>
+          <p><a href="tel:+50644178246">4417-8246</a></p>
+          <div class="fila-btn"><a class="btn sm" target="_blank" rel="noopener" href="https://www.instagram.com/genkisushiramen">Instagram</a><a class="btn sm" target="_blank" rel="noopener" href="https://www.facebook.com/GenkiSushiCR">Facebook</a></div>
           <p class="nota">Aceptamos efectivo, tarjeta y SINPE Móvil.</p>
         </div>
       </div>
@@ -293,7 +293,7 @@ label.c textarea{min-height:64px;resize:vertical}
 <footer>
   <div class="logo chico"><b>GEN<i></i>KI</b><span>Sushi &amp; Ramen</span></div>
   <span>Propuesta de página hecha por <a href="https://rbmsolutionscr.com" target="_blank" rel="noopener">RBM Solutions CR</a> · los precios con * son de ejemplo</span>
-  <button type="button" id="abrirAdmin">🔒 Administrar menú</button>
+  <button type="button" id="abrirAdmin">Administrar menú</button>
 </footer>
 
 <button class="carrito" id="carrito" type="button" hidden><span><span class="n" id="carN">0</span>Ver mi pedido</span><span id="carT">₡0</span></button>
@@ -473,7 +473,7 @@ function pintarPedido() {
       <div class="acc"><span class="precio">${crc(it.total)}</span><button type="button" data-quitar="${i}">Quitar</button></div></div>`).join("")}</div>
     <div class="total"><span>Total</span><span>${crc(total)}</span></div>
     <div class="grupo"><label class="c">Tu nombre<input id="pNom" maxlength="40" autocomplete="name" placeholder="Para llamarte cuando esté listo"></label>
-      <div class="grupo" style="margin-top:4px"><b>¿Cómo lo querés?</b><div class="ops" id="modo"><button type="button" data-modo="Para llevar" aria-pressed="true">🥡 Para llevar</button><button type="button" data-modo="Comer aquí" aria-pressed="false">🍽️ Comer aquí</button></div></div>
+      <div class="grupo" style="margin-top:4px"><b>¿Cómo lo querés?</b><div class="ops" id="modo"><button type="button" data-modo="Para llevar" aria-pressed="true">Para llevar</button><button type="button" data-modo="Comer aquí" aria-pressed="false">Comer aquí</button></div></div>
       <label class="c">¿A qué hora pasás?<select id="pHora">${horas.length ? `<option>Lo antes posible</option>` + horas.map(h => `<option>${h}</option>`).join("") : `<option>Mañana (martes a domingo desde las 11:45 a. m.)</option>`}</select></label>
       <label class="c">Nota (opcional)<textarea id="pNota" maxlength="200" placeholder="Ej.: palillos extra, por favor"></textarea></label>
       <p class="err" id="pErr"></p>
@@ -491,7 +491,7 @@ function enviar() {
   if (nom.length < 2) { err.textContent = "Escribí tu nombre."; $("#pNom").focus(); return; }
   lsSet("genki-nombre", nom);
   const modo = document.querySelector('#modo [aria-pressed="true"]').dataset.modo, total = pedido.reduce((a, it) => a + it.total, 0), nota = $("#pNota").value.trim();
-  const msg = `¡Hola Genki! 🍜 Quiero hacer un pedido:\n\n${pedido.map(it => `• ${it.cant} × ${it.nombre}${detalle(it) ? ` (${detalle(it)})` : ""} — ${crc(it.total)}`).join("\n")}\n\n*Total: ${crc(total)}*\n${modo} · ${$("#pHora").value}\nA nombre de: ${nom}${nota ? `\nNota: ${nota}` : ""}`;
+  const msg = `¡Hola Genki! Quiero hacer un pedido:\n\n${pedido.map(it => `• ${it.cant} × ${it.nombre}${detalle(it) ? ` (${detalle(it)})` : ""} — ${crc(it.total)}`).join("\n")}\n\n*Total: ${crc(total)}*\n${modo} · ${$("#pHora").value}\nA nombre de: ${nom}${nota ? `\nNota: ${nota}` : ""}`;
   const url = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`;
   const w = window.open(url, "_blank", "noopener"); const a = $("#waLink"); a.href = url; a.hidden = false;
   if (w) { pedido = []; guardarP(); setTimeout(cerrarHoja, 400); toast("¡Pedido listo en WhatsApp!"); }

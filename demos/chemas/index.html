@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap">
-<style>
+<style>svg.i{width:1em;height:1em;vertical-align:-.14em;flex:none;display:inline-block}
 /* Chemas Collector: fondo oscuro como sus historias, azul eléctrico y los colores de su tabla de pedidos
    (naranja = versión, celeste = local/visita, verde = manga, rosado = talla). */
 :root{--fondo:#0a0d14;--panel:#121826;--panel2:#19213a;--linea:#26304a;--texto:#eef1f8;--suave:#98a2bd;--azul:#3b6cff;--azul2:#2550d9;
@@ -249,16 +249,16 @@ footer button{background:none;border:0;color:var(--suave);font-size:13px;margin-
 </style>
 </head>
 <body>
-<div class="demo">⚽ <b>Página de ejemplo</b> hecha por RBM Solutions CR · camisas y precios de prueba</div>
+<div class="demo"><b>Página de ejemplo</b> hecha por RBM Solutions CR · camisas y precios de prueba</div>
 
 <header class="top"><div class="wrap">
-  <button class="hamb" id="hamb" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="lateral">☰</button>
+  <button class="hamb" id="hamb" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="lateral"><svg class="i" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
   <a class="marca" href="#" aria-label="Chemas Collector CR, inicio">
     <svg viewBox="0 0 200 200" aria-hidden="true"><path d="M62 30l22-8q16 14 32 0l22 8 34 26-14 34-18-8v94H60V82l-18 8-14-34z" fill="#3b6cff"/><path d="M84 22q16 18 32 0" fill="none" stroke="#0a0d14" stroke-width="7"/><text x="100" y="140" text-anchor="middle" font-family="Bebas Neue,Impact,sans-serif" font-size="58" fill="#fff">CC</text></svg>
     <b>CHEMAS <span>COLLECTOR</span></b>
   </a>
   <nav><a href="#catalogo">Catálogo</a><a href="#buscar">¿No la encontrás?</a><a href="#tallas">Tallas</a><a href="#como">Cómo pedir</a></nav>
-  <button class="btn-pedido" data-abrir-pedido>🛒 Mi pedido<i id="n-pedido">0</i></button>
+  <button class="btn-pedido" data-abrir-pedido>Mi pedido<i id="n-pedido">0</i></button>
 </div></header>
 
 <section class="hero"><div class="wrap">
@@ -287,23 +287,23 @@ footer button{background:none;border:0;color:var(--suave);font-size:13px;margin-
 <section style="padding-top:0"><div class="wrap">
   <div class="cab"><div class="k">Todas incluyen</div><h2>Sin cobros extra</h2></div>
   <div class="incluye">
-    <div><i>🔤</i><b>Personalización</b><span>Nombre, número y parche.</span></div>
-    <div><i>🏷️</i><b>Calcomanía</b><span>Del logo de tu equipo.</span></div>
-    <div><i>📦</i><b>Cajita</b><span>Lista para regalar.</span></div>
-    <div><i>🚚</i><b>Envío gratis</b><span>Por Correos de CR o mensajero.</span></div>
+    <div><i><svg class="i" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/></svg></i><b>Personalización</b><span>Nombre, número y parche.</span></div>
+    <div><i><svg class="i" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.59 2.59A2 2 0 0 0 11.17 2H4a2 2 0 0 0-2 2v7.17a2 2 0 0 0 .59 1.41l8.7 8.7a2.43 2.43 0 0 0 3.42 0l6.58-6.58a2.43 2.43 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/></svg></i><b>Calcomanía</b><span>Del logo de tu equipo.</span></div>
+    <div><i><svg class="i" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="m3 8 9 5 9-5"/><path d="M12 13v8"/></svg></i><b>Cajita</b><span>Lista para regalar.</span></div>
+    <div><i><svg class="i" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.62l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg></i><b>Envío gratis</b><span>Por Correos de CR o mensajero.</span></div>
   </div>
 </div></section>
 
 <section id="buscar" style="padding-top:0"><div class="wrap">
   <div class="busca">
     <div>
-      <div class="emoji">🤔</div>
+      <div class="emoji"><svg class="i" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg></div>
       <h2>¿No encontrás la chema que querés?</h2>
       <p>No te preocupés: mandanos una foto de la que andás buscando y te ayudamos a encontrarla.</p>
       <p style="margin-top:10px;font-size:14px">Sirve una captura de Instagram, de Google o de un partido.</p>
     </div>
     <div>
-      <label class="foto-ref" id="refBox"><span id="refTxt">📷 <b>Tocá para subir la foto</b><br><small>o tomala con la cámara</small></span><input type="file" id="refFoto" accept="image/*" aria-label="Foto de la chema que buscás"></label>
+      <label class="foto-ref" id="refBox"><span id="refTxt"><b>Tocá para subir la foto</b><br><small>o tomala con la cámara</small></span><input type="file" id="refFoto" accept="image/*" aria-label="Foto de la chema que buscás"></label>
       <div class="fila3" style="margin-top:10px">
         <div class="campo"><label for="refEq">Equipo</label><input id="refEq" placeholder="Ej.: Portugal"></div>
         <div class="campo"><label for="refAn">Año</label><input id="refAn" placeholder="Ej.: 2026"></div>
@@ -345,7 +345,7 @@ footer button{background:none;border:0;color:var(--suave);font-size:13px;margin-
 <div class="lat-velo" id="latVelo" hidden></div>
 <aside class="lateral" id="lateral" aria-label="Menú" hidden>
   <div class="lat-cab"><b>CHEMAS <span>COLLECTOR</span></b><button class="x" type="button" id="latCerrar" aria-label="Cerrar menú">×</button></div>
-  <button type="button" id="abrir-admin" class="lat-item">🔒 Acceso administrador</button>
+  <button type="button" id="abrir-admin" class="lat-item">Acceso administrador</button>
 </aside>
 
 <!-- panel de administración -->
@@ -514,14 +514,14 @@ function pintar(){
   pintarEquipos();
   const n = DB.negocio, vis = DB.productos.filter(p => !p.oculto), e = textoEncargo();
   $("#vitrina").innerHTML = ["arg-l","por-e","bar-l"].map(id => prod(id)).filter(Boolean).map(p => `<div class="fig">${camisa(p)}</div>`).join("");
-  $("#encargo").innerHTML = `<b>📅 Próximo encargo: ${e.cuando}</b><span>Encargos los días ${n.diasEncargo.join(" y ")} de cada mes. Si encargás para esa fecha, te llega entre el ${fmtC(e.desde)} y el ${fmtC(e.hasta)}</span>`;
-  $("#filtros").innerHTML = FILTROS.filter(f => f === "Todas" || f === "Entrega inmediata" ? true : vis.some(p => p.liga === f)).map(f => `<button class="${f === filtro ? "si" : ""}" data-f="${esc(f)}">${f === "Entrega inmediata" ? "⚡ " : ""}${esc(f)}</button>`).join("");
+  $("#encargo").innerHTML = `<b>Próximo encargo: ${e.cuando}</b><span>Encargos los días ${n.diasEncargo.join(" y ")} de cada mes. Si encargás para esa fecha, te llega entre el ${fmtC(e.desde)} y el ${fmtC(e.hasta)}</span>`;
+  $("#filtros").innerHTML = FILTROS.filter(f => f === "Todas" || f === "Entrega inmediata" ? true : vis.some(p => p.liga === f)).map(f => `<button class="${f === filtro ? "si" : ""}" data-f="${esc(f)}">${f === "Entrega inmediata" ? "<svg class='i' width='1em' height='1em' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M13 2 3 14h9l-1 8 10-12h-9l1-8z'/></svg> " : ""}${esc(f)}</button>`).join("");
   const lista = buscarChemas(vis.filter(p => filtro === "Todas" || (filtro === "Entrega inmediata" ? p.entrega === "inmediata" : p.liga === filtro)), q);
   const equipos = [...new Set(lista.map(p => p.equipo))];
   $("#resQ").hidden = !q.trim();
   $("#resQ").innerHTML = q.trim() ? `<span>${lista.length ? `${equipos.length === 1 ? `Camisas de <b>${esc(equipos[0])}</b>` : `Resultados para <b>«${esc(q.trim())}»</b>`} · ${lista.length} ${lista.length === 1 ? "edición" : "ediciones"}` : `No encontramos <b>«${esc(q.trim())}»</b>`}</span><button type="button" data-limpiar>Ver todas</button>` : "";
   $("#grid").innerHTML = lista.map(p => `<article class="card" data-elegir="${p.id}" tabindex="0" role="button" aria-label="${esc(titulo(p))}">
-      ${p.retro ? `<span class="tag ret">Retro</span>` : p.entrega === "inmediata" ? `<span class="tag ya">⚡ Entrega inmediata</span>` : `<span class="tag enc">Por encargo</span>`}
+      ${p.retro ? `<span class="tag ret">Retro</span>` : p.entrega === "inmediata" ? `<span class="tag ya">Entrega inmediata</span>` : `<span class="tag enc">Por encargo</span>`}
       <div class="ft">${vista(p)}</div>
       <div class="in"><h3>${esc(titulo(p))}</h3><span class="d">${esc(p.kit)} · ${esc(versiones(p).join(" / "))}${p.nuevo ? " · <b style='color:var(--oro)'>Nuevo</b>" : ""}</span>
         <div class="prs">${versiones(p).map(v => `<span><small>${v}</small><b>${crc(precioBase(p, v))}</b></span>`).join("")}</div></div></article>`).join("")
@@ -532,7 +532,7 @@ function pintar(){
   $("#t-nota").textContent = "Medidas en centímetros. Ancho: de axila a axila, con la camisa acostada. Largo: del cuello al ruedo. La Player es más ajustada: si estás entre dos tallas, en Player escogé la más grande. Las medidas pueden variar 1–2 cm.";
   $("#paso3").textContent = `Encargás con el ${n.adelanto}% y el resto se paga cuando esté lista para entregar.`;
   $("#paso4").textContent = `Llega en ${n.llegaMin} a ${n.llegaMax} días. Envío gratis por ${n.envio}.`;
-  $("#f-datos").innerHTML = `Instagram <a href="https://instagram.com/${esc(igUser() || n.instagramMuestra)}" target="_blank" rel="noopener">@${esc(igUser() || n.instagramMuestra)}</a> · Pedidos por privado · Costa Rica 🇨🇷`;
+  $("#f-datos").innerHTML = `Instagram <a href="https://instagram.com/${esc(igUser() || n.instagramMuestra)}" target="_blank" rel="noopener">@${esc(igUser() || n.instagramMuestra)}</a> · Pedidos por privado · Costa Rica`;
   document.querySelectorAll("[data-ig-general]").forEach(a => { a.href = igLink(); a.target = "_blank"; a.rel = "noopener"; });
   $("#n-pedido").textContent = pedido.length;
 }
@@ -579,8 +579,8 @@ function elegir(id){
   const vs = versiones(p);
   let s = { ver: vs.includes("Player") && p.entrega !== "inmediata" ? vs[0] : vs[0], kit: p.kit, man: "Corta", tal: null, nom: "", num: "", par: "Sin parche", parOtro: "", pos: false, posDe: "" };
   hoja(`<div class="hoja-cab"><h3>${esc(titulo(p))}</h3><button class="x" data-cerrar aria-label="Cerrar">×</button></div>
-    <div class="prev"><button type="button" class="ft zoom" data-zoom="frente" aria-label="Ver el frente en grande">${vista(p)}<small>Frente · 🔍</small></button><button type="button" class="ft zoom" id="e-esp" data-zoom="espalda" aria-label="Ver la espalda en grande"></button></div>
-    <p class="nota" style="margin:0">${p.entrega === "inmediata" ? "⚡ Hay tallas para <b>entrega inmediata</b>. Las demás se encargan." : (() => { const e = textoEncargo(); return `📅 Por encargo: el próximo es ${e.cuando} y llega entre el ${fmtC(e.desde)} y el ${fmtC(e.hasta)}`; })()}</p>
+    <div class="prev"><button type="button" class="ft zoom" data-zoom="frente" aria-label="Ver el frente en grande">${vista(p)}<small>Frente ·</small></button><button type="button" class="ft zoom" id="e-esp" data-zoom="espalda" aria-label="Ver la espalda en grande"></button></div>
+    <p class="nota" style="margin:0">${p.entrega === "inmediata" ? "Hay tallas para <b>entrega inmediata</b>. Las demás se encargan." : (() => { const e = textoEncargo(); return `Por encargo: el próximo es ${e.cuando} y llega entre el ${fmtC(e.desde)} y el ${fmtC(e.hasta)}`; })()}</p>
     <div class="lbl">Versión</div><div class="ops ver" id="e-ver"></div>
     <div class="lbl">Local o visita</div><div class="ops kit" id="e-kit"></div>
     <div class="lbl">Manga</div><div class="ops man" id="e-man"></div>
@@ -599,10 +599,10 @@ function elegir(id){
       $("#e-ver", h).innerHTML = vs.map(v => `<button class="${v === s.ver ? "si" : ""}" data-ver="${v}">${v}<small>${crc(precioBase(p, v))}</small></button>`).join("");
       $("#e-kit", h).innerHTML = KITS.map(k => `<button class="${k === s.kit ? "si" : ""}" data-kit="${k}">${k}</button>`).join("");
       $("#e-man", h).innerHTML = ["Corta","Larga"].map(k => `<button class="${k === s.man ? "si" : ""}" data-man="${k}">${k}</button>`).join("");
-      $("#e-tal", h).innerHTML = TALLAS.map(t => `<button class="${t === s.tal ? "si" : ""}" data-tal="${t}">${t}${enStock(p, s.ver, t) ? "<small>⚡ ya</small>" : ""}</button>`).join("");
+      $("#e-tal", h).innerHTML = TALLAS.map(t => `<button class="${t === s.tal ? "si" : ""}" data-tal="${t}">${t}${enStock(p, s.ver, t) ? "<small>ya</small>" : ""}</button>`).join("");
       $("#e-pos", h).innerHTML = [["No", false], ["Sí, con póster", true]].map(([l, v]) => `<button class="${s.pos === v ? "si" : ""}" data-pos="${v}">${l}${v ? `<small>+${crc(DB.precios.poster)}</small>` : ""}</button>`).join("");
       $("#e-posw", h).hidden = !s.pos;
-      $("#e-esp", h).innerHTML = camisa(p, { espalda: true, nom: s.nom || "Tu nombre", num: s.num || "10" }) + `<small>Espalda · 🔍</small>`;
+      $("#e-esp", h).innerHTML = camisa(p, { espalda: true, nom: s.nom || "Tu nombre", num: s.num || "10" }) + `<small>Espalda ·</small>`;
       $("#e-pr", h).textContent = crc(precioDe(p, s.ver, s.pos));
     };
     pint();
@@ -628,7 +628,7 @@ function elegir(id){
 }
 const parcheTxt = x => x.par === "Otro" ? (x.parOtro || "Otro") : x.par;
 const lineaItem = (x, i) => { const p = prod(x.p); if (!p) return "";
-  return `${i + 1}) ${titulo(p)}${x.ya ? " ⚡ entrega inmediata" : ""}
+  return `${i + 1}) ${titulo(p)}${x.ya ? " entrega inmediata" : ""}
    Versión: ${x.ver.toUpperCase()} · ${x.kit.toUpperCase()} · Manga ${x.man.toLowerCase()} · Talla ${x.tal}
    Nombre: ${x.nom.trim() || "—"} · #${x.num || "—"} · Parche: ${parcheTxt(x)}
    Póster: ${x.pos ? "SÍ (" + x.posDe + ")" : "NO"} — ${crc(precioDe(p, x.ver, x.pos))}`; };
@@ -639,12 +639,12 @@ function verPedido(){
       const total = pedido.reduce((a, x) => { const p = prod(x.p); return a + (p ? precioDe(p, x.ver, x.pos) : 0); }, 0), n = DB.negocio, e = textoEncargo();
       const hayEnc = pedido.some(x => !x.ya), adel = Math.round(total * n.adelanto / 100);
       $("#pp", h).innerHTML = pedido.map((x, i) => { const p = prod(x.p); if (!p) return "";
-        return `<div class="item"><div class="t"><b>${esc(titulo(p))}${x.ya ? " ⚡" : ""}</b><span>${crc(precioDe(p, x.ver, x.pos))} <button data-q="${i}">Quitar</button></span></div>
+        return `<div class="item"><div class="t"><b>${esc(titulo(p))}${x.ya ? " <svg class='i' width='1em' height='1em' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M13 2 3 14h9l-1 8 10-12h-9l1-8z'/></svg>" : ""}</b><span>${crc(precioDe(p, x.ver, x.pos))} <button data-q="${i}">Quitar</button></span></div>
           <div class="cel"><span class="c-v">${esc(x.ver)}</span><span class="c-k">${esc(x.kit)}</span><span class="c-m">${esc(x.man)}</span><span class="c-t">${esc(x.tal)}</span>
             ${x.nom.trim() ? `<span class="c-n">${esc(x.nom.trim())}</span>` : ""}${x.num ? `<span class="c-n">#${esc(x.num)}</span>` : ""}<span class="c-n">${esc(parcheTxt(x))}</span><span class="c-p">${x.pos ? "Póster: " + esc(x.posDe) : "Sin póster"}</span></div></div>`; }).join("")
         + `<div class="res"><div class="total"><span>Total</span><span>${crc(total)}</span></div>
             ${hayEnc ? `<div class="adel"><span>Para encargar (${n.adelanto}%)</span><span>${crc(adel)}</span></div><div style="color:var(--suave);font-size:13.5px"><span>El resto, cuando esté lista para entregar.</span></div>` : ""}</div>
-          <div class="aviso">✅ Incluye personalización, calcomanía del equipo, cajita y <b>envío gratis</b>.${hayEnc ? `<br>📅 Próximo encargo ${e.cuando}: llega entre el <b>${fmtC(e.desde)}</b> y el <b>${fmtC(e.hasta)}</b>` : ""}</div>
+          <div class="aviso">Incluye personalización, calcomanía del equipo, cajita y <b>envío gratis</b>.${hayEnc ? `<br>Próximo encargo ${e.cuando}: llega entre el <b>${fmtC(e.desde)}</b> y el <b>${fmtC(e.hasta)}</b>` : ""}</div>
           <div class="lbl">Tus datos para el envío</div>
           <div class="campo"><label for="d-nom">Nombre completo</label><input id="d-nom" autocomplete="name"></div>
           <div class="fila3" style="grid-template-columns:1fr 1fr"><div class="campo"><label for="d-tel">Teléfono</label><input id="d-tel" inputmode="tel" autocomplete="tel" placeholder="88887777"></div>
@@ -659,17 +659,17 @@ function verPedido(){
       const armar = () => {
         const v = s => ($(s, h)?.value || "").trim();
         const datos = [["Nombre completo", v("#d-nom")], ["Teléfono", v("#d-tel").replace(/\D/g, "")], ["Correo", v("#d-cor")], ["Provincia", v("#d-pro")], ["Cantón", v("#d-can")], ["Distrito", v("#d-dis")], ["Dirección exacta", v("#d-dir")]].filter(d => d[1]);
-        const m = [`Hola pura vida! 👋 Quiero validar si tienen disponible:`, "", ...pedido.map(lineaItem).filter(Boolean), "",
+        const m = [`Hola pura vida! Quiero validar si tienen disponible:`, "", ...pedido.map(lineaItem).filter(Boolean), "",
           `Total: ${crc(total)}${hayEnc ? ` · Adelanto ${n.adelanto}%: ${crc(adel)}` : ""}`,
           datos.length ? "\nMis datos para el envío:\n" + datos.map(d => `${d[0]}: ${d[1]}`).join("\n") : null,
-          "", "¿Me confirman disponibilidad? 🙏"].filter(l => l !== null).join("\n");
+          "", "¿Me confirman disponibilidad?"].filter(l => l !== null).join("\n");
         $("#pp-msj", h).value = m; return m;
       };
       armar(); h.querySelectorAll("input,select,textarea:not(#pp-msj)").forEach(i => i.addEventListener("input", armar));
       $("#pp-ig", h).addEventListener("click", async () => {
         const m = armar(), ok = await copiar(m);
         window.open(igLink(), "_blank", "noopener");
-        toast(ok ? `Abriendo el chat de @${igUser()}: pegá tu pedido y envialo 📩` : "Copiá el mensaje de abajo y pegalo en el chat");
+        toast(ok ? `Abriendo el chat de @${igUser()}: pegá tu pedido y envialo` : "Copiá el mensaje de abajo y pegalo en el chat");
         if (!ok) h.querySelector("details").open = true;
       });
     };
@@ -687,20 +687,20 @@ $("#refFoto").addEventListener("change", e => {
 });
 $("#refEnviar").addEventListener("click", async () => {
   const v = s => $(s).value.trim();
-  const m = [`Hola pura vida! 👋 Ando buscando esta chema:`, `Equipo: ${v("#refEq") || "—"}`, `Año: ${v("#refAn") || "—"}`, `Versión: ${v("#refVe")}`, `Talla: ${v("#refTa")}`, v("#refNo") ? `Detalles: ${v("#refNo")}` : null, "", "¿Me ayudan a encontrarla? 🙏"].filter(Boolean).join("\n");
+  const m = [`Hola pura vida! Ando buscando esta chema:`, `Equipo: ${v("#refEq") || "—"}`, `Año: ${v("#refAn") || "—"}`, `Versión: ${v("#refVe")}`, `Talla: ${v("#refTa")}`, v("#refNo") ? `Detalles: ${v("#refNo")}` : null, "", "¿Me ayudan a encontrarla?"].filter(Boolean).join("\n");
   const ok = await copiar(m);
   // En el celular se puede compartir la foto directo a Instagram (o WhatsApp) con el menú de compartir.
   if (refArchivo && navigator.canShare && navigator.canShare({ files: [refArchivo] })) {
-    try { await navigator.share({ files: [refArchivo], text: m, title: "Chema que busco" }); $("#refNota").textContent = "Si Instagram no pegó el texto, pegalo vos: ya está copiado 📋"; return; }
+    try { await navigator.share({ files: [refArchivo], text: m, title: "Chema que busco" }); $("#refNota").textContent = "Si Instagram no pegó el texto, pegalo vos: ya está copiado"; return; }
     catch (x) { if (x && x.name === "AbortError") return; }
   }
   window.open(igLink(), "_blank", "noopener");
-  $("#refNota").textContent = refArchivo ? "📋 Mensaje copiado. En el chat pegalo y adjuntá la foto con el botón de galería." : "📋 Mensaje copiado. Pegalo en el chat y, si tenés, mandá también una foto.";
+  $("#refNota").textContent = refArchivo ? "Mensaje copiado. En el chat pegalo y adjuntá la foto con el botón de galería." : "Mensaje copiado. Pegalo en el chat y, si tenés, mandá también una foto.";
 });
 
 /* ===================== ADMINISTRACIÓN ===================== */
 let aTab = "inv", admin = false;
-// Menú lateral (☰)
+// Menú lateral ()
 function lateral(abrir){ $("#lateral").hidden = !abrir; $("#latVelo").hidden = !abrir; $("#hamb").setAttribute("aria-expanded", String(abrir)); document.body.style.overflow = abrir ? "hidden" : ""; }
 $("#hamb").addEventListener("click", () => lateral(true));
 $("#latCerrar").addEventListener("click", () => lateral(false));
@@ -726,7 +726,7 @@ function pintarAdmin(){
   document.querySelectorAll("#a-tabs button").forEach(b => b.classList.toggle("si", b.dataset.at === aTab));
   const c = $("#a-cuerpo");
   if (aTab === "inv") {
-    c.innerHTML = `<p style="color:var(--suave);margin:10px 0">Marcá las tallas que tenés <b>ya en mano</b>. Esas camisas salen con ⚡ Entrega inmediata; lo demás queda por encargo.</p>
+    c.innerHTML = `<p style="color:var(--suave);margin:10px 0">Marcá las tallas que tenés <b>ya en mano</b>. Esas camisas salen con Entrega inmediata; lo demás queda por encargo.</p>
       <div class="alist inv">${DB.productos.filter(p => !p.oculto).map(p => `<div class="arow" style="align-items:flex-start"><div class="mini">${vista(p)}</div><div class="tx"><b>${esc(titulo(p))} · ${esc(p.kit)}</b>
         ${versiones(p).map(v => `<div class="tl"><span style="font-size:12px;color:var(--suave);width:48px">${v}</span>${TALLAS.map(t => `<button class="${(p.stock?.[v] || []).includes(t) ? "si" : ""}" data-st="${p.id}:${v}:${t}">${t}</button>`).join("")}</div>`).join("")}</div></div>`).join("")}</div>`;
     c.querySelectorAll("[data-st]").forEach(b => b.onclick = () => { const [id, v, t] = b.dataset.st.split(":"), p = prod(id); p.stock ||= {}; const l = p.stock[v] ||= [];
@@ -734,7 +734,7 @@ function pintarAdmin(){
       p.entrega = Object.values(p.stock).some(x => x.length) ? "inmediata" : "encargo"; guardar(); pintarAdmin(); });
   } else if (aTab === "prod") {
     c.innerHTML = `<button class="b b-azul" id="nuevo-p" style="margin-top:10px">+ Agregar camisa</button>
-      <div class="alist">${DB.productos.map(p => `<div class="arow"><div class="mini">${vista(p)}</div><div class="tx"><b>${esc(titulo(p))}</b><span>${esc(p.kit)} · ${versiones(p).map(v => crc(precioBase(p, v))).join(" / ")} · ${esc(p.liga)}${p.entrega === "inmediata" ? " · ⚡" : ""}${p.nuevo ? " · Nuevo" : ""}${p.oculto ? " · Oculta" : ""}</span></div><button data-ed="${p.id}">Editar</button></div>`).join("")}</div>`;
+      <div class="alist">${DB.productos.map(p => `<div class="arow"><div class="mini">${vista(p)}</div><div class="tx"><b>${esc(titulo(p))}</b><span>${esc(p.kit)} · ${versiones(p).map(v => crc(precioBase(p, v))).join(" / ")} · ${esc(p.liga)}${p.entrega === "inmediata" ? " ·" : ""}${p.nuevo ? " · Nuevo" : ""}${p.oculto ? " · Oculta" : ""}</span></div><button data-ed="${p.id}">Editar</button></div>`).join("")}</div>`;
     $("#nuevo-p").onclick = () => editar(null);
     c.querySelectorAll("[data-ed]").forEach(b => b.onclick = () => editar(b.dataset.ed));
   } else if (aTab === "precios") {
@@ -748,7 +748,7 @@ function pintarAdmin(){
       <div class="lbl">Foto de la guía de tallas</div>
       <p class="nota" style="margin-top:0">Si ya tenés la imagen con las medidas (la que mandás por Instagram), subila y sale arriba de las tablas.</p>
       ${DB.guiaFoto ? `<img src="${DB.guiaFoto}" alt="" style="max-height:200px;border-radius:12px;display:block;margin:8px 0">` : ""}
-      <div class="acc" style="margin-top:8px"><label class="b b-claro" style="cursor:pointer">📷 ${DB.guiaFoto ? "Cambiar" : "Subir"} foto<input type="file" accept="image/*" id="gf" hidden></label>${DB.guiaFoto ? `<button class="b b-claro" id="gf-x">Quitar foto</button>` : ""}</div>
+      <div class="acc" style="margin-top:8px"><label class="b b-claro" style="cursor:pointer">${DB.guiaFoto ? "Cambiar" : "Subir"} foto<input type="file" accept="image/*" id="gf" hidden></label>${DB.guiaFoto ? `<button class="b b-claro" id="gf-x">Quitar foto</button>` : ""}</div>
       ${["Fan","Player"].map(v => `<div class="lbl">Medidas versión ${v} (ancho · largo en cm · estatura)</div>${DB.medidas[v].map((r, i) => `<div class="fila3" style="grid-template-columns:44px 1fr 1fr 1.2fr;align-items:center"><b>${r[0]}</b>${[1,2,3].map(k => `<input class="buscar" style="margin:0 0 6px;padding:10px 8px" data-md="${v}:${i}:${k}" value="${esc(r[k] || "")}" aria-label="${v} ${r[0]} ${["","ancho","largo","estatura"][k]}">`).join("")}</div>`).join("")}`).join("")}
       <button class="b b-azul" id="md-g" style="margin-top:8px">Guardar medidas</button></div>`;
     $("#gf").onchange = async e => { const f = e.target.files[0]; if (!f) return; try { DB.guiaFoto = await comprimir(f, 1200); guardar(); pintar(); pintarAdmin(); toast("Guía de tallas lista"); } catch { toast("No se pudo leer la foto."); } };
@@ -776,7 +776,7 @@ function editar(id){
   const nuevo = !id, p = nuevo ? P("p" + Date.now(), "", "25/26", "Local", "Otras ligas", {c1:"#3b6cff",c2:"#ffffff",cuello:"#ffffff",pat:"liso"}, {nuevo:true}) : structuredClone(prod(id));
   const ligas = [...new Set(["Mundial 2026","Premier League","LaLiga","Serie A","Otras ligas","Costa Rica","Retro", ...DB.productos.map(x => x.liga)])];
   hoja(`<div class="hoja-cab"><h3>${nuevo ? "Nueva camisa" : "Editar camisa"}</h3><button class="x" data-cerrar aria-label="Cerrar">×</button></div>
-    <div class="prev"><div class="ft" id="ed-prev"></div><div style="display:grid;gap:8px;align-content:center"><label class="b b-claro" style="cursor:pointer">📷 ${p.foto ? "Cambiar foto" : "Subir foto real"}<input type="file" accept="image/*" id="ed-foto" hidden></label>${p.foto ? `<button class="b b-claro" id="ed-fx">Usar el dibujo</button>` : ""}</div></div>
+    <div class="prev"><div class="ft" id="ed-prev"></div><div style="display:grid;gap:8px;align-content:center"><label class="b b-claro" style="cursor:pointer">${p.foto ? "Cambiar foto" : "Subir foto real"}<input type="file" accept="image/*" id="ed-foto" hidden></label>${p.foto ? `<button class="b b-claro" id="ed-fx">Usar el dibujo</button>` : ""}</div></div>
     <div class="fila2" style="grid-template-columns:1fr 110px"><div class="campo"><label>Equipo o selección</label><input id="ed-e" value="${esc(p.equipo)}" placeholder="Ej.: Portugal"></div><div class="campo"><label>Temporada</label><input id="ed-t" value="${esc(p.temporada)}" placeholder="2026"></div></div>
     <div class="fila2" style="grid-template-columns:1fr 1fr"><div class="campo"><label>Tipo</label><select id="ed-k">${KITS.map(k => `<option ${k === p.kit ? "selected" : ""}>${k}</option>`).join("")}</select></div>
       <div class="campo"><label>Sección</label><select id="ed-l">${ligas.map(l => `<option ${l === p.liga ? "selected" : ""}>${esc(l)}</option>`).join("")}</select></div></div>

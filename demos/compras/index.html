@@ -1,4 +1,4 @@
-<!doctype html><html lang="es"><head><meta charset=utf8><meta name="robots" content="noindex"><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html><html lang="es"><head><meta charset=utf8><meta name="robots" content="noindex"><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>svg.i{width:1em;height:1em;vertical-align:-.14em;flex:none;display:inline-block}:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>Compras con Sai</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800&family=Figtree:wght@400;500;600;700&display=swap">
@@ -128,7 +128,7 @@ $("form").addEventListener("submit",e=>{
   e.preventDefault();
   const prod=$("fProd").value.trim(),link=$("fLink").value.trim();
   if(!prod&&!link){toast("Contame qué buscás o pegá el enlace");$("fProd").focus();return}
-  const lines=["Hola Sai, quiero una cotización 📦"];
+  const lines=["Hola Sai, quiero una cotización"];
   if($("fNombre").value.trim())lines.push("Soy "+$("fNombre").value.trim()+($("fZona").value.trim()?" ("+$("fZona").value.trim()+")":""));
   if(prod)lines.push("Busco: "+prod);
   if(link)lines.push("Enlace: "+link);

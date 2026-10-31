@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
-<style>[hidden]:not([hidden=until-found i]){display:none!important}</style>
+<style>svg.i{width:1em;height:1em;vertical-align:-.14em;flex:none;display:inline-block}[hidden]:not([hidden=until-found i]){display:none!important}</style>
 </head>
 <body>
 
@@ -657,7 +657,7 @@ section.panel{padding:0}
         </div>
         <div class="contactos revela">
           <div class="seg2" id="lug-ir"></div>
-          <a class="contacto" data-wa="Hola, tengo una consulta 🌸" href="#"><span class="ic"><svg><use href="#wa"/></svg></span><span><small>WhatsApp</small><b>0000 0000</b></span></a>
+          <a class="contacto" data-wa="Hola, tengo una consulta" href="#"><span class="ic"><svg><use href="#wa"/></svg></span><span><small>WhatsApp</small><b>0000 0000</b></span></a>
           <a class="contacto" href="tel:+50600000000"><span class="ic"><svg><use href="#tel"/></svg></span><span><small>Llamar</small><b>+506 0000 0000</b></span></a>
           <a class="contacto" href="https://instagram.com/" target="_blank" rel="noopener"><span class="ic"><svg><use href="#ig"/></svg></span><span><small>Instagram</small><b>@usuario</b></span></a>
           <a class="contacto" href="mailto:correo@empresa.com"><span class="ic"><svg><use href="#mail"/></svg></span><span><small>Correo</small><b>correo@empresa.com</b></span></a>
@@ -680,7 +680,7 @@ section.panel{padding:0}
   <div>Nombre del Profesional · Cargo o especialidad</div>
 </footer>
 
-<a class="wa" data-wa="Hola, tengo una consulta 🌸" href="#" aria-label="Escribir por WhatsApp"><svg><use href="#wa"/></svg></a>
+<a class="wa" data-wa="Hola, tengo una consulta" href="#" aria-label="Escribir por WhatsApp"><svg><use href="#wa"/></svg></a>
 
 <div class="velo" id="velo"></div>
 
@@ -694,9 +694,9 @@ section.panel{padding:0}
   <button class="it" data-abrir="p-galeria"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>Galería</button>
   <button class="it" data-ir="#horario"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Horario</button>
   <button class="it" data-ir="#contacto"><svg><use href="#pin"/></svg>Ubicación y contacto</button>
-  <a class="it" data-wa="Hola, tengo una consulta 🌸" href="#"><svg><use href="#wa"/></svg>WhatsApp</a>
+  <a class="it" data-wa="Hola, tengo una consulta" href="#"><svg><use href="#wa"/></svg>WhatsApp</a>
   <a class="it" href="https://instagram.com/" target="_blank" rel="noopener"><svg><use href="#ig"/></svg>Instagram</a>
-  <div class="pie"><button data-abrir="p-nicole">🔒 Acceso administrador</button></div>
+  <div class="pie"><button data-abrir="p-nicole">Acceso administrador</button></div>
 </aside>
 
 <!-- Detalle de servicio -->
@@ -1002,7 +1002,7 @@ const linkEncuesta = c => location.href.split("#")[0] + "#encuesta=" + c.id;
 function waEncuesta(c){
   const tel = String(c.tel).replace(/\D/g, ""); const t506 = tel.length === 8 ? "506" + tel : tel;
   const nombre = String(c.nombre || "").split(" ")[0];
-  return `https://wa.me/${t506}?text=${encodeURIComponent(`Hola ${nombre} 🌸 gracias por visitar Nombre Empresa. ¿Nos ayudas con una encuesta de 1 minuto sobre tu ${String(c.servicio).toLowerCase()}? Tu opinión es muy importante para mí.\n\n${linkEncuesta(c)}\n\nCon cariño, Nombre Empresa`)}`;
+  return `https://wa.me/${t506}?text=${encodeURIComponent(`Hola ${nombre} gracias por visitar Nombre Empresa. ¿Nos ayudas con una encuesta de 1 minuto sobre tu ${String(c.servicio).toLowerCase()}? Tu opinión es muy importante para mí.\n\n${linkEncuesta(c)}\n\nCon cariño, Nombre Empresa`)}`;
 }
 // Registro (en este celular) de encuestas ya enviadas por WhatsApp
 const ENV_KEY = "empresa_encuestas_enviadas";
@@ -1021,7 +1021,7 @@ function pintarEnvioEncuestas(){
   const pend = l.filter(c => !resp.has(c.id) && !env[c.id]), espera = l.filter(c => !resp.has(c.id) && env[c.id]), listas = l.filter(c => resp.has(c.id));
   const tarjeta = (c, tipo) => `<div class="cita-a enc-card">
       <div class="h"><b>${esc(c.nombre)}</b><span>${fechaLarga(c.fecha).replace(/^./, x => x.toUpperCase())}</span></div>
-      <p>${esc(c.servicio)} · ${h12m(c.ini)} · 📍 ${LUGARES[c.lugar]?.corto || ""}</p>
+      <p>${esc(c.servicio)} · ${h12m(c.ini)} · ${LUGARES[c.lugar]?.corto || ""}</p>
       ${tipo === "resp" ? `<div class="enc-res" style="margin:8px 0 0"><b>${estrellasTxt(resp.get(c.id).estrellas)}</b>${resp.get(c.id).comentario ? `<span>“${esc(resp.get(c.id).comentario)}”</span>` : ""}</div>`
         : `<div class="enc-btns"><a class="btn ${tipo === "pend" ? "btn-oro" : "btn-linea"}" data-enviar-enc="${c.id}" href="${waEncuesta(c)}" target="_blank" rel="noopener"><svg><use href="#wa"/></svg>${tipo === "pend" ? "Enviar por WhatsApp" : "Reenviar"}</a>
            <button class="chip" data-copiar-enc2="${c.id}">Copiar link</button></div>
@@ -1029,7 +1029,7 @@ function pintarEnvioEncuestas(){
     </div>`;
   const seccion = (t, arr, tipo, vacio) => `<h4 class="op-t">${t} (${arr.length})</h4>` + (arr.length ? arr.map(c => tarjeta(c, tipo)).join("") : `<div class="vacio" style="margin-bottom:6px">${vacio}</div>`);
   return `<p class="conf-p" style="margin-bottom:6px">Aquí aparecen las citas ya atendidas de los últimos 45 días. Envíales la encuesta por WhatsApp con un toque.</p>`
-    + seccion("Por enviar", pend, "pend", "No hay citas pendientes de encuesta. 🎉")
+    + seccion("Por enviar", pend, "pend", "No hay citas pendientes de encuesta.")
     + seccion("Enviadas, esperando respuesta", espera, "esp", "Ninguna por ahora.")
     + seccion("Respondidas", listas, "resp", "Todavía no hay respuestas.");
 }
@@ -1053,17 +1053,17 @@ function avisoIphone(){
   if (!appInstalada()) pasos.push(`Instala la app: en Safari toca <b>Compartir</b> y luego <b>Agregar a inicio</b>. Ábrela siempre desde el ícono de Nombre Empresa.`);
   pasos.push(`Revisa <b>Ajustes → Notificaciones → Nombre Empresa</b>: activa <b>Permitir notificaciones</b>, <b>Sonidos</b> y <b>Pantalla bloqueada</b>.`);
   pasos.push(`Desactiva <b>No molestar</b> o los <b>Modos de concentración</b> si no te suenan.`);
-  return `<div class="aviso-ios" role="note"><b>⚠️ En iPhone</b><ol>${pasos.map(p => `<li>${p}</li>`).join("")}</ol></div>`;
+  return `<div class="aviso-ios" role="note"><b>En iPhone</b><ol>${pasos.map(p => `<li>${p}</li>`).join("")}</ol></div>`;
 }
 function tarjetaAvisos(){
   if (!soportaAvisos) {
-    if (esIOS) return `<div class="avisos"><b>🔔 Avisos de citas nuevas</b><span>Para recibir avisos en este iPhone sigue estos pasos:</span>${avisoIphone()}</div>`;
+    if (esIOS) return `<div class="avisos"><b>Avisos de citas nuevas</b><span>Para recibir avisos en este iPhone sigue estos pasos:</span>${avisoIphone()}</div>`;
     return "";
   }
   const p = Notification.permission;
-  if (p === "granted") return `<div class="avisos ok"><b>🔔 Notificaciones activadas</b><span>Te avisamos de citas y sugerencias nuevas en este celular.</span>${avisoIphone()}</div>`;
-  if (p === "denied") return `<div class="avisos"><b>🔕 Notificaciones bloqueadas</b><span>Para activarlas, ve a los ajustes del navegador o de la app, busca <b>Notificaciones</b> y permite las de Nombre Empresa.</span>${avisoIphone()}</div>`;
-  return `<div class="avisos"><b>🔔 ¿Quieres que te avisemos?</b><span>Recibe una notificación en este celular cada vez que alguien reserve o deje una sugerencia.</span>${avisoIphone()}<button class="btn btn-oro" id="n-avisos">Activar notificaciones</button></div>`;
+  if (p === "granted") return `<div class="avisos ok"><b>Notificaciones activadas</b><span>Te avisamos de citas y sugerencias nuevas en este celular.</span>${avisoIphone()}</div>`;
+  if (p === "denied") return `<div class="avisos"><b>Notificaciones bloqueadas</b><span>Para activarlas, ve a los ajustes del navegador o de la app, busca <b>Notificaciones</b> y permite las de Nombre Empresa.</span>${avisoIphone()}</div>`;
+  return `<div class="avisos"><b>¿Quieres que te avisemos?</b><span>Recibe una notificación en este celular cada vez que alguien reserve o deje una sugerencia.</span>${avisoIphone()}<button class="btn btn-oro" id="n-avisos">Activar notificaciones</button></div>`;
 }
 
 // Link que abre la página y agrega la cita al calendario del celular
@@ -1085,7 +1085,7 @@ function avisarNicole(c){
   if (!NTFY_TEMA) return;
   const tel = String(c.tel).replace(/\D/g, ""); const t506 = tel.length === 8 ? "506" + tel : tel;
   const cuerpo = { topic: NTFY_TEMA, title: `Nueva cita en ${LUGARES[c.lugar]?.nombre || "Nombre Empresa"}: ${c.nombre}`, tags: ["calendar"], priority: 4,
-    message: `📍 ${LUGARES[c.lugar]?.nombre || "Sin lugar"}\n${c.servicio}\n${fechaLarga(c.fecha)}\n${h12m(c.ini)} a ${h12m(c.ini + c.dur)} (${durTxt(c.dur)})\nCel: ${c.tel}${c.nota ? "\nNota: " + c.nota : ""}`,
+    message: `${LUGARES[c.lugar]?.nombre || "Sin lugar"}\n${c.servicio}\n${fechaLarga(c.fecha)}\n${h12m(c.ini)} a ${h12m(c.ini + c.dur)} (${durTxt(c.dur)})\nCel: ${c.tel}${c.nota ? "\nNota: " + c.nota : ""}`,
     click: location.href.split("#")[0],
     actions: [ { action:"view", label:"Agregar al calendario", url: linkCalendario(c) }, { action:"view", label:"WhatsApp", url:`https://wa.me/${t506}` } ] };
   try { fetch("https://ntfy.sh/", { method:"POST", body: JSON.stringify(cuerpo) }).catch(() => {}); } catch {}
@@ -1146,7 +1146,7 @@ function verServicio(id){
     <ul class="incl">${s.incluye.map(i => `<li><svg><use href="#brillo"/></svg>${esc(i)}</li>`).join("")}</ul>
     <div class="bloque">
       <button class="btn btn-oro" data-reservar="${s.id}">${CAL}Reservar este servicio</button>
-      <a class="btn btn-linea" style="color:var(--tinta);border-color:var(--oro)" data-wa="Hola 🌸 tengo una consulta sobre el ${esc(s.nombre.toLowerCase())}." href="#"><svg><use href="#wa"/></svg>Preguntar por WhatsApp</a>
+      <a class="btn btn-linea" style="color:var(--tinta);border-color:var(--oro)" data-wa="Hola tengo una consulta sobre el ${esc(s.nombre.toLowerCase())}." href="#"><svg><use href="#wa"/></svg>Preguntar por WhatsApp</a>
     </div>`;
   enlazarWa($("#ps-cuerpo"));
   $("#p-servicio .cuerpo").scrollTop = 0;
@@ -1159,7 +1159,7 @@ function pedirForma(id){
   servElegido = id || "";
   const s = servDe(servElegido);
   $("#hoja-sub").textContent = s ? s.nombre : "Elige la forma que te quede más cómoda.";
-  $("#op-wa").href = waLink(s ? `Hola 🌸 quisiera reservar un ${s.nombre.toLowerCase()}. ¿Qué espacios tiene disponibles?` : "Hola 🌸 quisiera agendar una cita. ¿Qué espacios tiene disponibles?");
+  $("#op-wa").href = waLink(s ? `Hola quisiera reservar un ${s.nombre.toLowerCase()}. ¿Qué espacios tiene disponibles?` : "Hola quisiera agendar una cita. ¿Qué espacios tiene disponibles?");
   abrir("hoja");
 }
 $("#op-cal").addEventListener("click", () => {
@@ -1223,7 +1223,7 @@ function pintarAgenda(){
         `<button class="desp-op${x.id === ag.serv ? " si" : ""}" data-a-serv="${x.id}"><span>${esc(x.n)}</span><small>${esc(x.p)}</small></button>`).join("")}</div></div>`;
   } else if (p === 2) {
     cuerpo = `<h2 class="pp-h">¿Dónde quieres tu cita?</h2><div class="lug-ops">${Object.entries(LUGARES).map(([k, l]) =>
-      `<button class="lug-op${ag.lugar === k ? " si" : ""}" data-a-lug="${k}"><b>📍 ${l.nombre}</b><span>${esc(l.dir)}</span></button>`).join("")}</div>`;
+      `<button class="lug-op${ag.lugar === k ? " si" : ""}" data-a-lug="${k}"><b>${l.nombre}</b><span>${esc(l.dir)}</span></button>`).join("")}</div>`;
   } else if (p === 3) {
     cuerpo = `<h2 class="pp-h">¿Cuánto tiempo?</h2><p class="pp-sub">${s ? `Para ${esc(nombreCorto(s).toLowerCase())} recomendamos ${durTxt(s.dur)}.` : ""}</p>
       <div class="seg2 dur-ops">${DURACIONES.map(d => `<button class="chip${ag.dur === d ? " si" : ""}" data-a-dur="${d}">${durTxt(d)}</button>`).join("")}</div>`;
@@ -1255,7 +1255,7 @@ function pintarAgenda(){
     cuerpo = `<h2 class="pp-h">Revisa tu cita</h2><p class="pp-sub">Si todo está bien, toca <b>Confirmar reserva</b>.</p>
       <div class="rs">
         ${fila(1, "Servicio", `${esc(s.nombre)}${s.precio ? ` <span class="rs-p">${precioHTML(s)}</span>` : ""}`)}
-        ${fila(2, "Lugar", `📍 ${L.nombre}`)}
+        ${fila(2, "Lugar", `${L.nombre}`)}
         ${fila(3, "Duración", durTxt(ag.dur))}
         ${fila(4, "Día y hora", `${fechaLarga(ag.fecha).replace(/^./, c => c.toUpperCase())}<br>${h12m(ag.ini)} a ${h12m(ag.ini + ag.dur)}`)}
         ${fila(5, "Tus datos", `${esc(ag.v_nom)}<br>${esc(ag.v_tel)}${ag.v_nota ? `<br><i>“${esc(ag.v_nota)}”</i>` : ""}`)}
@@ -1266,7 +1266,7 @@ function pintarAgenda(){
   const sigTxt = p === 6 ? "Confirmar reserva" : p === 5 ? "Revisar mi cita" : "Siguiente";
   box.innerHTML = barra + `<div class="pp-cuerpo">${cuerpo}</div>
     <div class="pp-nav">${p > 1 ? `<button class="btn btn-linea pp-atras" data-a-atras>Atrás</button>` : ""}<button class="btn btn-oro pp-sig" id="${p === 6 ? "a-ok" : "a-sig"}" ${p !== 5 && falta && falta <= p ? "disabled" : ""}>${sigTxt}</button></div>
-    ${p <= 4 ? `<a class="pp-wa" data-wa="Hola 🌸 quisiera consultar por una cita." href="#"><svg><use href="#wa"/></svg>Prefiero escribir por WhatsApp</a>` : ""}`;
+    ${p <= 4 ? `<a class="pp-wa" data-wa="Hola quisiera consultar por una cita." href="#"><svg><use href="#wa"/></svg>Prefiero escribir por WhatsApp</a>` : ""}`;
   enlazarWa(box);
   for (const k of ["nom", "tel", "nota"]) { const el = $("#a-" + k); if (el && ag["v_" + k]) el.value = ag["v_" + k]; el?.addEventListener("input", () => ag["v_" + k] = el.value); }
 }
@@ -1349,13 +1349,13 @@ function descargarIcs(lista, nombre){
 
 function pintarListo(box, c){
   const L = LUGARES[c.lugar];
-  const msg = `Hola 🌸 acabo de reservar en la página:\n• ${c.servicio}\n• ${L ? L.nombre : ""}\n• ${fechaLarga(c.fecha)}\n• ${h12m(c.ini)} a ${h12m(c.ini + c.dur)}\nA nombre de ${c.nombre}.`;
+  const msg = `Hola acabo de reservar en la página:\n• ${c.servicio}\n• ${L ? L.nombre : ""}\n• ${fechaLarga(c.fecha)}\n• ${h12m(c.ini)} a ${h12m(c.ini + c.dur)}\nA nombre de ${c.nombre}.`;
   box.innerHTML = `<div class="listo">
     <div class="ok">✓</div><h2>¡Tu cita quedó reservada!</h2><p>Te esperamos para tu momento de calma.</p>
     <div class="resumen" style="text-align:left"><small>Tu cita</small><b>${esc(c.servicio)}${L ? " · " + L.nombre : ""}<br>${fechaLarga(c.fecha)}<br>${h12m(c.ini)} a ${h12m(c.ini + c.dur)} · ${durTxt(c.dur)}</b></div>
     <div class="bloque">
       <a class="btn btn-oro" href="${waLink(msg)}" target="_blank" rel="noopener"><svg><use href="#wa"/></svg>Avisar por WhatsApp</a>
-      ${L ? `<div class="seg2"><a class="btn btn-linea" style="color:var(--tinta);border-color:var(--oro);padding:13px 8px" href="${waze(L)}" target="_blank" rel="noopener">Waze</a><a class="btn btn-linea" style="color:var(--tinta);border-color:var(--oro);padding:13px 8px" href="${L.maps}" target="_blank" rel="noopener">Google Maps</a></div><p style="font-size:13.5px;color:#7a7065;margin-top:-2px">📍 ${esc(L.dir)}</p>` : ""}
+      ${L ? `<div class="seg2"><a class="btn btn-linea" style="color:var(--tinta);border-color:var(--oro);padding:13px 8px" href="${waze(L)}" target="_blank" rel="noopener">Waze</a><a class="btn btn-linea" style="color:var(--tinta);border-color:var(--oro);padding:13px 8px" href="${L.maps}" target="_blank" rel="noopener">Google Maps</a></div><p style="font-size:13.5px;color:#7a7065;margin-top:-2px">${esc(L.dir)}</p>` : ""}
       <button class="btn btn-osc" id="a-otra">Hacer otra reserva</button>
     </div>
     <p class="prueba">Si necesitas cambiar o cancelar, escríbenos por WhatsApp.</p></div>`;
@@ -1414,7 +1414,7 @@ function pintarCal(todas){
       for (const [a, b] of t) { if (a > pos) out += `<div class="cerr-b" style="top:${(pos - ha) / 60 * H}px;height:${(a - pos) / 60 * H}px"></div>`; pos = Math.max(pos, b); }
       if (pos < hb) out += `<div class="cerr-b" style="top:${(pos - ha) / 60 * H}px;height:${(hb - pos) / 60 * H}px"></div>`; return out; })();
     const evs = porDia(f).map(c => `<button class="ev ${colorLugar(c.lugar)}" data-cev="${c.id}" style="top:${(c.ini - ha) / 60 * H + 1}px;height:${c.dur / 60 * H - 2}px">
-        <b>${c.apuntes ? "🗒️ " : ""}${esc(nCal.vista === "dia" ? c.nombre : c.nombre.split(" ")[0])}</b>${nCal.vista === "dia" ? `<span>${h12m(c.ini)} – ${h12m(c.ini + c.dur)} · ${esc(c.servicio)} · ${LUGARES[c.lugar]?.corto || ""}</span>` : `<span>${h12m(c.ini).replace(" ", "")}</span>`}</button>`).join("");
+        <b>${c.apuntes ? "" : ""}${esc(nCal.vista === "dia" ? c.nombre : c.nombre.split(" ")[0])}</b>${nCal.vista === "dia" ? `<span>${h12m(c.ini)} – ${h12m(c.ini + c.dur)} · ${esc(c.servicio)} · ${LUGARES[c.lugar]?.corto || ""}</span>` : `<span>${h12m(c.ini).replace(" ", "")}</span>`}</button>`).join("");
     const linea = f === hoy && minAhora >= ha && minAhora <= hb ? `<div class="ahora" style="top:${(minAhora - ha) / 60 * H}px"></div>` : "";
     return `<div class="col${f === hoy ? " es-hoy" : ""}" style="height:${alto}px">${cerr}${evs}${linea}</div>`;
   };
@@ -1434,14 +1434,14 @@ function verCita(id){
     <div class="mev-in">
     <div class="ev-det"><span class="ev-punto ${colorLugar(c.lugar)}"></span><div><h3>${esc(c.nombre)}</h3>
       <p>${fechaLarga(c.fecha).replace(/^./, x => x.toUpperCase())} · ${h12m(c.ini)} – ${h12m(c.ini + c.dur)}</p></div></div>
-    <ul class="ev-lista"><li>💆 ${esc(c.servicio)} · ${durTxt(c.dur)} · <b>${colones(montoCita(c))}</b></li><li>📍 ${LUGARES[c.lugar]?.nombre || "Sin lugar"}</li><li>📱 ${esc(c.tel)}</li>${c.nota ? `<li>💬 Cliente: “${esc(c.nota)}”</li>` : ""}</ul>
-    <div class="apuntes"><label for="ev-apuntes">🗒️ Mis anotaciones <small>(solo tú las ves)</small></label>
+    <ul class="ev-lista"><li>${esc(c.servicio)} · ${durTxt(c.dur)} · <b>${colones(montoCita(c))}</b></li><li>${LUGARES[c.lugar]?.nombre || "Sin lugar"}</li><li>${esc(c.tel)}</li>${c.nota ? `<li>Cliente: “${esc(c.nota)}”</li>` : ""}</ul>
+    <div class="apuntes"><label for="ev-apuntes">Mis anotaciones <small>(solo tú las ves)</small></label>
       <textarea id="ev-apuntes" rows="3" maxlength="1000" placeholder="Ej.: trabajar zona lumbar, prefiere aceite sin aroma, pagó por SINPE…">${esc(c.apuntes || "")}</textarea>
       <div class="ap-pie"><span id="ev-ap-est"></span><button class="btn btn-osc" id="ev-ap-ok">Guardar anotación</button></div></div>
     <div class="ev-acc"><a class="btn btn-oro" href="https://wa.me/${t506}" target="_blank" rel="noopener"><svg><use href="#wa"/></svg>WhatsApp</a><a class="btn btn-osc" href="tel:${tel}">Llamar</a></div>
     ${(() => { const e = Reservas.encuestas().find(x => x.id === c.id);
       return e ? `<div class="enc-res"><b>${estrellasTxt(e.estrellas)}</b><span>Encuesta respondida${e.comentario ? `: “${esc(e.comentario)}”` : ""}</span></div>` : ""; })()}
-    <div class="ev-acc"><button class="btn btn-linea" style="color:var(--tinta);border-color:var(--oro)" data-cal="${c.id}">${enCalendario(c) ? "✓ En mi calendario" : "📅 A mi calendario"}</button><button class="btn btn-linea" style="color:#a3443a;border-color:#e3c3bd" data-cancel="${c.id}">Cancelar cita</button></div>
+    <div class="ev-acc"><button class="btn btn-linea" style="color:var(--tinta);border-color:var(--oro)" data-cal="${c.id}">${enCalendario(c) ? "✓ En mi calendario" : "A mi calendario"}</button><button class="btn btn-linea" style="color:#a3443a;border-color:#e3c3bd" data-cancel="${c.id}">Cancelar cita</button></div>
     </div>`;
   const velo = $("#velo"); velo.classList.add("on"); velo.style.zIndex = 60;
   document.body.appendChild(el); requestAnimationFrame(() => el.classList.add("on"));
@@ -1512,7 +1512,7 @@ function pintarIngresos(){
         <span class="v">${m && nIng.vista === "semana" ? colones(m).replace("₡", "") : ""}</span><i style="height:${Math.round(m / maxD * 100)}%"></i><small>${nIng.vista === "semana" ? DIAS_C[d.getUTCDay()] : (d.getUTCDate() % 5 === 1 || d.getUTCDate() === 1 ? d.getUTCDate() : "")}</small></div>`; }).join("")}</div></div>
     <div class="ing-box"><h4>Por servicio</h4>
       ${servs.length ? servs.map(([n, v]) => `<div class="ing-fila"><div class="t"><span>${esc(n)} <em>× ${v.n}</em></span><b>${colones(v.m)}</b></div><div class="bar"><i style="width:${Math.round(v.m / maxS * 100)}%"></i></div></div>`).join("") : `<p class="ing-vacio">No hay citas en este periodo.</p>`}</div>
-    <div class="ing-box"><h4>Por lugar</h4><div class="ing-lug">${porLug.map(([k, m]) => `<div class="${colorLugar(k)}"><small>📍 ${LUGARES[k].nombre}</small><b>${colones(m)}</b></div>`).join("")}</div></div>
+    <div class="ing-box"><h4>Por lugar</h4><div class="ing-lug">${porLug.map(([k, m]) => `<div class="${colorLugar(k)}"><small>${LUGARES[k].nombre}</small><b>${colones(m)}</b></div>`).join("")}</div></div>
     <p class="prueba">Montos estimados con los precios de la página, proporcionales a la duración reservada. No incluyen descuentos, propinas ni cancelaciones de último momento.${sinPrecio ? ` ${sinPrecio} cita${sinPrecio === 1 ? "" : "s"} sin precio conocido.` : ""}</p>
   </div>`;
 }
@@ -1524,22 +1524,22 @@ function pintarConfig(){
   const enCal = Object.keys(cache).length;
   const turnos = HORARIO.map(h => `<li><b>${h.nombre}</b><span>${h.turnos.length ? h.turnos.map(t => `${h12(t[0])} – ${h12(t[1])}`).join(", ") : "Cerrado"}</span></li>`).join("");
   return `<div class="conf">
-    <section class="conf-s"><h4>🔔 Notificaciones en este celular</h4>${tarjetaAvisos() || `<p class="conf-p">Este navegador no permite notificaciones. Abre la página en Chrome (Android) o instala la app (iPhone).</p>`}
+    <section class="conf-s"><h4>Notificaciones en este celular</h4>${tarjetaAvisos() || `<p class="conf-p">Este navegador no permite notificaciones. Abre la página en Chrome (Android) o instala la app (iPhone).</p>`}
       <p class="conf-nota">Los avisos llegan mientras la página o la app del spa esté abierta o minimizada. Si la cierras por completo, revisa tus citas al abrirla.</p>
       ${soportaAvisos && Notification.permission === "granted" ? `<button class="btn btn-linea conf-b" id="c-prueba-local">Enviar notificación de prueba</button>` : ""}</section>
-    <section class="conf-s"><h4>📅 Calendario del celular</h4>
+    <section class="conf-s"><h4>Calendario del celular</h4>
       <p class="conf-p">${enCal} cita${enCal === 1 ? "" : "s"} marcada${enCal === 1 ? "" : "s"} como pasada${enCal === 1 ? "" : "s"} a tu calendario en este celular.</p>
       <button class="btn btn-linea conf-b" id="c-cal-reset">Olvidar registro (volver a pasar todas)</button></section>
-    <section class="conf-s"><h4>📱 App</h4>
+    <section class="conf-s"><h4>App</h4>
       <p class="conf-p">${appInstalada() ? "✓ Estás usando la app instalada." : "Estás usando la página en el navegador."}</p>
       ${!appInstalada() ? (eventoInstalar ? `<button class="btn btn-oro conf-b" id="c-instalar">Instalar app de Nombre Empresa</button>` : `<p class="conf-nota">${esIOS ? "En iPhone: Safari → Compartir → Agregar a inicio." : "En Chrome: menú ⋮ → Instalar app (o Agregar a pantalla principal)."}</p>`) : ""}
       <button class="btn btn-linea conf-b" id="c-actualizar">Buscar actualización de la app</button></section>
-    <section class="conf-s"><h4>🏷️ Datos del negocio</h4>
+    <section class="conf-s"><h4>Datos del negocio</h4>
       <ul class="conf-l"><li><b>WhatsApp</b><span>+${WHATSAPP.slice(0, 3)} ${WHATSAPP.slice(3, 7)} ${WHATSAPP.slice(7)}</span></li>${turnos}
-        ${Object.values(LUGARES).map(l => `<li><b>📍 ${l.nombre}</b><span>${esc(l.dir)}</span></li>`).join("")}
+        ${Object.values(LUGARES).map(l => `<li><b>${l.nombre}</b><span>${esc(l.dir)}</span></li>`).join("")}
         <li><b>Servicios</b><span>${SERVICIOS.length} con precio</span></li></ul>
       <p class="conf-nota">Para cambiar precios, horario o servicios, escríbenos.</p></section>
-    <section class="conf-s"><h4>👤 Cuenta</h4>
+    <section class="conf-s"><h4>Cuenta</h4>
       <p class="conf-p">Sesión iniciada como <b>${esc(NICOLE_EMAIL)}</b>${Reservas.prueba ? " (modo de prueba)" : ""}.</p>
       <button class="btn btn-linea conf-b" style="color:#a3443a;border-color:#e3c3bd" id="n-salir2">Cerrar sesión</button></section>
   </div>`;
@@ -1560,8 +1560,8 @@ function pintarNicole(){
   }
   const sugs = Reservas.sugerencias();
   const sinAvisos = soportaAvisos && Notification.permission === "default" || (esIOS && !soportaAvisos);
-  const pest = `<div class="n-fila"><span>Hola 🌸</span><button class="chip${nVista === "conf" ? " si" : ""}" data-nv="conf">⚙️ Configuración</button><button class="chip" id="n-salir">Salir</button></div>`
-    + (sinAvisos && nVista !== "conf" ? `<button class="aviso-mini" data-nv="conf">🔔 Activa las notificaciones de citas nuevas ›</button>` : "")
+  const pest = `<div class="n-fila"><span>Hola</span><button class="chip${nVista === "conf" ? " si" : ""}" data-nv="conf">Configuración</button><button class="chip" id="n-salir">Salir</button></div>`
+    + (sinAvisos && nVista !== "conf" ? `<button class="aviso-mini" data-nv="conf">Activa las notificaciones de citas nuevas ›</button>` : "")
     + `<div class="seg2 n-tabs"><button class="chip${nVista === "citas" ? " si" : ""}" data-nv="citas">Citas</button><button class="chip${nVista === "ing" ? " si" : ""}" data-nv="ing">Ingresos</button><button class="chip${nVista === "sug" ? " si" : ""}" data-nv="sug">Opiniones${sugs.length + Reservas.encuestas().length ? ` (${sugs.length + Reservas.encuestas().length})` : ""}</button><button class="chip${nVista === "gal" ? " si" : ""}" data-nv="gal">Galería</button><button class="chip${nVista === "env" ? " si" : ""}" data-nv="env">Enviar encuesta${pendEnc() ? ` (${pendEnc()})` : ""}</button></div>`;
   if (nVista === "conf") { box.innerHTML = pest + pintarConfig(); return; }
   if (nVista === "env") { box.innerHTML = pest + pintarEnvioEncuestas(); return; }
@@ -1571,7 +1571,7 @@ function pintarNicole(){
     box.innerHTML = pest + `
       
       <div class="paso"><span class="lbl">Agregar fotos</span>
-        <div><label class="btn btn-oro" style="width:100%;padding:15px;cursor:pointer;margin:0" for="g-fotos">📷 Subir fotos del celular</label></div>
+        <div><label class="btn btn-oro" style="width:100%;padding:15px;cursor:pointer;margin:0" for="g-fotos">Subir fotos del celular</label></div>
         <input id="g-fotos" type="file" accept="image/*" multiple hidden>
         <p class="prueba" style="text-align:left">Las fotos se ajustan solas para que la página cargue rápido.${Reservas.prueba ? " En la versión de prueba se guardan solo en este celular." : ""}</p></div>
       <div class="paso"><span class="lbl">Agregar video</span>
@@ -1581,7 +1581,7 @@ function pintarNicole(){
       <div class="paso"><span class="lbl">En la galería ahora (${l.length || FOTOS.length})</span>
         ${l.length ? `<div class="g-admin">${l.map((x, i) => `<div class="g-it">
             ${x.tipo === "foto" ? `<img src="${x.data}" alt="">` : `<div class="g-vid">${miniVideo(x)}</div>`}
-            <div class="g-acc"><button data-gal-mover="${x.id}:-1" ${i === 0 ? "disabled" : ""} aria-label="Mover antes">‹</button><button data-gal-mover="${x.id}:1" ${i === l.length - 1 ? "disabled" : ""} aria-label="Mover después">›</button><button class="rojo" data-gal-borrar="${x.id}" aria-label="Quitar">🗑</button></div></div>`).join("")}</div>
+            <div class="g-acc"><button data-gal-mover="${x.id}:-1" ${i === 0 ? "disabled" : ""} aria-label="Mover antes">‹</button><button data-gal-mover="${x.id}:1" ${i === l.length - 1 ? "disabled" : ""} aria-label="Mover después">›</button><button class="rojo" data-gal-borrar="${x.id}" aria-label="Quitar"><svg class="i" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button></div></div>`).join("")}</div>
           <button class="chip" style="margin-top:12px" id="g-restaurar">Volver a las fotos originales</button>`
         : `<div class="vacio">Ahora se muestran las ${FOTOS.length} fotos originales. Cuando subas la primera foto o video, la galería mostrará solo lo tuyo.</div>`}</div>`;
     $("#g-fotos").addEventListener("change", subirFotos);
@@ -1593,7 +1593,7 @@ function pintarNicole(){
     const resumen = encs.length ? `<div class="enc-resumen"><div class="grande"><b>${prom("estrellas").toFixed(1)}</b><span>${estrellasTxt(Math.round(prom("estrellas")))}</span><small>${encs.length} encuesta${encs.length === 1 ? "" : "s"}</small></div>
         <div class="det"><div><small>Atención</small><b>${prom("atencion").toFixed(1)} ★</b></div><div><small>Ambiente</small><b>${prom("ambiente").toFixed(1)} ★</b></div><div><small>Recomendarían</small><b>${recom}%</b></div></div></div>
       ${encs.map(e => `<div class="cita-a"><div class="h"><b style="font-size:17px">${esc(e.nombre || "Anónimo")}</b><span>${new Date(e.fecha).toLocaleDateString("es-CR", { day:"numeric", month:"short" })}</span></div>
-        <p><span class="estr">${estrellasTxt(e.estrellas)}</span> · Atención ${e.atencion}★ · Ambiente ${e.ambiente}★ · ${e.recomendaria === "si" ? "👍 Recomendaría" : e.recomendaria === "no" ? "👎 No recomendaría" : "🤔 Tal vez"}</p>
+        <p><span class="estr">${estrellasTxt(e.estrellas)}</span> · Atención ${e.atencion}★ · Ambiente ${e.ambiente}★ · ${e.recomendaria === "si" ? "Recomendaría" : e.recomendaria === "no" ? "No recomendaría" : "Tal vez"}</p>
         ${e.comentario ? `<p style="white-space:pre-wrap">“${esc(e.comentario)}”</p>` : ""}</div>`).join("")}`
       : `<div class="vacio">Todavía no hay encuestas. Envíalas desde cada cita con el botón <b>Enviar encuesta por WhatsApp</b>.</div>`;
     box.innerHTML = pest + ``
@@ -1619,8 +1619,8 @@ function pintarNicole(){
     if (c.fecha !== dia) { dia = c.fecha; html += `<div class="dia-t">${c.fecha === hoy ? "Hoy · " : ""}${fechaLarga(c.fecha)}</div>`; }
     const tel = String(c.tel).replace(/\D/g, ""); const t506 = tel.length === 8 ? "506" + tel : tel;
     html += `<div class="cita-a"><div class="h"><b>${esc(c.nombre)}</b><span>${h12m(c.ini)} – ${h12m(c.ini + c.dur)}</span></div>
-      <p><b style="color:var(--oro3);font-weight:500">📍 ${LUGARES[c.lugar]?.nombre || "Lugar sin definir"}</b><br>${esc(c.servicio)} · ${durTxt(c.dur)}${c.nota ? `<br><i>“${esc(c.nota)}”</i>` : ""}${c.apuntes ? `<br><span class="ap-mini">🗒️ ${esc(c.apuntes)}</span>` : ""}</p>
-      <div class="acc"><a href="https://wa.me/${t506}" target="_blank" rel="noopener">WhatsApp</a><a href="tel:${tel}">Llamar</a>${enCalendario(c) ? `<button data-cal="${c.id}" style="color:#4f8a5f;border-color:#bfd9c6">✓ En mi calendario</button>` : `<button data-cal="${c.id}">📅 A mi calendario</button>`}<button class="rojo" data-cancel="${c.id}">Cancelar cita</button></div></div>`;
+      <p><b style="color:var(--oro3);font-weight:500">${LUGARES[c.lugar]?.nombre || "Lugar sin definir"}</b><br>${esc(c.servicio)} · ${durTxt(c.dur)}${c.nota ? `<br><i>“${esc(c.nota)}”</i>` : ""}${c.apuntes ? `<br><span class="ap-mini">${esc(c.apuntes)}</span>` : ""}</p>
+      <div class="acc"><a href="https://wa.me/${t506}" target="_blank" rel="noopener">WhatsApp</a><a href="tel:${tel}">Llamar</a>${enCalendario(c) ? `<button data-cal="${c.id}" style="color:#4f8a5f;border-color:#bfd9c6">✓ En mi calendario</button>` : `<button data-cal="${c.id}">A mi calendario</button>`}<button class="rojo" data-cancel="${c.id}">Cancelar cita</button></div></div>`;
   }
   box.innerHTML = html;
 }
@@ -1776,7 +1776,7 @@ document.addEventListener("keydown", e => { if (e.key === "Escape") { if ($("#lb
 let lugVer = "spa";
 function pintarLugares(){
   const L = LUGARES[lugVer];
-  $("#lug-tabs").innerHTML = Object.entries(LUGARES).map(([k, l]) => `<button class="chip${k === lugVer ? " si" : ""}" data-lug="${k}">📍 ${l.nombre}</button>`).join("");
+  $("#lug-tabs").innerHTML = Object.entries(LUGARES).map(([k, l]) => `<button class="chip${k === lugVer ? " si" : ""}" data-lug="${k}">${l.nombre}</button>`).join("");
   $("#lug-mapa").src = `https://maps.google.com/maps?q=${L.lat},${L.lng}&z=17&output=embed`;
   $("#lug-dir").textContent = L.dir;
   $("#lug-ir").innerHTML = `<a class="contacto" href="${waze(L)}" target="_blank" rel="noopener"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M5 15.5a7.5 7.5 0 1 1 13.6 2.4c-.6.8-1.5 1.1-2.4 1.1h-5.4a3 3 0 0 1-5.6-.6A3 3 0 0 1 5 15.5Z"/><circle cx="10" cy="11" r=".9" fill="currentColor"/><circle cx="15" cy="11" r=".9" fill="currentColor"/><path d="M10 14.2c1.4 1 3 1 4.2 0"/></svg></span><span><small>Ir con</small><b>Waze</b></span></a>
@@ -1845,7 +1845,7 @@ let encId = null, enc = { estrellas:0, atencion:0, ambiente:0, recomendaria:"" }
 function pintarEncuesta(){
   const fila = (k, t) => `<div class="enc-p"><span>${t}</span><div class="estrellas" role="radiogroup" aria-label="${t}">${[1, 2, 3, 4, 5].map(n => `<button type="button" class="${enc[k] >= n ? "si" : ""}" data-enc="${k}:${n}" aria-label="${n} de 5">★</button>`).join("")}</div></div>`;
   $("#enc-preg").innerHTML = fila("estrellas", "¿Cómo calificarías tu experiencia?") + fila("atencion", "Atención recibida") + fila("ambiente", "Ambiente y limpieza")
-    + `<div class="enc-p"><span>¿Nos recomendarías a un amigo?</span><div class="seg2" style="grid-template-columns:repeat(3,1fr)">${[["si", "👍 Sí"], ["tal vez", "🤔 Tal vez"], ["no", "👎 No"]].map(([k, t]) => `<button type="button" class="chip${enc.recomendaria === k ? " si" : ""}" data-enc="recomendaria:${k}">${t}</button>`).join("")}</div></div>`;
+    + `<div class="enc-p"><span>¿Nos recomendarías a un amigo?</span><div class="seg2" style="grid-template-columns:repeat(3,1fr)">${[["si", "Sí"], ["tal vez", "Tal vez"], ["no", "No"]].map(([k, t]) => `<button type="button" class="chip${enc.recomendaria === k ? " si" : ""}" data-enc="recomendaria:${k}">${t}</button>`).join("")}</div></div>`;
 }
 $("#enc-form").addEventListener("click", e => {
   const b = e.target.closest("[data-enc]"); if (!b) return;

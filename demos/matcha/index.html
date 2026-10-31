@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Shrikhand&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
-<style>
+<style>svg.i{width:1em;height:1em;vertical-align:-.14em;flex:none;display:inline-block}
 /* Diseño: menú de barra de matcha. Un solo look claro y deliberado: rosado chicle de la marca, verde matcha como acento de producto.
    Cada bebida se dibuja como un vaso con sus capas (leche, matcha, fresa…), así el menú funciona aunque todavía no haya fotos. */
 :root{
@@ -214,7 +214,7 @@ label.c textarea{min-height:64px;resize:vertical}
 
 <div class="demo">Demo de <b>RBM Solutions</b> · menú, precios y horario de ejemplo</div>
 <button class="avisoPed" id="avisoPed" type="button" hidden></button>
-<div class="prueba" id="bPrueba" hidden>🧪 <b>Modo prueba</b> · los clientes y sellos son de ejemplo, no son reales · <a href="./">Salir</a></div>
+<div class="prueba" id="bPrueba" hidden><b>Modo prueba</b> · los clientes y sellos son de ejemplo, no son reales · <a href="./">Salir</a></div>
 
 <header class="top">
   <div class="wrap">
@@ -222,7 +222,7 @@ label.c textarea{min-height:64px;resize:vertical}
     <div>
       <h1 id="nombre">Matcha Mía</h1>
       <p class="lema" id="lema">Matcha bar, inspirado en una salchichita</p>
-      <div class="chips-info"><span id="estado">Cargando horario…</span><a href="#lealtad">🐾 Mi tarjeta</a><a href="#info">📍 Barrio Amón</a><a id="ig" href="https://www.instagram.com/matchamia.cr" target="_blank" rel="noopener">Instagram</a></div>
+      <div class="chips-info"><span id="estado">Cargando horario…</span><a href="#lealtad">Mi tarjeta</a><a href="#info">Barrio Amón</a><a id="ig" href="https://www.instagram.com/matchamia.cr" target="_blank" rel="noopener">Instagram</a></div>
     </div>
   </div>
 </header>
@@ -254,7 +254,7 @@ label.c textarea{min-height:64px;resize:vertical}
   </div>
 </main>
 
-<footer>Hecho por RBM Solutions · <button type="button" id="abrirAdmin">🔒 Administrar menú</button></footer>
+<footer>Hecho por RBM Solutions · <button type="button" id="abrirAdmin">Administrar menú</button></footer>
 
 <button class="carrito" id="carrito" type="button" hidden><span><span class="n" id="carN">0</span>Ver mi pedido</span><span id="carT">₡0</span></button>
 
@@ -357,8 +357,8 @@ const urlRed = (tipo, v) => { v = String(v || "").trim(); if (!v) return ""; if 
   return {instagram: "https://www.instagram.com/" + v, facebook: "https://www.facebook.com/" + v, tiktok: "https://www.tiktok.com/@" + v}[tipo]; };
 function pintarRedes() {
   const r = D.negocio.redes || BASE.negocio.redes || {}, wa = String(D.negocio.whatsapp || "").replace(/\D/g, "");
-  const ls = [["instagram", "📸 Instagram"], ["facebook", "👍 Facebook"], ["tiktok", "🎵 TikTok"]].map(([k, l]) => [l, urlRed(k, r[k])]).filter(x => x[1]);
-  if (wa) ls.splice(Math.min(1, ls.length), 0, ["💬 WhatsApp", "https://wa.me/" + wa]);
+  const ls = [["instagram", "Instagram"], ["facebook", "Facebook"], ["tiktok", "TikTok"]].map(([k, l]) => [l, urlRed(k, r[k])]).filter(x => x[1]);
+  if (wa) ls.splice(Math.min(1, ls.length), 0, ["WhatsApp", "https://wa.me/" + wa]);
   $("#redes").innerHTML = ls.map(([l, u]) => `<a class="btn sm" href="${esc(u)}" target="_blank" rel="noopener">${l}</a>`).join("") || `<span class="nota">Pronto.</span>`;
   const ig = urlRed("instagram", r.instagram), chip = $("#ig"); if (chip) { if (ig) chip.href = ig; chip.hidden = !ig; }
 }
@@ -372,12 +372,12 @@ function pintarPromosNube() {
   const el = $("#promosNube"), hoy = ahoraCR().getUTCDay(), act = promosNube.filter(promoActiva);
   el.hidden = !act.length;
   el.innerHTML = act.map(p => { const rep = p.dias && p.dias.length, esHoy = rep && p.dias.includes(hoy);
-    return `<div class="pn${esHoy || !rep ? " hoy" : ""}"><span class="ic">📣</span><div><b>${esc(p.titulo)}${p.producto ? ` · ${esc(p.producto)}` : ""}</b>${p.texto ? `<span>${esc(p.texto)}</span>` : ""}<small>${rep ? textoDias(p.dias) + (esHoy ? " · ¡Hoy!" : "") : "Nueva"}</small></div></div>`; }).join("");
+    return `<div class="pn${esHoy || !rep ? " hoy" : ""}"><span class="ic"><svg class="i" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg></span><div><b>${esc(p.titulo)}${p.producto ? ` · ${esc(p.producto)}` : ""}</b>${p.texto ? `<span>${esc(p.texto)}</span>` : ""}<small>${rep ? textoDias(p.dias) + (esHoy ? " · ¡Hoy!" : "") : "Nueva"}</small></div></div>`; }).join("");
 }
 function vistaPromos() {
   const real = !Tarjetas.prueba;
   let h = `<p class="nota" style="margin-top:12px">Publicá una promo y les llega al instante a los clientes que tengan su tarjeta abierta o guardada en el celular. Si escogés días, se les recuerda cada semana ese día.</p>`;
-  if (real) h += `<p class="nota">🔒 Con clientes reales, las promos las publica la dueña con su acceso seguro (correo y contraseña). Probalo en el <a href="./?prueba">modo prueba</a>.</p>`;
+  if (real) h += `<p class="nota">Con clientes reales, las promos las publica la dueña con su acceso seguro (correo y contraseña). Probalo en el <a href="./?prueba">modo prueba</a>.</p>`;
   h += `<div class="grupo"><b>Nueva promoción</b>
     <label class="c">Título<input id="pTit" maxlength="60" placeholder="Ej.: Miércoles de 2x1" ${real ? "disabled" : ""}></label>
     <label class="c">Detalle<textarea id="pTxt" maxlength="200" rows="2" placeholder="Ej.: Todos los miércoles, bebidas seleccionadas al 2x1." ${real ? "disabled" : ""}></textarea></label>
@@ -385,7 +385,7 @@ function vistaPromos() {
     <b style="font-size:13px;color:var(--suave);text-transform:uppercase;letter-spacing:.04em">¿Se repite cada semana?</b>
     <div class="dias">${DIAS_CORTOS.map((x, i) => `<label><input type="checkbox" data-pdia="${i}" ${real ? "disabled" : ""}> ${x}</label>`).join("")}</div>
     <span class="nota">Sin días marcados se avisa una sola vez, ahora mismo.</span>
-    <p class="err" id="pErr"></p><div><button class="btn pri" type="button" data-publicar ${promoOcupado || real ? "disabled" : ""}>📣 Publicar y avisar</button></div></div>`;
+    <p class="err" id="pErr"></p><div><button class="btn pri" type="button" data-publicar ${promoOcupado || real ? "disabled" : ""}>Publicar y avisar</button></div></div>`;
   h += `<div class="grupo"><b>Publicadas</b>${promoErr ? `<p class="nota">No se pudieron cargar. Revisá la conexión.</p>` : !promosNube.length ? `<p class="nota">Todavía no hay promociones publicadas.</p>`
     : promosNube.map(x => `<div class="cli"><span><b>${esc(x.titulo)}</b>${x.producto ? " · " + esc(x.producto) : ""}<br><small>${x.dias && x.dias.length ? "Se repite: " + x.dias.map(i => DIAS_CORTOS[i]).join(", ") : "Una vez · " + new Date(fechaPromo(x)).toLocaleDateString("es-CR", {day: "numeric", month: "short"})}</small></span>${real ? "" : `<button class="btn sm" type="button" data-quitar-promo="${esc(x.id)}">Quitar</button>`}</div>`).join("")}</div>`;
   return h;
@@ -462,16 +462,16 @@ function selloHTML(n, pend = 0) {
   const s = Math.min(n, 10);
   return `<div class="sellos">${Array.from({length: 10}, (_, i) => {
     const lleno = i < s, nuevo = !lleno && i < s + pend;
-    if (i === 9) return `<i class="${lleno ? "si" : nuevo ? "pend" : "gratis"}">${lleno || nuevo ? "🐾" : "GRATIS"}</i>`;
-    return `<i class="${lleno ? "si" : nuevo ? "pend" : ""}">${lleno || nuevo ? "🐾" : ""}</i>`; }).join("")}</div>`;
+    if (i === 9) return `<i class="${lleno ? "si" : nuevo ? "pend" : "gratis"}">${lleno || nuevo ? "<svg class='i' width='1em' height='1em' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><circle cx='11' cy='4' r='2'/><circle cx='18' cy='8' r='2'/><circle cx='20' cy='16' r='2'/><path d='M9 10a5 5 0 0 1 5 5v3.5a3.5 3.5 0 0 1-6.84 1.05Q6.52 17.48 4.46 16.84A3.5 3.5 0 0 1 5.5 10Z'/></svg>" : "GRATIS"}</i>`;
+    return `<i class="${lleno ? "si" : nuevo ? "pend" : ""}">${lleno || nuevo ? "<svg class='i' width='1em' height='1em' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><circle cx='11' cy='4' r='2'/><circle cx='18' cy='8' r='2'/><circle cx='20' cy='16' r='2'/><path d='M9 10a5 5 0 0 1 5 5v3.5a3.5 3.5 0 0 1-6.84 1.05Q6.52 17.48 4.46 16.84A3.5 3.5 0 0 1 5.5 10Z'/></svg>" : ""}</i>`; }).join("")}</div>`;
 }
 // Cuadritos con los números de la tarjeta
 function statsHTML(c, dueña) {
   return `<div class="stats">
-    <div class="dest"><b>${c.gratis}</b><span>🎁 Bebida${c.gratis === 1 ? "" : "s"} gratis ${dueña ? "por canjear" : "disponible" + (c.gratis === 1 ? "" : "s")}</span></div>
+    <div class="dest"><b>${c.gratis}</b><span>Bebida${c.gratis === 1 ? "" : "s"} gratis ${dueña ? "por canjear" : "disponible" + (c.gratis === 1 ? "" : "s")}</span></div>
     <div><b>${10 - c.sellos}</b><span>Sello${10 - c.sellos === 1 ? "" : "s"} para la próxima gratis</span></div>
-    <div><b>${c.total}</b><span>🐾 Sellos acumulados en total</span></div>
-    <div><b>${c.canjes}</b><span>✅ Gratis ya canjeada${c.canjes === 1 ? "" : "s"}</span></div></div>`;
+    <div><b>${c.total}</b><span>Sellos acumulados en total</span></div>
+    <div><b>${c.canjes}</b><span>Gratis ya canjeada${c.canjes === 1 ? "" : "s"}</span></div></div>`;
 }
 function dibujarQR(el, texto, tam = 220) {
   if (!el) return;
@@ -497,7 +497,7 @@ function pintarSellos() {
         <div style="display:grid;gap:6px"><span class="nota">Tarjeta de</span><span class="codigo" style="letter-spacing:0">${esc(c.nombre)}</span>
         <span class="nota">Mostrá este QR en la barra y te sumamos los sellos.</span><a class="btn sm" href="${Tarjetas.link(miToken)}">Abrir mi tarjeta</a></div></div>
       ${selloHTML(c.sellos)}
-      ${c.gratis ? `<p><b>🎁 Tenés ${c.gratis} bebida${c.gratis === 1 ? "" : "s"} gratis.</b> Mostrá tu QR en la barra para canjear${c.gratis === 1 ? "la" : "las"}.</p>` : ""}
+      ${c.gratis ? `<p><b>Tenés ${c.gratis} bebida${c.gratis === 1 ? "" : "s"} gratis.</b> Mostrá tu QR en la barra para canjear${c.gratis === 1 ? "la" : "las"}.</p>` : ""}
       ${statsHTML(c)}`;
     dibujarQR($("#qr"), Tarjetas.link(miToken));
   }, fallo).then(u => miUnsub = u).catch(fallo);
@@ -521,8 +521,8 @@ function vistaReclamo() {
   if (rcl.no) return `<p class="nota">Nadie ha reclamado la orden <b>#${esc(rcl.orden)}</b> todavía. Si el cliente te escribe, buscalo por cédula y sumale el sello ahí.</p>`;
   const fecha = rcl.creado && rcl.creado.toDate ? rcl.creado.toDate().toLocaleString("es-CR", {dateStyle: "short", timeStyle: "short"}) : "";
   let h = `<div class="ficha" style="margin-top:4px"><div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><b>${esc(rcl.nombre)}</b><span class="nota">Orden #${esc(rcl.orden)}${fecha ? " · " + fecha : ""}</span></div>`;
-  if (rcl.estado === "aprobado") h += `<p>✅ Ya se aprobó: se le sumaron <b>${rcl.sellos} sello${rcl.sellos === 1 ? "" : "s"}</b>.</p>`;
-  else if (rcl.estado === "rechazado") h += `<p>❌ Esta orden se rechazó.</p>`;
+  if (rcl.estado === "aprobado") h += `<p>Ya se aprobó: se le sumaron <b>${rcl.sellos} sello${rcl.sellos === 1 ? "" : "s"}</b>.</p>`;
+  else if (rcl.estado === "rechazado") h += `<p>Esta orden se rechazó.</p>`;
   else h += `<span class="nota">Revisá en la tablet que la orden sea de verdad. ¿Cuántas bebidas trae?</span>
     <div class="ajuste"><div class="cant"><button type="button" data-rcln="-1" aria-label="Uno menos" ${rclN <= 1 ? "disabled" : ""}>−</button><b>${rclN}</b><button type="button" data-rcln="1" aria-label="Uno más" ${rclN >= 20 ? "disabled" : ""}>+</button></div><span>sello${rclN === 1 ? "" : "s"}</span></div>
     <div class="fila-btn"><button class="btn pri" type="button" data-aprobar ${cliOcupado ? "disabled" : ""}>Aprobar y sumar ${rclN} sello${rclN === 1 ? "" : "s"}</button>
@@ -542,9 +542,9 @@ function vistaPedidos() {
   let h = `<p class="nota" style="margin-top:12px">Aquí llegan los pedidos de Uber Eats, DiDi o Rappi que los clientes mandaron para sumar sello. Revisá en la tablet que la orden sea real y aprobala.</p>`;
   if (rcl && rcl !== "cargando") h += `<div class="grupo">${vistaReclamo()}<div><button class="btn sm" type="button" data-cerrar-rcl>Volver a la lista</button></div></div>`;
   else if (rcl === "cargando") h += `<p class="nota">Abriendo…</p>`;
-  h += `<div class="grupo"><b>${pendientes.length ? `⏳ Pendientes (${pendientes.length})` : "Pendientes"}</b>
+  h += `<div class="grupo"><b>${pendientes.length ? `Pendientes (${pendientes.length})` : "Pendientes"}</b>
     ${pendError ? `<p class="nota">${Tarjetas.prueba ? "No se pudo cargar la lista. Revisá la conexión." : "No se pudo cargar la lista. Revisá la conexión."}</p>`
-    : !pendientes.length ? `<p class="nota">✅ No hay pedidos esperando sello. Cuando un cliente mande su número de orden, te aparece aquí.</p>`
+    : !pendientes.length ? `<p class="nota">No hay pedidos esperando sello. Cuando un cliente mande su número de orden, te aparece aquí.</p>`
     : `<div class="pend">${pendientes.map(p => `<button type="button" data-rcl="${esc(p.id)}" class="${rcl && rcl.id === p.id ? "sel" : ""}"><span class="app">${nombreApp(p.app)}</span><b>#${esc(p.orden)}</b><span>${esc(p.nombre)}</span><small>${haceCuanto(p.creado)}</small></button>`).join("")}</div>`}</div>`;
   h += `<div class="grupo dom"><b>Buscar una orden</b>
       <span class="nota">Si el cliente te dice su número, buscalo aquí aunque ya no esté en la lista.</span>
@@ -561,7 +561,7 @@ function escucharPedidos() {
   Tarjetas.escucharPendientes(lista => {
     const nuevos = lista.filter(p => !pendientes.some(q => q.id === p.id));
     pendientes = lista; pendError = false;
-    if (!pendPrimera && nuevos.length) { aviso(`🛵 Nuevo pedido para sellar: ${nuevos[0].nombre} · ${nombreApp(nuevos[0].app)} #${nuevos[0].orden}`); if (navigator.vibrate) navigator.vibrate([80, 60, 80]); }
+    if (!pendPrimera && nuevos.length) { aviso(`Nuevo pedido para sellar: ${nuevos[0].nombre} · ${nombreApp(nuevos[0].app)} #${nuevos[0].orden}`); if (navigator.vibrate) navigator.vibrate([80, 60, 80]); }
     pendPrimera = false; pintarAvisoPedidos();
     if (panelAbierto() && !camStream) { const sc = $("#hoja").scrollTop; pintarAdmin(); $("#hoja").scrollTop = sc; }
   }, () => { pendError = true; pintarAvisoPedidos(); }).then(u => pendUnsub = u).catch(() => { pendError = true; pendUnsub = null; });
@@ -570,26 +570,26 @@ function escucharPedidos() {
 const panelAbierto = () => admin && $("#hoja").classList.contains("on") && ($("#hojaT") || {}).textContent === "Administrar menú";
 function pintarAvisoPedidos() {
   const n = admin ? pendientes.length : 0, el = $("#avisoPed");
-  el.hidden = !n; el.innerHTML = `🛵 <b>${n}</b> pedido${n === 1 ? "" : "s"} esperando sello`;
-  $("#abrirAdmin").innerHTML = `🔒 Administrar menú${n ? ` <span class="badge">${n}</span>` : ""}`;
+  el.hidden = !n; el.innerHTML = `<b>${n}</b> pedido${n === 1 ? "" : "s"} esperando sello`;
+  $("#abrirAdmin").innerHTML = `Administrar menú${n ? ` <span class="badge">${n}</span>` : ""}`;
 }
 function vistaSellos() {
-  let h = `<div class="fila-btn"><button class="btn pri" type="button" data-escanear>📷 Escanear QR</button></div>
+  let h = `<div class="fila-btn"><button class="btn pri" type="button" data-escanear>Escanear QR</button></div>
     <div class="grupo"><label class="c">Buscar por cédula<input id="sCed" inputmode="numeric" maxlength="15" placeholder="Ej.: 1 1234 5678"></label>
       <div><button class="btn sm" type="button" data-buscar>Buscar</button></div></div>
     ${cliMsg ? `<p class="err" role="alert">${esc(cliMsg)}</p>` : ""}`;
   if (cli && cli.cargando) h += `<div class="ficha"><span class="nota">Cargando tarjeta…</span></div>`;
   else if (cli) {
     const suma = cli.sellos + cliPend, ganaria = Math.floor(suma / 10);
-    h += `<div class="ficha"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><b style="font-size:19px">${esc(cli.nombre)}</b><span class="nota">Cédula ****${esc(cli.ced4)}${cli.correo ? ` · ✉️ ${esc(cli.correo)}` : ""}</span></div>
+    h += `<div class="ficha"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><b style="font-size:19px">${esc(cli.nombre)}</b><span class="nota">Cédula ****${esc(cli.ced4)}${cli.correo ? ` · ${esc(cli.correo)}` : ""}</span></div>
       ${statsHTML(cli, true)}
-      ${cli.gratis ? `<div class="grupo" style="border:2px solid var(--fucsia);border-radius:14px;padding:12px;background:var(--rosa)"><b>🎁 Canjear bebidas gratis</b>
+      ${cli.gratis ? `<div class="grupo" style="border:2px solid var(--fucsia);border-radius:14px;padding:12px;background:var(--rosa)"><b>Canjear bebidas gratis</b>
         <div class="ajuste"><div class="cant"><button type="button" data-canje="-1" aria-label="Una menos" ${cliCanje <= 1 ? "disabled" : ""}>−</button><b>${cliCanje}</b><button type="button" data-canje="1" aria-label="Una más" ${cliCanje >= cli.gratis ? "disabled" : ""}>+</button></div>
           <span>de ${cli.gratis} disponible${cli.gratis === 1 ? "" : "s"}</span></div>
         <div><button class="btn pri" type="button" data-canjear ${cliOcupado ? "disabled" : ""}>Canjear ${cliCanje} gratis</button></div></div>` : ""}
       <b style="font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--suave)">Sumar sellos · lleva ${cli.sellos} de 10</b>
       ${selloHTML(cli.sellos, cliPend)}
-      ${ganaria ? `<p class="nota" style="color:var(--fucsia2)">🎉 Con estos sellos gana <b>${ganaria} bebida${ganaria === 1 ? "" : "s"} gratis</b> y la tarjeta queda en ${suma % 10} de 10.</p>` : ""}
+      ${ganaria ? `<p class="nota" style="color:var(--fucsia2)">Con estos sellos gana <b>${ganaria} bebida${ganaria === 1 ? "" : "s"} gratis</b> y la tarjeta queda en ${suma % 10} de 10.</p>` : ""}
       ${`<div class="ajuste"><div class="cant"><button type="button" data-pend="-1" aria-label="Quitar uno" ${cliPend <= 0 ? "disabled" : ""}>−</button><b>${cliPend}</b><button type="button" data-pend="1" aria-label="Agregar uno" ${cliPend >= 30 ? "disabled" : ""}>+</button></div>
           <span>sello${cliPend === 1 ? "" : "s"} por agregar</span></div>
         <button class="btn pri" type="button" data-guardar-sellos ${cliPend < 1 || cliOcupado ? "disabled" : ""}>${cliPend ? `Guardar ${cliPend} sello${cliPend === 1 ? "" : "s"}` : "Elegí cuántos sellos agregar"}</button>
@@ -597,7 +597,7 @@ function vistaSellos() {
       <div class="fila-btn"><button class="btn sm" type="button" data-cerrar-ficha>Listo, otro cliente</button></div></div>`;
   }
   if (cliNuevo) {
-    const msj = `¡Hola ${cliNuevo.nombre.split(" ")[0]}! 💚 Esta es tu tarjeta de sellos de ${D.negocio.nombre}. Abrila y guardala en tu pantalla de inicio:\n${Tarjetas.link(cliNuevo.token)}${cliNuevo.pin ? `\n\nTambién podés entrar con tu usuario:\nCédula: ${cliNuevo.ced}\nClave: ${cliNuevo.pin}` : ""}`;
+    const msj = `¡Hola ${cliNuevo.nombre.split(" ")[0]}! Esta es tu tarjeta de sellos de ${D.negocio.nombre}. Abrila y guardala en tu pantalla de inicio:\n${Tarjetas.link(cliNuevo.token)}${cliNuevo.pin ? `\n\nTambién podés entrar con tu usuario:\nCédula: ${cliNuevo.ced}\nClave: ${cliNuevo.pin}` : ""}`;
     h += `<div class="grupo"><b>${cliNuevo.existia ? "Esa cédula ya tenía tarjeta" : "Tarjeta creada"}</b><div class="compartir"><div class="qr" id="qrNuevo"></div>
       <div style="display:grid;gap:8px"><span><b>${esc(cliNuevo.nombre)}</b> ya tiene su tarjeta.</span>
         ${cliNuevo.pin ? `<span class="nota">Usuario: <b>cédula ${esc(cliNuevo.ced)}</b> · clave <b>${esc(cliNuevo.pin)}</b></span>` : ""}
@@ -605,15 +605,15 @@ function vistaSellos() {
         <div class="fila-btn">${cliNuevo.tel ? `<a class="btn sm verde" target="_blank" rel="noopener" href="https://wa.me/506${cliNuevo.tel}?text=${encodeURIComponent(msj)}">Enviar por WhatsApp</a>` : ""}
           <button class="btn sm" type="button" data-copiar-link="${esc(Tarjetas.link(cliNuevo.token))}">Copiar link</button></div></div></div></div>`;
   }
-  h += `<div class="grupo"><b>🏆 Top 10 clientes</b>
+  h += `<div class="grupo"><b>Top 10 clientes</b>
     ${top === null ? `<div><button class="btn sm" type="button" data-top>Ver los que más sellos tienen</button></div>`
     : top === "cargando" ? `<span class="nota">Cargando…</span>`
     : top === "error" ? `<p class="nota">${Tarjetas.prueba ? "No se pudo cargar. Revisá la conexión." : "En la versión real, el top 10 solo lo ve la dueña con su acceso seguro (correo y contraseña). Probalo en el <a href='./?prueba'>modo prueba</a>."}</p>`
     : !top.length ? `<span class="nota">Todavía no hay clientes.</span>`
-    : `<div class="top10">${top.map((c, i) => `<button type="button" data-ficha="${esc(c.token)}"><span class="pos">${i + 1}</span><b>${esc(c.nombre)}</b><span class="n">${c.total} 🐾</span>
+    : `<div class="top10">${top.map((c, i) => `<button type="button" data-ficha="${esc(c.token)}"><span class="pos">${i + 1}</span><b>${esc(c.nombre)}</b><span class="n">${c.total}</span>
         <small>${c.gratis} gratis por canjear · ${c.canjes} canjeada${c.canjes === 1 ? "" : "s"} · ${c.sellos} de 10</small></button>`).join("")}</div>
       <div><button class="btn sm" type="button" data-top>Actualizar</button></div>`}</div>`;
-  if (Tarjetas.prueba) h += `<div class="grupo"><b>🧪 Base de datos de prueba</b>
+  if (Tarjetas.prueba) h += `<div class="grupo"><b>Base de datos de prueba</b>
       <p class="nota">Clientes de ejemplo para practicar o enseñar la demo. Entran en la tarjeta con su cédula y su clave.</p>
       <p class="nota">Órdenes a domicilio de prueba: ${Tarjetas.RECLAMOS_PRUEBA.map(([a, o, i]) => `<b>${(Tarjetas.APPS.find(x => x[0] === a) || [])[1]} ${o}</b> (${esc(Tarjetas.EJEMPLOS[i].nombre)})`).join(", ")}.</p>
       <div class="ejs">${Tarjetas.EJEMPLOS.map(e => `<div><span>${esc(e.nombre)} · ${e.sellos} de 10 · ${e.gratis} gratis</span><span>${e.ced} · clave ${e.pin}</span></div>`).join("")}</div>
@@ -675,7 +675,7 @@ function _pintarAdmin() {
       <p class="nota">Versión de prueba · contraseña: <b style="user-select:all">${CLAVE_DEMO}</b></p></div>`);
     return;
   }
-  const tabs = `<div class="tabs"><button type="button" data-tab="ped" aria-pressed="${tabAdm === "ped"}">🛵 Sellos pedidos${pendientes.length ? ` <span class="badge">${pendientes.length}</span>` : ""}</button><button type="button" data-tab="cli" aria-pressed="${tabAdm === "cli"}">Sellos clientes</button><button type="button" data-tab="promo" aria-pressed="${tabAdm === "promo"}">📣 Promos</button><button type="button" data-tab="prod" aria-pressed="${tabAdm === "prod"}">Productos</button><button type="button" data-tab="neg" aria-pressed="${tabAdm === "neg"}">Negocio</button></div>`;
+  const tabs = `<div class="tabs"><button type="button" data-tab="ped" aria-pressed="${tabAdm === "ped"}">Sellos pedidos${pendientes.length ? ` <span class="badge">${pendientes.length}</span>` : ""}</button><button type="button" data-tab="cli" aria-pressed="${tabAdm === "cli"}">Sellos clientes</button><button type="button" data-tab="promo" aria-pressed="${tabAdm === "promo"}">Promos</button><button type="button" data-tab="prod" aria-pressed="${tabAdm === "prod"}">Productos</button><button type="button" data-tab="neg" aria-pressed="${tabAdm === "neg"}">Negocio</button></div>`;
   let cuerpo;
   if (tabAdm === "ped") {
     cuerpo = vistaPedidos();
@@ -717,8 +717,8 @@ function _pintarAdmin() {
       <button class="btn sm" type="button" data-reset>Volver a los datos de ejemplo</button></div>`;
   }
   abrirHoja(`<div class="asa"></div><button class="x" type="button" data-cerrar aria-label="Cerrar">×</button>
-    <h2 id="hojaT">Administrar menú</h2><p class="nota">${tabAdm === "cli" || tabAdm === "ped" || tabAdm === "promo" ? (Tarjetas.prueba ? "🧪 Estás en el <b>modo prueba</b>: nada de esto toca los clientes reales." : "Las tarjetas se guardan en la nube: el cliente ve sus sellos al instante.") : "En la demo, los cambios del menú se guardan solo en este celular."}
-      <a href="${Tarjetas.prueba ? "./" : "./?prueba"}">${Tarjetas.prueba ? "Volver a los datos reales" : "🧪 Abrir modo prueba"}</a> <button type="button" data-salir style="border:0;background:none;color:var(--fucsia2);text-decoration:underline;cursor:pointer">Salir</button></p>${tabs}${cuerpo}`);
+    <h2 id="hojaT">Administrar menú</h2><p class="nota">${tabAdm === "cli" || tabAdm === "ped" || tabAdm === "promo" ? (Tarjetas.prueba ? "Estás en el <b>modo prueba</b>: nada de esto toca los clientes reales." : "Las tarjetas se guardan en la nube: el cliente ve sus sellos al instante.") : "En la demo, los cambios del menú se guardan solo en este celular."}
+      <a href="${Tarjetas.prueba ? "./" : "./?prueba"}">${Tarjetas.prueba ? "Volver a los datos reales" : "Abrir modo prueba"}</a> <button type="button" data-salir style="border:0;background:none;color:var(--fucsia2);text-decoration:underline;cursor:pointer">Salir</button></p>${tabs}${cuerpo}`);
 }
 
 /* ===== Acciones ===== */
@@ -742,7 +742,7 @@ document.addEventListener("click", async e => {
     if (nom.length < 2) { $("#pErr").textContent = "Escribí tu nombre para llamarte cuando esté listo."; $("#pNom").focus(); return; }
     lsSet("mm-nombre", nom);
     const total = pedido.reduce((a, it) => a + it.total, 0);
-    const lineas = [`Hola ${D.negocio.nombre} 💚 quiero pedir para recoger:`, ...pedido.map(it => `• ${it.cant} × ${it.nombre}${detalle(it) ? ` (${detalle(it)})` : ""} — ${crc(it.total)}`),
+    const lineas = [`Hola ${D.negocio.nombre} quiero pedir para recoger:`, ...pedido.map(it => `• ${it.cant} × ${it.nombre}${detalle(it) ? ` (${detalle(it)})` : ""} — ${crc(it.total)}`),
       `Total: ${crc(total)}`, `A nombre de: ${nom}`, `Paso a las: ${$("#pHora").value}`];
     if ($("#pNota").value.trim()) lineas.push(`Nota: ${$("#pNota").value.trim()}`);
     const url = `https://wa.me/${String(D.negocio.whatsapp).replace(/\D/g, "")}?text=${encodeURIComponent(lineas.join("\n"))}`;
@@ -773,7 +773,7 @@ document.addEventListener("click", async e => {
   if (b.hasAttribute("data-aprobar") || b.hasAttribute("data-rechazar")) {
     if (!rcl || !rcl.id) return; const aprobar = b.hasAttribute("data-aprobar"), id = rcl.id; cliOcupado = true; pintarAdmin();
     try {
-      if (aprobar) { const r = await Tarjetas.aprobarReclamo(id, rclN); aviso(r.ganados ? `🎉 ${r.nombre} ganó ${r.ganados} bebida${r.ganados === 1 ? "" : "s"} gratis. Tarjeta en ${r.sellos} de 10.` : `Listo: ${rclN} sello${rclN === 1 ? "" : "s"} para ${r.nombre} (${r.sellos} de 10)`); }
+      if (aprobar) { const r = await Tarjetas.aprobarReclamo(id, rclN); aviso(r.ganados ? `${r.nombre} ganó ${r.ganados} bebida${r.ganados === 1 ? "" : "s"} gratis. Tarjeta en ${r.sellos} de 10.` : `Listo: ${rclN} sello${rclN === 1 ? "" : "s"} para ${r.nombre} (${r.sellos} de 10)`); }
       else { await Tarjetas.rechazarReclamo(id); aviso("Orden rechazada"); }
       rcl = tabAdm === "ped" ? null : await Tarjetas.verReclamo(id);
     } catch (x) { aviso(x.message === "ya-revisada" ? "Esa orden ya se había revisado." : "No se pudo. Revisá la conexión."); }
@@ -791,7 +791,7 @@ document.addEventListener("click", async e => {
   if (b.dataset.pend) { cliPend = Math.max(0, Math.min(30, cliPend + +b.dataset.pend)); const sc = $("#hoja").scrollTop; pintarAdmin(); $("#hoja").scrollTop = sc; return; }
   if (b.hasAttribute("data-guardar-sellos")) {
     if (!cli || cliPend < 1) return; const n = cliPend, nombre = cli.nombre, token = cli.token; cliOcupado = true; pintarAdmin();
-    try { const r = await Tarjetas.sumar(token, n); cliPend = 0; aviso(r.ganados ? `🎉 ${nombre} ganó ${r.ganados} bebida${r.ganados === 1 ? "" : "s"} gratis. Tarjeta en ${r.sellos} de 10.` : `Listo: ${n} sello${n === 1 ? "" : "s"} para ${nombre} (${r.sellos} de 10)`); }
+    try { const r = await Tarjetas.sumar(token, n); cliPend = 0; aviso(r.ganados ? `${nombre} ganó ${r.ganados} bebida${r.ganados === 1 ? "" : "s"} gratis. Tarjeta en ${r.sellos} de 10.` : `Listo: ${n} sello${n === 1 ? "" : "s"} para ${nombre} (${r.sellos} de 10)`); }
     catch { aviso("No se pudo guardar. Revisá la conexión e intentá de nuevo."); }
     cliOcupado = false; pintarAdmin(); return;
   }
@@ -827,7 +827,7 @@ document.addEventListener("click", async e => {
     const titulo = $("#pTit").value.trim(), texto = $("#pTxt").value.trim(), producto = $("#pProd").value, dias = [...document.querySelectorAll("[data-pdia]:checked")].map(x => +x.dataset.pdia);
     if (titulo.length < 2) { $("#pErr").textContent = "Escribí un título para la promo."; $("#pTit").focus(); return; }
     promoOcupado = true; b.disabled = true;
-    try { await Tarjetas.publicarPromo({titulo, texto, producto, dias}); promoOcupado = false; pintarAdmin(); aviso("📣 Promo publicada: ya les llega a los clientes"); }
+    try { await Tarjetas.publicarPromo({titulo, texto, producto, dias}); promoOcupado = false; pintarAdmin(); aviso("Promo publicada: ya les llega a los clientes"); }
     catch { promoOcupado = false; b.disabled = false; $("#pErr").textContent = Tarjetas.prueba ? "No se pudo publicar. Revisá la conexión." : "Con clientes reales, solo la dueña con su acceso seguro puede publicar promos."; }
     return;
   }

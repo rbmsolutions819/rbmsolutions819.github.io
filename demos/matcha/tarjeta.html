@@ -16,7 +16,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Shrikhand&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
-<style>
+<style>svg.i{width:1em;height:1em;vertical-align:-.14em;flex:none;display:inline-block}
 /* La tarjeta del cliente: se ve como una tarjeta física de sellos, con el QR arriba y los sellos abajo. Se actualiza sola. */
 :root{
   --fondo:#d6246e; --tarjeta:#fff6fa; --rosa:#fbe3ee; --rosa2:#f6c4d9; --fucsia:#d6246e; --fucsia2:#b0185a; --matcha:#7aa33b;
@@ -103,7 +103,7 @@ details.clave .form{margin-top:10px}
   <p class="nota" id="carga">Cargando tu tarjeta…</p>
 </main>
 <div class="toast" id="toast" role="status"></div>
-<div class="prueba" id="bPrueba" hidden>🧪 Modo prueba · datos de ejemplo</div>
+<div class="prueba" id="bPrueba" hidden>Modo prueba · datos de ejemplo</div>
 
 <script src="qrcode.min.js"></script>
 <script src="tarjetas.js"></script>
@@ -137,7 +137,7 @@ function pintarIngreso() {
       <p class="err" id="iErr"></p>
       <button class="btn pri" type="submit" id="iBtn">Ver mis sellos</button>
     </form>
-    <div class="ejemplo"><b>🧪 Usuarios de prueba</b> · tocá uno para entrar
+    <div class="ejemplo"><b>Usuarios de prueba</b> · tocá uno para entrar
       <div class="ejs">${Tarjetas.EJEMPLOS.slice(0, 5).map((e, i) => `<button type="button" data-ej="${i}"><span><b>${esc(e.nombre)}</b> · ${e.sellos} de 10${e.gratis ? ` · ${e.gratis} gratis` : ""}</span><small>cédula ${e.ced} · clave ${e.pin}</small></button>`).join("")}</div></div>
     <p class="nota">¿No tenés clave? Pedila en la barra, o abrí el link que te mandamos por WhatsApp y creala desde ahí.</p>
     <a class="btn" href="${Tarjetas.url('./')}">Ver el menú</a>`;
@@ -191,19 +191,19 @@ function avisar(titulo, cuerpo = "") {
 const haceRato = f => { const m = Math.round((Date.now() - f) / 60000); return m < 1 ? "recién" : m < 60 ? `hace ${m} min` : m < 1440 ? `hace ${Math.floor(m / 60)} h` : new Date(f).toLocaleDateString("es-CR", {day: "numeric", month: "short"}); };
 function pintarAvisos() {
   const el = $("#avisosC"); if (!el) return;
-  el.innerHTML = misAvisos.length ? `<details><summary><b>🔔 Mis avisos (${misAvisos.length})</b></summary><ul class="lista-av" style="margin-top:8px">${misAvisos.map(a => `<li><b>${esc(a.titulo)}</b>${a.cuerpo ? `<span>${esc(a.cuerpo)}</span>` : ""}<small>${haceRato(a.f)}</small></li>`).join("")}</ul></details>` : "";
+  el.innerHTML = misAvisos.length ? `<details><summary><b>Mis avisos (${misAvisos.length})</b></summary><ul class="lista-av" style="margin-top:8px">${misAvisos.map(a => `<li><b>${esc(a.titulo)}</b>${a.cuerpo ? `<span>${esc(a.cuerpo)}</span>` : ""}<small>${haceRato(a.f)}</small></li>`).join("")}</ul></details>` : "";
   el.hidden = !misAvisos.length;
 }
 function pintarNotif() {
   const el = $("#notifC"); if (!el) return;
   const iOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
   if (!("Notification" in window)) { el.innerHTML = `<span class="nota">${iOS ? "En iPhone, agregá esta página a tu pantalla de inicio para recibir avisos." : "En este navegador los avisos salen dentro de la página."}</span>`; return; }
-  if (Notification.permission === "granted") { el.innerHTML = `<span class="ok">🔔 Avisos activados</span><span class="nota">Te avisamos de sellos, gratis y promos.</span>`; return; }
+  if (Notification.permission === "granted") { el.innerHTML = `<span class="ok">Avisos activados</span><span class="nota">Te avisamos de sellos, gratis y promos.</span>`; return; }
   if (Notification.permission === "denied") { el.innerHTML = `<span class="nota">Los avisos están bloqueados. Activalos en los permisos del navegador para esta página.</span>`; return; }
-  el.innerHTML = `<span>¿Querés que te avisemos de tus sellos y promos?</span><button class="btn pri" type="button" id="activarAv">🔔 Activar avisos</button>`;
+  el.innerHTML = `<span>¿Querés que te avisemos de tus sellos y promos?</span><button class="btn pri" type="button" id="activarAv">Activar avisos</button>`;
   $("#activarAv").addEventListener("click", async () => {
     try { await Notification.requestPermission(); } catch {}
-    pintarNotif(); if (puedeNotificar()) avisar("¡Listo! Avisos activados 🔔", "Te vamos a avisar cuando sumés sellos, ganés gratis o haya promos.");
+    pintarNotif(); if (puedeNotificar()) avisar("¡Listo! Avisos activados", "Te vamos a avisar cuando sumés sellos, ganés gratis o haya promos.");
   });
 }
 // Promociones: las de una vez se avisan al salir; las que se repiten, cada día que les toca.
@@ -216,7 +216,7 @@ function pintarPromos() {
   const el = $("#promosC"); if (!el) return;
   const hoy = ahoraCR().getUTCDay();
   el.hidden = !promos.length;
-  el.innerHTML = `<b>📣 Promociones</b>` + promos.map(p => { const rep = p.dias && p.dias.length, esHoy = rep && p.dias.includes(hoy);
+  el.innerHTML = `<b>Promociones</b>` + promos.map(p => { const rep = p.dias && p.dias.length, esHoy = rep && p.dias.includes(hoy);
     return `<div class="promoC${esHoy || !rep ? " hoy" : ""}"><b>${esc(p.titulo)}${p.producto ? ` · ${esc(p.producto)}` : ""}</b>${p.texto ? `<span>${esc(p.texto)}</span>` : ""}<small>${rep ? textoDias(p.dias) + (esHoy ? " · ¡Hoy!" : "") : "Nueva"}</small></div>`; }).join("");
 }
 function iniciarPromos() {
@@ -228,7 +228,7 @@ function iniciarPromos() {
       if (clave && !vistas.includes(clave)) { nuevas.push(p); vistas.push(clave); }
     }
     lsSet(KEY_VISTAS, vistas.slice(-80));
-    nuevas.slice(0, 3).forEach(p => avisar("📣 " + p.titulo, [p.producto, p.texto].filter(Boolean).join(" · ")));
+    nuevas.slice(0, 3).forEach(p => avisar("" + p.titulo, [p.producto, p.texto].filter(Boolean).join(" · ")));
   }).catch(() => {});
 }
 let antes = null, abiertoDom = false;
@@ -239,7 +239,7 @@ async function pintarMisPedidos() {
   const nombreApp = k => (Tarjetas.APPS.find(a => a[0] === k) || [k, k])[1];
   const lista = await Promise.all(misPedidos.map(id => Tarjetas.verReclamo(id).catch(() => null)));
   el.innerHTML = `<b style="font-size:13px;color:var(--suave)">Mis pedidos a domicilio</b>` + lista.filter(Boolean).map(r => `<div><span>${nombreApp(r.app)} · #${esc(r.orden)}</span>${
-    r.estado === "aprobado" ? `<span class="ok">✅ +${r.sellos} sello${r.sellos === 1 ? "" : "s"}</span>` : r.estado === "rechazado" ? `<span class="no">No se pudo confirmar</span>` : `<span class="esp">⏳ Esperando confirmación</span>`}</div>`).join("");
+    r.estado === "aprobado" ? `<span class="ok">+${r.sellos} sello${r.sellos === 1 ? "" : "s"}</span>` : r.estado === "rechazado" ? `<span class="no">No se pudo confirmar</span>` : `<span class="esp">Esperando confirmación</span>`}</div>`).join("");
 }
 function pintar(c) {
   if (!c) {
@@ -251,7 +251,7 @@ function pintar(c) {
   const ganó = prev && g > prev.gratis, canjeó = prev && c.canjes > prev.canjes;
   const sellos = Array.from({length: 10}, (_, i) => {
     const cls = (i < s ? "si" : i === 9 ? "gratis" : "") + (sube && i < s && (ganó || i >= prev.sellos) ? " nuevo" : "");
-    return `<i class="${cls}">${i < s ? "🐾" : i === 9 ? "GRATIS" : ""}</i>`;
+    return `<i class="${cls}">${i < s ? "<svg class='i' width='1em' height='1em' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><circle cx='11' cy='4' r='2'/><circle cx='18' cy='8' r='2'/><circle cx='20' cy='16' r='2'/><path d='M9 10a5 5 0 0 1 5 5v3.5a3.5 3.5 0 0 1-6.84 1.05Q6.52 17.48 4.46 16.84A3.5 3.5 0 0 1 5.5 10Z'/></svg>" : i === 9 ? "GRATIS" : ""}</i>`;
   }).join("");
   const pasos = esIOS ? `<li>Tocá <b>Compartir</b> (el cuadro con la flecha).</li><li>Tocá <b>Agregar a inicio</b>.</li>` : `<li>Tocá el menú <b>⋮</b> del navegador.</li><li>Tocá <b>Agregar a pantalla principal</b>.</li>`;
   t.innerHTML = `<img class="logo" src="logo.png" alt="" width="104" height="104"><div class="marca">Matcha Mía</div><div class="sub">Tarjeta de sellos</div>
@@ -259,27 +259,27 @@ function pintar(c) {
     <div class="qr" id="qr" aria-label="Tu código QR"></div>
     <p class="nota">Mostrá este QR en la barra para sumar sellos.</p>
     <div class="sellos" aria-label="${s} de 10 sellos">${sellos}</div>
-    ${g ? `<div class="premio">🎁 <b>¡Tenés ${g} bebida${g === 1 ? "" : "s"} gratis!</b><br><span class="nota">Mostrá tu QR en la barra para canjear${g === 1 ? "la" : "las"}.</span></div>` : ""}
+    ${g ? `<div class="premio"><b>¡Tenés ${g} bebida${g === 1 ? "" : "s"} gratis!</b><br><span class="nota">Mostrá tu QR en la barra para canjear${g === 1 ? "la" : "las"}.</span></div>` : ""}
     <p class="estado">Llevás <b>${s} de 10</b>. Te falta${10 - s === 1 ? "" : "n"} ${10 - s} para tu próxima bebida gratis.</p>
     <div class="stats">
-      <div class="dest"><b>${g}</b><span>🎁 Gratis disponible${g === 1 ? "" : "s"}</span></div>
+      <div class="dest"><b>${g}</b><span>Gratis disponible${g === 1 ? "" : "s"}</span></div>
       <div><b>${10 - s}</b><span>Sello${10 - s === 1 ? "" : "s"} para la próxima</span></div>
-      <div><b>${c.total}</b><span>🐾 Sellos acumulados</span></div>
-      <div><b>${c.canjes}</b><span>✅ Gratis canjeado${c.canjes === 1 ? "" : "s"}</span></div>
+      <div><b>${c.total}</b><span>Sellos acumulados</span></div>
+      <div><b>${c.canjes}</b><span>Gratis canjeado${c.canjes === 1 ? "" : "s"}</span></div>
     </div>
     <div class="bloque" id="promosC" hidden></div>
     <div class="bloque notif" id="notifC"></div>
     <span class="vivo"><i></i>Se actualiza sola</span>
     ${instalada() ? "" : `<div class="guardar"><b>Guardala en tu celular</b><span>Así la abrís como una app, sin buscar el link:</span><ol>${pasos}</ol></div>`}
     <div class="links"><a class="btn" href="${Tarjetas.url('./')}">Ver el menú</a></div>
-    ${esEjemplo ? `<p class="nota">Esta es una tarjeta de ejemplo para ver cómo funciona.</p>` : `<details class="clave"><summary>🔑 Crear mi usuario y clave</summary>
+    ${esEjemplo ? `<p class="nota">Esta es una tarjeta de ejemplo para ver cómo funciona.</p>` : `<details class="clave"><summary>Crear mi usuario y clave</summary>
       <form class="form" id="fClave" novalidate>
         <span class="nota">Así podés entrar desde cualquier celular con tu cédula y tu clave.</span>
         <label>Tu cédula<input id="cCed" inputmode="numeric" autocomplete="username" maxlength="15" placeholder="Ej.: 1 1234 5678"></label>
         <label>Elegí una clave de 4 dígitos<input id="cPin" type="password" inputmode="numeric" autocomplete="new-password" maxlength="4" placeholder="••••"></label>
         <p class="err" id="cErr"></p><button class="btn pri" type="submit">Guardar mi clave</button>
       </form></details>`}
-    ${esEjemplo ? "" : `<details class="clave" id="dDom"${abiertoDom ? " open" : ""}><summary>🛵 ¿Pediste por Uber Eats o DiDi? Sumá tu sello</summary>
+    ${esEjemplo ? "" : `<details class="clave" id="dDom"${abiertoDom ? " open" : ""}><summary>¿Pediste por Uber Eats o DiDi? Sumá tu sello</summary>
       <form class="form" id="fDom" novalidate>
         <span class="nota">Escribí el número de orden que te da la app. Cuando Matcha Mía lo confirme, el sello aparece aquí solito.</span>
         <label>¿Por cuál app pediste?<select id="dApp">${Tarjetas.APPS.map(([k, n]) => `<option value="${k}">${n}</option>`).join("")}</select></label>
@@ -288,7 +288,7 @@ function pintar(c) {
       </form>
       <div class="misPed" id="misPed"></div></details>`}
     <div class="bloque" id="avisosC" hidden></div>
-    ${esEjemplo ? "" : `<details class="clave" id="dMail"><summary>✉️ ${c.correo ? "Mi correo: " + esc(c.correo) : "Agregar mi correo"}</summary>
+    ${esEjemplo ? "" : `<details class="clave" id="dMail"><summary>${c.correo ? "Mi correo: " + esc(c.correo) : "Agregar mi correo"}</summary>
       <form class="form" id="fMail" novalidate><span class="nota">Para mandarte promos y novedades. No lo compartimos con nadie.</span>
         <label>Correo electrónico<input id="mCorreo" type="email" autocomplete="email" maxlength="100" placeholder="tu@correo.com" value="${esc(c.correo || "")}"></label>
         <p class="err" id="mErr"></p><button class="btn pri" type="submit">Guardar correo</button></form></details>`}
@@ -307,7 +307,7 @@ function pintar(c) {
       try {
         const id = await Tarjetas.reclamar(token, c.nombre, app, orden);
         misPedidos = [id, ...misPedidos.filter(x => x !== id)].slice(0, 20); lsSet(KEY_PED, misPedidos);
-        $("#dOrden").value = ""; aviso("¡Listo! Te avisamos cuando se confirme 🛵"); pintarMisPedidos();
+        $("#dOrden").value = ""; aviso("¡Listo! Te avisamos cuando se confirme"); pintarMisPedidos();
       } catch (x) { err.textContent = x.message === "ya-reclamada" ? "Esa orden ya fue reclamada." : x.message === "orden" ? "Revisá el número de orden." : "No se pudo enviar. Revisá tu conexión."; }
       btn.disabled = false;
     });
@@ -318,7 +318,7 @@ function pintar(c) {
     e.preventDefault(); const v = $("#mCorreo").value.trim(), err = $("#mErr");
     if (v && !Tarjetas.limpiarCorreo(v)) { err.textContent = "Revisá el correo."; return; }
     err.textContent = "";
-    try { await Tarjetas.guardarCorreo(token, v); aviso(v ? "Correo guardado ✉️" : "Correo borrado"); } catch { err.textContent = "No se pudo guardar. Revisá tu conexión."; }
+    try { await Tarjetas.guardarCorreo(token, v); aviso(v ? "Correo guardado" : "Correo borrado"); } catch { err.textContent = "No se pudo guardar. Revisá tu conexión."; }
   });
   $("#salir").addEventListener("click", () => { lsSet(Tarjetas.KEY, null); location.replace(Tarjetas.url("tarjeta.html#ingresar")); location.reload(); });
   const fc = $("#fClave");
@@ -328,14 +328,14 @@ function pintar(c) {
     if (ced.length < 9) { err.textContent = "Escribí tu cédula completa."; return; }
     if (pin.length !== 4) { err.textContent = "La clave debe tener 4 dígitos."; return; }
     err.textContent = "";
-    try { await Tarjetas.crearAcceso(token, ced, pin); fc.closest("details").outerHTML = `<p class="nota">✅ Listo. Ya podés entrar con tu cédula y tu clave.</p>`; aviso("Clave guardada"); }
+    try { await Tarjetas.crearAcceso(token, ced, pin); fc.closest("details").outerHTML = `<p class="nota">Listo. Ya podés entrar con tu cédula y tu clave.</p>`; aviso("Clave guardada"); }
     catch (x) { err.textContent = x.message === "cedula" ? "Esa cédula no es la de esta tarjeta." : "No se pudo guardar. Revisá tu conexión."; }
   });
   try { new QRCode($("#qr"), {text: Tarjetas.link(token), width: 240, height: 240, colorDark: "#3a1424", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.M}); }
   catch { $("#qr").innerHTML = `<p class="nota">No se pudo dibujar el QR.</p>`; }
-  if (ganó) { avisar(`🎉 ¡Ganaste ${g - prev.gratis === 1 ? "una bebida gratis" : (g - prev.gratis) + " bebidas gratis"}! Tu tarjeta empieza de cero.`); if (navigator.vibrate) navigator.vibrate([80, 50, 80, 50, 120]); }
-  else if (sube) { const n = c.total - prev.total; avisar(`¡Sumaste ${n} sello${n === 1 ? "" : "s"}! 💚`); if (navigator.vibrate) navigator.vibrate([60, 40, 60]); }
-  else if (canjeó) { const n = c.canjes - prev.canjes; avisar(`¡Disfrutá tu${n === 1 ? "" : "s"} ${n === 1 ? "bebida" : n + " bebidas"} gratis! 🍵`); }
+  if (ganó) { avisar(`¡Ganaste ${g - prev.gratis === 1 ? "una bebida gratis" : (g - prev.gratis) + " bebidas gratis"}! Tu tarjeta empieza de cero.`); if (navigator.vibrate) navigator.vibrate([80, 50, 80, 50, 120]); }
+  else if (sube) { const n = c.total - prev.total; avisar(`¡Sumaste ${n} sello${n === 1 ? "" : "s"}!`); if (navigator.vibrate) navigator.vibrate([60, 40, 60]); }
+  else if (canjeó) { const n = c.canjes - prev.canjes; avisar(`¡Disfrutá tu${n === 1 ? "" : "s"} ${n === 1 ? "bebida" : n + " bebidas"} gratis!`); }
   antes = c;
 }
 iniciarPromos();

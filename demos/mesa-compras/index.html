@@ -1,4 +1,4 @@
-<!doctype html><html lang="es"><head><meta charset=utf8><meta name="robots" content="noindex"><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html><html lang="es"><head><meta charset=utf8><meta name="robots" content="noindex"><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>svg.i{width:1em;height:1em;vertical-align:-.14em;flex:none;display:inline-block}:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>Mesa de Compras</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
@@ -197,7 +197,7 @@ function toast(msg){const t=$("toast");t.textContent=msg;t.hidden=false;clearTim
 
 $("btnCopiar").addEventListener("click",()=>{
   const c=calc();
-  const txt=`Hola ${$("cCliente").value} 👋\nCotización: ${$("cProducto").value} (${$("cTienda").value})\nPrecio: ${usd(c.precio)}\nEnvío y casillero: ${usd(c.envioUS+c.casillero)}\nImpuestos aprox.: ${usd(c.impuestos)}\nServicio: ${usd(c.comision)}\nTotal: ${crc(c.totalCRC)} (${usd(c.totalUSD)})\n\n${$("sNombre").value} · Asesora de compras · WhatsApp ${$("sWa").value}`;
+  const txt=`Hola ${$("cCliente").value}\nCotización: ${$("cProducto").value} (${$("cTienda").value})\nPrecio: ${usd(c.precio)}\nEnvío y casillero: ${usd(c.envioUS+c.casillero)}\nImpuestos aprox.: ${usd(c.impuestos)}\nServicio: ${usd(c.comision)}\nTotal: ${crc(c.totalCRC)} (${usd(c.totalUSD)})\n\n${$("sNombre").value} · Asesora de compras · WhatsApp ${$("sWa").value}`;
   const done=()=>toast("Cotización copiada");
   try{navigator.clipboard.writeText(txt).then(done,()=>fallbackCopy(txt))}catch(e){fallbackCopy(txt)}
 });

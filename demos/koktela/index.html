@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
-<style>
+<style>svg.i{width:1em;height:1em;vertical-align:-.14em;flex:none;display:inline-block}
 /* Diseño: el Olimpo de noche, con la paleta de sus publicaciones: fondo azul noche, banda morada, mármol claro, rayos lila
    y el turquesa de sus vasos. Inscripciones en mayúsculas romanas y la greca griega como borde. Cada cóctel se dibuja con el color de sus ingredientes. */
 :root{
@@ -230,7 +230,7 @@ label.c textarea{min-height:64px;resize:vertical}
 <body>
 
 <div class="demo">Demo de <b>RBM Solutions</b> · precios tomados del menú publicado; horario de ejemplo</div>
-<div class="prueba" id="bPrueba" hidden>🧪 <b>Modo prueba</b> · los clientes y sellos son de ejemplo, no son reales · <a href="./">Salir</a></div>
+<div class="prueba" id="bPrueba" hidden><b>Modo prueba</b> · los clientes y sellos son de ejemplo, no son reales · <a href="./">Salir</a></div>
 
 <div class="edad" id="edad" hidden><div>
   <h2>¿Mayor de 18?</h2><p>Para ver el menú de cócteles confirmá que sos mayor de edad.</p>
@@ -240,19 +240,19 @@ label.c textarea{min-height:64px;resize:vertical}
 
 <header class="top">
   <div class="menu-top">
-    <button type="button" class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="menuPanel" aria-label="Menú">☰</button>
+    <button type="button" class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="menuPanel" aria-label="Menú"><svg class="i" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
     <div class="menu-panel" id="menuPanel" hidden>
       <div class="menu-ceja">Menú</div>
-      <a href="#lealtad" data-menu-cerrar>⚡ Mi tarjeta de sellos</a>
-      <a href="#info" data-menu-cerrar>📍 Horario y ubicación</a>
-      <button type="button" id="abrirAdmin" class="menu-admin">🔒 Acceso administrador</button>
+      <a href="#lealtad" data-menu-cerrar>Mi tarjeta de sellos</a>
+      <a href="#info" data-menu-cerrar>Horario y ubicación</a>
+      <button type="button" id="abrirAdmin" class="menu-admin">Acceso administrador</button>
     </div>
   </div>
   <div class="greca" aria-hidden="true"></div>
   <div class="wrap">
     <h1 id="nombre" class="sr">Koktela</h1>
     <p class="lema" id="lema">El ride para llevar</p>
-    <div class="chips-info"><span id="estado">Cargando horario…</span><a href="#lealtad">⚡ Mi tarjeta</a><a href="#info">📍 La California</a><a id="ig" href="https://www.instagram.com/koktelaelride" target="_blank" rel="noopener">Instagram</a></div>
+    <div class="chips-info"><span id="estado">Cargando horario…</span><a href="#lealtad">Mi tarjeta</a><a href="#info">La California</a><a id="ig" href="https://www.instagram.com/koktelaelride" target="_blank" rel="noopener">Instagram</a></div>
   </div>
   <div class="greca" aria-hidden="true"></div>
 </header>
@@ -409,7 +409,7 @@ function colores(txt) {
   return out.sort((a, b) => a[0] - b[0]).map(o => o[1]).slice(0, 3);
 }
 function dibujo(p) {
-  if (p.kit) return `<div class="kit">HACELO<br>EN CASA<br><span style="font-size:22px">⚱</span></div>`;
+  if (p.kit) return `<div class="kit">HACELO<br>EN CASA<br><span style="font-size:22px"><svg class="i" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 22h8M12 11v11M5 3h14l-7 8z"/></svg></span></div>`;
   const cs = colores(p.desc + " " + p.nombre); if (!cs.length) cs.push("#f2e6b8");
   const fondo = cs.length === 1 ? `linear-gradient(to top, ${cs[0]}, color-mix(in srgb, ${cs[0]} 70%, #fff))`
     : `linear-gradient(to top, ${cs.map((c, i) => `${c} ${Math.round(i * 100 / cs.length)}% ${Math.round((i + 1) * 100 / cs.length)}%`).join(",")})`;
@@ -445,8 +445,8 @@ const urlRed = (tipo, v) => { v = String(v || "").trim(); if (!v) return ""; if 
   return {instagram: "https://www.instagram.com/" + v, facebook: "https://www.facebook.com/" + v, tiktok: "https://www.tiktok.com/@" + v}[tipo]; };
 function pintarRedes() {
   const r = D.negocio.redes || BASE.negocio.redes || {}, wa = String(D.negocio.whatsapp || "").replace(/\D/g, "");
-  const ls = [["instagram", "📸 Instagram"], ["facebook", "👍 Facebook"], ["tiktok", "🎵 TikTok"]].map(([k, l]) => [l, urlRed(k, r[k])]).filter(x => x[1]);
-  if (wa) ls.splice(Math.min(1, ls.length), 0, ["💬 WhatsApp", "https://wa.me/" + wa]);
+  const ls = [["instagram", "Instagram"], ["facebook", "Facebook"], ["tiktok", "TikTok"]].map(([k, l]) => [l, urlRed(k, r[k])]).filter(x => x[1]);
+  if (wa) ls.splice(Math.min(1, ls.length), 0, ["WhatsApp", "https://wa.me/" + wa]);
   $("#redes").innerHTML = ls.map(([l, u]) => `<a class="btn sm" href="${esc(u)}" target="_blank" rel="noopener">${l}</a>`).join("") || `<span class="nota">Pronto.</span>`;
   const ig = urlRed("instagram", r.instagram), chip = $("#ig"); if (chip) { if (ig) chip.href = ig; chip.hidden = !ig; }
 }
@@ -460,12 +460,12 @@ function pintarPromosNube() {
   const el = $("#promosNube"), hoy = ahoraCR().getUTCDay(), act = promosNube.filter(promoActiva);
   el.hidden = !act.length;
   el.innerHTML = act.map(p => { const rep = p.dias && p.dias.length, esHoy = rep && p.dias.includes(hoy);
-    return `<div class="pn${esHoy || !rep ? " hoy" : ""}"><span class="ic">📣</span><div><b>${esc(p.titulo)}</b>${p.texto ? `<span>${esc(p.texto)}</span>` : ""}${p.producto ? `<span class="aplica">🍹 ${esc(p.producto)}</span>` : ""}<small>${rep ? textoDias(p.dias) + (esHoy ? " · ¡Hoy!" : "") : "Nueva"}</small></div></div>`; }).join("");
+    return `<div class="pn${esHoy || !rep ? " hoy" : ""}"><span class="ic"><svg class="i" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg></span><div><b>${esc(p.titulo)}</b>${p.texto ? `<span>${esc(p.texto)}</span>` : ""}${p.producto ? `<span class="aplica">${esc(p.producto)}</span>` : ""}<small>${rep ? textoDias(p.dias) + (esHoy ? " · ¡Hoy!" : "") : "Nueva"}</small></div></div>`; }).join("");
 }
 function vistaPromos() {
   const real = !Tarjetas.prueba;
   let h = `<p class="nota" style="margin-top:12px">Publicá una promo y les llega al instante a los clientes que tengan su tarjeta abierta o guardada en el celular. Si escogés días, se les recuerda cada semana ese día.</p>`;
-  if (real) h += `<p class="nota">🔒 Con clientes reales, las promos las publica la dueña con su acceso seguro (correo y contraseña). Probalo en el <a href="./?prueba">modo prueba</a>.</p>`;
+  if (real) h += `<p class="nota">Con clientes reales, las promos las publica la dueña con su acceso seguro (correo y contraseña). Probalo en el <a href="./?prueba">modo prueba</a>.</p>`;
   h += `<div class="grupo"><b>Nueva promoción</b>
     <label class="c">Título<input id="pTit" maxlength="60" placeholder="Ej.: Miércoles de 2x1" ${real ? "disabled" : ""}></label>
     <label class="c">Detalle<textarea id="pTxt" maxlength="200" rows="2" placeholder="Ej.: Todos los miércoles, bebidas seleccionadas al 2x1." ${real ? "disabled" : ""}></textarea></label>
@@ -475,7 +475,7 @@ function vistaPromos() {
     <b style="font-size:13px;color:var(--suave);text-transform:uppercase;letter-spacing:.04em">¿Se repite cada semana?</b>
     <div class="dias">${DIAS_CORTOS.map((x, i) => `<label><input type="checkbox" data-pdia="${i}" ${real ? "disabled" : ""}> ${x}</label>`).join("")}</div>
     <span class="nota">Sin días marcados se avisa una sola vez, ahora mismo.</span>
-    <p class="err" id="pErr"></p><div><button class="btn pri" type="button" data-publicar ${promoOcupado || real ? "disabled" : ""}>📣 Publicar y avisar</button></div></div>`;
+    <p class="err" id="pErr"></p><div><button class="btn pri" type="button" data-publicar ${promoOcupado || real ? "disabled" : ""}>Publicar y avisar</button></div></div>`;
   h += `<div class="grupo"><b>Publicadas</b>${promoErr ? `<p class="nota">No se pudieron cargar. Revisá la conexión.</p>` : !promosNube.length ? `<p class="nota">Todavía no hay promociones publicadas.</p>`
     : promosNube.map(x => `<div class="cli"><span><b>${esc(x.titulo)}</b>${x.producto ? " · " + esc(x.producto) : ""}<br><small>${x.dias && x.dias.length ? "Se repite: " + x.dias.map(i => DIAS_CORTOS[i]).join(", ") : "Una vez · " + new Date(fechaPromo(x)).toLocaleDateString("es-CR", {day: "numeric", month: "short"})}</small></span>${real ? "" : `<button class="btn sm" type="button" data-quitar-promo="${esc(x.id)}">Quitar</button>`}</div>`).join("")}</div>`;
   return h;
@@ -556,15 +556,15 @@ function selloHTML(n, pend = 0) {
   return `<div class="sellos">${Array.from({length: 10}, (_, i) => {
     const lleno = i < s, nuevo = !lleno && i < s + pend;
     if (i === 9) return `<i class="${lleno ? "si" : nuevo ? "pend" : "gratis"}">${lleno || nuevo ? "★" : "GRATIS"}</i>`;
-    return `<i class="${lleno ? "si" : nuevo ? "pend" : ""}">${lleno || nuevo ? "⚡" : ""}</i>`; }).join("")}</div>`;
+    return `<i class="${lleno ? "si" : nuevo ? "pend" : ""}">${lleno || nuevo ? "<svg class='i' width='1em' height='1em' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M13 2 3 14h9l-1 8 10-12h-9l1-8z'/></svg>" : ""}</i>`; }).join("")}</div>`;
 }
 // Cuadritos con los números de la tarjeta
 function statsHTML(c, dueña) {
   return `<div class="stats">
-    <div class="dest"><b>${c.gratis}</b><span>🎁 Cóctel${c.gratis === 1 ? "" : "es"} gratis ${dueña ? "por canjear" : "disponible" + (c.gratis === 1 ? "" : "s")}</span></div>
+    <div class="dest"><b>${c.gratis}</b><span>Cóctel${c.gratis === 1 ? "" : "es"} gratis ${dueña ? "por canjear" : "disponible" + (c.gratis === 1 ? "" : "s")}</span></div>
     <div><b>${10 - c.sellos}</b><span>Sello${10 - c.sellos === 1 ? "" : "s"} para el próximo gratis</span></div>
-    <div><b>${c.total}</b><span>⚡ Sellos acumulados en total</span></div>
-    <div><b>${c.canjes}</b><span>✅ Gratis ya canjeado${c.canjes === 1 ? "" : "s"}</span></div></div>`;
+    <div><b>${c.total}</b><span>Sellos acumulados en total</span></div>
+    <div><b>${c.canjes}</b><span>Gratis ya canjeado${c.canjes === 1 ? "" : "s"}</span></div></div>`;
 }
 function dibujarQR(el, texto, tam = 220) {
   if (!el) return;
@@ -590,7 +590,7 @@ function pintarSellos() {
         <div style="display:grid;gap:6px"><span class="nota">Tarjeta de</span><span class="codigo" style="letter-spacing:0">${esc(c.nombre)}</span>
         <span class="nota">Mostrá este QR en la barra y te sumamos los sellos.</span><a class="btn sm" href="${Tarjetas.link(miToken)}">Abrir mi tarjeta</a></div></div>
       ${selloHTML(c.sellos)}
-      ${c.gratis ? `<p><b>🎁 Tenés ${c.gratis} cóctel${c.gratis === 1 ? "" : "es"} gratis.</b> Mostrá tu QR en la barra para canjear${c.gratis === 1 ? "lo" : "los"}.</p>` : ""}
+      ${c.gratis ? `<p><b>Tenés ${c.gratis} cóctel${c.gratis === 1 ? "" : "es"} gratis.</b> Mostrá tu QR en la barra para canjear${c.gratis === 1 ? "lo" : "los"}.</p>` : ""}
       ${statsHTML(c)}`;
     dibujarQR($("#qr"), Tarjetas.link(miToken));
   }, fallo).then(u => miUnsub = u).catch(fallo);
@@ -608,22 +608,22 @@ function abrirFicha(token) {
     .then(u => cliUnsub = u).catch(() => { cliMsg = "No se pudo conectar. Revisá la conexión."; cli = null; pintarAdmin(); });
 }
 function vistaSellos() {
-  let h = `<div class="fila-btn"><button class="btn pri" type="button" data-escanear>📷 Escanear QR</button></div>
+  let h = `<div class="fila-btn"><button class="btn pri" type="button" data-escanear>Escanear QR</button></div>
     <div class="grupo"><label class="c">Buscar por cédula<input id="sCed" inputmode="numeric" maxlength="15" placeholder="Ej.: 1 1234 5678"></label>
       <div><button class="btn sm" type="button" data-buscar>Buscar</button></div></div>
     ${cliMsg ? `<p class="err" role="alert">${esc(cliMsg)}</p>` : ""}`;
   if (cli && cli.cargando) h += `<div class="ficha"><span class="nota">Cargando tarjeta…</span></div>`;
   else if (cli) {
     const suma = cli.sellos + cliPend, ganaria = Math.floor(suma / 10);
-    h += `<div class="ficha"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><b style="font-size:19px">${esc(cli.nombre)}</b><span class="nota">${cli.ced4 ? `Cédula ****${esc(cli.ced4)}` : "📥 Traído de otra tarjeta · falta activar"}${cli.tel ? ` · 📱 ${esc(cli.tel)}` : ""}${cli.correo ? ` · ✉️ ${esc(cli.correo)}` : ""}</span></div>
+    h += `<div class="ficha"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><b style="font-size:19px">${esc(cli.nombre)}</b><span class="nota">${cli.ced4 ? `Cédula ****${esc(cli.ced4)}` : "Traído de otra tarjeta · falta activar"}${cli.tel ? ` · ${esc(cli.tel)}` : ""}${cli.correo ? ` · ${esc(cli.correo)}` : ""}</span></div>
       ${statsHTML(cli, true)}
-      ${cli.gratis ? `<div class="grupo" style="border:1px solid var(--oro);border-radius:8px;padding:12px"><b>🎁 Canjear cócteles gratis</b>
+      ${cli.gratis ? `<div class="grupo" style="border:1px solid var(--oro);border-radius:8px;padding:12px"><b>Canjear cócteles gratis</b>
         <div class="ajuste"><div class="cant"><button type="button" data-canje="-1" aria-label="Uno menos" ${cliCanje <= 1 ? "disabled" : ""}>−</button><b>${cliCanje}</b><button type="button" data-canje="1" aria-label="Uno más" ${cliCanje >= cli.gratis ? "disabled" : ""}>+</button></div>
           <span>de ${cli.gratis} disponible${cli.gratis === 1 ? "" : "s"}</span></div>
         <div><button class="btn pri" type="button" data-canjear ${cliOcupado ? "disabled" : ""}>Canjear ${cliCanje} gratis</button></div></div>` : ""}
       <b style="font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--suave)">Sumar sellos · lleva ${cli.sellos} de 10</b>
       ${selloHTML(cli.sellos, cliPend)}
-      ${ganaria ? `<p class="nota" style="color:var(--oro)">🎉 Con estos sellos gana <b>${ganaria} cóctel${ganaria === 1 ? "" : "es"} gratis</b> y la tarjeta queda en ${suma % 10} de 10.</p>` : ""}
+      ${ganaria ? `<p class="nota" style="color:var(--oro)">Con estos sellos gana <b>${ganaria} cóctel${ganaria === 1 ? "" : "es"} gratis</b> y la tarjeta queda en ${suma % 10} de 10.</p>` : ""}
       ${`<div class="ajuste"><div class="cant"><button type="button" data-pend="-1" aria-label="Quitar uno" ${cliPend <= 0 ? "disabled" : ""}>−</button><b>${cliPend}</b><button type="button" data-pend="1" aria-label="Agregar uno" ${cliPend >= 30 ? "disabled" : ""}>+</button></div>
           <span>sello${cliPend === 1 ? "" : "s"} por agregar</span></div>
         <button class="btn pri" type="button" data-guardar-sellos ${cliPend < 1 || cliOcupado ? "disabled" : ""}>${cliPend ? `Guardar ${cliPend} sello${cliPend === 1 ? "" : "s"}` : "Elegí cuántos sellos agregar"}</button>
@@ -631,7 +631,7 @@ function vistaSellos() {
       <div class="fila-btn"><button class="btn sm" type="button" data-cerrar-ficha>Listo, otro cliente</button></div></div>`;
   }
   if (cliNuevo) {
-    const msj = `¡Hola ${cliNuevo.nombre.split(" ")[0]}! 🏛️ Esta es tu tarjeta de sellos de ${D.negocio.nombre}. Abrila y guardala en tu pantalla de inicio:\n${Tarjetas.link(cliNuevo.token)}${cliNuevo.pin ? `\n\nTambién podés entrar con tu usuario:\nCédula: ${cliNuevo.ced}\nClave: ${cliNuevo.pin}` : ""}`;
+    const msj = `¡Hola ${cliNuevo.nombre.split(" ")[0]}! Esta es tu tarjeta de sellos de ${D.negocio.nombre}. Abrila y guardala en tu pantalla de inicio:\n${Tarjetas.link(cliNuevo.token)}${cliNuevo.pin ? `\n\nTambién podés entrar con tu usuario:\nCédula: ${cliNuevo.ced}\nClave: ${cliNuevo.pin}` : ""}`;
     h += `<div class="grupo"><b>${cliNuevo.existia ? "Esa cédula ya tenía tarjeta" : "Tarjeta creada"}</b><div class="compartir"><div class="qr" id="qrNuevo"></div>
       <div style="display:grid;gap:8px"><span><b>${esc(cliNuevo.nombre)}</b> ya tiene su tarjeta.</span>
         ${cliNuevo.pin ? `<span class="nota">Usuario: <b>cédula ${esc(cliNuevo.ced)}</b> · clave <b>${esc(cliNuevo.pin)}</b></span>` : ""}
@@ -639,16 +639,16 @@ function vistaSellos() {
         <div class="fila-btn">${cliNuevo.tel ? `<a class="btn sm verde" target="_blank" rel="noopener" href="https://wa.me/506${cliNuevo.tel}?text=${encodeURIComponent(msj)}">Enviar por WhatsApp</a>` : ""}
           <button class="btn sm" type="button" data-copiar-link="${esc(Tarjetas.link(cliNuevo.token))}">Copiar link</button></div></div></div></div>`;
   }
-  h += `<div class="grupo"><b>🏆 Top 10 clientes</b>
+  h += `<div class="grupo"><b>Top 10 clientes</b>
     ${top === null ? `<div><button class="btn sm" type="button" data-top>Ver los que más sellos tienen</button></div>`
     : top === "cargando" ? `<span class="nota">Cargando…</span>`
     : top === "error" ? `<p class="nota">${Tarjetas.prueba ? "No se pudo cargar. Revisá la conexión." : "En la versión real, el top 10 solo lo ve la dueña con su acceso seguro (correo y contraseña). Probalo en el <a href='./?prueba' style='color:var(--oro)'>modo prueba</a>."}</p>`
     : !top.length ? `<span class="nota">Todavía no hay clientes.</span>`
-    : `<div class="top10">${top.map((c, i) => `<button type="button" data-ficha="${esc(c.token)}"><span class="pos">${i + 1}</span><b>${esc(c.nombre)}</b><span class="n">${c.total} ⚡</span>
+    : `<div class="top10">${top.map((c, i) => `<button type="button" data-ficha="${esc(c.token)}"><span class="pos">${i + 1}</span><b>${esc(c.nombre)}</b><span class="n">${c.total}</span>
         <small>${c.gratis} gratis por canjear · ${c.canjes} canjeado${c.canjes === 1 ? "" : "s"} · ${c.sellos} de 10</small></button>`).join("")}</div>
       <div><button class="btn sm" type="button" data-top>Actualizar</button></div>`}</div>`;
   if (MOSTRAR_IMPORTAR) h += vistaImportar();
-  h += `<div class="grupo reg"><div class="fila-btn"><button type="button" class="btn pri" data-reg aria-expanded="${regAbierto}">➕ Registrar cliente nuevo <span class="flecha">${regAbierto ? "▲" : "▼"}</span></button></div>
+  h += `<div class="grupo reg"><div class="fila-btn"><button type="button" class="btn pri" data-reg aria-expanded="${regAbierto}">Registrar cliente nuevo <span class="flecha">${regAbierto ? "▲" : "▼"}</span></button></div>
       <div class="reg-cuerpo" ${regAbierto ? "" : "hidden"}>
       <label class="c">Nombre completo<input id="rNom" maxlength="60" autocomplete="off" placeholder="Ej.: Daniela Mora"></label>
       <label class="c">Cédula<input id="rCed" inputmode="numeric" maxlength="15" autocomplete="off" placeholder="Ej.: 1 1234 5678"></label>
@@ -665,7 +665,7 @@ function vistaSellos() {
 // ----- Pestaña "Base de datos": todos los clientes en una lista compacta -----
 let bd = null, bdOrden = "nombre", bdMax = 25;
 function vistaBD() {
-  if (!Tarjetas.prueba) return `<p class="nota" style="margin-top:12px">🔒 Con clientes reales, la lista completa la ve solo la dueña con su acceso seguro (correo y contraseña). Probalo en el <a href="./?prueba" style="color:var(--oro)">modo prueba</a>.</p>`;
+  if (!Tarjetas.prueba) return `<p class="nota" style="margin-top:12px">Con clientes reales, la lista completa la ve solo la dueña con su acceso seguro (correo y contraseña). Probalo en el <a href="./?prueba" style="color:var(--oro)">modo prueba</a>.</p>`;
   if (bd === null) { cargarBD(); return `<p class="nota" style="margin-top:12px">Cargando clientes…</p>`; }
   if (bd === "cargando") return `<p class="nota" style="margin-top:12px">Cargando clientes…</p>`;
   if (bd === "error") return `<p class="nota" style="margin-top:12px">No se pudo cargar la lista. Revisá la conexión. <button class="btn sm" type="button" data-bd-act>Reintentar</button></p>`;
@@ -674,15 +674,15 @@ function vistaBD() {
   const filas = orden.map(c => { const e = ej(c.nombre), q = [c.nombre, c.ced4, e && e.ced, c.tel, c.correo].filter(Boolean).join(" ").toLowerCase();
     return `<button type="button" class="bdf" data-ficha="${esc(c.token)}" data-q="${esc(q)}">
       <span class="bdn"><b>${esc(c.nombre)}</b><small>${e ? `Céd. ${e.ced} · clave ${e.pin}` : c.ced4 ? `Céd. ****${esc(c.ced4)}` : "Sin cédula"}${c.tel ? ` · ${esc(c.tel)}` : ""}${c.correo ? ` · ${esc(c.correo)}` : ""}</small></span>
-      <span class="bds"><b>${c.sellos}/10</b><small>${c.gratis ? `🎁${c.gratis} · ` : ""}⚡${c.total}</small></span></button>`; });
-  return `<div class="grupo"><div class="bdcab"><b>🗄️ ${bd.length} cliente${bd.length === 1 ? "" : "s"}</b><button class="btn sm" type="button" data-bd-act>Actualizar</button></div>
+      <span class="bds"><b>${c.sellos}/10</b><small>${c.gratis ? `${c.gratis} · ` : ""}${c.total}</small></span></button>`; });
+  return `<div class="grupo"><div class="bdcab"><b>${bd.length} cliente${bd.length === 1 ? "" : "s"}</b><button class="btn sm" type="button" data-bd-act>Actualizar</button></div>
     <input id="bdBuscar" class="bdbus" type="search" placeholder="Buscar por nombre, cédula, celular o correo" autocomplete="off">
     <div class="bdord">Ordenar: ${[["nombre", "Nombre"], ["sellos", "Más sellos"], ["gratis", "Con gratis"]].map(([k, l]) => `<button type="button" data-bd-orden="${k}" aria-pressed="${bdOrden === k}">${l}</button>`).join("")}</div>
     ${bd.length ? `<div class="bdlista" id="bdLista">${filas.map((f, i) => i < bdMax ? f : f.replace('class="bdf"', 'class="bdf" hidden data-mas')).join("")}</div>
       <p class="nota" id="bdNada" hidden>Nadie coincide con la búsqueda.</p>
       ${bd.length > bdMax ? `<div><button class="btn sm" type="button" data-bd-mas>Ver los ${bd.length - bdMax} restantes</button></div>` : ""}
       <p class="nota">Tocá un cliente para abrir su tarjeta y sumarle sellos.</p>` : `<p class="nota">La base de prueba está vacía.</p>`}</div>
-    <details class="grupo bdopc"><summary><b>⚙️ Opciones de la base de prueba</b></summary>
+    <details class="grupo bdopc"><summary><b>Opciones de la base de prueba</b></summary>
       <p class="nota">Los clientes de ejemplo entran a su tarjeta con la cédula y la clave que salen en la lista.</p>
       <div class="fila-btn"><button class="btn sm pri" type="button" data-pr-cargar ${cliOcupado ? "disabled" : ""}>Cargar clientes de ejemplo</button>
         <button class="btn sm" type="button" data-pr-borrar ${cliOcupado ? "disabled" : ""}>Borrar todo y empezar de cero</button></div></details>`;
@@ -703,9 +703,9 @@ document.addEventListener("input", e => {
 // "Traer clientes de otra tarjeta" (Excel/CSV): escondido por ahora. Cambiar a true para mostrarlo.
 const MOSTRAR_IMPORTAR = false;
 function vistaImportar() {
-  let h = `<div class="grupo" id="gImp"><b>📥 Traer clientes de otra tarjeta</b>`;
+  let h = `<div class="grupo" id="gImp"><b>Traer clientes de otra tarjeta</b>`;
   if (!imp) h += `<p class="nota">Si el negocio ya usaba tarjeta de sellos (Loopy, Devotio, un Excel o tarjetas de papel), subí la lista y cada cliente queda con los sellos que ya tenía. Columnas: nombre, celular, correo, cédula y sellos. Solo el nombre es obligatorio.</p>
-      <div class="fila-btn"><label class="btn sm pri" style="cursor:pointer">📄 Subir Excel o CSV<input type="file" id="impArchivo" accept=".csv,.txt,.xlsx,.xls" hidden></label>
+      <div class="fila-btn"><label class="btn sm pri" style="cursor:pointer">Subir Excel o CSV<input type="file" id="impArchivo" accept=".csv,.txt,.xlsx,.xls" hidden></label>
         <button class="btn sm" type="button" data-imp-plantilla>Descargar plantilla</button>
         ${Tarjetas.prueba ? `<button class="btn sm" type="button" data-imp-ejemplo>Probar con una lista de ejemplo</button>` : ""}</div>`;
   else if (imp.cargando) h += `<p class="nota">Leyendo ${esc(imp.archivo)}…</p>`;
@@ -721,9 +721,9 @@ function vistaImportar() {
   }
   if (importados.length) {
     const faltan = importados.filter(x => !x.enviado).length;
-    h += `<b style="margin-top:8px">Clientes traídos · ${importados.length}${faltan ? ` · faltan ${faltan} de avisar` : " · todos avisados ✅"}</b>
+    h += `<b style="margin-top:8px">Clientes traídos · ${importados.length}${faltan ? ` · faltan ${faltan} de avisar` : " · todos avisados"}</b>
       <p class="nota">Mandale a cada uno su link. La primera vez que lo abra, crea su usuario con su cédula y una clave, y ya ve sus sellos.</p>
-      <div>${importados.map((x, i) => `<div style="display:grid;gap:8px;padding:10px 0;border-bottom:1px dashed var(--linea)"><span><b>${esc(x.nombre)}</b> ${x.enviado ? "✅" : ""} <span class="nota">· ${x.sellos} de 10${x.gratis ? ` · ${x.gratis} gratis` : ""}</span></span>
+      <div>${importados.map((x, i) => `<div style="display:grid;gap:8px;padding:10px 0;border-bottom:1px dashed var(--linea)"><span><b>${esc(x.nombre)}</b> ${x.enviado ? "<svg class='i' width='1em' height='1em' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M20 6 9 17l-5-5'/></svg>" : ""} <span class="nota">· ${x.sellos} de 10${x.gratis ? ` · ${x.gratis} gratis` : ""}</span></span>
         <span class="fila-btn">${x.tel ? `<a class="btn sm verde" target="_blank" rel="noopener" data-imp-enviado="${i}" href="https://wa.me/506${x.tel}?text=${encodeURIComponent(msjImportado(x))}">WhatsApp</a>` : ""}
           <button class="btn sm" type="button" data-copiar-link="${esc(Tarjetas.link(x.token))}" data-imp-copiado="${i}">Copiar link</button>
           <button class="btn sm" type="button" data-ficha="${esc(x.token)}">Abrir</button></span></div>`).join("")}</div>
@@ -733,7 +733,7 @@ function vistaImportar() {
 }
 function msjImportado(x) {
   const g = x.gratis ? ` y ${x.gratis} cóctel${x.gratis === 1 ? "" : "es"} gratis` : "";
-  return `¡Hola ${x.nombre.split(" ")[0]}! 🏛️ ${D.negocio.nombre} estrenó página y ya pasamos tu tarjeta de sellos: tenés ${x.sellos} sello${x.sellos === 1 ? "" : "s"}${g}. Abrila aquí:\n${Tarjetas.link(x.token)}\n\nLa primera vez, creá tu usuario con tu cédula y una clave de 4 dígitos. Así entrás desde cualquier celular.`;
+  return `¡Hola ${x.nombre.split(" ")[0]}! ${D.negocio.nombre} estrenó página y ya pasamos tu tarjeta de sellos: tenés ${x.sellos} sello${x.sellos === 1 ? "" : "s"}${g}. Abrila aquí:\n${Tarjetas.link(x.token)}\n\nLa primera vez, creá tu usuario con tu cédula y una clave de 4 dígitos. Así entrás desde cualquier celular.`;
 }
 // Lee CSV (coma o punto y coma, con comillas).
 function leerCSV(txt) {
@@ -841,7 +841,7 @@ function _pintarAdmin() {
       <p class="nota">Versión de prueba · contraseña: <b style="user-select:all">${CLAVE_DEMO}</b></p></div>`);
     return;
   }
-  const tabs = `<div class="tabs"><button type="button" data-tab="cli" aria-pressed="${tabAdm === "cli"}">Sellos clientes</button><button type="button" data-tab="promo" aria-pressed="${tabAdm === "promo"}">📣 Promos</button><button type="button" data-tab="bd" aria-pressed="${tabAdm === "bd"}">🗄️ Base de datos</button><button type="button" data-tab="prod" aria-pressed="${tabAdm === "prod"}">Productos</button><button type="button" data-tab="neg" aria-pressed="${tabAdm === "neg"}">Negocio</button></div>`;
+  const tabs = `<div class="tabs"><button type="button" data-tab="cli" aria-pressed="${tabAdm === "cli"}">Sellos clientes</button><button type="button" data-tab="promo" aria-pressed="${tabAdm === "promo"}">Promos</button><button type="button" data-tab="bd" aria-pressed="${tabAdm === "bd"}">Base de datos</button><button type="button" data-tab="prod" aria-pressed="${tabAdm === "prod"}">Productos</button><button type="button" data-tab="neg" aria-pressed="${tabAdm === "neg"}">Negocio</button></div>`;
   let cuerpo;
   if (tabAdm === "promo") {
     cuerpo = vistaPromos();
@@ -883,8 +883,8 @@ function _pintarAdmin() {
       <button class="btn sm" type="button" data-reset>Volver a los datos de ejemplo</button></div>`;
   }
   abrirHoja(`<div class="asa"></div><button class="x" type="button" data-cerrar aria-label="Cerrar">×</button>
-    <h2 id="hojaT">Administrar menú</h2><p class="nota">${tabAdm === "cli" || tabAdm === "promo" || tabAdm === "bd" ? (Tarjetas.prueba ? "🧪 Estás en el <b>modo prueba</b>: nada de esto toca los clientes reales." : "Las tarjetas se guardan en la nube: el cliente ve sus sellos al instante.") : "En la demo, los cambios del menú se guardan solo en este celular."}
-      <a href="${Tarjetas.prueba ? "./" : "./?prueba"}" style="color:var(--oro)">${Tarjetas.prueba ? "Volver a los datos reales" : "🧪 Abrir modo prueba"}</a> <button type="button" data-salir style="border:0;background:none;color:var(--fucsia2);text-decoration:underline;cursor:pointer">Salir</button></p>${tabs}${cuerpo}`);
+    <h2 id="hojaT">Administrar menú</h2><p class="nota">${tabAdm === "cli" || tabAdm === "promo" || tabAdm === "bd" ? (Tarjetas.prueba ? "Estás en el <b>modo prueba</b>: nada de esto toca los clientes reales." : "Las tarjetas se guardan en la nube: el cliente ve sus sellos al instante.") : "En la demo, los cambios del menú se guardan solo en este celular."}
+      <a href="${Tarjetas.prueba ? "./" : "./?prueba"}" style="color:var(--oro)">${Tarjetas.prueba ? "Volver a los datos reales" : "Abrir modo prueba"}</a> <button type="button" data-salir style="border:0;background:none;color:var(--fucsia2);text-decoration:underline;cursor:pointer">Salir</button></p>${tabs}${cuerpo}`);
 }
 
 /* ===== Acciones ===== */
@@ -908,7 +908,7 @@ document.addEventListener("click", async e => {
     if (nom.length < 2) { $("#pErr").textContent = "Escribí tu nombre para llamarte cuando esté listo."; $("#pNom").focus(); return; }
     lsSet("kk-nombre", nom);
     const total = pedido.reduce((a, it) => a + it.total, 0);
-    const lineas = [`Hola ${D.negocio.nombre} 🏛️ quiero pedir para recoger:`, ...pedido.map(it => `• ${it.cant} × ${it.nombre}${detalle(it) ? ` (${detalle(it)})` : ""} — ${crc(it.total)}`),
+    const lineas = [`Hola ${D.negocio.nombre} quiero pedir para recoger:`, ...pedido.map(it => `• ${it.cant} × ${it.nombre}${detalle(it) ? ` (${detalle(it)})` : ""} — ${crc(it.total)}`),
       `Total: ${crc(total)}`, `A nombre de: ${nom}`, `Paso a las: ${$("#pHora").value}`];
     if ($("#pNota").value.trim()) lineas.push(`Nota: ${$("#pNota").value.trim()}`);
     const url = `https://wa.me/${String(D.negocio.whatsapp).replace(/\D/g, "")}?text=${encodeURIComponent(lineas.join("\n"))}`;
@@ -929,7 +929,7 @@ document.addEventListener("click", async e => {
   if (b.dataset.pend) { cliPend = Math.max(0, Math.min(30, cliPend + +b.dataset.pend)); const sc = $("#hoja").scrollTop; pintarAdmin(); $("#hoja").scrollTop = sc; return; }
   if (b.hasAttribute("data-guardar-sellos")) {
     if (!cli || cliPend < 1) return; const n = cliPend, nombre = cli.nombre, token = cli.token; cliOcupado = true; pintarAdmin();
-    try { const r = await Tarjetas.sumar(token, n); cliPend = 0; aviso(r.ganados ? `🎉 ${nombre} ganó ${r.ganados} cóctel${r.ganados === 1 ? "" : "es"} gratis. Tarjeta en ${r.sellos} de 10.` : `Listo: ${n} sello${n === 1 ? "" : "s"} para ${nombre} (${r.sellos} de 10)`); }
+    try { const r = await Tarjetas.sumar(token, n); cliPend = 0; aviso(r.ganados ? `${nombre} ganó ${r.ganados} cóctel${r.ganados === 1 ? "" : "es"} gratis. Tarjeta en ${r.sellos} de 10.` : `Listo: ${n} sello${n === 1 ? "" : "s"} para ${nombre} (${r.sellos} de 10)`); }
     catch { aviso("No se pudo guardar. Revisá la conexión e intentá de nuevo."); }
     cliOcupado = false; pintarAdmin(); return;
   }
@@ -972,7 +972,7 @@ document.addEventListener("click", async e => {
     if (!imp || !imp.filas) return; impOcupado = true; pintarAdmin();
     try { const r = await Tarjetas.importar(imp.filas);
       importados = [...r.hechos.map(x => ({...x, enviado: false})), ...importados]; guardarImportados(); imp = null; top = null;
-      aviso(`📥 ${r.hechos.length} cliente${r.hechos.length === 1 ? "" : "s"} traído${r.hechos.length === 1 ? "" : "s"} con sus sellos${r.repetidos.length ? `. ${r.repetidos.length} ya existía${r.repetidos.length === 1 ? "" : "n"}.` : ""}`); }
+      aviso(`${r.hechos.length} cliente${r.hechos.length === 1 ? "" : "s"} traído${r.hechos.length === 1 ? "" : "s"} con sus sellos${r.repetidos.length ? `. ${r.repetidos.length} ya existía${r.repetidos.length === 1 ? "" : "n"}.` : ""}`); }
     catch { aviso(Tarjetas.prueba ? "No se pudo importar. Revisá la conexión." : "No se pudo importar. Revisá la conexión, o probalo en el modo prueba."); }
     impOcupado = false; pintarAdmin(); return;
   }
@@ -989,7 +989,7 @@ document.addEventListener("click", async e => {
     const titulo = $("#pTit").value.trim(), texto = $("#pTxt").value.trim(), producto = [...document.querySelectorAll("[data-pprod]:checked")].map(x => x.dataset.pprod), dias = [...document.querySelectorAll("[data-pdia]:checked")].map(x => +x.dataset.pdia);
     if (titulo.length < 2) { $("#pErr").textContent = "Escribí un título para la promo."; $("#pTit").focus(); return; }
     promoOcupado = true; b.disabled = true;
-    try { await Tarjetas.publicarPromo({titulo, texto, producto, dias}); promoOcupado = false; pintarAdmin(); aviso("📣 Promo publicada: ya les llega a los clientes"); }
+    try { await Tarjetas.publicarPromo({titulo, texto, producto, dias}); promoOcupado = false; pintarAdmin(); aviso("Promo publicada: ya les llega a los clientes"); }
     catch { promoOcupado = false; b.disabled = false; $("#pErr").textContent = Tarjetas.prueba ? "No se pudo publicar. Revisá la conexión." : "Con clientes reales, solo la dueña con su acceso seguro puede publicar promos."; }
     return;
   }
@@ -1031,7 +1031,7 @@ $("#maps").href = `https://www.google.com/maps/search/?api=1&query=${q}`;
 $("#waze").href = `https://waze.com/ul?q=${q}&navigate=yes`;
 if (Tarjetas.prueba) { $("#bPrueba").hidden = false;
   Tarjetas.asegurarEjemplos().catch(() => {}); }
-// Menú de la esquina (☰): acceso administrador y atajos
+// Menú de la esquina (): acceso administrador y atajos
 function cerrarMenu(){ $("#menuPanel").hidden = true; $("#menuBtn").setAttribute("aria-expanded", "false"); }
 $("#menuBtn").addEventListener("click", e => { e.stopPropagation(); const abrir = $("#menuPanel").hidden; $("#menuPanel").hidden = !abrir; $("#menuBtn").setAttribute("aria-expanded", String(abrir)); });
 document.addEventListener("click", e => { if (!e.target.closest(".menu-top") || e.target.closest("[data-menu-cerrar]")) cerrarMenu(); });
