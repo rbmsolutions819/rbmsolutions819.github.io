@@ -259,3 +259,16 @@ body.ingreso .login>h2{margin-top:0!important}
 .visbus{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
 .visbus input{flex:1 1 240px;border:1px solid var(--linea);background:var(--panel);border-radius:12px;padding:11px 12px;font-size:16px;min-width:0}
 .caso.visita .meta{white-space:normal;overflow:visible;text-overflow:clip;display:block}
+/* Íconos de línea (reemplazan los emoticones) */
+.i{width:1.15em;height:1.15em;flex:none;vertical-align:-0.2em;display:inline-block}
+.tipos button i .i{width:26px;height:26px;color:var(--verde)}
+.caso .ic{color:var(--verde)}
+.caso .ic .i{width:22px;height:22px}
+.caso.nuevo .ic{color:var(--rojo)}
+.login .ico{color:var(--verde)}
+.login .ico .i{width:40px;height:40px}
+.emp-foto.sin{color:var(--verde)}
+.emp-foto.sin .i{width:44px;height:44px}
+.nt-tipo .i,.emp-cat .i{width:14px;height:14px}
+.ops button .i,.chips button .i,.tabs button .i{width:16px;height:16px;margin-right:4px}
+td .i{width:16px;height:16px;margin-right:4px;color:var(--suave)}
