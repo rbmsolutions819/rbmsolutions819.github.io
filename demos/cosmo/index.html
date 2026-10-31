@@ -247,6 +247,19 @@ footer a{color:var(--lima)}
 .comp-sel img{width:56px;height:72px;object-fit:cover;border-radius:10px;background:#eceee8}
 .comp-sel span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
 .comp-sel button{border:0;background:none;color:#b42318;font-size:13px}
+.pasos-v{background:var(--fondo);border-radius:14px;padding:14px 16px;margin-top:16px;font-size:14px}
+.pasos-v b{font-family:var(--f-t)}
+.pasos-v ol{margin:8px 0 0;padding-left:20px;color:var(--suave);display:grid;gap:4px}
+.ok-orden{text-align:center;padding:10px 0 18px}
+.ok-orden .ok-ic{width:56px;height:56px;border-radius:50%;background:var(--lima);color:var(--negro);display:grid;place-items:center;margin:0 auto 12px}
+.ok-orden .ok-ic .i{width:28px;height:28px}
+.ok-orden small{display:block;color:var(--suave);font-size:13px;text-transform:uppercase;letter-spacing:.1em;font-weight:600}
+.ok-orden b{display:block;font:800 40px var(--f-t);margin:4px 0 10px}
+.ok-orden p{color:var(--suave);font-size:15px}
+.mis{margin-top:20px;border-top:1px solid var(--linea);padding-top:14px}
+.mis b{font-family:var(--f-t);font-size:14px}
+.mis a{display:flex;justify-content:space-between;text-decoration:none;padding:10px 0;font-weight:600;border-bottom:1px solid var(--linea)}
+.mis a span{color:var(--lima-osc);font-weight:500;font-size:14px}
 .nota{font-size:13px;color:var(--suave);text-align:center;margin-top:10px}
 .toast{position:fixed;left:50%;bottom:92px;transform:translateX(-50%);background:var(--negro);color:#fff;padding:11px 18px;border-radius:999px;font-size:14px;z-index:90;box-shadow:0 10px 30px rgba(0,0,0,.25);max-width:calc(100% - 32px);text-align:center}
 /* En computadora la página usa todo el ancho */
@@ -392,6 +405,7 @@ footer a{color:var(--lima)}
 </div></footer>
 <a class="wa-flot" href="#" data-wa aria-label="Escribir por WhatsApp"><svg viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.3 14.2c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .2-3.3-.7-2.8-1.1-4.6-4-4.7-4.2-.1-.2-1.1-1.5-1.1-2.9s.7-2.1 1-2.4c.3-.3.6-.3.8-.3h.6c.2 0 .4 0 .6.5l.9 2.1c.1.2.1.4 0 .6l-.4.6-.4.5c-.1.1-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.4 2.4 1.5.3.1.5.1.7-.1l1-1.2c.2-.3.4-.2.7-.1l2 1c.3.1.5.2.5.3.1.2.1.7-.1 1.3z"/></svg></a>
 
+<script src="datos.js"></script>
 <script>
 "use strict";
 /* ===================== DATOS ===================== */
@@ -463,7 +477,7 @@ function toast(t){ const d = document.createElement("div"); d.className = "toast
 document.querySelectorAll("[data-wa]").forEach(a => { a.href = waLink(`Hola ${NEGOCIO.nombre}, quisiera hacer una consulta.`); a.target = "_blank"; a.rel = "noopener"; });
 
 /* ===================== CATÁLOGO ===================== */
-let filtro = "Todo", pedido = [], comprobante = null, comprobanteURL = ""; const vistaCard = {};
+let filtro = "Todo", pedido = []; const vistaCard = {};
 const LINEAS = ["Todo", ...new Set(P.map(p => p.linea))];
 function pintar(){
   $("#filtros").innerHTML = LINEAS.map(l => `<button type="button" data-f="${esc(l)}" aria-pressed="${l === filtro}">${l === "Todo" ? "Todo" : esc(l)}</button>`).join("");
@@ -546,10 +560,15 @@ function calcular(){
   const ahorro = nC * 33800 - precioCosmo(nC);
   return { sub, ahorro, total: sub - ahorro, nC };
 }
+const misPedidos = () => { try { return JSON.parse(localStorage.getItem("cosmo-mis-pedidos")) || []; } catch { return []; } };
+const linkPedido = id => new URL("pedido.html?id=" + id + (Pedidos.LOCAL ? "&local" : ""), location.href).href;
+const linkPanel = cod => new URL("panel.html" + (Pedidos.LOCAL ? "?local" : "") + "#" + cod, location.href).href;
 function verPedido(){
   hoja(`<div class="hoja-cab"><h3>Mi pedido</h3><button type="button" class="x" data-cerrar aria-label="Cerrar">×</button></div><div id="pp"></div>`, (h, cerrar) => {
+    let datos = { nombre: "", tel: "", entrega: "Envío gratis por Correos", lugar: "", dir: "", pago: "SINPE Móvil" };
+    const anteriores = () => { const l = misPedidos(); return l.length ? `<div class="mis"><b>Mis pedidos</b>${l.slice(0, 4).map(x => `<a href="${linkPedido(x.id)}">${esc(x.codigo)}<span>Ver estado</span></a>`).join("")}</div>` : ""; };
     const pint = () => {
-      if (!pedido.length) { $("#pp", h).innerHTML = `<p style="color:var(--suave)">Todavía no ha agregado uniformes. Toque uno del catálogo para empezar.</p><button type="button" class="b b-claro b-bloque" data-cerrar style="margin-top:16px">Ver catálogo</button>`; return; }
+      if (!pedido.length) { $("#pp", h).innerHTML = `<p style="color:var(--suave)">Todavía no ha agregado uniformes. Toque uno del catálogo para empezar.</p><button type="button" class="b b-claro b-bloque" data-cerrar style="margin-top:16px">Ver catálogo</button>${anteriores()}`; return; }
       const r = calcular();
       $("#pp", h).innerHTML = pedido.map((x, i) => { const p = prod(x.p);
           return `<div class="linea-p"><span><b>${x.cant} × ${esc(p.nombre)}</b><small>${esc(col(x.c).nombre)}${p.tallas.length > 1 ? " · Talla " + x.t : ""}${x.largo ? " · Largo " + x.largo.toLowerCase() : ""}</small></span><span style="text-align:right">${crc(p.precio * x.cant)}<br><button type="button" data-q="${i}">Quitar</button></span></div>`; }).join("")
@@ -558,51 +577,41 @@ function verPedido(){
           <div><span>Envío por Correos</span><span><b style="color:var(--lima-osc)">Gratis</b></span></div>
           <div class="total"><span>Total</span><span>${crc(r.total)}</span></div></div>
         ${r.nC % 3 === 1 && r.nC < 3 ? `<div class="aviso">Agregue otro uniforme Cosmo y le quedan 2 por ₡59.800.</div>` : r.nC === 2 ? `<div class="aviso">Con un uniforme Cosmo más le quedan 3 por ₡86.400.</div>` : ""}
-        <div class="campo"><label for="pp-n">Su nombre</label><input id="pp-n" autocomplete="name"></div>
+        <div class="pasos-v"><b>¿Cómo sigue?</b><ol><li>Valide su pedido: se genera su número de orden.</li><li>Revisamos que todo esté disponible y le confirmamos por WhatsApp.</li><li>Con el pedido confirmado, paga y sube el comprobante en su orden.</li></ol></div>
+        <div class="campo"><label for="pp-n">Nombre completo</label><input id="pp-n" autocomplete="name" value="${esc(datos.nombre)}"></div>
+        <div class="campo"><label for="pp-t">WhatsApp</label><input id="pp-t" type="tel" inputmode="tel" autocomplete="tel" placeholder="Ej.: 8888 7777" value="${esc(datos.tel)}"></div>
         <div class="campo"><label for="pp-e">Entrega</label><select id="pp-e"><option>Envío gratis por Correos</option><option>Retiro en la fábrica (San Ramón)</option></select></div>
-        <div class="campo" id="pp-dw"><label for="pp-d">Provincia y cantón</label><input id="pp-d" placeholder="Ej.: Heredia, Santo Domingo"></div>
-        <div class="campo"><label for="pp-p">Forma de pago</label><select id="pp-p"><option>SINPE Móvil</option><option>Transferencia BAC</option></select></div>
-        <div class="campo"><span class="lbl-c">Comprobante de pago <span>(si ya pagó)</span></span>
-          <div class="comp" id="pp-comp"></div></div>
-        <a class="b b-wa b-bloque" id="pp-wa" href="#" target="_blank" rel="noopener" style="margin-top:16px">Enviar pedido por WhatsApp</a>
-        <p class="nota">${NEGOCIO.whatsapp ? "Se abre WhatsApp con su pedido listo. Le confirmamos disponibilidad y le enviamos los datos de pago." : `Página de ejemplo: WhatsApp le deja escoger a quién enviarlo. En la página real, el pedido llega directo al ${NEGOCIO.whatsappReal}.`} Si adjunta el comprobante, en el celular se abre la opción de compartir: escoja WhatsApp y el chat de Cosmo, y le llegan la imagen y el pedido juntos.</p>`;
-      const armar = () => {
-        const modo = $("#pp-e", h).value, dir = $("#pp-d", h).value.trim(), nom = $("#pp-n", h).value.trim();
-        $("#pp-dw", h).hidden = !modo.startsWith("Envío");
-        const lin = pedido.map(x => { const p = prod(x.p); return `• ${x.cant} × ${p.nombre}, ${col(x.c).nombre}${p.tallas.length > 1 ? ", talla " + x.t : ""}${x.largo ? ", largo " + x.largo.toLowerCase() : ""}: ${crc(p.precio * x.cant)}`; });
-        const msg = [`Hola ${NEGOCIO.nombre}, quiero hacer este pedido:`, ...lin, "", r.ahorro ? `Promo Cosmo: −${crc(r.ahorro)}` : null, `Total: ${crc(r.total)}`,
-          modo.startsWith("Envío") ? `Envío gratis por Correos${dir ? " a " + dir : ""}` : "Retiro en la fábrica en San Ramón",
-          `Pago: ${$("#pp-p", h).value}`, nom ? `A nombre de: ${nom}` : null, "", "¿Me confirman si está disponible?"].filter(l => l !== null);
-        if (comprobante) msg.splice(msg.length - 2, 0, "Comprobante de pago: adjunto");
-        h.dataset.msg = msg.join("\n");
-        $("#pp-wa", h).href = waLink(h.dataset.msg);
-        $("#pp-wa", h).textContent = comprobante ? "Enviar pedido y comprobante" : "Enviar pedido por WhatsApp";
-      };
-      const pintarComp = () => {
-        $("#pp-comp", h).innerHTML = comprobante
-          ? `<div class="comp-sel"><img src="${comprobanteURL}" alt="Comprobante adjunto"><span><b>${esc(comprobante.name || "Comprobante")}</b><small>Se envía junto con su pedido</small></span><button type="button" id="pp-cq">Quitar</button></div>`
-          : `<label class="comp-sub"><input type="file" id="pp-cf" accept="image/*" hidden><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m17 8-5-5-5 5"/><path d="M12 3v12"/></svg><span><b>Subir pantallazo del SINPE o la transferencia</b><small>Foto o captura de pantalla del comprobante</small></span></label>`;
-        $("#pp-cf", h)?.addEventListener("change", e => { const f = e.target.files[0]; if (!f) return;
-          if (!f.type.startsWith("image/")) { toast("Suba una imagen del comprobante."); return; }
-          comprobante = f; if (comprobanteURL) URL.revokeObjectURL(comprobanteURL); comprobanteURL = URL.createObjectURL(f); pintarComp(); armar(); });
-        $("#pp-cq", h)?.addEventListener("click", () => { comprobante = null; URL.revokeObjectURL(comprobanteURL); comprobanteURL = ""; pintarComp(); armar(); });
-      };
-      pintarComp();
-      // Con comprobante: en el celular se comparte la imagen con el pedido como texto, directo a WhatsApp.
-      $("#pp-wa", h).addEventListener("click", async e => {
-        if (!comprobante) return;
-        const msg = h.dataset.msg;
-        let archivo = comprobante; try { archivo = new File([comprobante], comprobante.name || "comprobante.jpg", { type: comprobante.type || "image/jpeg" }); } catch {}
-        if (navigator.canShare && navigator.canShare({ files: [archivo] })) {
-          e.preventDefault();
-          try { await navigator.clipboard?.writeText(msg); } catch {}
-          try { await navigator.share({ files: [archivo], text: msg, title: "Pedido Cosmo" }); toast("Escoja el chat de Cosmo en WhatsApp para enviarlo."); }
-          catch (x) { if (x && x.name !== "AbortError") window.open(waLink(msg), "_blank"); }
-        } else {
-          toast("Se abre WhatsApp con su pedido. Adjunte ahí el comprobante desde su galería.");
-        }
+        <div id="pp-dw"><div class="campo"><label for="pp-d">Provincia y cantón</label><input id="pp-d" placeholder="Ej.: Heredia, Santo Domingo" value="${esc(datos.lugar)}"></div>
+          <div class="campo"><label for="pp-x">Dirección exacta (opcional)</label><input id="pp-x" placeholder="Para la guía de Correos" value="${esc(datos.dir)}"></div></div>
+        <div class="campo"><label for="pp-p">¿Cómo prefiere pagar?</label><select id="pp-p"><option>SINPE Móvil</option><option>Transferencia BAC</option></select></div>
+        <p class="err" id="pp-err" role="alert"></p>
+        <button type="button" class="b b-negro b-bloque" id="pp-ok">Validar pedido</button>
+        <p class="nota">No paga todavía: primero confirmamos que todo esté disponible.</p>${anteriores()}`;
+      $("#pp-e", h).value = datos.entrega; $("#pp-p", h).value = datos.pago;
+      const leer = () => { datos = { nombre: $("#pp-n", h).value.trim(), tel: $("#pp-t", h).value.replace(/\D/g, "").slice(0, 12), entrega: $("#pp-e", h).value, lugar: $("#pp-d", h).value.trim(), dir: $("#pp-x", h).value.trim(), pago: $("#pp-p", h).value }; $("#pp-dw", h).hidden = !datos.entrega.startsWith("Envío"); };
+      leer(); h.querySelectorAll("input,select").forEach(x => x.addEventListener("input", leer));
+      $("#pp-ok", h).addEventListener("click", async () => {
+        leer();
+        if (datos.nombre.length < 3) { $("#pp-err", h).textContent = "Escriba su nombre completo."; $("#pp-n", h).focus(); return; }
+        if (datos.tel.length < 8) { $("#pp-err", h).textContent = "Escriba su número de WhatsApp para confirmarle el pedido."; $("#pp-t", h).focus(); return; }
+        if (datos.entrega.startsWith("Envío") && datos.lugar.length < 3) { $("#pp-err", h).textContent = "Escriba la provincia y el cantón para el envío."; $("#pp-d", h).focus(); return; }
+        $("#pp-err", h).textContent = ""; const b = $("#pp-ok", h); b.disabled = true; b.textContent = "Generando su número de orden…";
+        const items = pedido.map(x => { const p = prod(x.p); return { nombre: p.nombre, linea: p.linea, color: col(x.c).nombre, talla: p.tallas.length > 1 ? x.t : "", largo: x.largo || "", cant: x.cant, precio: p.precio, promo: !!p.promo, foto: p.foto(x.c), disp: null }; });
+        try {
+          const o = await Pedidos.crear({ cliente: { nombre: datos.nombre.slice(0, 60), tel: datos.tel, entrega: datos.entrega, lugar: datos.lugar.slice(0, 80), dir: datos.dir.slice(0, 160) }, pago: datos.pago, items });
+          const lista = misPedidos(); lista.unshift({ id: o.id, codigo: o.codigo }); try { localStorage.setItem("cosmo-mis-pedidos", JSON.stringify(lista.slice(0, 10))); } catch {}
+          const t = Pedidos.totales(items);
+          const msg = [`Hola ${NEGOCIO.nombre}, quiero validar mi pedido *${o.codigo}*:`, ...items.map(x => `• ${x.cant} × ${x.nombre}, ${x.color}${x.talla ? ", talla " + x.talla : ""}${x.largo ? ", largo " + x.largo.toLowerCase() : ""}`), "",
+            `Total: ${crc(t.total)}${t.ahorro ? " (con promo Cosmo)" : ""}`, datos.entrega.startsWith("Envío") ? `Envío gratis por Correos a ${datos.lugar}` : "Retiro en la fábrica en San Ramón",
+            `Pago: ${datos.pago}`, `A nombre de: ${datos.nombre}`, "", `Ver el pedido en el panel: ${linkPanel(o.codigo)}`].join("\n");
+          pedido = []; pintar();
+          $("#pp", h).innerHTML = `<div class="ok-orden"><span class="ok-ic"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></span>
+              <small>Su número de orden</small><b>${esc(o.codigo)}</b><p>Envíelo por WhatsApp para que lo validemos. Le confirmamos qué hay disponible y el total final, y después paga.</p></div>
+            <a class="b b-wa b-bloque" href="${waLink(msg)}" target="_blank" rel="noopener">Enviar ${esc(o.codigo)} por WhatsApp</a>
+            <a class="b b-claro b-bloque" href="${linkPedido(o.id)}" style="margin-top:10px">Ver el estado de mi pedido</a>
+            <p class="nota">${NEGOCIO.whatsapp ? "" : `Página de ejemplo: WhatsApp le deja escoger a quién enviarlo. En la página real llega directo al ${NEGOCIO.whatsappReal}. `}Guarde el link de su pedido: ahí verá cuando lo confirmemos y ahí sube el comprobante de pago.</p>`;
+        } catch (x) { console.warn(x); b.disabled = false; b.textContent = "Validar pedido"; $("#pp-err", h).textContent = "No se pudo generar el pedido. Revise su conexión e intente otra vez."; }
       });
-      armar(); ["#pp-n", "#pp-d"].forEach(s => $(s, h).addEventListener("input", armar)); ["#pp-e", "#pp-p"].forEach(s => $(s, h).addEventListener("change", armar));
     };
     pint();
     h.addEventListener("click", e => { const q = e.target.closest("[data-q]"); if (q) { pedido.splice(+q.dataset.q, 1); pint(); pintar(); } });

@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0d0e10">
+<title>Panel de pedidos · Cosmo</title>
+<link rel="icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=Fredoka:wght@600;700&display=swap">
+<style>
+:root{--negro:#0d0e10;--negro2:#17191c;--negro3:#24272b;--lima:#cdf54f;--lima-osc:#4f6b00;--fondo:#f4f5f1;--linea:#e2e4dc;--tinta:#141517;--suave:#5b5f66;--wa:#25d366;--rojo:#b42318;
+  --f-t:"Poppins",system-ui,sans-serif;--f-x:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;--f-m:"Fredoka","Poppins",sans-serif}
+*{box-sizing:border-box}
+body{margin:0;background:var(--fondo);color:var(--tinta);font:400 15px/1.5 var(--f-x);-webkit-font-smoothing:antialiased}
+[hidden]{display:none!important}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+h1,h2,h3{font-family:var(--f-t);margin:0;line-height:1.15}
+.i{width:1.15em;height:1.15em;flex:none;display:inline-block;vertical-align:-.2em}
+.wrap{max-width:1500px;margin:0 auto;padding:0 clamp(16px,3vw,40px)}
+.demo{background:#000;color:#b9bdc4;font-size:12.5px;text-align:center;padding:7px 14px}
+.top{background:var(--negro);color:#fff;position:sticky;top:0;z-index:20}
+.top .wrap{display:flex;align-items:center;gap:12px;height:64px}
+.marca{display:flex;align-items:center;gap:10px}
+.marca img{width:40px;height:40px;border-radius:50%}
+.marca b{display:block;font:700 19px/1 var(--f-m)}
+.marca small{display:block;font:600 10px var(--f-t);letter-spacing:.14em;text-transform:uppercase;color:var(--lima);margin-top:3px}
+.top .der{margin-left:auto;display:flex;gap:8px}
+.bt{border:1.5px solid var(--linea);background:#fff;border-radius:999px;padding:9px 16px;font:600 14px var(--f-t);display:inline-flex;align-items:center;gap:8px;text-decoration:none;color:var(--tinta);white-space:nowrap}
+@media(max-width:560px){.top .bt{padding:7px 12px;font-size:13px}.marca small{display:none}}
+.top .bt{background:var(--negro2);border-color:var(--negro3);color:#fff}
+.bt.pri{background:var(--negro);border-color:var(--negro);color:#fff}
+.bt.lima{background:var(--lima);border-color:var(--lima);color:var(--negro)}
+.bt.wa{background:var(--wa);border-color:var(--wa);color:#062b14}
+.bt.rojo{color:var(--rojo);border-color:#f2c4c0}
+.bt:disabled{opacity:.45}
+main{padding:22px 0 60px}
+.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+@media(min-width:900px){.kpis{grid-template-columns:repeat(4,1fr)}}
+.kpis div{background:#fff;border:1px solid var(--linea);border-radius:16px;padding:14px 16px}
+.kpis span{font-size:13px;color:var(--suave);font-weight:600}
+.kpis b{display:block;font:700 28px var(--f-t)}
+.barra{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:18px 0 12px}
+.tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+.tabs button{flex:none;border:1.5px solid var(--linea);background:#fff;border-radius:999px;padding:8px 14px;font:600 13.5px var(--f-t)}
+.tabs button[aria-pressed="true"]{background:var(--negro);border-color:var(--negro);color:#fff}
+.tabs .n{background:var(--lima);color:var(--negro);border-radius:999px;padding:0 7px;margin-left:6px;font-size:12px}
+.buscar{margin-left:auto;flex:1 1 220px;max-width:320px;border:1.5px solid var(--linea);border-radius:999px;padding:9px 14px;background:#fff}
+.dos{display:grid;gap:16px;align-items:start}
+@media(min-width:1000px){.dos{grid-template-columns:minmax(320px,420px) 1fr}}
+.lista{display:grid;gap:8px}
+.fila{display:grid;grid-template-columns:1fr auto;gap:4px 12px;text-align:left;width:100%;background:#fff;border:1.5px solid var(--linea);border-radius:16px;padding:12px 14px}
+.fila[aria-current="true"]{border-color:var(--negro)}
+.fila b{font:700 16px var(--f-t)}
+.fila small{color:var(--suave);font-size:13px}
+.fila .tot{font-weight:700;text-align:right}
+.est{display:inline-block;border-radius:999px;padding:3px 10px;font:600 12px var(--f-t);white-space:nowrap}
+.e-nuevo{background:#fff4d6;color:#7a5200}.e-confirmado{background:#eef8cf;color:#2f4000}.e-pagado{background:#dff2ff;color:#0b4f7a}.e-enviado{background:var(--negro);color:var(--lima)}.e-cancelado{background:#fde3e3;color:var(--rojo)}
+.aviso-p{background:#dff2ff;color:#0b4f7a;border-radius:999px;padding:2px 8px;font-size:11.5px;font-weight:600}
+.det{background:#fff;border:1px solid var(--linea);border-radius:22px;padding:22px;position:sticky;top:80px}
+.det .cab{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start}
+.det h2{font-size:30px;font-weight:800}
+.cli{display:grid;gap:4px 18px;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));margin-top:14px;background:var(--fondo);border-radius:14px;padding:12px 14px;font-size:14px}
+.cli small{display:block;color:var(--suave);font-size:12px}
+.cli b{font-weight:600}
+h3{font-size:16px;margin:20px 0 6px}
+.it{display:flex;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--linea)}
+.it img{width:48px;height:60px;object-fit:cover;border-radius:10px;background:#eceee8;flex:none}
+.it .t{flex:1;min-width:0}
+.it b{display:block;font:600 14.5px var(--f-t)}
+.it small{color:var(--suave);font-size:13px}
+.it .p{font-weight:600;min-width:84px;text-align:right}
+.disp{display:flex;gap:6px}
+.disp button{border:1.5px solid var(--linea);background:#fff;border-radius:10px;padding:6px 10px;font:600 13px var(--f-t)}
+.disp button.si[aria-pressed="true"]{background:#2f4000;border-color:#2f4000;color:#fff}
+.disp button.no[aria-pressed="true"]{background:var(--rojo);border-color:var(--rojo);color:#fff}
+.it.agotado b,.it.agotado .p{text-decoration:line-through;color:var(--suave)}
+.res{margin-top:12px;display:grid;gap:5px;max-width:360px;margin-left:auto}
+.res div{display:flex;justify-content:space-between}
+.res .ah{color:var(--lima-osc);font-weight:600}
+.res .tot{font:700 20px var(--f-t);border-top:1px solid var(--linea);padding-top:8px}
+textarea,.campo input{width:100%;border:1.5px solid var(--linea);border-radius:12px;padding:10px 12px;background:#fff}
+textarea{min-height:70px;resize:vertical}
+.acc{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.paso{background:#eef8cf;color:#2f4000;border-radius:14px;padding:12px 14px;margin-top:14px;font-size:14px}
+.hist{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:6px;font-size:13.5px}
+.hist li{display:flex;justify-content:space-between;gap:12px;color:var(--suave)}
+.vacio{color:var(--suave);text-align:center;padding:30px 10px}
+.login{max-width:380px;margin:60px auto;background:#fff;border:1px solid var(--linea);border-radius:22px;padding:26px}
+.campo{margin-top:12px}.campo label{display:block;font:600 14px var(--f-t);margin-bottom:6px}
+.err{color:var(--rojo);font-size:14px;min-height:20px;margin:8px 0}
+.aj{max-width:620px;background:#fff;border:1px solid var(--linea);border-radius:22px;padding:22px}
+.toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%);background:var(--negro);color:#fff;padding:11px 18px;border-radius:999px;font-size:14px;z-index:90;max-width:calc(100% - 32px);text-align:center}
+</style>
+</head>
+<body>
+<div class="demo"><b>Panel de ejemplo</b> para Cosmo · hecho por RBM Solutions CR · datos de prueba</div>
+<header class="top"><div class="wrap"><div class="marca"><img src="logo.png" alt="" width="40" height="40"><span><b>Cosmo</b><small>Panel de pedidos</small></span></div>
+  <div class="der"><a class="bt" href="./" target="_blank" rel="noopener">Ver tienda</a><button class="bt" type="button" id="b-aj" hidden>Datos de pago</button></div></div></header>
+<main class="wrap" id="app"></main>
+<script src="datos.js"></script>
+<script>
+"use strict";
+const $ = (s, r = document) => r.querySelector(s);
+const esc = t => String(t ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const crc = n => "₡" + String(Math.round(+n || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+const fecha = t => t ? new Date(t).toLocaleString("es-CR", { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" }) : "";
+const hace = t => { const m = Math.round((Date.now() - t) / 60000); if (m < 1) return "recién"; if (m < 60) return `hace ${m} min`; const h = Math.floor(m / 60); if (h < 24) return `hace ${h} h`; const d = Math.floor(h / 24); return d === 1 ? "ayer" : `hace ${d} días`; };
+function toast(t){ const d = document.createElement("div"); d.className = "toast"; d.setAttribute("role", "status"); d.textContent = t; document.body.append(d); setTimeout(() => d.remove(), 2800); }
+const CLAVE = "demo1234";
+const ESTADOS = { nuevo: "Por validar", confirmado: "Esperando pago", pagado: "Pagado", enviado: "Enviado", cancelado: "Cancelado" };
+const waCliente = (tel, m) => { const n = String(tel || "").replace(/\D/g, ""); return `https://wa.me/${n.length === 8 ? "506" + n : n}?text=${encodeURIComponent(m)}`; };
+const linkPedido = id => new URL("pedido.html?id=" + id + (Pedidos.LOCAL ? "&local" : ""), location.href).href;
+let pedidos = [], tab = "nuevo", sel = null, q = "", borrador = {}, ultimoWA = null;
+
+function login(){
+  $("#app").innerHTML = `<form class="login" id="fl"><h2>Panel de pedidos</h2><p style="color:var(--suave);margin:6px 0 0">Para la asesora de ventas de Cosmo.</p>
+    <div class="campo"><label for="lc">Contraseña</label><input id="lc" type="password" autocomplete="current-password"></div><p class="err" id="le"></p>
+    <button class="bt pri" style="width:100%;justify-content:center" type="submit">Entrar</button><p style="font-size:13px;color:var(--suave);text-align:center;margin-top:12px">Demo · contraseña <b>${CLAVE}</b></p></form>`;
+  $("#fl").onsubmit = e => { e.preventDefault(); if ($("#lc").value === CLAVE) { sessionStorage.setItem("cosmo-panel", "1"); iniciar(); } else $("#le").textContent = "Contraseña incorrecta."; };
+  setTimeout(() => $("#lc").focus(), 50);
+}
+function filtrados(){
+  const qq = q.trim().toLowerCase();
+  return pedidos.filter(p => (qq ? `${p.codigo} ${p.cliente.nombre} ${p.cliente.tel}`.toLowerCase().includes(qq) : tab === "todos" || p.estado === tab));
+}
+function pintar(){
+  const n = k => pedidos.filter(p => p.estado === k).length;
+  const hoy = pedidos.filter(p => p.creado > Date.now() - 864e5).length, porCobrar = pedidos.filter(p => p.estado === "confirmado").reduce((s, p) => s + Pedidos.totales(p.items).total, 0);
+  const l = filtrados(); if (sel && !pedidos.some(p => p.id === sel)) sel = null;
+  $("#app").innerHTML = `<div class="kpis"><div><span>Por validar</span><b>${n("nuevo")}</b></div><div><span>Esperando pago</span><b>${n("confirmado")}</b></div><div><span>Por cobrar</span><b>${crc(porCobrar)}</b></div><div><span>Pedidos de hoy</span><b>${hoy}</b></div></div>
+    <div class="barra"><div class="tabs" role="group" aria-label="Estado">${[["nuevo","Por validar"],["confirmado","Esperando pago"],["pagado","Pagados"],["enviado","Enviados"],["cancelado","Cancelados"],["todos","Todos"]].map(([k, t]) => `<button type="button" data-tab="${k}" aria-pressed="${k === tab && !q}">${t}${k === "nuevo" && n("nuevo") ? `<span class="n">${n("nuevo")}</span>` : ""}</button>`).join("")}</div>
+      <input class="buscar" id="q" type="search" placeholder="Buscar COS-1001, nombre o teléfono" value="${esc(q)}" aria-label="Buscar pedido"></div>
+    <div class="dos"><div class="lista">${l.map(p => { const t = Pedidos.totales(p.items);
+        return `<button type="button" class="fila" data-sel="${p.id}" aria-current="${p.id === sel}"><span><b>${esc(p.codigo)}</b> <span class="est e-${p.estado}">${ESTADOS[p.estado]}</span>${p.estado === "confirmado" && p.pagoAvisado ? ` <span class="aviso-p">Envió comprobante</span>` : ""}</span><span class="tot">${crc(t.total)}</span>
+          <small>${esc(p.cliente.nombre)} · ${p.items.reduce((s, x) => s + x.cant, 0)} artículos</small><small>${hace(p.creado)}</small></button>`; }).join("") || `<p class="vacio">${q ? "No hay pedidos con esa búsqueda." : "No hay pedidos en esta sección."}</p>`}</div>
+      <div id="det">${sel ? "" : `<div class="det"><p class="vacio">Escoja un pedido de la lista para validarlo.</p></div>`}</div></div>`;
+  if (sel) pintarDet();
+  $("#q").oninput = e => { q = e.target.value; const p = e.target.selectionStart; pintar(); const i = $("#q"); i.focus(); i.setSelectionRange(p, p); };
+}
+function pintarDet(){
+  const p = pedidos.find(x => x.id === sel); if (!p) return;
+  const b = borrador[p.id] || (borrador[p.id] = { items: p.items.map(x => ({ ...x })), nota: p.nota || "" });
+  if (p.estado !== "nuevo") b.items = p.items.map(x => ({ ...x }));
+  const t = Pedidos.totales(b.items), validando = p.estado === "nuevo", falta = b.items.some(x => x.disp === null);
+  const c = p.cliente;
+  $("#det").innerHTML = `<div class="det">
+    <div class="cab"><div><span class="est e-${p.estado}">${ESTADOS[p.estado]}</span><h2 style="margin-top:6px">${esc(p.codigo)}</h2><small style="color:var(--suave)">${fecha(p.creado)}</small></div>
+      <a class="bt wa" href="${waCliente(c.tel, `Hola ${c.nombre.split(" ")[0]}, le escribo de Cosmo sobre su pedido ${p.codigo}.`)}" target="_blank" rel="noopener">WhatsApp del cliente</a></div>
+    <div class="cli"><span><small>Cliente</small><b>${esc(c.nombre)}</b></span><span><small>WhatsApp</small><b>${esc(c.tel)}</b></span>
+      <span><small>Entrega</small><b>${esc(c.entrega)}</b></span>${c.lugar ? `<span><small>Destino</small><b>${esc(c.lugar)}</b></span>` : ""}${c.dir ? `<span><small>Dirección</small><b>${esc(c.dir)}</b></span>` : ""}<span><small>Pago preferido</small><b>${esc(p.pago)}</b></span></div>
+    <h3>Artículos${validando ? " · marque qué hay disponible" : ""}</h3>
+    ${b.items.map((x, i) => `<div class="it${x.disp === false ? " agotado" : ""}"><img src="${esc(x.foto)}" alt=""><span class="t"><b>${x.cant} × ${esc(x.nombre)}</b><small>${esc(x.color)}${x.talla ? " · Talla " + esc(x.talla) : ""}${x.largo ? " · Largo " + esc(x.largo.toLowerCase()) : ""}</small></span>
+      ${validando ? `<span class="disp"><button type="button" class="si" data-d="${i}:1" aria-pressed="${x.disp === true}">Hay</button><button type="button" class="no" data-d="${i}:0" aria-pressed="${x.disp === false}">No hay</button></span>`
+        : `<span class="est ${x.disp === false ? "e-cancelado" : "e-confirmado"}">${x.disp === false ? "No hay" : "Hay"}</span>`}<span class="p">${crc(x.precio * x.cant)}</span></div>`).join("")}
+    <div class="res"><div><span>Subtotal</span><span>${crc(t.sub)}</span></div>${t.ahorro ? `<div class="ah"><span>Promo Cosmo</span><span>−${crc(t.ahorro)}</span></div>` : ""}<div class="tot"><span>Total</span><span>${crc(t.total)}</span></div></div>
+    ${validando ? `<h3>Nota para el cliente (opcional)</h3><textarea id="nota" maxlength="300" placeholder="Ej.: El vino en talla M lo tenemos para el jueves.">${esc(b.nota)}</textarea>
+      <div class="acc"><button type="button" class="bt lima" id="b-conf" ${falta ? "disabled" : ""}>Confirmar pedido</button><button type="button" class="bt" id="b-todo">Marcar todo disponible</button><button type="button" class="bt rojo" id="b-can">Cancelar</button></div>
+      ${falta ? `<p style="font-size:13px;color:var(--suave);margin-top:8px">Marque cada artículo como "Hay" o "No hay" para confirmar.</p>` : ""}` : ""}
+    ${p.estado === "confirmado" ? `<div class="paso">${p.pagoAvisado ? "<b>El cliente envió el comprobante.</b> Revíselo en WhatsApp y marque el pago." : "Esperando que el cliente pague y envíe el comprobante."}</div>
+      <div class="acc"><button type="button" class="bt lima" id="b-pag">Marcar pago recibido</button><a class="bt wa" href="${waCliente(c.tel, mensajeConfirmado(p))}" target="_blank" rel="noopener">Reenviar confirmación</a><button type="button" class="bt rojo" id="b-can">Cancelar</button></div>` : ""}
+    ${p.estado === "pagado" ? `<h3>Número de guía de Correos</h3><div class="campo" style="margin:0"><input id="guia" placeholder="Ej.: CR123456789" value="${esc(p.guia || "")}"></div>
+      <div class="acc"><button type="button" class="bt lima" id="b-env">Marcar enviado y avisar</button></div>` : ""}
+    ${p.estado === "enviado" ? `<div class="paso">Enviado${p.guia ? " con la guía <b>" + esc(p.guia) + "</b>" : ""}.</div>` : ""}
+    ${ultimoWA && ultimoWA.id === p.id ? `<div class="paso"><b>Listo.</b> Avísele al cliente por WhatsApp:<div class="acc" style="margin-top:8px"><a class="bt wa" href="${ultimoWA.url}" target="_blank" rel="noopener">Enviar mensaje al cliente</a></div></div>` : ""}
+    <div class="acc"><a class="bt" href="${linkPedido(p.id)}" target="_blank" rel="noopener">Ver lo que ve el cliente</a></div>
+    <h3>Historial</h3><ul class="hist">${(p.historial || []).slice().reverse().map(h => `<li><span>${esc(h.txt)}</span><span>${fecha(h.t)}</span></li>`).join("")}</ul></div>`;
+  const det = $("#det");
+  det.querySelectorAll("[data-d]").forEach(x => x.onclick = () => { const [i, v] = x.dataset.d.split(":"); b.items[+i].disp = v === "1"; pintarDet(); });
+  $("#nota", det)?.addEventListener("input", e => b.nota = e.target.value);
+  $("#b-todo", det)?.addEventListener("click", () => { b.items.forEach(x => x.disp = true); pintarDet(); });
+  $("#b-conf", det)?.addEventListener("click", async () => {
+    const hay = b.items.filter(x => x.disp).length;
+    if (!hay) { toast("No hay ningún artículo disponible: mejor cancele el pedido."); return; }
+    try { await Pedidos.cambiar(p.id, { estado: "confirmado", items: b.items, nota: b.nota.trim().slice(0, 300) }, `Pedido validado: ${hay} de ${b.items.length} disponibles`);
+      ultimoWA = { id: p.id, url: waCliente(c.tel, mensajeConfirmado({ ...p, items: b.items, nota: b.nota })) }; pintarDet(); delete borrador[p.id]; toast(`${p.codigo} confirmado`); } catch { toast("No se pudo guardar. Revise la conexión."); }
+  });
+  $("#b-can", det)?.addEventListener("click", async () => { if (!confirmarDoble(det.querySelector("#b-can"))) return;
+    try { await Pedidos.cambiar(p.id, { estado: "cancelado" }, "Pedido cancelado"); ultimoWA = { id: p.id, url: waCliente(c.tel, `Hola ${c.nombre.split(" ")[0]}, lamentamos informarle que su pedido ${p.codigo} fue cancelado. Si quiere, le ayudamos a escoger otra opción.`) }; pintarDet(); } catch { toast("No se pudo guardar."); } });
+  $("#b-pag", det)?.addEventListener("click", async () => { try { await Pedidos.cambiar(p.id, { estado: "pagado" }, "Pago recibido");
+    ultimoWA = { id: p.id, url: waCliente(c.tel, `Hola ${c.nombre.split(" ")[0]}, recibimos el pago de su pedido ${p.codigo}. ¡Gracias! Ya lo estamos preparando. Puede ver el estado aquí: ${linkPedido(p.id)}`) }; pintarDet(); } catch { toast("No se pudo guardar."); } });
+  $("#b-env", det)?.addEventListener("click", async () => { const g = $("#guia", det).value.trim().slice(0, 40);
+    try { await Pedidos.cambiar(p.id, { estado: "enviado", guia: g }, g ? "Enviado por Correos, guía " + g : "Pedido enviado");
+      ultimoWA = { id: p.id, url: waCliente(c.tel, `Hola ${c.nombre.split(" ")[0]}, su pedido ${p.codigo} ya va en camino por Correos de Costa Rica.${g ? " Número de guía: " + g + "." : ""} Puede ver el estado aquí: ${linkPedido(p.id)}`) }; pintarDet(); } catch { toast("No se pudo guardar."); } });
+}
+let tConf = null;
+function confirmarDoble(btn){ if (tConf === btn.id) { tConf = null; return true; } tConf = btn.id; btn.textContent = "¿Seguro? Toque otra vez"; setTimeout(() => { if (tConf === btn.id) { tConf = null; btn.textContent = "Cancelar"; } }, 4000); return false; }
+function mensajeConfirmado(p){
+  const t = Pedidos.totales(p.items), si = p.items.filter(x => x.disp !== false), no = p.items.filter(x => x.disp === false), c = p.cliente;
+  const lin = x => `• ${x.cant} × ${x.nombre}, ${x.color}${x.talla ? ", talla " + x.talla : ""}`;
+  return [`Hola ${c.nombre.split(" ")[0]}, su pedido *${p.codigo}* está confirmado.`, "", "Disponible:", ...si.map(lin),
+    ...(no.length ? ["", "No lo tenemos en este momento (no se cobra):", ...no.map(lin)] : []), "", `Total a pagar: ${crc(t.total)}`,
+    ...(p.nota ? ["", p.nota] : []), "", `Aquí ve los datos de pago y sube el comprobante: ${linkPedido(p.id)}`].join("\n");
+}
+async function ajustesV(){
+  const a = await Pedidos.ajustes();
+  $("#app").innerHTML = `<div class="aj"><h2>Datos de pago</h2><p style="color:var(--suave);margin:6px 0 0">Los ve el cliente en su pedido cuando usted lo confirma.</p>
+    ${[["sinpe","Número de SINPE Móvil","Ej.: 8888-7777"],["titular","A nombre de","Nombre completo"],["banco","Banco","BAC"],["cuenta","Cuenta IBAN","CR00 0000 0000 0000 0000"],["whatsapp","WhatsApp que recibe los pedidos","6131-9025"]].map(([k, l, ph]) => `<div class="campo"><label for="a-${k}">${l}</label><input id="a-${k}" value="${esc(a[k] || "")}" placeholder="${ph}"></div>`).join("")}
+    <div class="acc"><button type="button" class="bt lima" id="a-ok">Guardar</button><button type="button" class="bt" id="a-vol">Volver a pedidos</button></div></div>`;
+  $("#a-ok").onclick = async () => { const n = {}; ["sinpe","titular","banco","cuenta","whatsapp"].forEach(k => n[k] = $("#a-" + k).value.trim().slice(0, 60)); try { await Pedidos.guardarAjustes(n); toast("Datos de pago guardados"); } catch { toast("No se pudo guardar."); } };
+  $("#a-vol").onclick = () => { verAj = false; pintar(); };
+}
+let verAj = false;
+document.addEventListener("click", e => {
+  const t = e.target.closest("[data-tab]"); if (t) { tab = t.dataset.tab; q = ""; sel = null; pintar(); return; }
+  const s = e.target.closest("[data-sel]"); if (s) { sel = s.dataset.sel; ultimoWA = null; history.replaceState(null, "", location.pathname + location.search + "#" + (pedidos.find(p => p.id === sel)?.codigo || "")); pintar(); if (innerWidth < 1000) $("#det").scrollIntoView({ behavior: "smooth" }); }
+});
+// Pedidos de ejemplo la primera vez, para que el panel se vea con datos.
+function ejemplos(){
+  const it = (nombre, linea, color, talla, largo, cant, precio, promo, foto) => ({ nombre, linea, color, talla, largo, cant, precio, promo, foto, disp: null });
+  return [
+    { pedido: { cliente: { nombre: "Daniela Rojas Vargas", tel: "87001234", entrega: "Envío gratis por Correos", lugar: "Heredia, Barva", dir: "" }, pago: "SINPE Móvil",
+      items: [it("Uniforme Cosmo", "Cosmo", "Vino", "M", "Regular", 2, 33800, true, "fotos/cosmo-vino.jpg"), it("Gorro quirúrgico", "Gorros", "Vino", "", "", 1, 5000, false, "fotos/gorro-modelo.jpg")] } },
+    { pedido: { cliente: { nombre: "Karla Méndez", tel: "86112233", entrega: "Envío gratis por Correos", lugar: "San José, Desamparados", dir: "" }, pago: "Transferencia BAC",
+      items: [it("Uniforme Aloha", "Aloha", "Degradado lila", "S", "Petite", 1, 32800, false, "fotos/aloha-degradado-lila.jpg"), it("Uniforme Cosmo", "Cosmo", "Turquesa", "S", "Petite", 1, 33800, true, "fotos/cosmo-turquesa.jpg")] },
+      cambios: { estado: "confirmado", pagoAvisado: true, items: [it("Uniforme Aloha", "Aloha", "Degradado lila", "S", "Petite", 1, 32800, false, "fotos/aloha-degradado-lila.jpg"), it("Uniforme Cosmo", "Cosmo", "Turquesa", "S", "Petite", 1, 33800, true, "fotos/cosmo-turquesa.jpg")].map(x => ({ ...x, disp: true })) }, evento: "Pedido validado: 2 de 2 disponibles" },
+    { pedido: { cliente: { nombre: "Laura Chaves", tel: "88997766", entrega: "Retiro en la fábrica (San Ramón)", lugar: "", dir: "" }, pago: "SINPE Móvil",
+      items: [it("Gabacha de laboratorio Cosmo", "Gabachas", "Con cierre", "M", "", 1, 22000, false, "fotos/gabacha-cierre.jpg"), it("Uniforme IONIK", "IONIK", "Azul marino", "M", "Regular", 3, 20800, false, "fotos/ionik-azul-marino.jpg")] } }
+  ];
+}
+let primera = true;
+async function iniciar(){
+  $("#b-aj").hidden = false; $("#b-aj").onclick = () => { verAj = true; ajustesV(); };
+  $("#app").innerHTML = `<p class="vacio">Cargando pedidos…</p>`;
+  Pedidos.escucharTodos(async l => {
+    if (primera && !l.length && !localStorage.getItem("cosmo-panel-ejemplos")) { primera = false; localStorage.setItem("cosmo-panel-ejemplos", "1"); try { await Pedidos.sembrar(ejemplos()); } catch (x) { console.warn(x); } return; }
+    const nuevos = !primera && l.filter(p => p.estado === "nuevo" && !pedidos.some(x => x.id === p.id));
+    primera = false; pedidos = l;
+    if (nuevos && nuevos.length) toast(`Pedido nuevo: ${nuevos[0].codigo}`);
+    const h = decodeURIComponent(location.hash.slice(1)); if (h && !sel) { const p = pedidos.find(x => x.codigo === h); if (p) { sel = p.id; tab = p.estado; } }
+    if (!verAj) pintar();
+  }, () => { $("#app").innerHTML = `<p class="vacio">No se pudo conectar. Revise la conexión.</p>`; }).catch(() => {});
+}
+addEventListener("hashchange", () => { const h = decodeURIComponent(location.hash.slice(1)), p = pedidos.find(x => x.codigo === h); if (p && p.id !== sel) { sel = p.id; tab = p.estado; q = ""; ultimoWA = null; verAj = false; pintar(); } });
+if (sessionStorage.getItem("cosmo-panel")) iniciar(); else login();
+</script>
+</body>
+</html>

@@ -418,6 +418,31 @@ service cloud.firestore {
       allow read, delete: if true;
       allow create, update: if h.size() == 64 && request.resource.data.keys().hasOnly(['t']) && request.resource.data.t is string && request.resource.data.t.size() <= 40;
     }
+    match /cosmo_pedidos/{id} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasOnly(['cliente','pago','items','estado','nota','guia','pagoAvisado','num','codigo','creado','historial'])
+        && request.resource.data.estado == 'nuevo'
+        && request.resource.data.cliente is map && request.resource.data.cliente.nombre is string && request.resource.data.cliente.nombre.size() <= 80
+        && request.resource.data.items is list && request.resource.data.items.size() > 0 && request.resource.data.items.size() <= 40
+        && request.resource.data.codigo is string && request.resource.data.codigo.size() <= 12;
+      allow update: if request.resource.data.keys().hasOnly(['cliente','pago','items','estado','nota','guia','pagoAvisado','num','codigo','creado','historial'])
+        && request.resource.data.estado in ['nuevo', 'confirmado', 'pagado', 'enviado', 'cancelado']
+        && request.resource.data.items is list && request.resource.data.items.size() <= 40
+        && request.resource.data.nota is string && request.resource.data.nota.size() <= 300
+        && request.resource.data.guia is string && request.resource.data.guia.size() <= 40
+        && request.resource.data.historial is list && request.resource.data.historial.size() <= 41
+        && request.resource.data.codigo == resource.data.codigo && request.resource.data.num == resource.data.num;
+    }
+    match /cosmo_meta/contador {
+      allow read: if true;
+      allow create, update: if request.resource.data.keys().hasOnly(['n']) && request.resource.data.n is int;
+    }
+    match /cosmo_meta/ajustes {
+      allow read: if true;
+      allow create, update: if request.resource.data.keys().hasOnly(['sinpe','titular','banco','cuenta','whatsapp'])
+        && request.resource.data.titular is string && request.resource.data.titular.size() <= 60
+        && request.resource.data.cuenta is string && request.resource.data.cuenta.size() <= 60;
+    }
 
     match /{path=**} { allow read, write: if false; }
   }
