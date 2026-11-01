@@ -225,11 +225,118 @@ label.c textarea{min-height:64px;resize:vertical}
 
 /* RBM-ANCHO: en computadora la página usa todo el ancho */
 @media (min-width:1100px){.wrap{max-width:1680px!important;padding-left:clamp(32px,4.5vw,96px)!important;padding-right:clamp(32px,4.5vw,96px)!important}}
+/* ===================== KOKTELA 2.0 ===================== */
+html{overflow-x:hidden}
+.progreso{position:fixed;top:0;left:0;right:0;height:3px;z-index:80;background:linear-gradient(90deg,#2563c9,var(--cian),#ff6b9a);transform:scaleX(0);transform-origin:0 50%;pointer-events:none}
+.greca{animation:greca 26s linear infinite}
+.greca.rev{animation-direction:reverse}
+/* portada */
+.top{background:#05070d;isolation:isolate}
+.top-fondo{position:absolute;inset:0;z-index:-2;overflow:hidden}
+.top-fondo i{position:absolute;inset:0;background:url("hero.jpg") center 30%/max(100%,620px) auto no-repeat;animation:kb 22s ease-in-out infinite alternate;transform-origin:50% 35%}
+.top::after{height:72%;background:linear-gradient(transparent,rgba(5,7,13,.55) 40%,#05070d 96%);z-index:-1}
+.top .wrap{min-height:clamp(600px,92vh,900px);padding-block:24px 70px;gap:14px}
+#chispas{position:absolute;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none}
+.rayo{position:absolute;z-index:-1;width:clamp(60px,9vw,130px);opacity:0;pointer-events:none;filter:drop-shadow(0 0 14px #9fd0ff) drop-shadow(0 0 30px #6c8cff)}
+.rayo.r1{top:6%;left:6%;animation:rayo 9s 2s infinite}
+.rayo.r2{top:12%;right:5%;transform:scaleX(-1);animation:rayo 11s 5.5s infinite}
+.top .flash{position:absolute;inset:0;z-index:-1;background:radial-gradient(circle at 50% 30%,rgba(160,200,255,.35),transparent 60%);opacity:0;pointer-events:none;animation:flash 9s 2s infinite}
+.top .lema{font-size:clamp(17px,4.2vw,26px);letter-spacing:.24em;animation:sube 1s .3s cubic-bezier(.2,.7,.2,1) backwards}
+.top .lema span{display:inline-block}
+.titulo2{font:800 clamp(30px,7vw,58px)/1.05 var(--f-logo);letter-spacing:.06em;text-transform:uppercase;text-align:center;background:linear-gradient(100deg,#e8e5dc 20%,#9fd0ff 40%,#fff 50%,#9fd0ff 60%,#e8e5dc 80%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:sube 1s .15s cubic-bezier(.2,.7,.2,1) backwards,brillo 6s linear 1.2s infinite;text-shadow:none;margin:0}
+.chips-info{animation:sube 1s .5s cubic-bezier(.2,.7,.2,1) backwards}
+.acc-top{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:8px;animation:sube 1s .65s cubic-bezier(.2,.7,.2,1) backwards}
+.btn.brilla{position:relative;overflow:hidden;isolation:isolate;padding:14px 22px;font-size:16px}
+.btn.brilla::after{content:"";position:absolute;top:0;bottom:0;left:-70%;width:45%;z-index:-1;background:linear-gradient(100deg,transparent,rgba(255,255,255,.45),transparent);transform:skewX(-20deg);animation:barrido 4.5s ease-in-out 2s infinite}
+.btn.vidrio{background:rgba(5,7,13,.5);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border-color:rgba(255,255,255,.35);color:#fff;padding:14px 22px;font-size:16px}
+.baja{position:absolute;left:50%;bottom:14px;translate:-50% 0;z-index:2;width:26px;height:42px;border:2px solid rgba(255,255,255,.45);border-radius:14px;display:grid;justify-items:center;padding-top:7px}
+.baja i{width:4px;height:9px;border-radius:4px;background:#fff;animation:rueda 1.8s ease-in-out infinite}
+/* cinta con los nombres de los dioses */
+.cinta{overflow:hidden;background:linear-gradient(90deg,#0b1a3a,#14306a,#0b1a3a);border-block:1px solid var(--linea);-webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)}
+.cinta-in{display:flex;width:max-content;animation:corre 120s linear infinite}
+.cinta-in span{display:inline-flex;align-items:center;gap:22px;padding:13px 0 13px 22px;font:800 16px var(--f-logo);letter-spacing:.2em;text-transform:uppercase;color:#dfe9ff;white-space:nowrap}
+.cinta-in span::after{content:"⚡";font-size:13px;filter:hue-rotate(180deg) saturate(.6)}
+.cinta:hover .cinta-in{animation-play-state:paused}
+/* destacados (carrusel) */
+.olimpo{display:grid;gap:6px}
+.olimpo h2{display:grid;justify-items:center;gap:4px;margin-bottom:4px;text-align:center}
+.cf{position:relative;height:calc(var(--w) * 1.42 + 24px);--w:clamp(200px,56vw,270px);touch-action:pan-y;user-select:none;outline:0;isolation:isolate;overflow:hidden;margin-inline:calc(-1 * var(--gl))}
+.cf-it{position:absolute;top:12px;left:50%;width:var(--w);border:1px solid var(--linea);border-radius:16px;padding:14px;background:radial-gradient(120% 80% at 50% 0%,color-mix(in srgb,var(--c) 30%,transparent),transparent 60%),linear-gradient(180deg,var(--panel2),var(--panel));color:var(--texto);text-align:center;display:grid;gap:6px;cursor:pointer;transition:transform .75s cubic-bezier(.2,.75,.2,1),opacity .6s,filter .6s,box-shadow .6s,border-color .6s;will-change:transform;font:inherit}
+.cf-it .lienzo{height:calc(var(--w) * .78);background:radial-gradient(circle at 50% 70%,color-mix(in srgb,var(--c) 35%,transparent),transparent 62%),#070d1a}
+.cf-it .taza{scale:1.35}
+.cf-it h3{font:800 20px var(--f-logo);letter-spacing:.08em}
+.cf-it p{font-size:13px;color:var(--suave);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.cf-it .precio{font-size:18px}
+.cf-it:not(.on){filter:brightness(.6) saturate(.8)}
+.cf-it.on{border-color:color-mix(in srgb,var(--c) 70%,#fff);box-shadow:0 0 0 1px color-mix(in srgb,var(--c) 50%,transparent),0 30px 60px -20px color-mix(in srgb,var(--c) 70%,transparent)}
+.cf-fl{position:absolute;top:44%;z-index:80;width:46px;height:46px;border-radius:50%;border:1px solid var(--oro);background:rgba(5,7,13,.8);color:var(--oro);font-size:24px;display:grid;place-items:center;cursor:pointer;transition:background .2s,color .2s}
+.cf-fl:hover{background:var(--oro);color:#05122a}
+.cf-fl.izq{left:max(10px,calc(50% - var(--w) * 1.75))}.cf-fl.der{right:max(10px,calc(50% - var(--w) * 1.75))}
+.cf-dots{display:flex;justify-content:center;gap:6px;flex-wrap:wrap}
+.cf-dots i{width:6px;height:6px;border-radius:9px;background:var(--linea);transition:width .3s,background .3s}
+.cf-dots i.on{width:22px;background:var(--oro)}
+/* vasos vivos: burbujas y brillo */
+.vaso{overflow:hidden}
+.vaso .bu{position:absolute;bottom:-8px;width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.75);box-shadow:0 0 6px rgba(255,255,255,.6);animation:burbuja 3.2s ease-in infinite;z-index:1}
+.vaso .bu:nth-child(1){left:28%;animation-delay:.2s}.vaso .bu:nth-child(2){left:52%;width:4px;height:4px;animation-delay:1.3s;animation-duration:2.6s}.vaso .bu:nth-child(3){left:68%;width:5px;height:5px;animation-delay:2.1s;animation-duration:3.8s}
+.vaso .ola{position:absolute;left:-50%;right:-50%;top:-6px;height:14px;background:radial-gradient(10px 7px at 10px 0,transparent 98%,rgba(255,255,255,.28) 100%) 0 0/20px 14px repeat-x;animation:ola 2.4s linear infinite;z-index:1}
+.pajilla{transform-origin:50% 100%;animation:pajilla 4s ease-in-out infinite}
+.prod{--c:#8cc4ff;transform-style:preserve-3d;transition:transform .2s ease,border-color .2s,box-shadow .3s,translate .7s cubic-bezier(.2,.7,.2,1),opacity .7s}
+.prod:hover{border-color:color-mix(in srgb,var(--c) 70%,#fff);box-shadow:0 18px 40px -16px color-mix(in srgb,var(--c) 75%,transparent)}
+.prod .lienzo{background:radial-gradient(circle at 50% 70%,color-mix(in srgb,var(--c) 28%,transparent),transparent 62%),#070d1a;transition:background .3s}
+.prod:hover .taza{animation:brinca .6s ease}
+.prod .etq.nuevo{animation:latido 1.8s ease-in-out infinite}
+/* títulos y aparecer al bajar */
+section h2 .t{position:relative;overflow:hidden}
+section h2 .t::after{content:"";position:absolute;top:0;bottom:0;left:-60%;width:40%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.18),transparent);transform:skewX(-20deg);animation:barrido 6s ease-in-out infinite}
+.js .rv{opacity:0;translate:0 34px}
+.js .rv.vis{opacity:1;translate:0 0;transition:opacity .75s ease var(--d,0s),translate .75s cubic-bezier(.2,.7,.2,1) var(--d,0s)}
+.js .prod.rv.vis{transition:transform .2s ease,border-color .2s,box-shadow .3s,opacity .75s ease var(--d,0s),translate .75s cubic-bezier(.2,.7,.2,1) var(--d,0s)}
+/* promo con borde que gira */
+.promo{position:relative;border:0;isolation:isolate;overflow:hidden;padding:20px;border-radius:12px;background:linear-gradient(120deg,rgba(20,52,110,.95),rgba(6,14,32,.95))}
+.promo::before{content:"";position:absolute;inset:-60%;z-index:-2;background:conic-gradient(from 0deg,transparent 0 60%,#4fc3d9 70%,#ff6b9a 80%,transparent 90%);animation:gira 5s linear infinite}
+.promo::after{content:"";position:absolute;inset:2px;z-index:-1;border-radius:10px;background:linear-gradient(120deg,#0f2a5c,#060e20)}
+.promo b{font-size:clamp(20px,4.5vw,26px)}
+/* sellos */
+.tarjeta{position:relative;overflow:hidden}
+.tarjeta::before{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 30%,rgba(140,196,255,.12) 45%,transparent 60%);background-size:250% 100%;animation:brillo 7s linear infinite;pointer-events:none}
+.tarjeta.vis .sellos i{animation:sello .55s cubic-bezier(.2,1.4,.4,1) backwards}
+.tarjeta.vis .sellos i:nth-child(1){animation-delay:.05s}.tarjeta.vis .sellos i:nth-child(2){animation-delay:.1s}.tarjeta.vis .sellos i:nth-child(3){animation-delay:.15s}.tarjeta.vis .sellos i:nth-child(4){animation-delay:.2s}.tarjeta.vis .sellos i:nth-child(5){animation-delay:.25s}.tarjeta.vis .sellos i:nth-child(6){animation-delay:.3s}.tarjeta.vis .sellos i:nth-child(7){animation-delay:.35s}.tarjeta.vis .sellos i:nth-child(8){animation-delay:.4s}.tarjeta.vis .sellos i:nth-child(9){animation-delay:.45s}.tarjeta.vis .sellos i:nth-child(10){animation-delay:.5s}
+.sellos i.gratis{animation:aura 2.4s ease-in-out infinite}
+.caja{transition:translate .3s,border-color .3s,opacity .75s ease var(--d,0s)}
+.caja:hover{border-color:var(--oro)}
+.cats button{transition:background .25s,color .25s,border-color .25s}
+.cats button:hover{color:#fff;border-color:var(--oro)}
+.edad div{animation:entra .6s cubic-bezier(.2,.7,.2,1) both;box-shadow:0 0 60px -10px rgba(79,195,217,.5)}
+.carrito{animation:latido 2.4s ease-in-out infinite}
+@keyframes greca{to{background-position-x:400px}}
+@keyframes kb{from{transform:scale(1)}to{transform:scale(1.12)}}
+@keyframes rayo{0%,86%,100%{opacity:0}87%{opacity:1}88%{opacity:.2}89.5%{opacity:1}92%{opacity:0}}
+@keyframes flash{0%,86%,100%{opacity:0}87%{opacity:1}88%{opacity:.1}89.5%{opacity:.8}93%{opacity:0}}
+@keyframes sube{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+@keyframes entra{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:none}}
+@keyframes brillo{to{background-position:-250% 0}}
+@keyframes barrido{0%,70%{left:-70%}100%{left:130%}}
+@keyframes rueda{0%{opacity:0;transform:translateY(0)}30%{opacity:1}100%{opacity:0;transform:translateY(14px)}}
+@keyframes corre{to{transform:translateX(-50%)}}
+@keyframes burbuja{0%{transform:translateY(0) scale(.6);opacity:0}15%{opacity:.9}100%{transform:translateY(-120px) scale(1.1);opacity:0}}
+@keyframes ola{to{transform:translateX(20px)}}
+@keyframes pajilla{0%,100%{rotate:0deg}50%{rotate:5deg}}
+@keyframes brinca{0%,100%{transform:none}40%{transform:translateY(-8px) rotate(-3deg)}70%{transform:translateY(0) rotate(2deg)}}
+@keyframes latido{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+.carrito{animation-name:latidoC}
+@keyframes latidoC{0%,100%{box-shadow:0 14px 34px -12px rgba(140,196,255,.6)}50%{box-shadow:0 14px 44px -6px rgba(140,196,255,.95)}}
+@keyframes gira{to{rotate:360deg}}
+@keyframes sello{from{transform:scale(0) rotate(-40deg);opacity:0}to{transform:none;opacity:1}}
+@keyframes aura{0%,100%{box-shadow:0 0 0 0 rgba(140,196,255,0)}50%{box-shadow:0 0 18px 2px rgba(140,196,255,.45)}}
+@media (min-width:900px){.cf{--w:clamp(230px,19vw,290px)}.top .wrap{min-height:max(100vh,720px);padding-bottom:70px}.top-fondo i{bottom:auto;height:66vh;background-size:cover;background-position:center 40%;-webkit-mask-image:linear-gradient(#000 75%,transparent);mask-image:linear-gradient(#000 75%,transparent)}}
+@media (prefers-reduced-motion:reduce){.js .rv{opacity:1;translate:none}.top-fondo i{animation:none}}
 </style>
 </head>
 <body>
 
-<div class="demo">Demo de <b>RBM Solutions</b> · precios tomados del menú publicado; horario de ejemplo</div>
+<div class="progreso" id="progreso" aria-hidden="true"></div>
+<div class="demo">Demo 2.0 de <b>RBM Solutions</b> · precios tomados del menú publicado; horario de ejemplo</div>
 <div class="prueba" id="bPrueba" hidden><b>Modo prueba</b> · los clientes y sellos son de ejemplo, no son reales · <a href="./">Salir</a></div>
 
 <div class="edad" id="edad" hidden><div>
@@ -239,6 +346,9 @@ label.c textarea{min-height:64px;resize:vertical}
 </div></div>
 
 <header class="top">
+  <div class="top-fondo" aria-hidden="true"><i></i></div><div class="flash" aria-hidden="true"></div>
+  <svg class="rayo r1" viewBox="0 0 56 100" aria-hidden="true"><path d="M38 0 6 58h22l-12 42 40-60H34L50 0z" fill="#dbe9ff"/></svg><svg class="rayo r2" viewBox="0 0 56 100" aria-hidden="true"><path d="M38 0 6 58h22l-12 42 40-60H34L50 0z" fill="#dbe9ff"/></svg>
+  <canvas id="chispas" aria-hidden="true"></canvas>
   <div class="menu-top">
     <button type="button" class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="menuPanel" aria-label="Menú"><svg class="i" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
     <div class="menu-panel" id="menuPanel" hidden>
@@ -251,11 +361,16 @@ label.c textarea{min-height:64px;resize:vertical}
   <div class="greca" aria-hidden="true"></div>
   <div class="wrap">
     <h1 id="nombre" class="sr">Koktela</h1>
+    <p class="titulo2" aria-hidden="true">Cócteles dignos de los dioses</p>
     <p class="lema" id="lema">El ride para llevar</p>
     <div class="chips-info"><span id="estado">Cargando horario…</span><a href="#lealtad">Mi tarjeta</a><a href="#info">La California</a><a id="ig" href="https://www.instagram.com/koktelaelride" target="_blank" rel="noopener">Instagram</a></div>
+    <div class="acc-top"><a class="btn pri brilla" href="#olimpo">Ver el menú</a><a class="btn vidrio" href="#lealtad">Mi tarjeta de sellos</a></div>
   </div>
-  <div class="greca" aria-hidden="true"></div>
+  <a class="baja" href="#olimpo" aria-label="Bajar al menú"><i></i></a>
+  <div class="greca rev" aria-hidden="true"></div>
 </header>
+
+<div class="cinta" aria-hidden="true"><div class="cinta-in" id="cinta"></div></div>
 
 <nav class="cats" aria-label="Categorías"><div class="wrap" id="cats"></div></nav>
 
@@ -263,6 +378,14 @@ label.c textarea{min-height:64px;resize:vertical}
   <div class="wrap">
     <div class="promosNube" id="promosNube" hidden></div>
     <div class="promo" id="promo"></div>
+    <section class="olimpo" id="olimpo" aria-labelledby="h-olimpo">
+      <h2 id="h-olimpo" class="rv"><span class="t">Los dioses de la casa</span><span class="p">Deslizá para ver los especiales · tocá el del centro para verlo en el menú</span></h2>
+      <div class="cf rv" id="cf" tabindex="0" aria-roledescription="carrusel" aria-label="Cócteles especiales">
+        <div id="cf-pista"></div>
+        <button type="button" class="cf-fl izq" data-cfm="-1" aria-label="Anterior">‹</button><button type="button" class="cf-fl der" data-cfm="1" aria-label="Siguiente">›</button>
+      </div>
+      <div class="cf-dots" id="cf-dots" aria-hidden="true"></div>
+    </section>
     <div id="menu"></div>
     <p class="nota" style="text-align:center">Todos los cócteles vienen en presentación de un litro y se pueden preparar sin licor.</p>
 
@@ -413,7 +536,7 @@ function dibujo(p) {
   const cs = colores(p.desc + " " + p.nombre); if (!cs.length) cs.push("#f2e6b8");
   const fondo = cs.length === 1 ? `linear-gradient(to top, ${cs[0]}, color-mix(in srgb, ${cs[0]} 70%, #fff))`
     : `linear-gradient(to top, ${cs.map((c, i) => `${c} ${Math.round(i * 100 / cs.length)}% ${Math.round((i + 1) * 100 / cs.length)}%`).join(",")})`;
-  return `<div class="taza"><span class="pajilla"></span><span class="tapa"></span><div class="vaso" style="background:${fondo}"></div></div>`;
+  return `<div class="taza"><span class="pajilla"></span><span class="tapa"></span><div class="vaso" style="background:${fondo}"><i class="bu"></i><i class="bu"></i><i class="bu"></i><i class="ola"></i></div></div>`;
 }
 
 /* ===== Horario ===== */
@@ -1048,6 +1171,92 @@ function leerHash() {
 }
 leerHash(); addEventListener("hashchange", leerHash);
 setInterval(pintarHorario, 60000);
+
+/* ===================== KOKTELA 2.0: ANIMACIONES ===================== */
+const QUIETO = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const FINO = matchMedia("(pointer: fine)").matches;
+const colorDe = p => p.kit ? "#8cc4ff" : (colores(p.desc + " " + p.nombre)[0] || "#f2e6b8");
+// aparecer al bajar
+const io = "IntersectionObserver" in window ? new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add("vis"); io.unobserve(e.target); } }), { rootMargin: "0px 0px -8% 0px", threshold: .06 }) : null;
+const observar = (r = document) => r.querySelectorAll(".rv:not(.vis)").forEach(el => io ? io.observe(el) : el.classList.add("vis"));
+// cada vez que se pinta el menú: color de cada cóctel, burbujas y aparición en cascada
+function vivo(){
+  $("#menu").querySelectorAll("section").forEach(sec => {
+    sec.querySelector("h2")?.classList.add("rv");
+    sec.querySelectorAll(".prod").forEach((card, i) => {
+      const nom = card.querySelector("h3")?.textContent, p = D.productos.find(x => x.nombre === nom);
+      if (p) card.style.setProperty("--c", colorDe(p));
+      card.classList.add("rv"); card.style.setProperty("--d", (i % 5) * 70 + "ms");
+    });
+  });
+  observar($("#menu"));
+}
+const _pintarMenu = pintarMenu;
+pintarMenu = function(){ _pintarMenu(); vivo(); };
+vivo();
+["#promo", "#lealtad h2", "#info h2"].forEach(s => $(s)?.classList.add("rv"));
+document.querySelectorAll("#info .caja").forEach((c, i) => { c.classList.add("rv"); c.style.setProperty("--d", i * 100 + "ms"); });
+$("#tarjeta").classList.add("rv");
+// cuando se repinta la tarjeta, los sellos vuelven a aparecer
+new MutationObserver(() => { const t = $("#tarjeta"); if (t.classList.contains("vis")) { t.classList.remove("vis"); void t.offsetWidth; t.classList.add("vis"); } }).observe($("#tarjeta"), { childList: true });
+document.documentElement.classList.add("js");
+observar();
+
+// barra de avance
+const barra = $("#progreso"); let pend = false;
+addEventListener("scroll", () => { if (pend) return; pend = true; requestAnimationFrame(() => { pend = false; const h = document.documentElement, m = h.scrollHeight - h.clientHeight; barra.style.transform = `scaleX(${m > 0 ? h.scrollTop / m : 0})`; }); }, { passive: true });
+
+// cinta con los nombres de los cócteles, despacio para leer
+(() => { const c = $("#cinta"); const ns = D.productos.filter(p => !p.oculto && !p.kit && p.cat !== "cerveza").map(p => p.nombre);
+  c.innerHTML = ns.map(n => `<span>${esc(n)}</span>`).join(""); c.innerHTML += c.innerHTML;
+  const vel = () => c.style.animationDuration = (c.scrollWidth / 2 / 30).toFixed(1) + "s"; vel(); addEventListener("load", vel); })();
+
+// carrusel de los especiales
+(() => {
+  const L = D.productos.filter(p => !p.oculto && p.cat === "especiales"); if (!L.length) { $("#olimpo").hidden = true; return; }
+  const pista = $("#cf-pista"), box = $("#cf"), dots = $("#cf-dots"); let i = 0, visto = false, sobre = false, arr = false;
+  pista.innerHTML = L.map((p, k) => `<button type="button" class="cf-it" data-k="${k}" style="--c:${colorDe(p)}" aria-label="${esc(p.nombre)}"><div class="lienzo">${dibujo(p)}</div><h3>${esc(p.nombre)}</h3><p>${esc(p.desc)}</p><span class="precio">${crc(p.precio)}</span></button>`).join("");
+  dots.innerHTML = L.map(() => "<i></i>").join("");
+  const pos = () => { const n = L.length, an = innerWidth < 600 ? 62 : 72;
+    pista.querySelectorAll(".cf-it").forEach((el, k) => { let d = k - i; if (d > n / 2) d -= n; if (d < -n / 2) d += n; const a = Math.abs(d);
+      el.style.transform = `translateX(calc(-50% + ${d * an}%)) scale(${Math.max(.5, 1 - a * .15)}) rotateY(${-d * 8}deg)`;
+      el.style.zIndex = 60 - a; el.style.opacity = a > 3 ? 0 : 1 - a * .2; el.style.pointerEvents = a > 3 ? "none" : ""; el.classList.toggle("on", d === 0); el.tabIndex = d === 0 ? 0 : -1; });
+    dots.querySelectorAll("i").forEach((d, k) => d.classList.toggle("on", k === i)); };
+  const mover = d => { i = (i + d + L.length) % L.length; pos(); };
+  const verEnMenu = p => { catSel = "especiales"; pintarCats(); pintarMenu();
+    setTimeout(() => { const c = [...document.querySelectorAll("#menu .prod")].find(x => x.querySelector("h3")?.textContent === p.nombre);
+      if (c) { c.classList.add("vis"); c.scrollIntoView({ behavior: QUIETO ? "auto" : "smooth", block: "center" }); c.animate([{ boxShadow: "0 0 0 0 transparent" }, { boxShadow: `0 0 0 3px ${colorDe(p)}, 0 0 40px ${colorDe(p)}` }, { boxShadow: "0 0 0 0 transparent" }], { duration: 1600, delay: 500 }); } }, 60); };
+  box.addEventListener("click", e => { const f = e.target.closest("[data-cfm]"); if (f) return mover(+f.dataset.cfm);
+    const it = e.target.closest(".cf-it"); if (!it || arr) return; const k = +it.dataset.k; if (k === i) verEnMenu(L[k]); else { i = k; pos(); } });
+  box.addEventListener("keydown", e => { if (e.key === "ArrowRight") { e.preventDefault(); mover(1); } if (e.key === "ArrowLeft") { e.preventDefault(); mover(-1); } });
+  let x0 = null, y0 = 0;
+  box.addEventListener("pointerdown", e => { if (e.target.closest("[data-cfm]")) return; x0 = e.clientX; y0 = e.clientY; arr = false; });
+  box.addEventListener("pointermove", e => { if (x0 == null) return; const dx = e.clientX - x0; if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(e.clientY - y0)) { arr = true; mover(dx < 0 ? 1 : -1); x0 = e.clientX; } });
+  addEventListener("pointerup", () => { x0 = null; setTimeout(() => arr = false, 0); });
+  box.addEventListener("pointerenter", e => { if (e.pointerType === "mouse") sobre = true; }); box.addEventListener("pointerleave", () => sobre = false);
+  box.addEventListener("touchstart", () => { sobre = true; clearTimeout(box._t); }, { passive: true }); box.addEventListener("touchend", () => { box._t = setTimeout(() => sobre = false, 6000); }, { passive: true });
+  if (io) new IntersectionObserver(([e]) => visto = e.isIntersecting, { threshold: .35 }).observe(box);
+  if (!QUIETO) setInterval(() => { if (visto && !sobre && !document.hidden && !$("#hoja").classList.contains("on")) mover(1); }, 3000);
+  addEventListener("resize", pos); pos();
+})();
+
+// cartas que se inclinan con el mouse (solo en computadora)
+if (FINO && !QUIETO) {
+  document.addEventListener("pointermove", e => { const c = e.target.closest?.(".prod"); if (!c) return; const r = c.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5; c.style.transform = `perspective(700px) rotateX(${-y * 8}deg) rotateY(${x * 10}deg) translateY(-4px)`; }, { passive: true });
+  document.addEventListener("pointerout", e => { const c = e.target.closest?.(".prod"); if (c && !c.contains(e.relatedTarget)) c.style.transform = ""; });
+}
+
+// chispas doradas y celestes que suben en la portada
+(() => { if (QUIETO) return; const cv = $("#chispas"), x = cv.getContext("2d"); let W, H, ps = [], on = true;
+  const tam = () => { const r = cv.getBoundingClientRect(), dpr = Math.min(2, devicePixelRatio || 1); W = r.width; H = r.height; cv.width = W * dpr; cv.height = H * dpr; x.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ps = Array.from({ length: Math.round(Math.min(70, W / 14)) }, () => nueva(true)); };
+  const nueva = ini => ({ x: Math.random() * W, y: ini ? Math.random() * H : H + 10, r: Math.random() * 1.8 + .6, v: Math.random() * .45 + .15, a: Math.random() * Math.PI * 2, c: Math.random() < .55 ? "140,196,255" : Math.random() < .5 ? "79,195,217" : "255,230,170" });
+  const paso = () => { if (on) { x.clearRect(0, 0, W, H); ps.forEach((p, k) => { p.y -= p.v; p.a += .02; p.x += Math.sin(p.a) * .3; if (p.y < -10) ps[k] = nueva(false);
+      const al = Math.min(1, (H - p.y) / 120) * Math.min(1, p.y / 120); x.beginPath(); x.arc(p.x, p.y, p.r, 0, 7); x.fillStyle = `rgba(${p.c},${(.35 + .5 * Math.abs(Math.sin(p.a))) * Math.max(0, al)})`; x.shadowColor = `rgba(${p.c},.9)`; x.shadowBlur = 8; x.fill(); }); }
+    requestAnimationFrame(paso); };
+  tam(); addEventListener("resize", tam); if (io) new IntersectionObserver(([e]) => on = e.isIntersecting).observe(cv); paso(); })();
+
 })();
 </script>
 </body>
