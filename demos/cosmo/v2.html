@@ -364,7 +364,7 @@ footer a{color:var(--lima)}
 }
 
 /* ---- cinta que corre ---- */
-.cinta{background:var(--lima);color:var(--negro);overflow:hidden;border-block:1px solid var(--lima2)}
+.cinta{background:var(--lima);color:var(--negro);overflow:hidden;max-width:100vw;border-block:1px solid var(--lima2)}
 .mq{display:flex;width:max-content;animation:corre 38s linear infinite}
 .cinta .mq span{display:inline-flex;align-items:center;gap:18px;padding:14px 0 14px 18px;font:700 15px var(--f-t);letter-spacing:.02em;white-space:nowrap}
 .cinta .mq span::after{content:"✦";font-size:13px}
@@ -439,6 +439,7 @@ footer a{color:var(--lima)}
 }
 
 /* buscador */
+html{overflow-x:hidden}
 body{overflow-x:clip}
 .buscar{position:relative;max-width:620px;margin-bottom:14px}
 .buscar>svg{position:absolute;left:17px;top:50%;transform:translateY(-50%);width:20px;height:20px;color:var(--suave);pointer-events:none}
@@ -973,6 +974,9 @@ addEventListener("scroll", () => { if (pendiente) return; pendiente = true; requ
 /* ---- cinta y marcas que corren: se duplica el contenido para que el giro no tenga cortes ---- */
 ["#cinta", "#mq-a", "#mq-b"].forEach(s => { const el = $(s); el.innerHTML += el.innerHTML; });
 ["#mq-a", "#mq-b"].forEach(s => { const el = $(s); while (el.scrollWidth < innerWidth * 2.2 && el.children.length < 40) el.innerHTML += el.innerHTML; });
+// velocidad pareja en cualquier pantalla (pixeles por segundo): la cinta verde va despacio para leerla con calma
+const velocidad = () => [["#cinta", 22], ["#mq-a", 26], ["#mq-b", 22]].forEach(([s, v]) => { const el = $(s); el.style.animationDuration = (el.scrollWidth / 2 / v).toFixed(1) + "s"; });
+velocidad(); addEventListener("load", velocidad);
 
 /* ---- ir directo a una línea del catálogo ---- */
 document.addEventListener("click", e => { const l = e.target.closest("[data-linea]"); if (!l) return; e.preventDefault();
