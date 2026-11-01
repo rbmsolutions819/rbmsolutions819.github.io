@@ -208,6 +208,119 @@ label.c textarea{min-height:64px;resize:vertical}
 
 /* RBM-ANCHO: en computadora la página usa todo el ancho */
 @media (min-width:1100px){.wrap{max-width:1680px!important;padding-left:clamp(32px,4.5vw,96px)!important;padding-right:clamp(32px,4.5vw,96px)!important}}
+
+/* ===================== MATCHA MÍA 2.0 ===================== */
+.prod .etq{z-index:3}
+html{overflow-x:hidden}
+.progreso{position:fixed;top:0;left:0;right:0;height:4px;z-index:80;background:linear-gradient(90deg,var(--fucsia),#f39bc0,var(--matcha));transform:scaleX(0);transform-origin:0 50%;pointer-events:none}
+/* portada */
+.top{position:relative;overflow:hidden;isolation:isolate;border-bottom:0;background:radial-gradient(120% 90% at 15% 10%,#ffd3e6 0,transparent 55%),radial-gradient(90% 80% at 90% 20%,#e3f1cc 0,transparent 55%),linear-gradient(180deg,#fde7f1,#fbe3ee 70%,var(--fondo))}
+.top .wrap{grid-template-columns:1fr;justify-items:center;text-align:center;min-height:clamp(560px,88vh,820px);align-content:center;padding-block:40px 90px;gap:10px}
+.top .mancha{position:absolute;z-index:-2;border-radius:50%;filter:blur(40px);opacity:.75;animation:flota 14s ease-in-out infinite alternate}
+.top .mancha.m1{width:340px;height:340px;background:#f7b6d2;top:-80px;left:-90px}
+.top .mancha.m2{width:300px;height:300px;background:#cfe6a6;bottom:40px;right:-80px;animation-duration:17s;animation-delay:-5s}
+.top .mancha.m3{width:200px;height:200px;background:#ffd9a8;top:40%;left:55%;animation-duration:20s;opacity:.45}
+#petalos{position:absolute;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none}
+.top .logo{width:clamp(150px,40vw,210px);border-width:5px;box-shadow:0 0 0 10px rgba(255,255,255,.55),0 24px 50px -18px rgba(176,24,90,.7);animation:entra .9s cubic-bezier(.2,1.3,.4,1) backwards,flotaLogo 5s ease-in-out 1s infinite}
+.top h1{font-size:clamp(48px,13vw,92px);background:linear-gradient(100deg,var(--fucsia) 20%,#ff8fbd 40%,#fff 50%,#ff8fbd 60%,var(--fucsia) 80%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:sube .9s .15s cubic-bezier(.2,.7,.2,1) backwards,brillo 6s linear 1.4s infinite;filter:drop-shadow(0 3px 0 #fff) drop-shadow(0 10px 18px rgba(214,36,110,.25))}
+.top .lema{font-size:clamp(16px,4vw,20px);animation:sube .9s .3s cubic-bezier(.2,.7,.2,1) backwards}
+.top .chips-info{justify-content:center;animation:sube .9s .45s cubic-bezier(.2,.7,.2,1) backwards}
+.acc-top{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:12px;animation:sube .9s .6s cubic-bezier(.2,.7,.2,1) backwards}
+.acc-top .btn{padding:14px 22px;font-size:16px;border-radius:999px}
+.btn.brilla{position:relative;overflow:hidden;isolation:isolate;box-shadow:0 14px 28px -12px rgba(214,36,110,.8)}
+.btn.brilla::after{content:"";position:absolute;top:0;bottom:0;left:-70%;width:45%;z-index:-1;background:linear-gradient(100deg,transparent,rgba(255,255,255,.55),transparent);transform:skewX(-20deg);animation:barrido 4.5s ease-in-out 2s infinite}
+.btn.vidrio{background:rgba(255,255,255,.65);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border-color:var(--matcha);color:var(--matcha-osc)}
+.baja{position:absolute;left:50%;bottom:58px;translate:-50% 0;z-index:2;width:26px;height:42px;border:2px solid var(--fucsia);border-radius:14px;display:grid;justify-items:center;padding-top:7px;opacity:.7}
+.baja i{width:4px;height:9px;border-radius:4px;background:var(--fucsia);animation:rueda 1.8s ease-in-out infinite}
+.onda{position:absolute;left:0;right:0;bottom:-1px;height:46px;z-index:1;pointer-events:none}
+.onda svg{width:200%;height:100%;display:block;animation:corre 14s linear infinite}
+/* cinta */
+.cinta{overflow:hidden;background:linear-gradient(90deg,var(--matcha-osc),var(--matcha),var(--matcha-osc));-webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)}
+.cinta-in{display:flex;width:max-content;animation:corre 90s linear infinite}
+.cinta-in span{display:inline-flex;align-items:center;gap:20px;padding:12px 0 12px 20px;font:400 18px var(--f-logo);color:#fff;white-space:nowrap}
+.cinta-in span::after{content:"🍵";font-size:15px}
+.cinta:hover .cinta-in{animation-play-state:paused}
+.cats{top:0}
+/* carrusel de la casa */
+.casa{display:grid;gap:6px}
+.casa h2{display:grid;justify-items:center;gap:2px;text-align:center}
+.casa h2 small{font:700 14px var(--f-txt);color:var(--suave)}
+.cf{position:relative;height:calc(var(--w) * 1.42 + 24px);--w:clamp(200px,56vw,260px);touch-action:pan-y;user-select:none;outline:0;isolation:isolate;overflow:hidden;margin-inline:calc(-1 * var(--gl))}
+.cf-it{position:absolute;top:12px;left:50%;width:var(--w);border:2px solid var(--linea);border-radius:26px;padding:14px;background:#fff;color:var(--tinta);text-align:center;display:grid;gap:6px;cursor:pointer;transition:transform .75s cubic-bezier(.2,.75,.2,1),opacity .6s,filter .6s,box-shadow .6s,border-color .6s;will-change:transform;font:inherit}
+.cf-it .lienzo{height:calc(var(--w) * .78);background:radial-gradient(circle at 50% 70%,color-mix(in srgb,var(--c) 35%,#fff),var(--rosa) 70%)}
+.cf-it .taza{scale:1.3}
+.cf-it h3{font:400 22px var(--f-logo);color:var(--fucsia)}
+.cf-it p{font-size:13px;color:var(--suave);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.cf-it .precio{font-size:18px}
+.cf-it:not(.on){filter:saturate(.7) brightness(.95);opacity:.85}
+.cf-it.on{border-color:var(--fucsia);box-shadow:0 30px 50px -22px color-mix(in srgb,var(--c) 80%,var(--fucsia))}
+.cf-fl{position:absolute;top:44%;z-index:80;width:46px;height:46px;border-radius:50%;border:2px solid var(--fucsia);background:#fff;color:var(--fucsia);font-size:24px;display:grid;place-items:center;cursor:pointer;box-shadow:0 8px 18px -10px rgba(176,24,90,.7)}
+.cf-fl:hover{background:var(--fucsia);color:#fff}
+.cf-fl.izq{left:max(10px,calc(50% - var(--w) * 1.75))}.cf-fl.der{right:max(10px,calc(50% - var(--w) * 1.75))}
+.cf-dots{display:flex;justify-content:center;gap:6px}
+.cf-dots i{width:7px;height:7px;border-radius:9px;background:var(--rosa2);transition:width .3s,background .3s}
+.cf-dots i.on{width:24px;background:var(--fucsia)}
+/* bebidas vivas */
+.vaso{overflow:hidden}
+.vaso .bu{position:absolute;bottom:-6px;width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.8);animation:burbuja 3.4s ease-in infinite;z-index:1}
+.vaso .bu:nth-child(1){left:28%;animation-delay:.3s}.vaso .bu:nth-child(2){left:55%;width:4px;height:4px;animation-delay:1.4s;animation-duration:2.8s}.vaso .bu:nth-child(3){left:70%;width:5px;height:5px;animation-delay:2.2s;animation-duration:3.9s}
+.vaso .hielo{position:absolute;width:20px;height:18px;border-radius:5px;background:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.8);top:16%;left:22%;rotate:14deg;animation:hielo 4s ease-in-out infinite;z-index:1}
+.vaso .hielo+.hielo{left:50%;top:30%;rotate:-18deg;animation-delay:-2s}
+.vapor{position:absolute;left:50%;top:-34px;width:60px;height:40px;translate:-50% 0;pointer-events:none}
+.vapor i{position:absolute;bottom:0;width:8px;height:26px;border-radius:50%;background:linear-gradient(transparent,rgba(160,120,140,.35));filter:blur(3px);animation:vapor 3s ease-in infinite;opacity:0}
+.vapor i:nth-child(1){left:12px}.vapor i:nth-child(2){left:26px;animation-delay:1s}.vapor i:nth-child(3){left:40px;animation-delay:2s}
+.pajilla{transform-origin:50% 100%;animation:pajilla 4s ease-in-out infinite}
+.prod{--c:var(--matcha);transition:transform .2s ease,border-color .2s,box-shadow .3s,translate .7s cubic-bezier(.2,.7,.2,1),opacity .7s}
+.prod:hover{border-color:var(--fucsia);box-shadow:0 18px 34px -18px color-mix(in srgb,var(--c) 80%,var(--fucsia))}
+.prod .lienzo{background:radial-gradient(circle at 50% 75%,color-mix(in srgb,var(--c) 30%,#fff),var(--rosa) 68%)}
+.prod:hover .taza,.prod:hover .galleta,.prod:hover .queque{animation:brinca .6s ease}
+.prod .etq.nuevo{animation:latido 1.8s ease-in-out infinite}
+.prod .mas{transition:transform .25s}
+.prod:hover .mas{transform:rotate(90deg) scale(1.15)}
+/* títulos con hojita */
+section h2{display:flex;align-items:center;gap:10px}
+section h2::before{content:"";width:26px;height:26px;flex:none;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M20 4C10 4 4 9 4 16c0 1.5.3 2.8.8 4C6 14 10 10 16 8c-5 3-8 7-9.5 12.5C8 21.5 9.8 22 12 22c6 0 9-6 8-18z' fill='%237aa33b'/%3E%3C/svg%3E") center/contain no-repeat;animation:hoja 4s ease-in-out infinite}
+.casa h2::before{display:none}
+.js .rv{opacity:0;translate:0 30px}
+.js .rv.vis{opacity:1;translate:0 0;transition:opacity .7s ease var(--d,0s),translate .7s cubic-bezier(.2,.7,.2,1) var(--d,0s)}
+.js .prod.rv.vis{transition:transform .2s ease,border-color .2s,box-shadow .3s,opacity .7s ease var(--d,0s),translate .7s cubic-bezier(.2,.7,.2,1) var(--d,0s)}
+/* promo con borde que gira */
+.promo{position:relative;isolation:isolate;overflow:hidden;padding:22px;border-radius:24px;background:none}
+.promo::before{content:"";position:absolute;inset:-60%;z-index:-2;background:conic-gradient(from 0deg,var(--matcha) 0 55%,#ff8fbd 70%,#fff 76%,var(--fucsia) 84%,var(--matcha) 95%);animation:gira 6s linear infinite}
+.promo::after{content:"";position:absolute;inset:3px;z-index:-1;border-radius:21px;background:linear-gradient(120deg,var(--matcha),var(--matcha-osc))}
+.promo b{font-size:clamp(22px,5vw,28px)}
+/* sellos */
+.tarjeta{position:relative;overflow:hidden}
+.tarjeta::before{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 30%,rgba(255,143,189,.18) 45%,transparent 60%);background-size:250% 100%;animation:brillo 7s linear infinite;pointer-events:none}
+.tarjeta.vis .sellos i{animation:sello .55s cubic-bezier(.2,1.4,.4,1) backwards}
+.tarjeta.vis .sellos i:nth-child(1){animation-delay:.05s}.tarjeta.vis .sellos i:nth-child(2){animation-delay:.1s}.tarjeta.vis .sellos i:nth-child(3){animation-delay:.15s}.tarjeta.vis .sellos i:nth-child(4){animation-delay:.2s}.tarjeta.vis .sellos i:nth-child(5){animation-delay:.25s}.tarjeta.vis .sellos i:nth-child(6){animation-delay:.3s}.tarjeta.vis .sellos i:nth-child(7){animation-delay:.35s}.tarjeta.vis .sellos i:nth-child(8){animation-delay:.4s}.tarjeta.vis .sellos i:nth-child(9){animation-delay:.45s}.tarjeta.vis .sellos i:nth-child(10){animation-delay:.5s}
+.sellos i.gratis{animation:aura 2.4s ease-in-out infinite}
+.caja{transition:translate .3s,border-color .3s,box-shadow .3s,opacity .7s ease var(--d,0s)}
+.caja:hover{border-color:var(--rosa2);box-shadow:0 16px 30px -20px rgba(176,24,90,.6)}
+.cats button{transition:background .25s,color .25s,border-color .25s,transform .2s}
+.cats button:hover{transform:translateY(-2px);border-color:var(--fucsia)}
+.carrito{animation:latidoC 2.4s ease-in-out infinite}
+@keyframes flota{from{transform:translate(0,0) scale(1)}to{transform:translate(40px,30px) scale(1.15)}}
+@keyframes flotaLogo{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-10px) rotate(2deg)}}
+@keyframes sube{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+@keyframes entra{from{opacity:0;transform:scale(.6) rotate(-10deg)}to{opacity:1;transform:none}}
+@keyframes brillo{to{background-position:-250% 0}}
+@keyframes barrido{0%,70%{left:-70%}100%{left:130%}}
+@keyframes rueda{0%{opacity:0;transform:translateY(0)}30%{opacity:1}100%{opacity:0;transform:translateY(14px)}}
+@keyframes corre{to{transform:translateX(-50%)}}
+@keyframes burbuja{0%{transform:translateY(0) scale(.6);opacity:0}15%{opacity:.9}100%{transform:translateY(-110px) scale(1.1);opacity:0}}
+@keyframes hielo{0%,100%{translate:0 0}50%{translate:0 -5px}}
+@keyframes vapor{0%{opacity:0;transform:translateY(8px) scaleX(.8)}30%{opacity:1}100%{opacity:0;transform:translateY(-22px) scaleX(1.4)}}
+@keyframes pajilla{0%,100%{rotate:0deg}50%{rotate:5deg}}
+@keyframes brinca{0%,100%{transform:none}40%{transform:translateY(-8px) rotate(-3deg)}70%{transform:translateY(0) rotate(2deg)}}
+@keyframes latido{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+@keyframes latidoC{0%,100%{box-shadow:0 14px 34px -12px rgba(214,36,110,.5)}50%{box-shadow:0 14px 44px -6px rgba(214,36,110,.85)}}
+@keyframes gira{to{rotate:360deg}}
+@keyframes sello{from{transform:scale(0) rotate(-40deg);opacity:0}to{transform:none;opacity:1}}
+@keyframes aura{0%,100%{box-shadow:0 0 0 0 rgba(214,36,110,0)}50%{box-shadow:0 0 18px 3px rgba(214,36,110,.4)}}
+@keyframes hoja{0%,100%{rotate:-8deg}50%{rotate:10deg}}
+@media (min-width:900px){.cf{--w:clamp(230px,19vw,280px)}}
+@media (prefers-reduced-motion:reduce){.js .rv{opacity:1;translate:none}}
 </style>
 </head>
 <body>
@@ -216,22 +329,37 @@ label.c textarea{min-height:64px;resize:vertical}
 <button class="avisoPed" id="avisoPed" type="button" hidden></button>
 <div class="prueba" id="bPrueba" hidden><b>Modo prueba</b> · los clientes y sellos son de ejemplo, no son reales · <a href="./">Salir</a></div>
 
+<div class="progreso" id="progreso" aria-hidden="true"></div>
 <header class="top">
+  <div class="mancha m1" aria-hidden="true"></div><div class="mancha m2" aria-hidden="true"></div><div class="mancha m3" aria-hidden="true"></div>
+  <canvas id="petalos" aria-hidden="true"></canvas>
   <div class="wrap">
     <img class="logo" src="logo.png" alt="" width="120" height="120">
     <div>
       <h1 id="nombre">Matcha Mía</h1>
       <p class="lema" id="lema">Matcha bar, inspirado en una salchichita</p>
       <div class="chips-info"><span id="estado">Cargando horario…</span><a href="#lealtad">Mi tarjeta</a><a href="#info">Barrio Amón</a><a id="ig" href="https://www.instagram.com/matchamia.cr" target="_blank" rel="noopener">Instagram</a></div>
+      <div class="acc-top"><a class="btn pri brilla" href="#casa">Ver el menú</a><a class="btn vidrio" href="#lealtad">Mi tarjeta de sellos</a></div>
     </div>
   </div>
+  <a class="baja" href="#casa" aria-label="Bajar al menú"><i></i></a>
+  <div class="onda" aria-hidden="true"><svg viewBox="0 0 1440 46" preserveAspectRatio="none"><path d="M0 26 C120 6 240 6 360 26 S600 46 720 26 S960 6 1080 26 S1320 46 1440 26 V46 H0Z" fill="#fff6fa"/></svg></div>
 </header>
+<div class="cinta" aria-hidden="true"><div class="cinta-in" id="cinta"></div></div>
 
 <nav class="cats" aria-label="Categorías"><div class="wrap" id="cats"></div></nav>
 
 <main>
   <div class="wrap">
     <div class="promosNube" id="promosNube" hidden></div>
+    <section class="casa" id="casa" aria-labelledby="h-casa">
+      <h2 id="h-casa" class="rv">Las favoritas de la casa<small>Deslizá para ver más · tocá la del centro para pedirla</small></h2>
+      <div class="cf rv" id="cf" tabindex="0" aria-roledescription="carrusel" aria-label="Bebidas destacadas">
+        <div id="cf-pista"></div>
+        <button type="button" class="cf-fl izq" data-cfm="-1" aria-label="Anterior">‹</button><button type="button" class="cf-fl der" data-cfm="1" aria-label="Siguiente">›</button>
+      </div>
+      <div class="cf-dots" id="cf-dots" aria-hidden="true"></div>
+    </section>
     <div class="promo" id="promo"></div>
     <div id="menu"></div>
 
@@ -324,8 +452,8 @@ function dibujo(p) {
   let acc = 0; const stops = [];
   (p.capas || [["matcha",100]]).forEach(([c, pct]) => { const col = C[c] || c; stops.push(`${col} ${acc}% ${acc + pct}%`); acc += pct; });
   const fondo = `linear-gradient(to top, ${stops.join(",")})`;
-  return p.caliente ? `<div class="taza cal"><div class="vaso cal" style="background:${fondo}"></div></div>`
-    : `<div class="taza"><span class="pajilla"></span><div class="vaso" style="background:${fondo}"></div></div>`;
+  return p.caliente ? `<div class="taza cal"><span class="vapor"><i></i><i></i><i></i></span><div class="vaso cal" style="background:${fondo}"></div></div>`
+    : `<div class="taza"><span class="pajilla"></span><div class="vaso" style="background:${fondo}"><i class="bu"></i><i class="bu"></i><i class="bu"></i><i class="hielo"></i><i class="hielo"></i></div></div>`;
 }
 
 /* ===== Horario ===== */
@@ -874,6 +1002,93 @@ function leerHash() {
 }
 leerHash(); addEventListener("hashchange", leerHash);
 setInterval(pintarHorario, 60000);
+
+/* ===================== MATCHA MÍA 2.0: ANIMACIONES ===================== */
+const QUIETO = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const FINO = matchMedia("(pointer: fine)").matches;
+const colorDe = p => { const cs = (p.capas || []).filter(([c]) => c !== "leche" && c !== "coco"); return C[(cs[cs.length - 1] || [])[0]] || (p.dibujo ? "#c98a3e" : C.matcha); };
+const io = "IntersectionObserver" in window ? new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add("vis"); io.unobserve(e.target); } }), { rootMargin: "0px 0px -8% 0px", threshold: .06 }) : null;
+const observar = (r = document) => r.querySelectorAll(".rv:not(.vis)").forEach(el => io ? io.observe(el) : el.classList.add("vis"));
+function vivo(){
+  $("#menu").querySelectorAll("section").forEach(sec => {
+    sec.querySelector("h2")?.classList.add("rv");
+    sec.querySelectorAll(".prod").forEach((card, i) => {
+      const p = D.productos.find(x => x.id === card.dataset.p);
+      if (p) card.style.setProperty("--c", colorDe(p));
+      card.classList.add("rv"); card.style.setProperty("--d", (i % 4) * 80 + "ms");
+    });
+  });
+  observar($("#menu"));
+}
+const _pintarMenu = pintarMenu;
+pintarMenu = function(){ _pintarMenu(); vivo(); };
+vivo();
+["#promo", "#lealtad h2", "#info h2"].forEach(q => $(q)?.classList.add("rv"));
+document.querySelectorAll("#info .caja").forEach((c, i) => { c.classList.add("rv"); c.style.setProperty("--d", i * 110 + "ms"); });
+$("#tarjeta").classList.add("rv");
+new MutationObserver(() => { const t = $("#tarjeta"); if (t.classList.contains("vis")) { t.classList.remove("vis"); void t.offsetWidth; t.classList.add("vis"); } }).observe($("#tarjeta"), { childList: true });
+document.documentElement.classList.add("js");
+observar();
+
+// barra de avance al bajar
+const barra = $("#progreso"); let pend = false;
+addEventListener("scroll", () => { if (pend) return; pend = true; requestAnimationFrame(() => { pend = false; const h = document.documentElement, m = h.scrollHeight - h.clientHeight; barra.style.transform = `scaleX(${m > 0 ? h.scrollTop / m : 0})`; }); }, { passive: true });
+
+// cinta con los nombres de las bebidas
+(() => { const c = $("#cinta"); const ns = D.productos.filter(p => !p.oculto && p.cat !== "comer").map(p => p.nombre);
+  c.innerHTML = ns.map(n => `<span>${esc(n)}</span>`).join(""); c.innerHTML += c.innerHTML;
+  const vel = () => c.style.animationDuration = (c.scrollWidth / 2 / 35).toFixed(1) + "s"; vel(); addEventListener("load", vel); })();
+
+// carrusel de las favoritas (de la casa + nuevas)
+(() => {
+  const L = D.productos.filter(p => !p.oculto && !p.agotado && (p.cat === "especiales" || p.nuevo));
+  if (L.length < 2) { $("#casa").hidden = true; return; }
+  const pista = $("#cf-pista"), box = $("#cf"), dots = $("#cf-dots"); let i = 0, visto = false, sobre = false, arr = false;
+  pista.innerHTML = L.map((p, k) => `<button type="button" class="cf-it" data-k="${k}" style="--c:${colorDe(p)}" aria-label="${esc(p.nombre)}"><div class="lienzo">${dibujo(p)}</div><h3>${esc(p.nombre)}</h3><p>${esc(p.desc)}</p><span class="precio">${crc(p.precio)}</span></button>`).join("");
+  dots.innerHTML = L.map(() => "<i></i>").join("");
+  const pos = () => { const n = L.length, an = innerWidth < 600 ? 62 : 72;
+    pista.querySelectorAll(".cf-it").forEach((el, k) => { let d = k - i; if (d > n / 2) d -= n; if (d < -n / 2) d += n; const a = Math.abs(d);
+      el.style.transform = `translateX(calc(-50% + ${d * an}%)) scale(${Math.max(.5, 1 - a * .15)}) rotate(${d * 3}deg)`;
+      el.style.zIndex = 60 - a; el.style.opacity = a > 2 ? 0 : 1 - a * .15; el.style.pointerEvents = a > 2 ? "none" : ""; el.classList.toggle("on", d === 0); el.tabIndex = d === 0 ? 0 : -1; });
+    dots.querySelectorAll("i").forEach((d, k) => d.classList.toggle("on", k === i)); };
+  const mover = d => { i = (i + d + L.length) % L.length; pos(); };
+  const pedirla = p => { const c = document.querySelector(`#menu .prod[data-p="${p.id}"]`); if (c) c.click(); };
+  box.addEventListener("click", e => { const f = e.target.closest("[data-cfm]"); if (f) return mover(+f.dataset.cfm);
+    const it = e.target.closest(".cf-it"); if (!it || arr) return; const k = +it.dataset.k; if (k === i) pedirla(L[k]); else { i = k; pos(); } });
+  box.addEventListener("keydown", e => { if (e.key === "ArrowRight") { e.preventDefault(); mover(1); } if (e.key === "ArrowLeft") { e.preventDefault(); mover(-1); } });
+  let x0 = null, y0 = 0;
+  box.addEventListener("pointerdown", e => { if (e.target.closest("[data-cfm]")) return; x0 = e.clientX; y0 = e.clientY; arr = false; });
+  box.addEventListener("pointermove", e => { if (x0 == null) return; const dx = e.clientX - x0; if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(e.clientY - y0)) { arr = true; mover(dx < 0 ? 1 : -1); x0 = e.clientX; } });
+  addEventListener("pointerup", () => { x0 = null; setTimeout(() => arr = false, 0); });
+  box.addEventListener("pointerenter", e => { if (e.pointerType === "mouse") sobre = true; }); box.addEventListener("pointerleave", () => sobre = false);
+  box.addEventListener("touchstart", () => { sobre = true; clearTimeout(box._t); }, { passive: true }); box.addEventListener("touchend", () => { box._t = setTimeout(() => sobre = false, 6000); }, { passive: true });
+  if (io) new IntersectionObserver(([e]) => visto = e.isIntersecting, { threshold: .35 }).observe(box);
+  if (!QUIETO) setInterval(() => { if (visto && !sobre && !document.hidden && !$("#hoja").classList.contains("on")) mover(1); }, 3200);
+  addEventListener("resize", pos); pos();
+})();
+
+// tarjetas que se inclinan con el mouse (solo en computadora)
+if (FINO && !QUIETO) {
+  document.addEventListener("pointermove", e => { const c = e.target.closest?.(".prod"); if (!c || c.classList.contains("agotado")) return; const r = c.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5; c.style.transform = `perspective(700px) rotateX(${-y * 7}deg) rotateY(${x * 9}deg) translateY(-4px)`; }, { passive: true });
+  document.addEventListener("pointerout", e => { const c = e.target.closest?.(".prod"); if (c && !c.contains(e.relatedTarget)) c.style.transform = ""; });
+}
+
+// pétalos rosados, hojitas de matcha y burbujas que flotan en la portada
+(() => { if (QUIETO) return; const cv = $("#petalos"), x = cv.getContext("2d"); let W, H, ps = [], on = true;
+  const tipos = ["petalo", "petalo", "hoja", "burbuja", "corazon"];
+  const nueva = ini => ({ x: Math.random() * W, y: ini ? Math.random() * H : -20, s: Math.random() * 7 + 6, v: Math.random() * .5 + .25, a: Math.random() * 6.3, g: (Math.random() - .5) * .03, t: tipos[Math.floor(Math.random() * tipos.length)] });
+  const tam = () => { const r = cv.getBoundingClientRect(), dpr = Math.min(2, devicePixelRatio || 1); W = r.width; H = r.height; cv.width = W * dpr; cv.height = H * dpr; x.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ps = Array.from({ length: Math.round(Math.min(34, W / 22)) }, () => nueva(true)); };
+  const dib = p => { x.save(); x.translate(p.x, p.y); x.rotate(p.a); x.globalAlpha = .75;
+    if (p.t === "petalo") { x.fillStyle = "#f59ac0"; x.beginPath(); x.ellipse(0, 0, p.s * .55, p.s, 0, 0, 7); x.fill(); x.fillStyle = "rgba(255,255,255,.5)"; x.beginPath(); x.ellipse(-p.s * .15, -p.s * .3, p.s * .15, p.s * .35, 0, 0, 7); x.fill(); }
+    else if (p.t === "hoja") { x.fillStyle = "#86b34a"; x.beginPath(); x.moveTo(0, -p.s); x.quadraticCurveTo(p.s * .8, 0, 0, p.s); x.quadraticCurveTo(-p.s * .8, 0, 0, -p.s); x.fill(); x.strokeStyle = "rgba(255,255,255,.6)"; x.lineWidth = 1; x.beginPath(); x.moveTo(0, -p.s * .8); x.lineTo(0, p.s * .8); x.stroke(); }
+    else if (p.t === "corazon") { x.fillStyle = "#e2507a"; const k = p.s / 9; x.scale(k, k); x.beginPath(); x.moveTo(0, 3); x.bezierCurveTo(-7, -3, -4, -9, 0, -5); x.bezierCurveTo(4, -9, 7, -3, 0, 3); x.fill(); }
+    else { x.strokeStyle = "rgba(255,255,255,.95)"; x.fillStyle = "rgba(255,255,255,.25)"; x.lineWidth = 1.5; x.beginPath(); x.arc(0, 0, p.s * .6, 0, 7); x.fill(); x.stroke(); }
+    x.restore(); };
+  const paso = () => { if (on) { x.clearRect(0, 0, W, H); ps.forEach((p, k) => { p.y += p.v; p.a += p.g; p.x += Math.sin((p.y + k * 40) / 60) * .4; if (p.y > H + 20) ps[k] = nueva(false); dib(p); }); }
+    requestAnimationFrame(paso); };
+  tam(); addEventListener("resize", tam); if (io) new IntersectionObserver(([e]) => on = e.isIntersecting).observe(cv); paso(); })();
 })();
 </script>
 </body>

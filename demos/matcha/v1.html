@@ -1,0 +1,880 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Matcha Mía · Menú (demo) · versión anterior</title>
+<meta name="description" content="Demo de menú digital con pedidos para recoger, hecha por RBM Solutions.">
+<meta name="theme-color" content="#fbe3ee">
+<link rel="icon" href="logo.png">
+<link rel="apple-touch-icon" href="logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shrikhand&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>svg.i{width:1em;height:1em;vertical-align:-.14em;flex:none;display:inline-block}
+/* Diseño: menú de barra de matcha. Un solo look claro y deliberado: rosado chicle de la marca, verde matcha como acento de producto.
+   Cada bebida se dibuja como un vaso con sus capas (leche, matcha, fresa…), así el menú funciona aunque todavía no haya fotos. */
+:root{
+  --fondo:#fff6fa; --rosa:#fbe3ee; --rosa2:#f6c4d9; --fucsia:#d6246e; --fucsia2:#b0185a;
+  --matcha:#7aa33b; --matcha-osc:#4f7322; --tinta:#3a1424; --suave:#8a5a6e; --linea:#f0cfdd; --blanco:#ffffff;
+  --ok:#2f8a4e; --gl:max(16px,env(safe-area-inset-left,0px)); --gr:max(16px,env(safe-area-inset-right,0px));
+  --f-logo:"Shrikhand","Arial Rounded MT Bold",system-ui,sans-serif;
+  --f-txt:"Nunito",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--fondo);color:var(--tinta);font:400 16px/1.5 var(--f-txt);-webkit-font-smoothing:antialiased;overflow-x:hidden;padding-bottom:env(safe-area-inset-bottom,0px)}
+[hidden]{display:none!important}
+button,input,select,textarea{font:inherit;color:inherit}
+h1,h2,h3{margin:0;line-height:1.1;text-wrap:balance}
+p{margin:0}
+a{color:var(--fucsia2)}
+:focus-visible{outline:3px solid var(--matcha);outline-offset:2px;border-radius:8px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}html{scroll-behavior:auto}}
+.wrap{max-width:980px;margin:0 auto;padding-left:var(--gl);padding-right:var(--gr)}
+.demo{background:var(--tinta);color:#fff;font-size:12.5px;text-align:center;padding:6px var(--gr) 6px var(--gl);padding-top:calc(6px + env(safe-area-inset-top,0px))}
+.demo b{color:var(--rosa2)}
+.prueba{background:#f6c90e;color:#1a1400;font-size:13px;font-weight:700;text-align:center;padding:6px var(--gr) 6px var(--gl)}
+.prueba a{color:#1a1400;font-weight:800}
+.ejs{display:grid;gap:4px;font-size:13.5px}
+.ejs div{display:flex;justify-content:space-between;gap:8px;border-bottom:1px dashed var(--linea);padding:4px 0}
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.stats div{background:#fff;border:2px solid var(--linea);border-radius:14px;padding:10px;display:grid;gap:2px;text-align:center}
+.stats b{font:400 24px/1.1 var(--f-logo);color:var(--fucsia)}
+.stats span{font-size:12.5px;color:var(--suave);font-weight:800}
+.stats .dest{border-color:var(--fucsia);background:var(--rosa)}
+.fila-dom{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px}
+.fila-dom select,.fila-dom input{border:2px solid var(--linea);border-radius:12px;background:#fff;padding:10px;font-weight:700;color:var(--tinta);min-width:0}
+.dom{border:2px dashed var(--rosa2);border-radius:16px;padding:12px}
+.badge{display:inline-grid;place-items:center;min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:var(--fucsia);color:#fff;font-size:12px;font-weight:800;line-height:1;vertical-align:1px}
+.tabs button[aria-pressed="true"] .badge{background:#fff;color:var(--fucsia2)}
+.avisoPed{display:block;width:100%;border:0;background:var(--fucsia);color:#fff;font:700 14px var(--f-txt);padding:9px var(--gr) 9px var(--gl);cursor:pointer;text-align:center}
+.avisoPed::after{content:" · Ver ›";font-weight:800;text-decoration:underline}
+.avisoPed[hidden]{display:none}
+.pend{display:grid;gap:8px}
+.pend button{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:2px 10px;align-items:center;text-align:left;background:#fff;border:2px solid var(--linea);border-radius:14px;padding:10px 12px;cursor:pointer;color:var(--tinta);font:inherit}
+.pend button:hover,.pend button.sel{border-color:var(--fucsia)}
+.pend .app{grid-row:span 2;background:var(--rosa);color:var(--fucsia2);font-weight:800;font-size:12px;border-radius:8px;padding:6px 8px}
+.pend small{grid-column:3;grid-row:1 / span 2;color:var(--suave);font-weight:700;font-size:12.5px}
+.pend span:not(.app){grid-column:2;color:var(--suave);font-size:13.5px}
+.top10{display:grid}
+.top10 button{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:2px 10px;align-items:center;text-align:left;border:0;border-bottom:1px dashed var(--linea);background:none;color:var(--tinta);padding:9px 2px;cursor:pointer;font:inherit}
+.top10 .pos{font:400 20px var(--f-logo);color:var(--fucsia);grid-row:span 2}
+.top10 small{grid-column:2;color:var(--suave);font-size:12.5px}
+.top10 .n{grid-row:span 2;grid-column:3;text-align:right;font-weight:800}
+
+/* portada */
+.top{background:var(--rosa);border-bottom:2px solid var(--rosa2)}
+.logo{width:clamp(96px,22vw,128px);height:auto;aspect-ratio:1;border-radius:50%;border:3px solid #fff;box-shadow:0 10px 24px -12px rgba(176,24,90,.6)}
+.top .wrap{display:grid;grid-template-columns:auto minmax(0,1fr);gap:16px;align-items:center;padding-block:22px 20px}
+.sello{width:86px;height:86px;border-radius:50%;background:#fff;border:3px solid var(--fucsia);display:grid;place-items:center;box-shadow:0 0 0 5px var(--rosa2)}
+.sello svg{width:60px;height:60px}
+.top h1{font:400 clamp(34px,8vw,52px)/1 var(--f-logo);color:var(--fucsia);letter-spacing:.01em}
+.top .lema{color:var(--suave);font-weight:600;margin-top:4px}
+.chips-info{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chips-info span,.chips-info a{font-size:13px;font-weight:700;background:#fff;border:1px solid var(--linea);border-radius:999px;padding:4px 10px;color:var(--tinta);text-decoration:none}
+.abierto{color:var(--ok)!important}
+.cerrado{color:var(--fucsia2)!important}
+
+/* navegación de categorías */
+.cats{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--fondo) 92%,transparent);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid var(--linea)}
+.cats .wrap{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-block:10px}
+.cats .wrap::-webkit-scrollbar{display:none}
+.cats button{flex:none;border:2px solid var(--rosa2);background:#fff;border-radius:999px;padding:7px 14px;font-weight:800;font-size:14px;cursor:pointer;color:var(--suave)}
+.cats button[aria-pressed="true"]{background:var(--fucsia);border-color:var(--fucsia);color:#fff}
+
+main .wrap{display:grid;gap:30px;padding-block:22px 120px}
+.promo{background:linear-gradient(120deg,var(--matcha),var(--matcha-osc));color:#fff;border-radius:22px;padding:18px 20px;display:grid;gap:4px}
+.promo b{font:400 22px var(--f-logo)}
+section h2{font:400 26px var(--f-logo);color:var(--fucsia);margin-bottom:12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
+.prod{background:#fff;border:2px solid var(--linea);border-radius:22px;padding:14px;display:grid;grid-template-rows:auto auto 1fr auto;gap:8px;text-align:left;cursor:pointer;min-width:0;transition:transform .15s,border-color .15s;position:relative}
+.prod:hover{transform:translateY(-2px);border-color:var(--rosa2)}
+.prod h3{font-size:17px;font-weight:800}
+.prod p{font-size:14px;color:var(--suave)}
+.prod .pie{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.precio{font-weight:800;font-variant-numeric:tabular-nums}
+.mas{width:36px;height:36px;border-radius:50%;background:var(--fucsia);color:#fff;display:grid;place-items:center;font-size:22px;font-weight:800;line-height:1}
+.prod.agotado{opacity:.55;cursor:not-allowed}
+.prod .etq{position:absolute;top:12px;left:12px;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;background:var(--tinta);color:#fff;border-radius:6px;padding:2px 7px}
+.prod .etq.nuevo{background:var(--matcha)}
+.lienzo{height:150px;border-radius:16px;background:var(--rosa);display:grid;place-items:center;overflow:hidden}
+
+/* vaso dibujado */
+.vaso{position:relative;width:72px;height:112px;clip-path:polygon(0 0,100% 0,88% 100%,12% 100%);border-radius:0 0 10px 10px}
+.vaso::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(255,255,255,.45),transparent 30%,transparent 70%,rgba(255,255,255,.25))}
+.vaso::after{content:"";position:absolute;left:0;right:0;top:0;height:6px;background:rgba(255,255,255,.7)}
+.vaso.cal{width:84px;height:84px;clip-path:none;border-radius:6px 6px 26px 26px;box-shadow:inset 0 -6px 0 rgba(0,0,0,.08)}
+.taza{position:relative}
+.taza.cal::after{content:"";position:absolute;right:-18px;top:18px;width:22px;height:34px;border:7px solid #fff;border-left:0;border-radius:0 18px 18px 0}
+.pajilla{position:absolute;width:7px;height:52px;background:var(--fucsia);left:58%;top:-36px;border-radius:4px;transform:rotate(12deg)}
+.galleta{width:86px;height:86px;border-radius:50%;background:radial-gradient(circle at 30% 35%,#5a3424 0 6px,transparent 7px),radial-gradient(circle at 62% 58%,#5a3424 0 7px,transparent 8px),radial-gradient(circle at 45% 72%,#5a3424 0 5px,transparent 6px),radial-gradient(circle at 70% 30%,#5a3424 0 5px,transparent 6px),#d9a066;box-shadow:inset 0 -6px 0 rgba(0,0,0,.08)}
+.queque{width:100px;height:64px;border-radius:12px 12px 6px 6px;background:linear-gradient(#fff6c9 0 22%,#f3d36b 22%);box-shadow:inset 0 -6px 0 rgba(0,0,0,.06)}
+
+/* lealtad, horario */
+.tarjeta{background:#fff;border:2px dashed var(--fucsia);border-radius:22px;padding:18px;display:grid;gap:12px}
+.sellos{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;max-width:360px}
+.sellos i{aspect-ratio:1;border-radius:50%;border:2px solid var(--rosa2);display:grid;place-items:center;font-style:normal;font-size:20px;background:var(--fondo)}
+.sellos i.si{background:var(--fucsia);border-color:var(--fucsia);color:#fff}
+.sellos i.gratis{border-style:dashed;font-size:11px;font-weight:800;color:var(--fucsia2)}
+.dos{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.caja{background:#fff;border:2px solid var(--linea);border-radius:22px;padding:18px;display:grid;gap:10px;align-content:start}
+.caja h3{font-size:18px;font-weight:800}
+.horas{display:grid;gap:6px;font-size:15px}
+.horas div{display:flex;justify-content:space-between;gap:10px;border-bottom:1px dashed var(--linea);padding-bottom:6px}
+.horas div.hoy{font-weight:800;color:var(--fucsia2)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:2px solid var(--fucsia);background:#fff;color:var(--fucsia2);font-weight:800;border-radius:14px;padding:11px 16px;cursor:pointer;text-decoration:none}
+.btn.pri{background:var(--fucsia);color:#fff}
+.btn.verde{background:#25d366;border-color:#25d366;color:#05300f}
+.btn.sm{padding:7px 12px;font-size:14px;border-radius:10px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.fila-btn{display:flex;gap:8px;flex-wrap:wrap}
+.miTarj{display:grid;grid-template-columns:auto minmax(0,1fr);gap:16px;align-items:center}
+.qr{width:150px;height:150px;background:#fff;border-radius:14px;padding:8px;border:2px solid var(--linea);display:grid;place-items:center}
+.qr img,.qr canvas{width:100%!important;height:auto!important}
+.codigo{font:800 26px/1 var(--f-txt);letter-spacing:.08em;color:var(--fucsia2);font-variant-numeric:tabular-nums}
+.cli{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;align-items:center;padding:10px 0;border-bottom:1px dashed var(--linea)}
+.cli small{color:var(--suave)}
+.cli .fila-btn{grid-column:1/-1}
+.ficha{background:#fff;border:2px solid var(--fucsia);border-radius:18px;padding:16px;display:grid;gap:12px;margin-top:12px}
+.sellos i.pend{background:var(--matcha);border-color:var(--matcha);color:#fff}
+.promosNube{display:grid;gap:8px;margin-bottom:12px}
+.pn{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:start;border:1px solid var(--linea);border-left:4px solid var(--fucsia);border-radius:16px;padding:10px 12px;background:#fff}
+.pn .ic{font-size:20px;line-height:1.2}
+.pn div{display:grid;gap:2px}
+.pn small{color:var(--suave);font-weight:700;font-size:12.5px}
+.pn.hoy small{color:var(--fucsia)}
+.dias{display:flex;flex-wrap:wrap;gap:6px}
+.dias label{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--linea);border-radius:999px;padding:6px 10px;font-weight:700;font-size:13.5px;cursor:pointer}
+.ajuste{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.ajuste b{font-size:16px}
+.camara{position:relative;border-radius:16px;overflow:hidden;background:#000;aspect-ratio:1;max-width:360px;width:100%;margin:12px auto 0}
+.camara video{width:100%;height:100%;object-fit:cover;display:block}
+.camara::after{content:"";position:absolute;inset:18%;border:3px solid #fff;border-radius:16px;box-shadow:0 0 0 999px rgba(0,0,0,.35)}
+.compartir{display:grid;grid-template-columns:auto minmax(0,1fr);gap:14px;align-items:center;background:var(--rosa);border-radius:16px;padding:12px}
+.compartir .qr{width:120px;height:120px}
+@media (max-width:520px){.compartir{grid-template-columns:1fr;justify-items:center;text-align:center}}
+@media (max-width:520px){.miTarj{grid-template-columns:1fr;justify-items:center;text-align:center}}
+footer{text-align:center;color:var(--suave);font-size:13px;padding:10px var(--gr) 30px var(--gl)}
+footer button{border:0;background:none;color:var(--suave);text-decoration:underline;cursor:pointer;font-size:13px}
+
+/* botón flotante del pedido */
+.carrito{position:fixed;z-index:30;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));width:min(560px,calc(100% - 32px));display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--tinta);color:#fff;border:0;border-radius:18px;padding:14px 18px;font-weight:800;cursor:pointer;box-shadow:0 14px 34px -12px rgba(58,20,36,.6)}
+.carrito .n{background:var(--fucsia);border-radius:999px;padding:2px 10px;margin-right:8px}
+
+/* hojas (personalizar, pedido, panel) */
+.velo{position:fixed;inset:0;z-index:40;background:rgba(58,20,36,.45);opacity:0;pointer-events:none;transition:opacity .2s}
+.velo.on{opacity:1;pointer-events:auto}
+.hoja{position:fixed;z-index:50;left:0;right:0;bottom:0;margin:0 auto;max-width:600px;max-height:92vh;overflow-y:auto;background:var(--fondo);border-radius:26px 26px 0 0;padding:10px var(--gr) calc(22px + env(safe-area-inset-bottom,0px)) var(--gl);transform:translateY(105%);transition:transform .28s cubic-bezier(.2,.8,.2,1)}
+.hoja.on{transform:none}
+.asa{width:46px;height:5px;border-radius:9px;background:var(--rosa2);margin:0 auto 14px}
+.hoja h2{font:400 26px var(--f-logo);color:var(--fucsia)}
+.hoja .x{float:right;width:38px;height:38px;border-radius:50%;border:2px solid var(--rosa2);background:#fff;font-size:20px;cursor:pointer;line-height:1}
+.grupo{display:grid;gap:8px;margin-top:16px}
+.grupo>b{font-size:14px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--suave)}
+.ops{display:flex;flex-wrap:wrap;gap:8px}
+.ops button{border:2px solid var(--linea);background:#fff;border-radius:12px;padding:8px 12px;font-weight:700;cursor:pointer;font-size:14px}
+.ops button small{color:var(--suave);font-weight:600;margin-left:4px}
+.ops button[aria-pressed="true"]{border-color:var(--fucsia);background:var(--rosa);color:var(--fucsia2)}
+.cant{display:flex;align-items:center;gap:12px}
+.cant button{width:40px;height:40px;border-radius:50%;border:2px solid var(--fucsia);background:#fff;font-size:22px;font-weight:800;color:var(--fucsia);cursor:pointer;line-height:1}
+.cant b{min-width:28px;text-align:center;font-size:18px;font-variant-numeric:tabular-nums}
+.pie-hoja{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:20px;flex-wrap:wrap}
+.item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;padding:12px 0;border-bottom:1px dashed var(--linea)}
+.item small{grid-column:1;color:var(--suave);font-size:13.5px}
+.item .acc{grid-column:2;grid-row:1/3;display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.item .acc button{border:0;background:none;color:var(--fucsia2);font-size:13px;cursor:pointer;text-decoration:underline}
+.total{display:flex;justify-content:space-between;font-size:20px;font-weight:800;margin-top:12px}
+label.c{display:grid;gap:5px;font-size:14px;font-weight:800;color:var(--suave)}
+label.c input,label.c select,label.c textarea{border:2px solid var(--linea);border-radius:12px;background:#fff;padding:10px 12px;font-weight:600;color:var(--tinta);width:100%;min-width:0}
+label.c textarea{min-height:64px;resize:vertical}
+.err{color:var(--fucsia2);font-weight:700;font-size:14px;min-height:1em}
+.nota{font-size:13px;color:var(--suave)}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin:14px 0}
+.tabs button{white-space:nowrap}
+.tabs button{border:2px solid var(--linea);background:#fff;border-radius:999px;padding:6px 14px;font-weight:800;cursor:pointer}
+.tabs button[aria-pressed="true"]{background:var(--tinta);border-color:var(--tinta);color:#fff}
+.adm{display:grid;grid-template-columns:minmax(0,1fr) 92px;gap:6px 10px;align-items:center;padding:10px 0;border-bottom:1px dashed var(--linea)}
+.adm b{font-size:15px}
+.adm input[type=number]{border:2px solid var(--linea);border-radius:10px;padding:6px 8px;width:100%;font-weight:700}
+.adm .flags{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:12px;font-size:13.5px;color:var(--suave)}
+.adm .flags label{display:flex;gap:5px;align-items:center;cursor:pointer}
+.adm .flags button{border:0;background:none;color:var(--fucsia2);text-decoration:underline;cursor:pointer;margin-left:auto;font-size:13.5px}
+.toast{position:fixed;z-index:60;left:50%;transform:translate(-50%,20px);bottom:calc(86px + env(safe-area-inset-bottom,0px));background:var(--tinta);color:#fff;padding:10px 16px;border-radius:12px;font-weight:700;opacity:0;pointer-events:none;transition:.2s;max-width:calc(100% - 32px);text-align:center}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+@media (max-width:520px){.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.prod{padding:10px;border-radius:18px}.lienzo{height:124px}.prod h3{font-size:15px}.prod p{display:none}.top .wrap{grid-template-columns:1fr;justify-items:start}}
+
+/* RBM-ANCHO: en computadora la página usa todo el ancho */
+@media (min-width:1100px){.wrap{max-width:1680px!important;padding-left:clamp(32px,4.5vw,96px)!important;padding-right:clamp(32px,4.5vw,96px)!important}}
+</style>
+</head>
+<body>
+
+<div class="demo">Demo de <b>RBM Solutions</b> · menú, precios y horario de ejemplo</div>
+<button class="avisoPed" id="avisoPed" type="button" hidden></button>
+<div class="prueba" id="bPrueba" hidden><b>Modo prueba</b> · los clientes y sellos son de ejemplo, no son reales · <a href="./">Salir</a></div>
+
+<header class="top">
+  <div class="wrap">
+    <img class="logo" src="logo.png" alt="" width="120" height="120">
+    <div>
+      <h1 id="nombre">Matcha Mía</h1>
+      <p class="lema" id="lema">Matcha bar, inspirado en una salchichita</p>
+      <div class="chips-info"><span id="estado">Cargando horario…</span><a href="#lealtad">Mi tarjeta</a><a href="#info">Barrio Amón</a><a id="ig" href="https://www.instagram.com/matchamia.cr" target="_blank" rel="noopener">Instagram</a></div>
+    </div>
+  </div>
+</header>
+
+<nav class="cats" aria-label="Categorías"><div class="wrap" id="cats"></div></nav>
+
+<main>
+  <div class="wrap">
+    <div class="promosNube" id="promosNube" hidden></div>
+    <div class="promo" id="promo"></div>
+    <div id="menu"></div>
+
+    <section id="lealtad" aria-labelledby="h-leal">
+      <h2 id="h-leal">Tu tarjeta de sellos</h2>
+      <div class="tarjeta" id="tarjeta"></div>
+    </section>
+
+    <section id="info" aria-labelledby="h-info">
+      <h2 id="h-info">Horario y ubicación</h2>
+      <div class="dos">
+        <div class="caja"><h3>Horario</h3><div class="horas" id="horas"></div></div>
+        <div class="caja"><h3>Dónde estamos</h3>
+          <p id="dir">Barrio Amón, San José. Del Parque Morazán 125 metros norte, frente a Casa Protocolo.</p>
+          <div class="fila-btn"><a class="btn sm" id="waze" target="_blank" rel="noopener">Waze</a><a class="btn sm" id="maps" target="_blank" rel="noopener">Google Maps</a></div>
+        </div>
+        <div class="caja"><h3>Encontranos</h3><p class="nota">Seguinos y escribinos por donde te quede más fácil.</p><div class="fila-btn" id="redes"></div></div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer>Hecho por RBM Solutions · <button type="button" id="abrirAdmin">Administrar menú</button></footer>
+
+<button class="carrito" id="carrito" type="button" hidden><span><span class="n" id="carN">0</span>Ver mi pedido</span><span id="carT">₡0</span></button>
+
+<div class="velo" id="velo"></div>
+<div class="hoja" id="hoja" role="dialog" aria-modal="true" aria-labelledby="hojaT"><div id="hojaC"></div></div>
+<div class="toast" id="toast" role="status"></div>
+
+<script src="qrcode.min.js"></script>
+<script src="jsQR.js"></script>
+<script src="tarjetas.js"></script>
+<script>
+(() => {
+"use strict";
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const crc = n => "₡" + Math.round(n).toLocaleString("es-CR").replace(/\s/g, ".");
+const lsGet = (k, d) => { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch { return d; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
+
+/* ===== Datos de ejemplo (la dueña los cambia desde "Administrar menú") ===== */
+const CLAVE_DEMO = "demo1234";
+const C = {leche:"#f7f2ea", matcha:"#7aa33b", matchaClaro:"#a9c96a", fresa:"#e2507a", mango:"#f2a33a", caramelo:"#c98a3e", choco:"#6b4030", coco:"#fffaf2", cafe:"#5a3a26", chai:"#c99a6b"};
+const CATS = [["frios","Matchas fríos"],["especiales","De la casa"],["calientes","Calientes"],["sin","Sin matcha"],["comer","Para acompañar"]];
+const BASE = {
+  negocio: {nombre:"Matcha Mía", lema:"Matcha bar, inspirado en una salchichita", whatsapp:"50661572339", redes: {instagram: "matchamia.cr", facebook: "", tiktok: ""},
+    promo:"Martes de fresa: el Matcha fresa en 16 oz al precio de 12 oz.",
+    horario:[["Lunes","8:00","19:00"],["Martes","8:00","19:00"],["Miércoles","8:00","19:00"],["Jueves","8:00","19:00"],["Viernes","8:00","20:00"],["Sábado","9:00","20:00"],["Domingo","9:00","17:00"]]},
+  productos: [
+    {id:"p1", cat:"frios", nombre:"Matcha latte", desc:"Matcha ceremonial batido a mano sobre leche fría.", precio:2800, capas:[["leche",45],["matcha",55]]},
+    {id:"p2", cat:"frios", nombre:"Matcha fresa", desc:"Puré de fresa natural, leche y matcha en tres capas.", precio:3400, capas:[["fresa",30],["leche",30],["matcha",40]], nuevo:true},
+    {id:"p3", cat:"frios", nombre:"Matcha mango", desc:"Mango maduro abajo, leche y matcha arriba.", precio:3400, capas:[["mango",30],["leche",28],["matcha",42]]},
+    {id:"p4", cat:"especiales", nombre:"Caramelo salado", desc:"Matcha con leche y una corona de caramelo salado.", precio:3700, capas:[["leche",40],["matcha",44],["caramelo",16]]},
+    {id:"p5", cat:"especiales", nombre:"Matcha moka", desc:"Chocolate oscuro, leche y matcha. Lo mejor de los dos mundos.", precio:3700, capas:[["choco",30],["leche",26],["matcha",44]]},
+    {id:"p6", cat:"especiales", nombre:"Coco cold foam", desc:"Matcha frío con espuma de coco cremosa.", precio:3900, capas:[["matcha",68],["coco",32]], nuevo:true},
+    {id:"p7", cat:"calientes", nombre:"Matcha latte caliente", desc:"El clásico, con leche texturizada.", precio:2700, capas:[["matchaClaro",100]], caliente:true},
+    {id:"p8", cat:"calientes", nombre:"Chai latte", desc:"Especias, té negro y leche.", precio:2600, capas:[["chai",100]], caliente:true},
+    {id:"p9", cat:"sin", nombre:"Fresa con leche", desc:"Para quien todavía no se anima con el matcha.", precio:2800, capas:[["fresa",38],["leche",62]]},
+    {id:"p10", cat:"sin", nombre:"Café helado", desc:"Espresso doble sobre hielo, con o sin leche.", precio:2300, capas:[["leche",30],["cafe",70]]},
+    {id:"p11", cat:"comer", nombre:"Galleta de chocolate", desc:"Grande, suave por dentro.", precio:1500, dibujo:"galleta"},
+    {id:"p12", cat:"comer", nombre:"Queque de limón", desc:"Con glaseado de limón.", precio:1800, dibujo:"queque"}
+  ]
+};
+const OPC = {
+  tam: [["12 oz",0],["16 oz",600]],
+  leche: [["Entera",0],["Deslactosada",0],["Almendra",500],["Avena",500],["Coco",500]],
+  dulce: [["Normal",0],["Poco dulce",0],["Sin azúcar",0]],
+  extras: [["Cold foam",700],["Shot extra de matcha",800],["Sirope de vainilla",400]]
+};
+
+let D = lsGet("mm-datos", null) || JSON.parse(JSON.stringify(BASE));
+let pedido = lsGet("mm-pedido", []);
+// Tarjeta de sellos: la dueña registra a cada cliente (nombre y cédula) y se genera su QR.
+// Todo se guarda en Firebase: el cliente ve sus sellos al instante en su tarjeta (tarjeta.html).
+let miToken = lsGet(Tarjetas.KEY, null);
+let catSel = "todo", admin = lsGet("mm-admin", false);
+let confirmarBorrado = false, cliCanje = 1, top = null, rcl = null, rclN = 1, rclApp = "UBER", rclNum = "";
+let cli = null, cliPend = 0, cliMsg = "", cliOcupado = false, cliUnsub = null, cliNuevo = null;
+let recientes = lsGet(Tarjetas.prueba ? "mm-recientes-prueba" : "mm-recientes", []);
+const recordar = (token, nombre) => { recientes = [{token, nombre}, ...recientes.filter(r => r.token !== token)].slice(0, 12); lsSet(Tarjetas.prueba ? "mm-recientes-prueba" : "mm-recientes", recientes); };
+const guardarD = () => lsSet("mm-datos", D);
+const guardarP = () => { lsSet("mm-pedido", pedido); pintarCarrito(); };
+
+/* ===== Dibujo de cada producto ===== */
+function dibujo(p) {
+  if (p.dibujo === "galleta") return `<div class="galleta"></div>`;
+  if (p.dibujo === "queque") return `<div class="queque"></div>`;
+  let acc = 0; const stops = [];
+  (p.capas || [["matcha",100]]).forEach(([c, pct]) => { const col = C[c] || c; stops.push(`${col} ${acc}% ${acc + pct}%`); acc += pct; });
+  const fondo = `linear-gradient(to top, ${stops.join(",")})`;
+  return p.caliente ? `<div class="taza cal"><div class="vaso cal" style="background:${fondo}"></div></div>`
+    : `<div class="taza"><span class="pajilla"></span><div class="vaso" style="background:${fondo}"></div></div>`;
+}
+
+/* ===== Horario ===== */
+const aMin = h => { const [a, b] = h.split(":").map(Number); return a * 60 + (b || 0); };
+const h12 = m => { let a = Math.floor(m / 60), b = m % 60; const pm = a >= 12; a = a % 12 || 12; return `${a}:${String(b).padStart(2, "0")} ${pm ? "p. m." : "a. m."}`; };
+const ahoraCR = () => new Date(Date.now() - 6 * 3600e3);
+function hoyHorario() { const d = ahoraCR().getUTCDay(); return D.negocio.horario[(d + 6) % 7]; }
+function pintarHorario() {
+  const n = ahoraCR(), min = n.getUTCHours() * 60 + n.getUTCMinutes(), h = hoyHorario();
+  const abierto = h && h[1] && min >= aMin(h[1]) && min < aMin(h[2]);
+  const e = $("#estado");
+  e.textContent = abierto ? `● Abierto · cierra ${h12(aMin(h[2]))}` : h && h[1] && min < aMin(h[1]) ? `Abre hoy ${h12(aMin(h[1]))}` : "Cerrado ahora";
+  e.className = abierto ? "abierto" : "cerrado";
+  const hoyI = (n.getUTCDay() + 6) % 7;
+  $("#horas").innerHTML = D.negocio.horario.map(([d, a, b], i) => `<div class="${i === hoyI ? "hoy" : ""}"><span>${d}${i === hoyI ? " (hoy)" : ""}</span><span>${a ? `${h12(aMin(a))} – ${h12(aMin(b))}` : "Cerrado"}</span></div>`).join("");
+}
+function horasRetiro() {
+  const n = ahoraCR(), min = n.getUTCHours() * 60 + n.getUTCMinutes(), h = hoyHorario(), out = [];
+  if (h && h[1]) { for (let m = Math.max(aMin(h[1]), Math.ceil((min + 15) / 15) * 15); m <= aMin(h[2]) - 15; m += 15) out.push(h12(m)); }
+  return out;
+}
+
+/* ===== Menú ===== */
+function pintarCats() {
+  $("#cats").innerHTML = [["todo","Todo"], ...CATS].map(([k, l]) => `<button type="button" data-cat="${k}" aria-pressed="${catSel === k}">${l}</button>`).join("");
+}
+// ----- Redes sociales (la dueña las cambia en Administrar → Negocio) -----
+const urlRed = (tipo, v) => { v = String(v || "").trim(); if (!v) return ""; if (/^https?:\/\//i.test(v)) return v; v = v.replace(/^@/, "");
+  return {instagram: "https://www.instagram.com/" + v, facebook: "https://www.facebook.com/" + v, tiktok: "https://www.tiktok.com/@" + v}[tipo]; };
+function pintarRedes() {
+  const r = D.negocio.redes || BASE.negocio.redes || {}, wa = String(D.negocio.whatsapp || "").replace(/\D/g, "");
+  const ls = [["instagram", "Instagram"], ["facebook", "Facebook"], ["tiktok", "TikTok"]].map(([k, l]) => [l, urlRed(k, r[k])]).filter(x => x[1]);
+  if (wa) ls.splice(Math.min(1, ls.length), 0, ["WhatsApp", "https://wa.me/" + wa]);
+  $("#redes").innerHTML = ls.map(([l, u]) => `<a class="btn sm" href="${esc(u)}" target="_blank" rel="noopener">${l}</a>`).join("") || `<span class="nota">Pronto.</span>`;
+  const ig = urlRed("instagram", r.instagram), chip = $("#ig"); if (chip) { if (ig) chip.href = ig; chip.hidden = !ig; }
+}
+// ----- Promociones en la nube: la dueña las publica y les llegan a todos los clientes -----
+let promosNube = [], promoErr = false, promoOcupado = false;
+const DIAS_CORTOS = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"], DIAS_PL = ["domingos", "lunes", "martes", "miércoles", "jueves", "viernes", "sábados"];
+const fechaPromo = p => p.creado && p.creado.toDate ? p.creado.toDate().getTime() : Date.now();
+const promoActiva = p => (p.dias && p.dias.length) || Date.now() - fechaPromo(p) < 14 * 864e5;
+const textoDias = d => d.length === 7 ? "Todos los días" : "Todos los " + d.map(x => DIAS_PL[x]).join(", ").replace(/, ([^,]*)$/, " y $1");
+function pintarPromosNube() {
+  const el = $("#promosNube"), hoy = ahoraCR().getUTCDay(), act = promosNube.filter(promoActiva);
+  el.hidden = !act.length;
+  el.innerHTML = act.map(p => { const rep = p.dias && p.dias.length, esHoy = rep && p.dias.includes(hoy);
+    return `<div class="pn${esHoy || !rep ? " hoy" : ""}"><span class="ic"><svg class="i" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg></span><div><b>${esc(p.titulo)}${p.producto ? ` · ${esc(p.producto)}` : ""}</b>${p.texto ? `<span>${esc(p.texto)}</span>` : ""}<small>${rep ? textoDias(p.dias) + (esHoy ? " · ¡Hoy!" : "") : "Nueva"}</small></div></div>`; }).join("");
+}
+function vistaPromos() {
+  const real = !Tarjetas.prueba;
+  let h = `<p class="nota" style="margin-top:12px">Publicá una promo y les llega al instante a los clientes que tengan su tarjeta abierta o guardada en el celular. Si escogés días, se les recuerda cada semana ese día.</p>`;
+  if (real) h += `<p class="nota">Con clientes reales, las promos las publica la dueña con su acceso seguro (correo y contraseña). Probalo en el <a href="./?prueba">modo prueba</a>.</p>`;
+  h += `<div class="grupo"><b>Nueva promoción</b>
+    <label class="c">Título<input id="pTit" maxlength="60" placeholder="Ej.: Miércoles de 2x1" ${real ? "disabled" : ""}></label>
+    <label class="c">Detalle<textarea id="pTxt" maxlength="200" rows="2" placeholder="Ej.: Todos los miércoles, bebidas seleccionadas al 2x1." ${real ? "disabled" : ""}></textarea></label>
+    <label class="c">Producto (opcional)<select id="pProd" ${real ? "disabled" : ""}><option value="">— Ninguno —</option>${D.productos.filter(x => !x.oculto).map(x => `<option>${esc(x.nombre)}</option>`).join("")}</select></label>
+    <b style="font-size:13px;color:var(--suave);text-transform:uppercase;letter-spacing:.04em">¿Se repite cada semana?</b>
+    <div class="dias">${DIAS_CORTOS.map((x, i) => `<label><input type="checkbox" data-pdia="${i}" ${real ? "disabled" : ""}> ${x}</label>`).join("")}</div>
+    <span class="nota">Sin días marcados se avisa una sola vez, ahora mismo.</span>
+    <p class="err" id="pErr"></p><div><button class="btn pri" type="button" data-publicar ${promoOcupado || real ? "disabled" : ""}>Publicar y avisar</button></div></div>`;
+  h += `<div class="grupo"><b>Publicadas</b>${promoErr ? `<p class="nota">No se pudieron cargar. Revisá la conexión.</p>` : !promosNube.length ? `<p class="nota">Todavía no hay promociones publicadas.</p>`
+    : promosNube.map(x => `<div class="cli"><span><b>${esc(x.titulo)}</b>${x.producto ? " · " + esc(x.producto) : ""}<br><small>${x.dias && x.dias.length ? "Se repite: " + x.dias.map(i => DIAS_CORTOS[i]).join(", ") : "Una vez · " + new Date(fechaPromo(x)).toLocaleDateString("es-CR", {day: "numeric", month: "short"})}</small></span>${real ? "" : `<button class="btn sm" type="button" data-quitar-promo="${esc(x.id)}">Quitar</button>`}</div>`).join("")}</div>`;
+  return h;
+}
+function pintarMenu() {
+  pintarRedes();
+  const visibles = D.productos.filter(p => !p.oculto);
+  $("#menu").innerHTML = CATS.filter(([k]) => catSel === "todo" || catSel === k).map(([k, l]) => {
+    const ps = visibles.filter(p => p.cat === k); if (!ps.length) return "";
+    return `<section id="cat-${k}"><h2>${l}</h2><div class="grid">${ps.map(p => `
+      <button type="button" class="prod${p.agotado ? " agotado" : ""}" data-p="${p.id}" ${p.agotado ? 'aria-disabled="true"' : ""}>
+        ${p.agotado ? '<span class="etq">Agotado hoy</span>' : p.nuevo ? '<span class="etq nuevo">Nuevo</span>' : ""}
+        <div class="lienzo">${dibujo(p)}</div>
+        <h3>${esc(p.nombre)}</h3><p>${esc(p.desc)}</p>
+        <div class="pie"><span class="precio">${crc(p.precio)}</span>${p.agotado ? "" : '<span class="mas" aria-hidden="true">+</span>'}</div>
+      </button>`).join("")}</div></section>`;
+  }).join("") || `<p class="nota">No hay productos en esta categoría.</p>`;
+  $("#promo").hidden = !D.negocio.promo;
+  $("#promo").innerHTML = `<b>Promo de la semana</b><span>${esc(D.negocio.promo)}</span>`;
+  $("#nombre").textContent = D.negocio.nombre; $("#lema").textContent = D.negocio.lema;
+}
+
+/* ===== Hoja (personalizar / pedido / panel) ===== */
+function abrirHoja(html) { $("#hojaC").innerHTML = html; $("#hoja").classList.add("on"); $("#velo").classList.add("on"); $("#hoja").scrollTop = 0; }
+function cerrarHoja() { if (typeof cerrarCamara === "function") cerrarCamara(); $("#hoja").classList.remove("on"); $("#velo").classList.remove("on"); }
+$("#velo").addEventListener("click", cerrarHoja);
+document.addEventListener("keydown", e => { if (e.key === "Escape") cerrarHoja(); });
+
+let arm = null;   // bebida que se está armando
+const esBebida = p => p.cat !== "comer";
+function precioArm() {
+  const p = D.productos.find(x => x.id === arm.id); let u = p.precio;
+  if (esBebida(p)) { u += OPC.tam.find(x => x[0] === arm.tam)[1] + OPC.leche.find(x => x[0] === arm.leche)[1]; arm.extras.forEach(e => u += OPC.extras.find(x => x[0] === e)[1]); }
+  return u * arm.cant;
+}
+function pintarArmar() {
+  const p = D.productos.find(x => x.id === arm.id);
+  const grupo = (titulo, k, lista, multi) => `<div class="grupo"><b>${titulo}</b><div class="ops">${lista.map(([n, extra]) => {
+    const on = multi ? arm[k].includes(n) : arm[k] === n;
+    return `<button type="button" data-op="${k}" data-v="${esc(n)}" data-multi="${multi ? 1 : ""}" aria-pressed="${on}">${esc(n)}${extra ? `<small>+${crc(extra)}</small>` : ""}</button>`; }).join("")}</div></div>`;
+  abrirHoja(`<div class="asa"></div><button class="x" type="button" data-cerrar aria-label="Cerrar">×</button>
+    <h2 id="hojaT">${esc(p.nombre)}</h2><p class="nota" style="margin-top:4px">${esc(p.desc)}</p>
+    <div class="lienzo" style="margin-top:14px;height:170px">${dibujo(p)}</div>
+    ${esBebida(p) ? grupo("Tamaño", "tam", OPC.tam) + grupo("Leche", "leche", OPC.leche) + grupo("Dulzor", "dulce", OPC.dulce) + grupo("Extras", "extras", OPC.extras, true) : ""}
+    <div class="pie-hoja"><div class="cant"><button type="button" data-cant="-1" aria-label="Menos">−</button><b>${arm.cant}</b><button type="button" data-cant="1" aria-label="Más">+</button></div>
+      <button class="btn pri" type="button" data-agregar>Agregar · ${crc(precioArm())}</button></div>`);
+}
+function detalle(it) {
+  const p = D.productos.find(x => x.id === it.id); if (!p || !esBebida(p)) return "";
+  return [it.tam, it.leche !== "Entera" ? "leche " + it.leche.toLowerCase() : "", it.dulce !== "Normal" ? it.dulce.toLowerCase() : "", ...it.extras.map(e => e.toLowerCase())].filter(Boolean).join(", ");
+}
+function pintarPedido() {
+  if (!pedido.length) { cerrarHoja(); return; }
+  const total = pedido.reduce((a, it) => a + it.total, 0), horas = horasRetiro();
+  abrirHoja(`<div class="asa"></div><button class="x" type="button" data-cerrar aria-label="Cerrar">×</button>
+    <h2 id="hojaT">Mi pedido</h2>
+    <div>${pedido.map((it, i) => `<div class="item"><b>${it.cant} × ${esc(it.nombre)}</b><small>${esc(detalle(it))}</small>
+      <div class="acc"><span class="precio">${crc(it.total)}</span><button type="button" data-quitar="${i}">Quitar</button></div></div>`).join("")}</div>
+    <div class="total"><span>Total</span><span>${crc(total)}</span></div>
+    <div class="grupo"><label class="c">Tu nombre<input id="pNom" maxlength="40" autocomplete="name" placeholder="Para llamarte cuando esté listo"></label>
+      <label class="c">¿A qué hora pasás?<select id="pHora">${horas.length ? horas.map(h => `<option>${h}</option>`).join("") : `<option>Mañana, apenas abran</option>`}</select></label>
+      <label class="c">Nota (opcional)<textarea id="pNota" maxlength="200" placeholder="Ej.: sin pajilla, por favor"></textarea></label>
+      <p class="err" id="pErr"></p>
+      <button class="btn verde" type="button" data-enviar>Enviar pedido por WhatsApp</button>
+      <p class="nota">Se abre WhatsApp con tu pedido listo. Pagás al recoger, en efectivo, tarjeta o SINPE.</p>
+      <a class="btn sm" id="waLink" target="_blank" rel="noopener" hidden>¿No se abrió WhatsApp? Tocá aquí</a></div>`);
+  try { $("#pNom").value = lsGet("mm-nombre", ""); } catch {}
+}
+function pintarCarrito() {
+  const n = pedido.reduce((a, it) => a + it.cant, 0);
+  $("#carrito").hidden = !n; $("#carN").textContent = n; $("#carT").textContent = crc(pedido.reduce((a, it) => a + it.total, 0));
+}
+function selloHTML(n, pend = 0) {
+  const s = Math.min(n, 10);
+  return `<div class="sellos">${Array.from({length: 10}, (_, i) => {
+    const lleno = i < s, nuevo = !lleno && i < s + pend;
+    if (i === 9) return `<i class="${lleno ? "si" : nuevo ? "pend" : "gratis"}">${lleno || nuevo ? "<svg class='i' width='1em' height='1em' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><circle cx='11' cy='4' r='2'/><circle cx='18' cy='8' r='2'/><circle cx='20' cy='16' r='2'/><path d='M9 10a5 5 0 0 1 5 5v3.5a3.5 3.5 0 0 1-6.84 1.05Q6.52 17.48 4.46 16.84A3.5 3.5 0 0 1 5.5 10Z'/></svg>" : "GRATIS"}</i>`;
+    return `<i class="${lleno ? "si" : nuevo ? "pend" : ""}">${lleno || nuevo ? "<svg class='i' width='1em' height='1em' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><circle cx='11' cy='4' r='2'/><circle cx='18' cy='8' r='2'/><circle cx='20' cy='16' r='2'/><path d='M9 10a5 5 0 0 1 5 5v3.5a3.5 3.5 0 0 1-6.84 1.05Q6.52 17.48 4.46 16.84A3.5 3.5 0 0 1 5.5 10Z'/></svg>" : ""}</i>`; }).join("")}</div>`;
+}
+// Cuadritos con los números de la tarjeta
+function statsHTML(c, dueña) {
+  return `<div class="stats">
+    <div class="dest"><b>${c.gratis}</b><span>Bebida${c.gratis === 1 ? "" : "s"} gratis ${dueña ? "por canjear" : "disponible" + (c.gratis === 1 ? "" : "s")}</span></div>
+    <div><b>${10 - c.sellos}</b><span>Sello${10 - c.sellos === 1 ? "" : "s"} para la próxima gratis</span></div>
+    <div><b>${c.total}</b><span>Sellos acumulados en total</span></div>
+    <div><b>${c.canjes}</b><span>Gratis ya canjeada${c.canjes === 1 ? "" : "s"}</span></div></div>`;
+}
+function dibujarQR(el, texto, tam = 220) {
+  if (!el) return;
+  try { el.innerHTML = ""; new QRCode(el, {text: texto, width: tam, height: tam, colorDark: "#3a1424", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.M}); }
+  catch { el.innerHTML = `<span class="nota">QR no disponible</span>`; }
+}
+// Sección "Tu tarjeta de sellos" del menú
+let miUnsub = null;
+function pintarSellos() {
+  const t = $("#tarjeta");
+  if (!miToken) {
+    t.innerHTML = `<p>Pedí tu tarjeta gratis en la barra: te registramos con tu nombre y cédula y te mandamos tu QR por WhatsApp.</p>
+      ${selloHTML(0)}<p class="nota">Cada bebida suma un sello. Al juntar 10 <b>ganás una bebida gratis</b> y tu tarjeta empieza de cero.</p>
+      <div class="fila-btn"><a class="btn sm pri" href="${Tarjetas.url('tarjeta.html#ingresar')}">Ya tengo tarjeta: ingresar con mi cédula</a></div>`;
+    return;
+  }
+  t.innerHTML = `<p class="nota">Cargando tu tarjeta…</p>`;
+  if (miUnsub) return;
+  const fallo = () => { t.innerHTML = `<p class="nota">No se pudo cargar tu tarjeta. Revisá tu conexión.</p>`; };
+  Tarjetas.escuchar(miToken, c => {
+    if (!c) { miToken = null; lsSet(Tarjetas.KEY, null); pintarSellos(); return; }
+    t.innerHTML = `<div class="miTarj"><div class="qr" id="qr" aria-label="Código QR de tu tarjeta"></div>
+        <div style="display:grid;gap:6px"><span class="nota">Tarjeta de</span><span class="codigo" style="letter-spacing:0">${esc(c.nombre)}</span>
+        <span class="nota">Mostrá este QR en la barra y te sumamos los sellos.</span><a class="btn sm" href="${Tarjetas.link(miToken)}">Abrir mi tarjeta</a></div></div>
+      ${selloHTML(c.sellos)}
+      ${c.gratis ? `<p><b>Tenés ${c.gratis} bebida${c.gratis === 1 ? "" : "s"} gratis.</b> Mostrá tu QR en la barra para canjear${c.gratis === 1 ? "la" : "las"}.</p>` : ""}
+      ${statsHTML(c)}`;
+    dibujarQR($("#qr"), Tarjetas.link(miToken));
+  }, fallo).then(u => miUnsub = u).catch(fallo);
+}
+
+/* ----- Sellos de clientes (panel de la dueña) ----- */
+function abrirFicha(token) {
+  if (cliUnsub) { cliUnsub(); cliUnsub = null; }
+  cli = {token, cargando: true}; cliPend = 0; cliMsg = ""; tabAdm = "cli"; pintarAdmin();
+  Tarjetas.escuchar(token, c => {
+    if (!c) { cli = null; cliMsg = "No encontramos esa tarjeta. Puede que el QR no sea de esta cafetería."; }
+    else { cli = c; recordar(token, c.nombre); cliCanje = Math.max(1, Math.min(cliCanje, c.gratis || 1)); }
+    if ($("#hoja").classList.contains("on") && tabAdm === "cli" && !camStream) { const sc = $("#hoja").scrollTop; pintarAdmin(); $("#hoja").scrollTop = sc; }
+  }, () => { cliMsg = "No se pudo cargar la tarjeta. Revisá la conexión."; cli = null; pintarAdmin(); })
+    .then(u => cliUnsub = u).catch(() => { cliMsg = "No se pudo conectar. Revisá la conexión."; cli = null; pintarAdmin(); });
+}
+function vistaReclamo() {
+  if (!rcl) return "";
+  if (rcl === "cargando") return `<span class="nota">Buscando…</span>`;
+  if (rcl === "error") return `<p class="err">No se pudo buscar. Revisá la conexión.</p>`;
+  if (rcl.no) return `<p class="nota">Nadie ha reclamado la orden <b>#${esc(rcl.orden)}</b> todavía. Si el cliente te escribe, buscalo por cédula y sumale el sello ahí.</p>`;
+  const fecha = rcl.creado && rcl.creado.toDate ? rcl.creado.toDate().toLocaleString("es-CR", {dateStyle: "short", timeStyle: "short"}) : "";
+  let h = `<div class="ficha" style="margin-top:4px"><div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><b>${esc(rcl.nombre)}</b><span class="nota">Orden #${esc(rcl.orden)}${fecha ? " · " + fecha : ""}</span></div>`;
+  if (rcl.estado === "aprobado") h += `<p>Ya se aprobó: se le sumaron <b>${rcl.sellos} sello${rcl.sellos === 1 ? "" : "s"}</b>.</p>`;
+  else if (rcl.estado === "rechazado") h += `<p>Esta orden se rechazó.</p>`;
+  else h += `<span class="nota">Revisá en la tablet que la orden sea de verdad. ¿Cuántas bebidas trae?</span>
+    <div class="ajuste"><div class="cant"><button type="button" data-rcln="-1" aria-label="Uno menos" ${rclN <= 1 ? "disabled" : ""}>−</button><b>${rclN}</b><button type="button" data-rcln="1" aria-label="Uno más" ${rclN >= 20 ? "disabled" : ""}>+</button></div><span>sello${rclN === 1 ? "" : "s"}</span></div>
+    <div class="fila-btn"><button class="btn pri" type="button" data-aprobar ${cliOcupado ? "disabled" : ""}>Aprobar y sumar ${rclN} sello${rclN === 1 ? "" : "s"}</button>
+      <button class="btn sm" type="button" data-rechazar ${cliOcupado ? "disabled" : ""}>Rechazar</button></div>`;
+  return h + `</div>`;
+}
+// ----- Pestaña "Sellos pedidos": las órdenes de Uber Eats / DiDi que los clientes mandaron -----
+const nombreApp = k => (Tarjetas.APPS.find(a => a[0] === k) || [k, k])[1];
+function haceCuanto(ts) {
+  const d = ts && ts.toDate ? ts.toDate() : null; if (!d) return "";
+  const m = Math.max(0, Math.round((Date.now() - d) / 60000));
+  if (m < 1) return "recién"; if (m < 60) return `hace ${m} min`;
+  const h = Math.floor(m / 60); if (h < 24) return `hace ${h} h${m % 60 ? " " + (m % 60) + " min" : ""}`;
+  return d.toLocaleString("es-CR", {dateStyle: "short", timeStyle: "short"});
+}
+function vistaPedidos() {
+  let h = `<p class="nota" style="margin-top:12px">Aquí llegan los pedidos de Uber Eats, DiDi o Rappi que los clientes mandaron para sumar sello. Revisá en la tablet que la orden sea real y aprobala.</p>`;
+  if (rcl && rcl !== "cargando") h += `<div class="grupo">${vistaReclamo()}<div><button class="btn sm" type="button" data-cerrar-rcl>Volver a la lista</button></div></div>`;
+  else if (rcl === "cargando") h += `<p class="nota">Abriendo…</p>`;
+  h += `<div class="grupo"><b>${pendientes.length ? `Pendientes (${pendientes.length})` : "Pendientes"}</b>
+    ${pendError ? `<p class="nota">${Tarjetas.prueba ? "No se pudo cargar la lista. Revisá la conexión." : "No se pudo cargar la lista. Revisá la conexión."}</p>`
+    : !pendientes.length ? `<p class="nota">No hay pedidos esperando sello. Cuando un cliente mande su número de orden, te aparece aquí.</p>`
+    : `<div class="pend">${pendientes.map(p => `<button type="button" data-rcl="${esc(p.id)}" class="${rcl && rcl.id === p.id ? "sel" : ""}"><span class="app">${nombreApp(p.app)}</span><b>#${esc(p.orden)}</b><span>${esc(p.nombre)}</span><small>${haceCuanto(p.creado)}</small></button>`).join("")}</div>`}</div>`;
+  h += `<div class="grupo dom"><b>Buscar una orden</b>
+      <span class="nota">Si el cliente te dice su número, buscalo aquí aunque ya no esté en la lista.</span>
+      <div class="fila-dom"><select id="oApp" aria-label="App">${Tarjetas.APPS.map(([k, n]) => `<option value="${k}" ${rclApp === k ? "selected" : ""}>${n}</option>`).join("")}</select>
+        <input id="oNum" autocomplete="off" autocapitalize="characters" maxlength="30" placeholder="N.º de orden" aria-label="Número de orden" value="${esc(rclNum)}"></div>
+      <div><button class="btn sm" type="button" data-orden>Buscar orden</button></div></div>`;
+  return h;
+}
+// Escucha la lista de pendientes mientras la dueña tenga la sesión abierta: contador, aviso y vibración.
+let pendientes = [], pendError = false, pendUnsub = null, pendPrimera = true;
+function escucharPedidos() {
+  if (pendUnsub || !admin) return;
+  pendUnsub = true;
+  Tarjetas.escucharPendientes(lista => {
+    const nuevos = lista.filter(p => !pendientes.some(q => q.id === p.id));
+    pendientes = lista; pendError = false;
+    if (!pendPrimera && nuevos.length) { aviso(`Nuevo pedido para sellar: ${nuevos[0].nombre} · ${nombreApp(nuevos[0].app)} #${nuevos[0].orden}`); if (navigator.vibrate) navigator.vibrate([80, 60, 80]); }
+    pendPrimera = false; pintarAvisoPedidos();
+    if (panelAbierto() && !camStream) { const sc = $("#hoja").scrollTop; pintarAdmin(); $("#hoja").scrollTop = sc; }
+  }, () => { pendError = true; pintarAvisoPedidos(); }).then(u => pendUnsub = u).catch(() => { pendError = true; pendUnsub = null; });
+}
+// ¿Está abierto el panel de administración (y no otra hoja, como la de armar una bebida)?
+const panelAbierto = () => admin && $("#hoja").classList.contains("on") && ($("#hojaT") || {}).textContent === "Administrar menú";
+function pintarAvisoPedidos() {
+  const n = admin ? pendientes.length : 0, el = $("#avisoPed");
+  el.hidden = !n; el.innerHTML = `<b>${n}</b> pedido${n === 1 ? "" : "s"} esperando sello`;
+  $("#abrirAdmin").innerHTML = `Administrar menú${n ? ` <span class="badge">${n}</span>` : ""}`;
+}
+function vistaSellos() {
+  let h = `<div class="fila-btn"><button class="btn pri" type="button" data-escanear>Escanear QR</button></div>
+    <div class="grupo"><label class="c">Buscar por cédula<input id="sCed" inputmode="numeric" maxlength="15" placeholder="Ej.: 1 1234 5678"></label>
+      <div><button class="btn sm" type="button" data-buscar>Buscar</button></div></div>
+    ${cliMsg ? `<p class="err" role="alert">${esc(cliMsg)}</p>` : ""}`;
+  if (cli && cli.cargando) h += `<div class="ficha"><span class="nota">Cargando tarjeta…</span></div>`;
+  else if (cli) {
+    const suma = cli.sellos + cliPend, ganaria = Math.floor(suma / 10);
+    h += `<div class="ficha"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><b style="font-size:19px">${esc(cli.nombre)}</b><span class="nota">Cédula ****${esc(cli.ced4)}${cli.correo ? ` · ${esc(cli.correo)}` : ""}</span></div>
+      ${statsHTML(cli, true)}
+      ${cli.gratis ? `<div class="grupo" style="border:2px solid var(--fucsia);border-radius:14px;padding:12px;background:var(--rosa)"><b>Canjear bebidas gratis</b>
+        <div class="ajuste"><div class="cant"><button type="button" data-canje="-1" aria-label="Una menos" ${cliCanje <= 1 ? "disabled" : ""}>−</button><b>${cliCanje}</b><button type="button" data-canje="1" aria-label="Una más" ${cliCanje >= cli.gratis ? "disabled" : ""}>+</button></div>
+          <span>de ${cli.gratis} disponible${cli.gratis === 1 ? "" : "s"}</span></div>
+        <div><button class="btn pri" type="button" data-canjear ${cliOcupado ? "disabled" : ""}>Canjear ${cliCanje} gratis</button></div></div>` : ""}
+      <b style="font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--suave)">Sumar sellos · lleva ${cli.sellos} de 10</b>
+      ${selloHTML(cli.sellos, cliPend)}
+      ${ganaria ? `<p class="nota" style="color:var(--fucsia2)">Con estos sellos gana <b>${ganaria} bebida${ganaria === 1 ? "" : "s"} gratis</b> y la tarjeta queda en ${suma % 10} de 10.</p>` : ""}
+      ${`<div class="ajuste"><div class="cant"><button type="button" data-pend="-1" aria-label="Quitar uno" ${cliPend <= 0 ? "disabled" : ""}>−</button><b>${cliPend}</b><button type="button" data-pend="1" aria-label="Agregar uno" ${cliPend >= 30 ? "disabled" : ""}>+</button></div>
+          <span>sello${cliPend === 1 ? "" : "s"} por agregar</span></div>
+        <button class="btn pri" type="button" data-guardar-sellos ${cliPend < 1 || cliOcupado ? "disabled" : ""}>${cliPend ? `Guardar ${cliPend} sello${cliPend === 1 ? "" : "s"}` : "Elegí cuántos sellos agregar"}</button>
+        <p class="nota">Podés corregir con − antes de guardar. Una vez guardados, los sellos ya no se pueden quitar.</p>`}
+      <div class="fila-btn"><button class="btn sm" type="button" data-cerrar-ficha>Listo, otro cliente</button></div></div>`;
+  }
+  if (cliNuevo) {
+    const msj = `¡Hola ${cliNuevo.nombre.split(" ")[0]}! Esta es tu tarjeta de sellos de ${D.negocio.nombre}. Abrila y guardala en tu pantalla de inicio:\n${Tarjetas.link(cliNuevo.token)}${cliNuevo.pin ? `\n\nTambién podés entrar con tu usuario:\nCédula: ${cliNuevo.ced}\nClave: ${cliNuevo.pin}` : ""}`;
+    h += `<div class="grupo"><b>${cliNuevo.existia ? "Esa cédula ya tenía tarjeta" : "Tarjeta creada"}</b><div class="compartir"><div class="qr" id="qrNuevo"></div>
+      <div style="display:grid;gap:8px"><span><b>${esc(cliNuevo.nombre)}</b> ya tiene su tarjeta.</span>
+        ${cliNuevo.pin ? `<span class="nota">Usuario: <b>cédula ${esc(cliNuevo.ced)}</b> · clave <b>${esc(cliNuevo.pin)}</b></span>` : ""}
+        <span class="nota">Mandale el link para que vea su QR y sus sellos. Lo puede guardar en la pantalla de inicio de su celular.</span>
+        <div class="fila-btn">${cliNuevo.tel ? `<a class="btn sm verde" target="_blank" rel="noopener" href="https://wa.me/506${cliNuevo.tel}?text=${encodeURIComponent(msj)}">Enviar por WhatsApp</a>` : ""}
+          <button class="btn sm" type="button" data-copiar-link="${esc(Tarjetas.link(cliNuevo.token))}">Copiar link</button></div></div></div></div>`;
+  }
+  h += `<div class="grupo"><b>Top 10 clientes</b>
+    ${top === null ? `<div><button class="btn sm" type="button" data-top>Ver los que más sellos tienen</button></div>`
+    : top === "cargando" ? `<span class="nota">Cargando…</span>`
+    : top === "error" ? `<p class="nota">${Tarjetas.prueba ? "No se pudo cargar. Revisá la conexión." : "En la versión real, el top 10 solo lo ve la dueña con su acceso seguro (correo y contraseña). Probalo en el <a href='./?prueba'>modo prueba</a>."}</p>`
+    : !top.length ? `<span class="nota">Todavía no hay clientes.</span>`
+    : `<div class="top10">${top.map((c, i) => `<button type="button" data-ficha="${esc(c.token)}"><span class="pos">${i + 1}</span><b>${esc(c.nombre)}</b><span class="n">${c.total}</span>
+        <small>${c.gratis} gratis por canjear · ${c.canjes} canjeada${c.canjes === 1 ? "" : "s"} · ${c.sellos} de 10</small></button>`).join("")}</div>
+      <div><button class="btn sm" type="button" data-top>Actualizar</button></div>`}</div>`;
+  if (Tarjetas.prueba) h += `<div class="grupo"><b>Base de datos de prueba</b>
+      <p class="nota">Clientes de ejemplo para practicar o enseñar la demo. Entran en la tarjeta con su cédula y su clave.</p>
+      <p class="nota">Órdenes a domicilio de prueba: ${Tarjetas.RECLAMOS_PRUEBA.map(([a, o, i]) => `<b>${(Tarjetas.APPS.find(x => x[0] === a) || [])[1]} ${o}</b> (${esc(Tarjetas.EJEMPLOS[i].nombre)})`).join(", ")}.</p>
+      <div class="ejs">${Tarjetas.EJEMPLOS.map(e => `<div><span>${esc(e.nombre)} · ${e.sellos} de 10 · ${e.gratis} gratis</span><span>${e.ced} · clave ${e.pin}</span></div>`).join("")}</div>
+      <div class="fila-btn"><button class="btn sm pri" type="button" data-pr-cargar ${cliOcupado ? "disabled" : ""}>Cargar clientes de ejemplo</button>
+        <button class="btn sm" type="button" data-pr-borrar ${cliOcupado ? "disabled" : ""}>Borrar todo y empezar de cero</button></div></div>`;
+  h += `<div class="grupo"><b>Registrar cliente nuevo</b>
+      <label class="c">Nombre completo<input id="rNom" maxlength="60" autocomplete="off" placeholder="Ej.: Daniela Mora"></label>
+      <label class="c">Cédula<input id="rCed" inputmode="numeric" maxlength="15" autocomplete="off" placeholder="Ej.: 1 1234 5678"></label>
+      <label class="c">Clave del cliente, 4 dígitos (opcional)<input id="rPin" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="Ej.: 4821"></label>
+      <label class="c">Correo (opcional)<input id="rCorreo" type="email" maxlength="100" autocomplete="off" placeholder="Ej.: daniela@correo.com"></label>
+      <label class="c">Celular para mandarle el QR (opcional)<input id="rTel" inputmode="tel" maxlength="12" autocomplete="off" placeholder="Ej.: 8888 7777"></label>
+      <p class="err" id="rErr"></p><div><button class="btn pri" type="button" data-registrar ${cliOcupado ? "disabled" : ""}>Crear tarjeta y QR</button></div>
+      <p class="nota">De la cédula solo se guardan los últimos 4 dígitos y una huella para poder buscarla.</p></div>`;
+  if (recientes.length) h += `<div class="grupo"><b>Vistos en este celular</b>${recientes.map(r => `<div class="cli"><span><b>${esc(r.nombre)}</b></span><button class="btn sm" type="button" data-ficha="${esc(r.token)}">Abrir</button></div>`).join("")}</div>`;
+  return h;
+}
+/* Escáner de QR con la cámara (dentro de la página) */
+let camStream = null, camLoop = 0;
+function cerrarCamara() { cancelAnimationFrame(camLoop); if (camStream) camStream.getTracks().forEach(t => t.stop()); camStream = null; }
+async function abrirCamara() {
+  abrirHoja(`<div class="asa"></div><button class="x" type="button" data-cerrar-cam aria-label="Cerrar">×</button>
+    <h2 id="hojaT">Escanear QR</h2><p class="nota" style="margin-top:4px">Apuntá al QR de la tarjeta del cliente.</p>
+    <div class="camara"><video id="cam" playsinline muted></video></div><p class="err" id="camErr" style="text-align:center;margin-top:10px"></p>
+    <div style="text-align:center"><button class="btn sm" type="button" data-cerrar-cam>Volver</button></div>`);
+  try {
+    camStream = await navigator.mediaDevices.getUserMedia({video: {facingMode: "environment"}, audio: false});
+    const v = $("#cam"); v.srcObject = camStream; await v.play();
+    const det = "BarcodeDetector" in window ? new BarcodeDetector({formats: ["qr_code"]}) : null;
+    const cv = document.createElement("canvas"), cx = cv.getContext("2d", {willReadFrequently: true});
+    const paso = async () => {
+      if (!camStream) return;
+      let txt = null;
+      try {
+        if (det) { const r = await det.detect(v); if (r[0]) txt = r[0].rawValue; }
+        else if (v.videoWidth) { cv.width = v.videoWidth; cv.height = v.videoHeight; cx.drawImage(v, 0, 0); const img = cx.getImageData(0, 0, cv.width, cv.height); const r = jsQR(img.data, img.width, img.height); if (r) txt = r.data; }
+      } catch {}
+      const token = txt && Tarjetas.tokenDeTexto(txt);
+      if (token) { cerrarCamara(); if (navigator.vibrate) navigator.vibrate(80); cliNuevo = null; abrirFicha(token); return; }
+      if (txt) $("#camErr").textContent = "Ese QR no es una tarjeta de sellos.";
+      camLoop = requestAnimationFrame(paso);
+    };
+    paso();
+  } catch { if ($("#camErr")) $("#camErr").textContent = "No se pudo abrir la cámara. Dale permiso al navegador, o buscá al cliente por su cédula."; }
+}
+
+/* ===== Panel de la dueña ===== */
+let tabAdm = "prod";
+let fichaPendiente = null;
+function pintarAdmin() {
+  _pintarAdmin();
+  if (admin && tabAdm === "cli" && cliNuevo) dibujarQR($("#qrNuevo"), Tarjetas.link(cliNuevo.token), 180);
+}
+function _pintarAdmin() {
+  if (!admin) {
+    abrirHoja(`<div class="asa"></div><button class="x" type="button" data-cerrar aria-label="Cerrar">×</button>
+      <h2 id="hojaT">Administrar menú</h2><p class="nota" style="margin-top:6px">Aquí la dueña cambia precios, marca lo agotado y agrega bebidas nuevas.</p>
+      <div class="grupo"><label class="c">Contraseña<input id="aClave" type="password" autocomplete="current-password"></label><p class="err" id="aErr"></p>
+      <button class="btn pri" type="button" data-entrar>Entrar</button>
+      <p class="nota">Versión de prueba · contraseña: <b style="user-select:all">${CLAVE_DEMO}</b></p></div>`);
+    return;
+  }
+  const tabs = `<div class="tabs"><button type="button" data-tab="ped" aria-pressed="${tabAdm === "ped"}">Sellos pedidos${pendientes.length ? ` <span class="badge">${pendientes.length}</span>` : ""}</button><button type="button" data-tab="cli" aria-pressed="${tabAdm === "cli"}">Sellos clientes</button><button type="button" data-tab="promo" aria-pressed="${tabAdm === "promo"}">Promos</button><button type="button" data-tab="prod" aria-pressed="${tabAdm === "prod"}">Productos</button><button type="button" data-tab="neg" aria-pressed="${tabAdm === "neg"}">Negocio</button></div>`;
+  let cuerpo;
+  if (tabAdm === "ped") {
+    cuerpo = vistaPedidos();
+  } else
+  if (tabAdm === "promo") {
+    cuerpo = vistaPromos();
+  } else
+  if (tabAdm === "cli") {
+    cuerpo = vistaSellos();
+  } else
+  if (tabAdm === "prod") {
+    cuerpo = D.productos.map(p => `<div class="adm"><b>${esc(p.nombre)} <small style="color:var(--suave);font-weight:600">· ${CATS.find(c => c[0] === p.cat)?.[1] || ""}</small></b>
+      <input type="number" min="0" step="100" value="${p.precio}" data-precio="${p.id}" aria-label="Precio de ${esc(p.nombre)}">
+      <div class="flags"><label><input type="checkbox" data-flag="agotado" data-id="${p.id}" ${p.agotado ? "checked" : ""}> Agotado hoy</label>
+        <label><input type="checkbox" data-flag="nuevo" data-id="${p.id}" ${p.nuevo ? "checked" : ""}> Nuevo</label>
+        <label><input type="checkbox" data-flag="oculto" data-id="${p.id}" ${p.oculto ? "checked" : ""}> Ocultar</label>
+        <button type="button" data-borrar="${p.id}">Borrar</button></div></div>`).join("")
+      + `<div class="grupo"><b>Agregar producto</b>
+        <label class="c">Nombre<input id="nNom" maxlength="40" placeholder="Ej.: Matcha maracuyá"></label>
+        <label class="c">Descripción<input id="nDesc" maxlength="90" placeholder="Ej.: Pulpa de maracuyá, leche y matcha"></label>
+        <label class="c">Categoría<select id="nCat">${CATS.map(([k, l]) => `<option value="${k}">${l}</option>`).join("")}</select></label>
+        <label class="c">Precio (₡)<input id="nPre" type="number" min="0" step="100" value="3500"></label>
+        <label class="c">Color de la capa de abajo<select id="nCapa"><option value="leche">Solo leche y matcha</option><option value="fresa">Fresa</option><option value="mango">Mango</option><option value="choco">Chocolate</option><option value="caramelo">Caramelo</option></select></label>
+        <p class="err" id="nErr"></p><button class="btn pri" type="button" data-nuevo>Agregar al menú</button></div>`;
+  } else {
+    const n = D.negocio;
+    cuerpo = `<div class="grupo"><label class="c">Nombre<input id="gNom" maxlength="40" value="${esc(n.nombre)}"></label>
+      <label class="c">Frase<input id="gLema" maxlength="80" value="${esc(n.lema)}"></label>
+      <label class="c">WhatsApp para pedidos<input id="gWa" inputmode="tel" maxlength="20" value="${esc(n.whatsapp)}"></label>
+      <label class="c">Promo de la semana (vacío para ocultarla)<input id="gPromo" maxlength="120" value="${esc(n.promo)}"></label>
+      <b style="font-size:14px;color:var(--suave);text-transform:uppercase;letter-spacing:.04em">Redes sociales</b>
+      <label class="c">Instagram (usuario o link)<input id="gIg" maxlength="120" placeholder="@usuario" value="${esc((n.redes || BASE.negocio.redes).instagram || "")}"></label>
+      <label class="c">Facebook (usuario o link)<input id="gFb" maxlength="120" placeholder="usuario" value="${esc((n.redes || BASE.negocio.redes).facebook || "")}"></label>
+      <label class="c">TikTok (usuario o link)<input id="gTk" maxlength="120" placeholder="@usuario" value="${esc((n.redes || BASE.negocio.redes).tiktok || "")}"></label>
+      <b style="font-size:14px;color:var(--suave);text-transform:uppercase;letter-spacing:.04em">Horario (vacío = cerrado)</b>
+      ${n.horario.map(([d, a, b], i) => `<div style="display:grid;grid-template-columns:96px 1fr 1fr;gap:8px;align-items:center"><span>${d}</span>
+        <label class="c"><input data-h="${i}:1" value="${a}" placeholder="8:00" aria-label="${d} abre"></label><label class="c"><input data-h="${i}:2" value="${b}" placeholder="19:00" aria-label="${d} cierra"></label></div>`).join("")}
+      <button class="btn pri" type="button" data-gneg>Guardar cambios</button>
+      <button class="btn sm" type="button" data-reset>Volver a los datos de ejemplo</button></div>`;
+  }
+  abrirHoja(`<div class="asa"></div><button class="x" type="button" data-cerrar aria-label="Cerrar">×</button>
+    <h2 id="hojaT">Administrar menú</h2><p class="nota">${tabAdm === "cli" || tabAdm === "ped" || tabAdm === "promo" ? (Tarjetas.prueba ? "Estás en el <b>modo prueba</b>: nada de esto toca los clientes reales." : "Las tarjetas se guardan en la nube: el cliente ve sus sellos al instante.") : "En la demo, los cambios del menú se guardan solo en este celular."}
+      <a href="${Tarjetas.prueba ? "./" : "./?prueba"}">${Tarjetas.prueba ? "Volver a los datos reales" : "Abrir modo prueba"}</a> <button type="button" data-salir style="border:0;background:none;color:var(--fucsia2);text-decoration:underline;cursor:pointer">Salir</button></p>${tabs}${cuerpo}`);
+}
+
+/* ===== Acciones ===== */
+let tAviso; function aviso(t) { const el = $("#toast"); el.textContent = t; el.classList.add("on"); clearTimeout(tAviso); tAviso = setTimeout(() => el.classList.remove("on"), 2400); }
+document.addEventListener("click", async e => {
+  const b = e.target.closest("button,[data-cat]"); if (!b) return;
+  if (b.dataset.cat) { catSel = b.dataset.cat; pintarCats(); pintarMenu(); return; }
+  if (b.dataset.p) { const p = D.productos.find(x => x.id === b.dataset.p); if (!p || p.agotado) return;
+    arm = {id: p.id, tam: "12 oz", leche: "Entera", dulce: "Normal", extras: [], cant: 1}; pintarArmar(); return; }
+  if (b.hasAttribute("data-cerrar")) return cerrarHoja();
+  if (b.dataset.op) { const k = b.dataset.op, v = b.dataset.v;
+    if (b.dataset.multi) arm[k] = arm[k].includes(v) ? arm[k].filter(x => x !== v) : [...arm[k], v]; else arm[k] = v;
+    const sc = $("#hoja").scrollTop; pintarArmar(); $("#hoja").scrollTop = sc; return; }
+  if (b.dataset.cant) { arm.cant = Math.max(1, Math.min(20, arm.cant + +b.dataset.cant)); const sc = $("#hoja").scrollTop; pintarArmar(); $("#hoja").scrollTop = sc; return; }
+  if (b.hasAttribute("data-agregar")) { const p = D.productos.find(x => x.id === arm.id);
+    pedido.push({...arm, nombre: p.nombre, total: precioArm()}); guardarP(); cerrarHoja(); aviso(`${p.nombre} agregado a tu pedido`); return; }
+  if (b.id === "carrito") return pintarPedido();
+  if (b.dataset.quitar !== undefined) { pedido.splice(+b.dataset.quitar, 1); guardarP(); pintarPedido(); return; }
+  if (b.hasAttribute("data-enviar")) {
+    const nom = $("#pNom").value.trim();
+    if (nom.length < 2) { $("#pErr").textContent = "Escribí tu nombre para llamarte cuando esté listo."; $("#pNom").focus(); return; }
+    lsSet("mm-nombre", nom);
+    const total = pedido.reduce((a, it) => a + it.total, 0);
+    const lineas = [`Hola ${D.negocio.nombre} quiero pedir para recoger:`, ...pedido.map(it => `• ${it.cant} × ${it.nombre}${detalle(it) ? ` (${detalle(it)})` : ""} — ${crc(it.total)}`),
+      `Total: ${crc(total)}`, `A nombre de: ${nom}`, `Paso a las: ${$("#pHora").value}`];
+    if ($("#pNota").value.trim()) lineas.push(`Nota: ${$("#pNota").value.trim()}`);
+    const url = `https://wa.me/${String(D.negocio.whatsapp).replace(/\D/g, "")}?text=${encodeURIComponent(lineas.join("\n"))}`;
+    const a = $("#waLink"); a.href = url; a.hidden = false; try { a.click(); } catch {}
+    pedido = []; guardarP(); aviso(miToken ? "¡Pedido listo! Mostrá tu QR al recoger para sumar sellos" : "¡Pedido listo!");
+    return;
+  }
+  if (b.id === "abrirAdmin") return pintarAdmin();
+  if (b.hasAttribute("data-entrar")) { if ($("#aClave").value === CLAVE_DEMO) { admin = true; lsSet("mm-admin", true); escucharPedidos();
+      if (fichaPendiente) { const t = fichaPendiente; fichaPendiente = null; abrirFicha(t); } else pintarAdmin(); } else $("#aErr").textContent = "Contraseña incorrecta."; return; }
+  if (b.hasAttribute("data-salir")) { admin = false; lsSet("mm-admin", false); if (typeof pendUnsub === "function") pendUnsub(); pendUnsub = null; pendientes = []; pendPrimera = true; pintarAvisoPedidos(); cerrarHoja(); aviso("Sesión cerrada"); return; }
+  if (b.hasAttribute("data-escanear")) { abrirCamara(); return; }
+  if (b.hasAttribute("data-cerrar-cam")) { cerrarCamara(); tabAdm = "cli"; pintarAdmin(); return; }
+  if (b.dataset.ficha) { cliNuevo = null; abrirFicha(b.dataset.ficha); return; }
+  if (b.hasAttribute("data-cerrar-ficha")) { if (cliUnsub) { cliUnsub(); cliUnsub = null; } cli = null; cliPend = 0; cliMsg = ""; cliNuevo = null; pintarAdmin(); return; }
+  if (b.dataset.canje) { cliCanje = Math.max(1, Math.min(cli ? cli.gratis : 1, cliCanje + +b.dataset.canje)); const sc = $("#hoja").scrollTop; pintarAdmin(); $("#hoja").scrollTop = sc; return; }
+  if (b.dataset.rcl) { rcl = "cargando"; rclN = 1; pintarAdmin(); try { rcl = await Tarjetas.verReclamo(b.dataset.rcl) || {no: true, orden: b.dataset.rcl}; } catch { rcl = "error"; } const sc = $("#hoja"); pintarAdmin(); sc.scrollTop = 0; return; }
+  if (b.hasAttribute("data-cerrar-rcl")) { rcl = null; pintarAdmin(); return; }
+  if (b.id === "avisoPed") { tabAdm = "ped"; rcl = null; pintarAdmin(); return; }
+  if (b.hasAttribute("data-orden")) {
+    rclApp = $("#oApp").value; rclNum = Tarjetas.ordenLimpia($("#oNum").value);
+    if (rclNum.length < 3) { rcl = {no: true, orden: rclNum || "—"}; pintarAdmin(); return; }
+    rcl = "cargando"; rclN = 1; pintarAdmin();
+    try { rcl = await Tarjetas.verReclamo(Tarjetas.idReclamo(rclApp, rclNum)) || {no: true, orden: rclNum}; } catch { rcl = "error"; }
+    pintarAdmin(); return;
+  }
+  if (b.dataset.rcln) { rclN = Math.max(1, Math.min(20, rclN + +b.dataset.rcln)); const sc = $("#hoja").scrollTop; pintarAdmin(); $("#hoja").scrollTop = sc; return; }
+  if (b.hasAttribute("data-aprobar") || b.hasAttribute("data-rechazar")) {
+    if (!rcl || !rcl.id) return; const aprobar = b.hasAttribute("data-aprobar"), id = rcl.id; cliOcupado = true; pintarAdmin();
+    try {
+      if (aprobar) { const r = await Tarjetas.aprobarReclamo(id, rclN); aviso(r.ganados ? `${r.nombre} ganó ${r.ganados} bebida${r.ganados === 1 ? "" : "s"} gratis. Tarjeta en ${r.sellos} de 10.` : `Listo: ${rclN} sello${rclN === 1 ? "" : "s"} para ${r.nombre} (${r.sellos} de 10)`); }
+      else { await Tarjetas.rechazarReclamo(id); aviso("Orden rechazada"); }
+      rcl = tabAdm === "ped" ? null : await Tarjetas.verReclamo(id);
+    } catch (x) { aviso(x.message === "ya-revisada" ? "Esa orden ya se había revisado." : "No se pudo. Revisá la conexión."); }
+    cliOcupado = false; pintarAdmin(); return;
+  }
+  if (b.hasAttribute("data-top")) { top = "cargando"; pintarAdmin(); try { top = await Tarjetas.top10(); } catch { top = "error"; } pintarAdmin(); return; }
+  if (b.hasAttribute("data-pr-cargar") || b.hasAttribute("data-pr-borrar")) {
+    const borrar = b.hasAttribute("data-pr-borrar");
+    if (borrar && !confirmarBorrado) { confirmarBorrado = true; b.textContent = "Tocá otra vez para borrar todo"; setTimeout(() => confirmarBorrado = false, 4000); return; }
+    confirmarBorrado = false; cliOcupado = true; pintarAdmin();
+    try { if (borrar) await Tarjetas.borrarPrueba(); else await Tarjetas.cargarEjemplos(); aviso(borrar ? "Base de prueba vacía" : "Clientes de ejemplo cargados"); }
+    catch { aviso("No se pudo. Revisá la conexión."); }
+    cliOcupado = false; top = null; if (cliUnsub) { cliUnsub(); cliUnsub = null; } cli = null; cliNuevo = null; pintarAdmin(); return;
+  }
+  if (b.dataset.pend) { cliPend = Math.max(0, Math.min(30, cliPend + +b.dataset.pend)); const sc = $("#hoja").scrollTop; pintarAdmin(); $("#hoja").scrollTop = sc; return; }
+  if (b.hasAttribute("data-guardar-sellos")) {
+    if (!cli || cliPend < 1) return; const n = cliPend, nombre = cli.nombre, token = cli.token; cliOcupado = true; pintarAdmin();
+    try { const r = await Tarjetas.sumar(token, n); cliPend = 0; aviso(r.ganados ? `${nombre} ganó ${r.ganados} bebida${r.ganados === 1 ? "" : "s"} gratis. Tarjeta en ${r.sellos} de 10.` : `Listo: ${n} sello${n === 1 ? "" : "s"} para ${nombre} (${r.sellos} de 10)`); }
+    catch { aviso("No se pudo guardar. Revisá la conexión e intentá de nuevo."); }
+    cliOcupado = false; pintarAdmin(); return;
+  }
+  if (b.hasAttribute("data-canjear")) {
+    if (!cli || !cli.gratis) return; const nombre = cli.nombre, k = Math.min(cliCanje, cli.gratis); cliOcupado = true; pintarAdmin();
+    try { const r = await Tarjetas.canjear(cli.token, k); cliCanje = 1; aviso(`${k} bebida${k === 1 ? "" : "s"} gratis canjeada${k === 1 ? "" : "s"} para ${nombre}. Le quedan ${r.gratis}.`); }
+    catch (x) { aviso(x.message === "insuficientes" ? "No tiene tantas gratis." : "No se pudo canjear. Revisá la conexión."); }
+    cliOcupado = false; pintarAdmin(); return;
+  }
+  if (b.hasAttribute("data-buscar")) {
+    const ced = Tarjetas.soloDigitos($("#sCed").value);
+    if (ced.length < 9) { cliMsg = "Escribí la cédula completa (9 dígitos o más)."; pintarAdmin(); return; }
+    cliMsg = ""; b.disabled = true;
+    try { const t = await Tarjetas.buscarPorCedula(ced); if (t) { cliNuevo = null; abrirFicha(t); } else { cli = null; cliMsg = "No hay ninguna tarjeta con esa cédula. Podés registrarla abajo."; pintarAdmin(); } }
+    catch { cliMsg = "No se pudo buscar. Revisá la conexión."; pintarAdmin(); }
+    return;
+  }
+  if (b.hasAttribute("data-registrar")) {
+    const nombre = $("#rNom").value.trim(), ced = Tarjetas.soloDigitos($("#rCed").value), tel = Tarjetas.soloDigitos($("#rTel").value), pin = Tarjetas.soloDigitos($("#rPin").value), correo = $("#rCorreo").value.trim();
+    if (nombre.length < 2) { $("#rErr").textContent = "Escribí el nombre del cliente."; $("#rNom").focus(); return; }
+    if (ced.length < 9) { $("#rErr").textContent = "Escribí la cédula completa (9 dígitos o más)."; $("#rCed").focus(); return; }
+    if (correo && !Tarjetas.limpiarCorreo(correo)) { $("#rErr").textContent = "Revisá el correo, o dejalo vacío."; $("#rCorreo").focus(); return; }
+    if (pin && pin.length !== 4) { $("#rErr").textContent = "La clave debe tener 4 dígitos, o dejala vacía."; $("#rPin").focus(); return; }
+    if (tel && tel.length !== 8) { $("#rErr").textContent = "El celular debe tener 8 dígitos, o dejalo vacío."; $("#rTel").focus(); return; }
+    cliOcupado = true; b.disabled = true;
+    try { const r = await Tarjetas.crear({nombre, cedula: ced, correo});
+      if (pin) await Tarjetas.crearAcceso(r.token, ced, pin);
+      cliNuevo = {token: r.token, nombre, tel, existia: r.existia, ced, pin}; cliOcupado = false; abrirFicha(r.token); aviso(r.existia ? "Esa cédula ya tenía tarjeta" : "Tarjeta creada"); }
+    catch { cliOcupado = false; $("#rErr").textContent = "No se pudo crear la tarjeta. Revisá la conexión."; b.disabled = false; }
+    return;
+  }
+  if (b.hasAttribute("data-publicar")) {
+    const titulo = $("#pTit").value.trim(), texto = $("#pTxt").value.trim(), producto = $("#pProd").value, dias = [...document.querySelectorAll("[data-pdia]:checked")].map(x => +x.dataset.pdia);
+    if (titulo.length < 2) { $("#pErr").textContent = "Escribí un título para la promo."; $("#pTit").focus(); return; }
+    promoOcupado = true; b.disabled = true;
+    try { await Tarjetas.publicarPromo({titulo, texto, producto, dias}); promoOcupado = false; pintarAdmin(); aviso("Promo publicada: ya les llega a los clientes"); }
+    catch { promoOcupado = false; b.disabled = false; $("#pErr").textContent = Tarjetas.prueba ? "No se pudo publicar. Revisá la conexión." : "Con clientes reales, solo la dueña con su acceso seguro puede publicar promos."; }
+    return;
+  }
+  if (b.dataset.quitarPromo) { try { await Tarjetas.borrarPromo(b.dataset.quitarPromo); aviso("Promo quitada"); } catch { aviso("No se pudo quitar. Revisá la conexión."); } return; }
+  if (b.dataset.copiarLink) { const l = b.dataset.copiarLink; try { await navigator.clipboard.writeText(l); aviso("Link copiado"); } catch { aviso(l); } return; }
+  if (b.dataset.tab) { tabAdm = b.dataset.tab; pintarAdmin(); return; }
+  if (b.dataset.borrar) { D.productos = D.productos.filter(p => p.id !== b.dataset.borrar); guardarD(); pintarMenu(); pintarAdmin(); aviso("Producto borrado"); return; }
+  if (b.hasAttribute("data-nuevo")) {
+    const nombre = $("#nNom").value.trim(); if (!nombre) { $("#nErr").textContent = "Escribí el nombre del producto."; return; }
+    const cat = $("#nCat").value, capa = $("#nCapa").value;
+    const p = {id: "p" + Date.now().toString(36), cat, nombre, desc: $("#nDesc").value.trim(), precio: +$("#nPre").value || 0, nuevo: true};
+    if (cat === "comer") p.dibujo = "galleta"; else p.capas = capa === "leche" ? [["leche",45],["matcha",55]] : [[capa,30],["leche",28],["matcha",42]];
+    D.productos.push(p); guardarD(); pintarMenu(); pintarAdmin(); aviso(`${nombre} ya está en el menú`); return;
+  }
+  if (b.hasAttribute("data-gneg")) {
+    const n = D.negocio; n.nombre = $("#gNom").value.trim() || n.nombre; n.lema = $("#gLema").value.trim(); n.whatsapp = $("#gWa").value.trim(); n.redes = {instagram: $("#gIg").value.trim(), facebook: $("#gFb").value.trim(), tiktok: $("#gTk").value.trim()}; n.promo = $("#gPromo").value.trim();
+    document.querySelectorAll("[data-h]").forEach(i => { const [d, k] = i.dataset.h.split(":"); n.horario[+d][+k] = i.value.trim(); });
+    guardarD(); pintarMenu(); pintarHorario(); aviso("Cambios guardados"); return;
+  }
+  if (b.hasAttribute("data-reset")) { D = JSON.parse(JSON.stringify(BASE)); guardarD(); pintarMenu(); pintarHorario(); pintarAdmin(); aviso("Datos de ejemplo restaurados"); return; }
+});
+document.addEventListener("change", e => {
+  const t = e.target;
+  if (t.dataset.precio) { const p = D.productos.find(x => x.id === t.dataset.precio); p.precio = Math.max(0, +t.value || 0); guardarD(); pintarMenu(); aviso("Precio actualizado"); }
+  if (t.dataset.flag) { const p = D.productos.find(x => x.id === t.dataset.id); p[t.dataset.flag] = t.checked; guardarD(); pintarMenu(); }
+});
+
+/* ===== Arranque ===== */
+const q = encodeURIComponent("Parque Morazán, Barrio Amón, San José, Costa Rica");
+$("#maps").href = `https://www.google.com/maps/search/?api=1&query=${q}`;
+$("#waze").href = `https://waze.com/ul?q=${q}&navigate=yes`;
+if (Tarjetas.prueba) { $("#bPrueba").hidden = false; Tarjetas.asegurarEjemplos().catch(() => {}); }
+if (admin) escucharPedidos();
+setInterval(() => { if (tabAdm === "ped" && panelAbierto() && !rcl) { const sc = $("#hoja").scrollTop; pintarAdmin(); $("#hoja").scrollTop = sc; } }, 60000);
+pintarCats(); pintarMenu(); pintarHorario(); pintarCarrito(); pintarSellos();
+Tarjetas.escucharPromos(l => { promosNube = l; promoErr = false; pintarPromosNube();
+  if (tabAdm === "promo" && panelAbierto()) { const sc = $("#hoja").scrollTop; pintarAdmin(); $("#hoja").scrollTop = sc; } }, () => { promoErr = true; }).catch(() => { promoErr = true; });
+// #sellos-TOKEN: la dueña escaneó con la cámara normal del celular y tocó "Sumar sellos" en la tarjeta del cliente.
+function leerHash() {
+  const m = location.hash.match(/^#sellos-([a-z0-9]{16,40})$/i);
+  if (!m) return;
+  history.replaceState(null, "", location.pathname + location.search);
+  if (admin) abrirFicha(m[1].toLowerCase()); else { fichaPendiente = m[1].toLowerCase(); pintarAdmin(); }
+}
+leerHash(); addEventListener("hashchange", leerHash);
+setInterval(pintarHorario, 60000);
+})();
+</script>
+</body>
+</html>
