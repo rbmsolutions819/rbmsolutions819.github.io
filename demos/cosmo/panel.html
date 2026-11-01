@@ -373,5 +373,5 @@ async function iniciar(){
 addEventListener("hashchange", () => { const h = decodeURIComponent(location.hash.slice(1)), p = pedidos.find(x => x.codigo === h); if (p && p.id !== sel) { sel = p.id; tab = p.estado; q = ""; ultimoWA = null; ir("pedidos"); } });
 if (sessionStorage.getItem("cosmo-panel")) iniciar(); else login();
 </script>
-</body>
+<script src="/visitas.js" defer></script></body>
 </html>

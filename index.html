@@ -576,6 +576,8 @@ section.panel{padding:0}
 .ing-box h4{font:700 12px var(--f-txt);letter-spacing:.16em;text-transform:uppercase;color:var(--gris);margin-bottom:12px}
 .ing-dias{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:3px;height:140px;align-items:end;background-image:linear-gradient(var(--linea) 1px,transparent 1px);background-size:100% 25%}
 .ing-dias.id-semana{gap:8px}
+.ing-dia i.vis{background:linear-gradient(to top,var(--azul) 0 var(--a),color-mix(in srgb,var(--gris) 40%,transparent) var(--a) 100%)!important}
+.vis-pags{margin:6px 0 0;font-size:12.5px;color:var(--gris)}
 .ing-dia{display:grid;grid-template-rows:auto 1fr auto;height:100%;align-items:end;text-align:center;min-width:0}
 .ing-dia i{display:block;background:linear-gradient(var(--celeste),var(--azul));border-radius:4px 4px 1px 1px;min-height:2px;align-self:end}
 .ing-dia.hoy i{background:#fff}
@@ -1487,6 +1489,12 @@ const ReservasPrueba = (() => {
   return {
     prueba: true, admin: false,
     async entrar(clave){ if (clave !== CLAVE_ADMIN) throw new Error("clave"); this.admin = true; },
+    async visitas(desde){   // visitas de ejemplo para la versión de prueba
+      const out = [], pags = ["inicio", "condominio-residente", "condominio", "condominio-seguridad", "genki", "matcha", "cosmo", "cosmo-2", "spa", "chemas", "koktela", "candelas", "alick"];
+      for (let d = deIso(desde), i = 0; iso(d) <= iso(crAhora()); d = masDias(d, 1), i++) pags.forEach((p, k) => { const n = Math.max(0, Math.round((pags.length - k) * (0.5 + ((i * 7 + k * 13) % 10) / 10) / 2) - (k > 8 && i % 3 ? 1 : 0));
+        if (n) out.push({ p, f: iso(d), n, u: Math.max(1, Math.round(n * 0.7)) }); });
+      return out;
+    },
     salir(){ this.admin = false; },
     todas,
     ocupados(){ const s = new Set(); for (const c of todas()) for (let m = c.ini; m < c.ini + c.dur; m += 30) s.add(c.fecha + "_" + hhmm(m)); return s; },
@@ -1583,6 +1591,7 @@ async function crearReservasFirebase(){
     async borrarFotoBol(id){ await F.deleteDoc(F.doc(db, "bolfotos", id)); },
     async guardarApuntes(id, txt){ await F.updateDoc(F.doc(db, "citas", id), { apuntes: txt }); const c = citas.find(x => x.id === id); if (c) c.apuntes = txt; },
     async entrar(clave){ await A.signInWithEmailAndPassword(auth, ADMIN_EMAIL, clave); },
+    async visitas(desde){ const s = await F.getDocs(F.query(F.collection(db, "visitas"), F.where("f", ">=", desde))); return s.docs.map(d => d.data()); },
     salir(){ A.signOut(auth); }
   };
   let demosPub = null;
@@ -2649,11 +2658,12 @@ function pintarAdmin(){
   const sinAvisos = (soportaAvisos && Notification.permission === "default") || (esIOS && !soportaAvisos);
   const pest = `<div class="n-fila"><span>Hola 👋</span><button class="chip${nVista === "conf" ? " si" : ""}" data-nv="conf">⚙️ Ajustes</button><button class="chip" id="n-salir">Salir</button></div>`
     + (sinAvisos && nVista !== "conf" ? `<button class="aviso-mini" data-nv="conf">🔔 Activá las notificaciones de citas nuevas ›</button>` : "")
-    + `<div class="n-tabs">${[["citas", "Citas"], ["bol", `Boletas${nProc ? ` (${nProc})` : ""}`], ["ing", "Ingresos"], ["sug", `Opiniones${nOp ? ` (${nOp})` : ""}`], ["gal", "Galería"], ["demos", "Demos"], ["env", `Enviar encuesta${pe ? ` (${pe})` : ""}`]].map(([k2, t]) => `<button class="chip${nVista === k2 ? " si" : ""}" data-nv="${k2}">${t}</button>`).join("")}</div>`;
+    + `<div class="n-tabs">${[["citas", "Citas"], ["bol", `Boletas${nProc ? ` (${nProc})` : ""}`], ["ing", "Ingresos"], ["sug", `Opiniones${nOp ? ` (${nOp})` : ""}`], ["gal", "Galería"], ["demos", "Demos"], ["vis", "Visitas"], ["env", `Enviar encuesta${pe ? ` (${pe})` : ""}`]].map(([k2, t]) => `<button class="chip${nVista === k2 ? " si" : ""}" data-nv="${k2}">${t}</button>`).join("")}</div>`;
   if (nVista === "conf") { box.innerHTML = pest + pintarConfig(); return; }
   if (nVista === "env") { box.innerHTML = pest + pintarEnvioEncuestas(); return; }
   if (nVista === "ing") { box.innerHTML = pest + pintarIngresos(); return; }
   if (nVista === "demos") { box.innerHTML = pest + pintarDemosAdmin(); return; }
+  if (nVista === "vis") { box.innerHTML = pest + pintarVisitas(); return; }
   if (nVista === "bol") {
     // Se repinta cuando llegan datos nuevos: se conserva el campo donde estabas escribiendo.
     const a = document.activeElement, id = a && box.contains(a) && a.id ? a.id : null, sel = id ? [a.selectionStart, a.selectionEnd] : null;
@@ -2736,11 +2746,15 @@ $("#admin").addEventListener("click", async e => {
     catch { toast("No se pudo guardar. Revisá tu conexión."); b.disabled = false; }
     return;
   }
+  if (b.dataset.visd) { nVis.dias = +b.dataset.visd; pintarAdmin(); return; }
+  if (b.dataset.visrec !== undefined) { nVis.datos = {}; pintarAdmin(); return; }
+  if (b.dataset.nocontar !== undefined) { const ya = localStorage.getItem("rbm-no-contar") === "1"; try { ya ? localStorage.removeItem("rbm-no-contar") : localStorage.setItem("rbm-no-contar", "1"); } catch {}
+    toast(ya ? "Este aparato vuelve a contar como visita" : "Listo: tus visitas desde este aparato no se cuentan"); pintarAdmin(); return; }
   if (b.dataset.demoTab) { const [id, n] = b.dataset.demoTab.split(":"); demoTab[id] = +n; pintarAdmin(); return; }
   if (b.dataset.copiarDemo) { await copiar(b.dataset.copiarDemo, "Link copiado. Mandáselo al cliente."); return; }
   if (b.id === "n-ok") {
     b.disabled = true;
-    try { await Reservas.entrar($("#n-clave").value); pintarAdmin(); }
+    try { await Reservas.entrar($("#n-clave").value); try { localStorage.setItem("rbm-no-contar", "1"); } catch {} pintarAdmin(); }
     catch { $("#n-err").textContent = "Contraseña incorrecta."; b.disabled = false; }
     return;
   }
@@ -2928,6 +2942,57 @@ function pintarDemosAdmin(){
         <button data-copiar-demo="${base + d.url}">Copiar link</button>
         <button class="${on ? "rojo" : "ya"}" data-demo-pub="${d.id}">${on ? "Ocultar de la página" : "Publicar en la página"}</button></div></div>`}`; }).join("");
 }
+// ================== VISITAS ==================
+// Cuántas veces entran a la página principal y a cada demo (las cuenta /visitas.js). Solo lo ve el administrador.
+const claveVis = url => (url.replace(/^demos\//, "").replace(/(index)?\.html$/, "").replace(/\/+$/, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "inicio");
+const nVis = { dias: 30, datos: {}, cargando: {} };
+function demoDeVis(p){
+  for (const d of DEMOS) { for (const l of (d.links || [{ t: "", url: d.url }])) if (claveVis(l.url) === p) return [d, l.t || ""]; if (claveVis(d.url) === p) return [d, ""]; }
+  const d = [...DEMOS].sort((a, b) => b.id.length - a.id.length).find(d => p === d.id || p.startsWith(d.id + "-"));
+  return d ? [d, p.slice(d.id.length + 1).replace(/-/g, " ") || ""] : [null, p];
+}
+function pintarVisitas(){
+  const hoy = iso(crAhora()), desde = iso(masDias(deIso(hoy), -(nVis.dias - 1))), k = nVis.dias;
+  if (nVis.datos[k] === undefined && !nVis.cargando[k]) {
+    nVis.cargando[k] = true;
+    Reservas.visitas(desde).then(l => { nVis.datos[k] = l; }).catch(e => { console.warn(e); nVis.datos[k] = null; })
+      .finally(() => { nVis.cargando[k] = false; if (nVista === "vis" && pila.includes("p-admin")) pintarAdmin(); });
+  }
+  const noCuento = (() => { try { return localStorage.getItem("rbm-no-contar") === "1"; } catch { return false; } })();
+  const per = `<div class="cal-bar"><div class="cal-vistas" style="grid-template-columns:repeat(4,1fr)">${[[1, "Hoy"], [7, "7 días"], [30, "30 días"], [90, "90 días"]].map(([d, t]) => `<button class="${nVis.dias === d ? "si" : ""}" data-visd="${d}">${t}</button>`).join("")}</div>
+    <div class="cal-nav"><button data-visrec>↻ Actualizar</button></div></div>`;
+  const pie = `<p class="prueba">Se cuenta una visita cada vez que alguien abre la página (recargar no suma). “Personas” son aparatos distintos por día, así que es aproximado. No se guarda ningún dato personal.<br>
+    ${noCuento ? "✅ Tus visitas desde este aparato no se cuentan." : "⚠️ Este aparato sí se cuenta como visita."} <button class="chip" data-nocontar style="margin-top:6px">${noCuento ? "Volver a contarlo" : "No contar este aparato"}</button></p>`;
+  const datos = nVis.datos[k];
+  if (datos === undefined) return `<div class="ing">${per}<div class="vacio">Cargando visitas…</div></div>`;
+  if (datos === null) return `<div class="ing">${per}<div class="vacio">No se pudieron cargar las visitas. Revisá la conexión.</div>${pie}</div>`;
+  const ini = datos.filter(x => x.p === "inicio"), dem = datos.filter(x => x.p !== "inicio");
+  const suma = (l, c = "n") => l.reduce((t, x) => t + (x[c] || 0), 0);
+  const grupos = {};
+  for (const x of dem) { const [d, pag] = demoDeVis(x.p), id = d ? d.id : "otras";
+    const g = grupos[id] = grupos[id] || { nombre: d ? d.nombre : "Otras páginas", n: 0, u: 0, ult: "", pags: {} };
+    g.n += x.n || 0; g.u += x.u || 0; if (x.f > g.ult) g.ult = x.f; const pk = pag || (d ? "Página principal" : x.p); g.pags[pk] = (g.pags[pk] || 0) + (x.n || 0); }
+  const lista = Object.values(grupos).sort((a, b) => b.n - a.n), max = Math.max(1, ...lista.map(g => g.n));
+  const dias = []; for (let d = deIso(desde); iso(d) <= hoy; d = masDias(d, 1)) dias.push(iso(d));
+  const porDia = dias.map(f => [f, suma(dem.filter(x => x.f === f)), suma(ini.filter(x => x.f === f))]), maxD = Math.max(1, ...porDia.map(x => x[1] + x[2]));
+  const cuando = f => f === hoy ? "hoy" : f === iso(masDias(deIso(hoy), -1)) ? "ayer" : fechaLarga(f).toLowerCase();
+  return `<div class="ing">${per}
+    <div class="ing-total"><small>Visitas a tus demos</small><b>${suma(dem)}</b><span>${suma(dem, "u")} persona${suma(dem, "u") === 1 ? "" : "s"} aprox. · ${lista.length} demo${lista.length === 1 ? "" : "s"} visitada${lista.length === 1 ? "" : "s"}</span></div>
+    <div class="ing-kpis">
+      <div><small>Página principal</small><b>${suma(ini)}</b></div>
+      <div><small>Demo más vista</small><b style="font-size:15px">${lista[0] ? esc(lista[0].nombre) : "—"}</b></div>
+      <div><small>Hoy (demos)</small><b>${suma(dem.filter(x => x.f === hoy))}</b></div>
+    </div>
+    ${nVis.dias > 1 ? `<div class="ing-box"><h4>Por día <em style="font-weight:500;font-style:normal;color:var(--gris)">· azul: demos · gris: página principal</em></h4>
+      <div class="ing-dias${nVis.dias <= 7 ? " id-semana" : ""}">${porDia.map(([f, n, m], i) => { const d = deIso(f); return `<div class="ing-dia${f === hoy ? " hoy" : ""}" title="${fechaLarga(f)}: ${n} a demos, ${m} a la principal">
+        <span class="v">${n + m && nVis.dias <= 7 ? n + m : ""}</span><i class="vis" style="height:${Math.round((n + m) / maxD * 100)}%;--a:${n + m ? Math.round(n / (n + m) * 100) : 100}%"></i><small>${nVis.dias <= 7 ? DIAS_C[d.getUTCDay()] : ((porDia.length - 1 - i) % (nVis.dias > 30 ? 15 : 5) === 0 ? d.getUTCDate() : "")}</small></div>`; }).join("")}</div></div>` : ""}
+    <div class="ing-box" style="grid-column:1/-1"><h4>¿A cuál demo entraron?</h4>
+      ${lista.length ? lista.map(g => { const pags = Object.entries(g.pags).sort((a, b) => b[1] - a[1]);
+        return `<div class="ing-fila"><div class="t"><span>${esc(g.nombre)} <em>· ${g.u} persona${g.u === 1 ? "" : "s"} · última ${cuando(g.ult)}</em></span><b>${g.n}</b></div><div class="bar"><i style="width:${Math.round(g.n / max * 100)}%"></i></div>
+          ${pags.length > 1 ? `<p class="vis-pags">${pags.map(([t, n]) => `${esc(t.charAt(0).toUpperCase() + t.slice(1))}: <b>${n}</b>`).join(" · ")}</p>` : ""}</div>`; }).join("")
+        : `<p class="ing-vacio">Todavía nadie ha entrado a tus demos en este periodo.</p>`}</div>
+    ${pie}</div>`;
+}
 pintarResenas();
 $("#gal").addEventListener("click", e => {
   const b = e.target.closest("button"); if (!b) return; const x = itemsGal[b.dataset.i];
@@ -3047,4 +3112,4 @@ $("#enc-form").addEventListener("submit", async e => {
 if (location.hash === "#agendar") { history.replaceState(null, "", location.pathname + location.search); setTimeout(() => pedirForma(""), 400); }
 if (location.hash === "#admin") { history.replaceState(null, "", location.pathname + location.search); setTimeout(() => abrir("p-admin"), 400); }
 window.__dbg = { get ag(){ return ag; }, get pila(){ return pila; }, pintarAgenda, get R(){ return Reservas; } };
-</script></body></html>
+</script><script src="/visitas.js" defer></script></body></html>
