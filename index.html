@@ -846,6 +846,33 @@ footer.pie-g .wrap{display:block}
   .mini button::after,.trab::after{background:radial-gradient(260px circle at var(--x,50%) var(--y,50%),rgba(42,95,230,.1),transparent 65%)}
 }
 @media (prefers-reduced-motion:reduce){.rv .revela:not(.visto),.rv .revela.st:not(.visto)>*{opacity:1;transform:none}.progreso-rbm{display:none}}
+
+/* ===================== Efectos 2.0 ===================== */
+#red{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.portada .wrap{z-index:1}
+.portada .orbe.grande{overflow:visible;transform-style:preserve-3d;transition:transform .5s cubic-bezier(.2,.7,.2,1);animation:flotaOrbe 7s ease-in-out infinite}
+.orbe-anillos{position:absolute;inset:-18%;z-index:-1;pointer-events:none}
+.orbe-anillos span{position:absolute;inset:0;border-radius:50%;border:1px solid rgba(124,196,255,.28);animation:gira 18s linear infinite}
+.orbe-anillos span:nth-child(2){inset:9%;border-color:rgba(47,107,255,.35);border-style:dashed;animation-duration:26s;animation-direction:reverse}
+.orbe-anillos span:nth-child(3){inset:-10%;border-color:rgba(124,196,255,.14);animation-duration:40s}
+.orbe-anillos span::after{content:"";position:absolute;top:50%;left:-5px;width:9px;height:9px;margin-top:-4.5px;border-radius:50%;background:var(--celeste);box-shadow:0 0 14px 3px rgba(124,196,255,.8)}
+.orbe-anillos span:nth-child(2)::after{left:auto;right:-4px;background:#fff;width:7px;height:7px}
+.orbe-anillos span:nth-child(3)::after{top:-4px;left:50%;background:var(--azul)}
+.orbe-grande-clip{position:absolute;inset:0;border-radius:50%;overflow:hidden}
+/* luz que sigue el mouse en toda la página (solo computadora) */
+.foco{position:fixed;left:0;top:0;width:520px;height:520px;margin:-260px 0 0 -260px;border-radius:50%;pointer-events:none;z-index:0;background:radial-gradient(circle,rgba(47,107,255,.12),transparent 60%);opacity:0;transition:opacity .4s;will-change:transform}
+.foco.on{opacity:1}
+/* títulos con brillo */
+.rv .cab-s.visto h2{background:linear-gradient(100deg,var(--blanco) 25%,var(--celeste) 45%,#fff 52%,var(--celeste) 60%,var(--blanco) 78%);background-size:260% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:brillo 3.2s ease-out .3s 1 both}
+/* tarjetas 3D */
+.mini button,.trab{transform-style:preserve-3d;will-change:transform}
+.trab h3,.mini b{transform:translateZ(18px)}
+/* pasos con línea que se llena */
+.pasos li{transition:transform .3s}
+.pasos li:hover{transform:translateX(6px)}
+@keyframes flotaOrbe{0%,100%{translate:0 0}50%{translate:0 -10px}}
+@media (prefers-color-scheme:light){.foco{background:radial-gradient(circle,rgba(42,95,230,.08),transparent 60%)}.rv .cab-s.visto h2{background-image:linear-gradient(100deg,var(--blanco) 25%,var(--azul) 45%,var(--celeste) 52%,var(--azul) 60%,var(--blanco) 78%)}}
+@media (prefers-reduced-motion:reduce){.portada .orbe.grande,.orbe-anillos span{animation:none}}
 </style>
 </head><body>
 
@@ -889,8 +916,9 @@ footer.pie-g .wrap{display:block}
 
 <main>
   <section class="portada" id="inicio">
+    <canvas id="red" aria-hidden="true"></canvas>
     <div class="wrap">
-      <div class="orbe grande" aria-hidden="true"><div class="giro"><i class="b1"></i><i class="b2"></i><i class="b4"></i><i class="b3"></i></div><span class="txt txt3"><b>RBM</b><em>Solutions CR</em></span></div>
+      <div class="orbe grande" aria-hidden="true"><div class="orbe-anillos"><span></span><span></span><span></span></div><div class="giro"><i class="b1"></i><i class="b2"></i><i class="b4"></i><i class="b3"></i></div><span class="txt txt3"><b>RBM</b><em>Solutions CR</em></span></div>
       <div>
         <p class="etq">Soluciones en tecnología · Costa Rica</p>
         <h1 class="sr">RBM Solutions</h1>
@@ -1078,6 +1106,55 @@ footer.pie-g .wrap{display:block}
   document.querySelectorAll(".revela").forEach(el => io.observe(el));
   // luz que sigue el mouse en las tarjetas
   document.addEventListener("pointermove", e => { const t = e.target.closest && e.target.closest(".mini button,.trab"); if (!t) return; const r = t.getBoundingClientRect(); t.style.setProperty("--x", (e.clientX - r.left) + "px"); t.style.setProperty("--y", (e.clientY - r.top) + "px"); }, { passive: true });
+})();
+</script>
+
+<script>
+/* Efectos 2.0: red de puntos en la portada, órbita del logo, luz que sigue el mouse y tarjetas 3D */
+(() => {
+  const quieto = matchMedia("(prefers-reduced-motion: reduce)").matches, fino = matchMedia("(pointer: fine)").matches;
+  const $ = s => document.querySelector(s);
+  if (quieto) return;
+  // red de puntos conectados que reacciona al mouse
+  const cv = $("#red"), sec = $(".portada");
+  if (cv && sec) {
+    const x = cv.getContext("2d"); let W, H, ps = [], on = true, mx = -999, my = -999;
+    const tam = () => { const r = sec.getBoundingClientRect(), dpr = Math.min(2, devicePixelRatio || 1); W = r.width; H = r.height; cv.width = W * dpr; cv.height = H * dpr; x.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const n = Math.round(Math.min(90, W * H / 14000)); ps = Array.from({ length: n }, () => ({ x: Math.random() * W, y: Math.random() * H, vx: (Math.random() - .5) * .35, vy: (Math.random() - .5) * .35, r: Math.random() * 1.6 + .8 })); };
+    sec.addEventListener("pointermove", e => { const r = sec.getBoundingClientRect(); mx = e.clientX - r.left; my = e.clientY - r.top; });
+    sec.addEventListener("pointerleave", () => { mx = my = -999; });
+    const D = 130, cl = () => matchMedia("(prefers-color-scheme: light)").matches ? "42,95,230" : "124,196,255";
+    const paso = () => { if (on) { x.clearRect(0, 0, W, H);
+        for (const p of ps) { p.x += p.vx; p.y += p.vy; if (p.x < 0 || p.x > W) p.vx *= -1; if (p.y < 0 || p.y > H) p.vy *= -1;
+          const dx = p.x - mx, dy = p.y - my, d = Math.hypot(dx, dy); if (d < 120 && d > 0) { p.x += dx / d * 1.2; p.y += dy / d * 1.2; } }
+        for (let i = 0; i < ps.length; i++) for (let j = i + 1; j < ps.length; j++) { const a = ps[i], b = ps[j], d = Math.hypot(a.x - b.x, a.y - b.y);
+          if (d < D) { x.strokeStyle = `rgba(${cl()},${(1 - d / D) * .35})`; x.lineWidth = 1; x.beginPath(); x.moveTo(a.x, a.y); x.lineTo(b.x, b.y); x.stroke(); } }
+        for (const p of ps) { const d = Math.hypot(p.x - mx, p.y - my); x.beginPath(); x.arc(p.x, p.y, p.r + (d < 120 ? 1.2 : 0), 0, 7); x.fillStyle = d < 120 ? (cl() === "42,95,230" ? "rgba(42,95,230,1)" : "rgba(255,255,255,.95)") : `rgba(${cl()},.75)`; x.fill();
+          if (d < 160) { x.strokeStyle = `rgba(${cl()},${(1 - d / 160) * .5})`; x.beginPath(); x.moveTo(p.x, p.y); x.lineTo(mx, my); x.stroke(); } } }
+      requestAnimationFrame(paso); };
+    tam(); addEventListener("resize", tam);
+    if ("IntersectionObserver" in window) new IntersectionObserver(([e]) => on = e.isIntersecting).observe(sec);
+    paso();
+  }
+  if (!fino) return;
+  // el logo grande se inclina hacia el mouse
+  const orbe = $(".portada .orbe.grande");
+  if (orbe && sec) { sec.addEventListener("pointermove", e => { const r = orbe.getBoundingClientRect(), dx = (e.clientX - r.left - r.width / 2) / innerWidth, dy = (e.clientY - r.top - r.height / 2) / innerHeight;
+      orbe.style.transform = `perspective(800px) rotateY(${dx * 22}deg) rotateX(${-dy * 22}deg)`; });
+    sec.addEventListener("pointerleave", () => orbe.style.transform = ""); }
+  // luz suave que sigue el mouse
+  const foco = document.createElement("div"); foco.className = "foco"; foco.setAttribute("aria-hidden", "true"); document.body.prepend(foco);
+  let fx = 0, fy = 0, tx = 0, ty = 0, mov = false;
+  addEventListener("pointermove", e => { tx = e.clientX; ty = e.clientY; foco.classList.add("on"); if (!mov) { mov = true; requestAnimationFrame(seguir); } }, { passive: true });
+  document.addEventListener("pointerleave", () => foco.classList.remove("on"));
+  function seguir(){ fx += (tx - fx) * .15; fy += (ty - fy) * .15; foco.style.transform = `translate(${fx}px,${fy}px)`; if (Math.abs(tx - fx) + Math.abs(ty - fy) > .5) requestAnimationFrame(seguir); else mov = false; }
+  // tarjetas que se inclinan en 3D
+  document.addEventListener("pointermove", e => { const t = e.target.closest && e.target.closest(".mini button,.trab"); if (!t) return; const r = t.getBoundingClientRect();
+    const px = (e.clientX - r.left) / r.width - .5, py = (e.clientY - r.top) / r.height - .5; t.style.transform = `perspective(800px) rotateX(${-py * 9}deg) rotateY(${px * 11}deg) translateY(-4px)`; }, { passive: true });
+  document.addEventListener("pointerout", e => { const t = e.target.closest && e.target.closest(".mini button,.trab"); if (t && !t.contains(e.relatedTarget)) t.style.transform = ""; });
+  // botones principales "magnéticos"
+  document.querySelectorAll(".btn-agua").forEach(b => { b.addEventListener("pointermove", e => { const r = b.getBoundingClientRect(); b.style.transform = `translate(${(e.clientX - r.left - r.width / 2) * .15}px,${(e.clientY - r.top - r.height / 2) * .25}px)`; });
+    b.addEventListener("pointerleave", () => b.style.transform = ""); });
 })();
 </script>
 <script>try{document.getElementById("pie-anio").textContent=new Date().getFullYear()}catch(e){}</script>
