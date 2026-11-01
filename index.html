@@ -791,6 +791,79 @@ footer.pie-g .wrap{display:block}
   #admin .bol-fotos{grid-template-columns:repeat(4,minmax(0,1fr))}
   #admin .enc-resumen{max-width:820px}
 }
+
+/* ===== Animaciones: página más viva y profesional ===== */
+.progreso-rbm{position:fixed;top:env(safe-area-inset-top,0px);left:0;right:0;height:3px;z-index:60;background:linear-gradient(90deg,var(--azul),var(--celeste));transform:scaleX(0);transform-origin:0 50%;pointer-events:none}
+.nav{transition:box-shadow .3s ease}
+.nav.bajo{box-shadow:0 14px 34px -20px rgba(0,0,0,.7)}
+/* portada */
+.portada::before{animation:respira 12s ease-in-out infinite alternate}
+.portada::after{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(var(--linea) 1px,transparent 1px),linear-gradient(90deg,var(--linea) 1px,transparent 1px);background-size:56px 56px;-webkit-mask-image:radial-gradient(ellipse 75% 65% at 72% 42%,#000 10%,transparent 72%);mask-image:radial-gradient(ellipse 75% 65% at 72% 42%,#000 10%,transparent 72%);opacity:.55}
+.portada .wrap{z-index:1}
+.portada .wrap>div:not(.orbe-caja)>*{animation:subeR .9s cubic-bezier(.2,.7,.2,1) backwards}
+.portada .wrap>div:not(.orbe-caja)>:nth-child(1){animation-delay:.1s}
+.portada .wrap>div:not(.orbe-caja)>:nth-child(3){animation-delay:.22s}
+.portada .wrap>div:not(.orbe-caja)>:nth-child(4){animation-delay:.36s}
+.portada .wrap>div:not(.orbe-caja)>:nth-child(5){animation-delay:.48s}
+.portada .wrap>div:not(.orbe-caja)>:nth-child(6){animation-delay:.6s}
+.lema .lz{background:linear-gradient(90deg,var(--blanco) 0%,var(--celeste) 35%,var(--blanco) 70%);background-size:220% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:brillo 7s linear infinite;font-weight:600}
+.orbe-caja{position:relative;justify-self:center;max-width:100%;transition:transform .5s cubic-bezier(.2,.7,.2,1)}
+.portada .orbe-caja .orbe.grande{animation:orbeEntra 1.3s cubic-bezier(.2,.7,.2,1) backwards,flota 7s ease-in-out 1.3s infinite}
+.chip-o{position:absolute;z-index:5;display:inline-flex;align-items:center;gap:8px;padding:6px 13px 6px 6px;border-radius:999px;font:600 12.5px var(--f-txt);color:var(--blanco);white-space:nowrap;background:rgba(12,20,34,.74);border:1px solid var(--borde);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);box-shadow:0 14px 30px -14px rgba(0,0,0,.7);animation:chipEntra .8s cubic-bezier(.2,.7,.2,1) backwards,flota 6s ease-in-out infinite}
+.chip-o .ci{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 35% 30%,#bfe2ff,var(--azul) 70%);color:#fff;flex:none}
+.chip-o svg{width:15px;height:15px}
+.chip-o.c1{top:4%;left:-10%;animation-delay:.9s,1.7s;animation-duration:.8s,6.2s}
+.chip-o.c2{top:24%;right:-5%;animation-delay:1.05s,1.85s;animation-duration:.8s,7s}
+.chip-o.c3{bottom:16%;right:-1%;animation-delay:1.2s,2s;animation-duration:.8s,5.6s}
+.chip-o.c4{bottom:2%;left:-4%;animation-delay:1.35s,2.15s;animation-duration:.8s,6.6s}
+@media (min-width:1100px){.chip-o{font-size:15px;padding:8px 18px 8px 8px;gap:10px}.chip-o .ci{width:34px;height:34px}.chip-o svg{width:18px;height:18px}}
+@media (min-width:780px){.orbe-caja{order:2}}
+@media (min-width:780px) and (max-width:1099px){.portada .orbe-caja .orbe.grande{width:min(360px,38vw)}}
+/* cinta de servicios */
+.cinta-rbm{overflow:hidden;background:var(--noche);border-top:1px solid var(--linea);-webkit-mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent);mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent)}
+.cinta-in{display:flex;width:max-content;animation:corre 70s linear infinite}
+.cinta-in span{display:inline-flex;align-items:center;gap:10px;padding:16px 26px;font:600 15px var(--f-txt);color:var(--texto2);white-space:nowrap}
+.cinta-in span::after{content:"";width:5px;height:5px;border-radius:50%;background:var(--celeste);opacity:.5;margin-left:26px}
+.cinta-in svg{width:20px;height:20px;color:var(--celeste);flex:none}
+.cinta-rbm:hover .cinta-in{animation-play-state:paused}
+/* aparecer al bajar */
+.rv .revela:not(.st):not(.visto){opacity:0;transform:translateY(28px)}
+.rv .revela.st:not(.visto)>*{opacity:0}
+.rv .revela.st.visto>*{animation:subeR .75s cubic-bezier(.2,.7,.2,1) backwards;animation-delay:calc(var(--n,0) * 75ms)}
+.cab-s .etq{display:flex;align-items:center;gap:12px}
+.cab-s .etq::before{content:"";width:30px;height:2px;border-radius:2px;flex:none;background:linear-gradient(90deg,var(--azul),var(--celeste));transform-origin:0 50%;transition:transform .9s cubic-bezier(.2,.7,.2,1) .25s}
+.rv .cab-s.revela:not(.visto) .etq::before{transform:scaleX(0)}
+/* tarjetas con luz que sigue el mouse */
+.trab{position:relative}
+.mini button::after,.trab::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:radial-gradient(260px circle at var(--x,50%) var(--y,50%),rgba(124,196,255,.18),transparent 65%);opacity:0;transition:opacity .3s}
+.mini button:hover::after,.trab:hover::after{opacity:1}
+.mini button:hover,.trab:hover{box-shadow:0 18px 40px -22px rgba(47,107,255,.65)}
+.mini .ic{transition:transform .35s cubic-bezier(.2,.7,.2,1)}
+.mini button:hover .ic{transform:rotate(-8deg) scale(1.08)}
+/* botones */
+.btn{transition:transform .15s,box-shadow .2s,translate .2s}
+.btn:not(:disabled):hover{translate:0 -2px}
+.btn-agua{position:relative;overflow:hidden;isolation:isolate}
+.btn-agua::after{content:"";position:absolute;top:0;bottom:0;left:-80%;width:55%;z-index:-1;background:linear-gradient(100deg,transparent,rgba(255,255,255,.38),transparent);transform:skewX(-20deg);pointer-events:none;transition:left .7s ease}
+.btn-agua:hover::after{left:130%}
+.portada .acciones .btn-agua::after{animation:barrido 5s ease-in-out 2.4s infinite}
+.btn-agua:hover{box-shadow:0 16px 36px -10px rgba(47,107,255,.85)}
+/* frase final */
+.frase blockquote em{background-size:220% 100%;animation:brillo 6s linear infinite}
+@keyframes subeR{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
+@keyframes orbeEntra{from{opacity:0;scale:.82}to{opacity:1;scale:1}}
+@keyframes chipEntra{from{opacity:0;scale:.6}to{opacity:1;scale:1}}
+@keyframes flota{0%,100%{translate:0 0}50%{translate:0 -12px}}
+@keyframes brillo{to{background-position:-220% 0}}
+@keyframes respira{from{scale:1;opacity:.85}to{scale:1.12;opacity:1}}
+@keyframes corre{to{transform:translateX(-50%)}}
+@keyframes barrido{0%,72%{left:-80%}100%{left:130%}}
+@media (prefers-color-scheme:light){
+  .chip-o{background:rgba(255,255,255,.88);box-shadow:0 14px 30px -16px rgba(20,50,110,.45)}
+  .mini button:hover,.trab:hover{box-shadow:0 18px 40px -22px rgba(42,95,230,.5)}
+  .mini button::after,.trab::after{background:radial-gradient(260px circle at var(--x,50%) var(--y,50%),rgba(42,95,230,.1),transparent 65%)}
+}
+@media (prefers-reduced-motion:reduce){.rv .revela:not(.visto),.rv .revela.st:not(.visto)>*{opacity:1;transform:none}.progreso-rbm{display:none}}
 </style>
 </head><body>
 
@@ -817,6 +890,7 @@ footer.pie-g .wrap{display:block}
   <symbol id="i-casa" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/></symbol>
 </svg>
 
+<div class="progreso-rbm" id="progreso-rbm" aria-hidden="true"></div>
 <nav class="nav" aria-label="Principal">
   <div class="fila">
     <button class="menu-orbe" data-abrir="cajon" aria-label="Abrir menú"><span class="orbe" aria-hidden="true"><span class="giro"><i class="b1"></i><i class="b2"></i><i class="b3"></i></span><span class="txt">Menú</span></span></button>
@@ -834,11 +908,17 @@ footer.pie-g .wrap{display:block}
 <main>
   <section class="portada" id="inicio">
     <div class="wrap">
-      <div class="orbe grande" aria-hidden="true"><div class="giro"><i class="b1"></i><i class="b2"></i><i class="b4"></i><i class="b3"></i></div><span class="txt txt3"><b>RBM</b><em>Solutions CR</em></span></div>
+      <div class="orbe-caja" id="orbe-caja">
+        <div class="orbe grande" aria-hidden="true"><div class="giro"><i class="b1"></i><i class="b2"></i><i class="b4"></i><i class="b3"></i></div><span class="txt txt3"><b>RBM</b><em>Solutions CR</em></span></div>
+        <span class="chip-o c1" aria-hidden="true"><span class="ci"><svg><use href="#i-pc"/></svg></span>Reparación</span>
+        <span class="chip-o c2" aria-hidden="true"><span class="ci"><svg><use href="#i-web"/></svg></span>Páginas web</span>
+        <span class="chip-o c3" aria-hidden="true"><span class="ci"><svg><use href="#i-app"/></svg></span>Apps móviles</span>
+        <span class="chip-o c4" aria-hidden="true"><span class="ci"><svg><use href="#i-casa"/></svg></span>A domicilio</span>
+      </div>
       <div>
         <p class="etq">Soluciones en tecnología · Costa Rica</p>
         <h1 class="sr">RBM Solutions</h1>
-        <p class="lema">Reparo tu computadora, te ayudo a comprar el equipo correcto y creo la página web o la app de tu negocio.</p>
+        <p class="lema">Reparo tu <span class="lz">computadora</span>, te ayudo a comprar el <span class="lz">equipo correcto</span> y creo la <span class="lz">página web o la app</span> de tu negocio.</p>
         <ul class="sellos"><li>Servicio a domicilio</li><li>En taller o a distancia</li><li>Heredia y todo el país</li></ul>
         <div class="acciones">
           <button class="btn btn-agua" data-reservar><svg><use href="#i-cal"/></svg>Agendar cita</button>
@@ -848,6 +928,8 @@ footer.pie-g .wrap{display:block}
       </div>
     </div>
   </section>
+
+  <div class="cinta-rbm" aria-hidden="true"><div class="cinta-in" id="cinta-rbm"><span><svg><use href="#i-pc"/></svg>Reparación de computadoras</span><span><svg><use href="#i-win"/></svg>Formateo e instalación de Windows</span><span><svg><use href="#i-ssd"/></svg>Cambio a disco SSD</span><span><svg><use href="#i-escudo"/></svg>Eliminación de virus</span><span><svg><use href="#i-vent"/></svg>Mantenimiento preventivo</span><span><svg><use href="#i-caja"/></svg>Asesoría para comprar equipo</span><span><svg><use href="#i-web"/></svg>Páginas web</span><span><svg><use href="#i-app"/></svg>Apps móviles</span><span><svg><use href="#i-casa"/></svg>Servicio a domicilio</span><span><svg><use href="#i-chat"/></svg>Soporte a distancia</span></div></div>
 
   <section class="banda" id="servicios">
     <div class="wrap">
@@ -950,7 +1032,7 @@ footer.pie-g .wrap{display:block}
 
   <section class="banda frase">
     <div class="wrap">
-      <blockquote>Califícame no por mis éxitos, sino por mis fracasos… <em>que son muy pocos.</em></blockquote>
+      <blockquote class="revela">Califícame no por mis éxitos, sino por mis fracasos… <em>que son muy pocos.</em></blockquote>
       <cite>— RBM Solutions</cite>
       <button class="btn btn-agua" data-reservar><svg><use href="#i-cal"/></svg>Agendar mi cita</button>
     </div>
@@ -999,6 +1081,35 @@ footer.pie-g .wrap{display:block}
     </div>
   </div>
 </footer>
+<script>
+/* Animaciones de la página: aparecer al bajar, barra de avance, cinta de servicios y luz en las tarjetas */
+(() => {
+  const quieto = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const $ = s => document.querySelector(s);
+  // cinta: se duplica para que gire sin cortes y va a una velocidad cómoda de leer
+  const cinta = $("#cinta-rbm"); if (cinta) { cinta.innerHTML += cinta.innerHTML; const vel = () => cinta.style.animationDuration = (cinta.scrollWidth / 2 / 28).toFixed(1) + "s"; vel(); addEventListener("load", vel); }
+  // barra de avance y sombra del menú
+  const barra = $("#progreso-rbm"), nav = $(".nav"); let pend = false;
+  const alBajar = () => { pend = false; const h = document.documentElement, max = h.scrollHeight - h.clientHeight; if (barra) barra.style.transform = `scaleX(${max > 0 ? h.scrollTop / max : 0})`; nav && nav.classList.toggle("bajo", h.scrollTop > 8); };
+  addEventListener("scroll", () => { if (!pend) { pend = true; requestAnimationFrame(alBajar); } }, { passive: true }); alBajar();
+  if (quieto || !("IntersectionObserver" in window)) return;
+  // aparecer al bajar (las listas aparecen una por una)
+  ["#mini", ".pasos", ".trabajos.revela", "#tabla-horario", ".datos"].forEach(s => { const el = $(s); if (el && el.classList.contains("revela")) el.classList.add("st"); });
+  const io = new IntersectionObserver(es => es.forEach(e => { if (!e.isIntersecting) return; const el = e.target;
+    if (el.classList.contains("st")) [...el.children].forEach((c, i) => c.style.setProperty("--n", Math.min(i, 10)));
+    el.classList.add("visto"); io.unobserve(el); }), { rootMargin: "0px 0px -10% 0px", threshold: .06 });
+  document.documentElement.classList.add("rv");
+  document.querySelectorAll(".revela").forEach(el => io.observe(el));
+  // luz que sigue el mouse en las tarjetas
+  document.addEventListener("pointermove", e => { const t = e.target.closest && e.target.closest(".mini button,.trab"); if (!t) return; const r = t.getBoundingClientRect(); t.style.setProperty("--x", (e.clientX - r.left) + "px"); t.style.setProperty("--y", (e.clientY - r.top) + "px"); }, { passive: true });
+  // la bola se mueve un poquito con el mouse (solo en computadora)
+  const caja = $("#orbe-caja"), port = $(".portada");
+  if (caja && port && matchMedia("(pointer: fine)").matches) {
+    port.addEventListener("pointermove", e => { const r = port.getBoundingClientRect(); const dx = (e.clientX - r.left) / r.width - .5, dy = (e.clientY - r.top) / r.height - .5; caja.style.transform = `translate3d(${dx * 22}px, ${dy * 18}px, 0)`; });
+    port.addEventListener("pointerleave", () => caja.style.transform = "");
+  }
+})();
+</script>
 <script>try{document.getElementById("pie-anio").textContent=new Date().getFullYear()}catch(e){}</script>
 
 <a class="wa" data-wa="Hola, vengo de la página de RBM Solutions. Tengo una consulta." href="#" aria-label="Escribir por WhatsApp"><svg><use href="#i-wa"/></svg></a>
