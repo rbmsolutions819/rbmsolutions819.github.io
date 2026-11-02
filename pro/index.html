@@ -4,16 +4,17 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex">
-<title>RBM Solutions · Tu negocio, en el bolsillo de todos</title>
+<title>RBM Solutions · Tecnología hecha con precisión</title>
 <meta name="description" content="Páginas web, apps y reparación de computadoras en Costa Rica. RBM Solutions.">
 <meta name="theme-color" content="#000000">
 <link rel="icon" href="../icon-192.png">
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
-<link rel="preload" as="image" href="rbm.jpg">
+<link rel="preload" as="image" href="rbm-pc.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
+
 /* Diseño: presentación tipo lanzamiento de producto. Negro profundo, tipografía enorme y un solo objeto protagonista:
    el celular con las páginas de RBM. Todo se cuenta al bajar. */
 :root{
@@ -187,68 +188,166 @@ footer a:hover{color:var(--claro);text-decoration:underline}
   .rv{opacity:1;transform:none}
   *{animation:none!important;transition:none!important}
 }
+
+/* ===================== Escenas nuevas ===================== */
+.escena{position:relative}
+.escena>.fijo{position:sticky;top:0;height:100svh;overflow:hidden}
+
+/* 1. La bola de RBM */
+.s-orbe{height:260vh}
+.s-orbe .fijo{display:grid;place-items:center}
+#gl{position:absolute;inset:0;width:100%;height:100%}
+.s-orbe .halo{position:absolute;left:50%;top:50%;width:min(130vmin,1200px);aspect-ratio:1;translate:-50% -50%;background:radial-gradient(circle,rgba(47,107,255,.35),rgba(124,196,255,.08) 35%,transparent 60%);transform:scale(calc(1 + var(--p,0) * 2.5));pointer-events:none}
+.s-orbe .css-orbe{position:absolute;left:50%;top:50%;width:min(56vmin,520px);aspect-ratio:1;translate:-50% -50%;border-radius:50%;background:radial-gradient(circle at 34% 28%,#fff,#bfe2ff 10%,#7cc4ff 26%,#2f6bff 55%,#0a1c5a 80%,#030b24);box-shadow:0 0 120px rgba(47,107,255,.6);transform:scale(calc(1 + var(--p,0) * 4))}
+.s-orbe .titulo{position:relative;z-index:2;text-align:center;display:grid;gap:18px;justify-items:center;margin-top:min(58vmin,540px);opacity:calc(1 - var(--p,0) * 3);transform:translateY(calc(var(--p,0) * 80px))}
+.s-orbe h1{font-size:clamp(44px,8.6vw,120px);font-weight:200;letter-spacing:-.05em;line-height:1}
+.s-orbe h1 b{font-weight:700}
+.s-orbe .titulo p{font-size:clamp(18px,2.3vw,24px);color:var(--gris5);font-weight:400}
+.s-orbe .titulo>*{animation:aparece 1.6s cubic-bezier(.2,.75,.2,1) both}
+.s-orbe .titulo>*:nth-child(2){animation-delay:.25s}.s-orbe .titulo>*:nth-child(3){animation-delay:.45s}
+.s-orbe .velo{position:absolute;inset:0;background:radial-gradient(circle,#dff0ff,#7cc4ff 40%,#2f6bff);opacity:calc((var(--p,0) - .55) * 4);pointer-events:none;z-index:3}
+.s-orbe .velo2{position:absolute;inset:0;background:#000;opacity:calc((var(--p,0) - .8) * 6);pointer-events:none;z-index:4}
+.s-orbe .bajar{position:absolute;bottom:calc(26px + env(safe-area-inset-bottom,0px));left:50%;translate:-50% 0;z-index:2;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--gris5);opacity:calc(1 - var(--p,0) * 6);display:grid;justify-items:center;gap:10px}
+.s-orbe .bajar i{width:1px;height:46px;background:linear-gradient(var(--gris5),transparent);animation:linea 2s ease-in-out infinite;transform-origin:top}
+@keyframes linea{0%{transform:scaleY(0)}50%{transform:scaleY(1)}100%{transform:scaleY(1);opacity:0}}
+
+/* 2. Tres palabras */
+.s-palabras{height:300vh;background:radial-gradient(circle at 50% 50%,#0a1430,#000 60%)}
+.s-palabras .fijo{display:grid;place-items:center}
+.s-palabras .pal{position:absolute;font-size:clamp(64px,15vw,220px);font-weight:700;letter-spacing:-.06em;line-height:1;text-align:center;opacity:0;will-change:transform,opacity,filter}
+.s-palabras .pal:nth-child(3){background:linear-gradient(95deg,#fff 10%,var(--celeste) 50%,var(--azul) 90%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.s-palabras .nota{position:absolute;bottom:14vh;left:0;right:0;text-align:center;font-size:clamp(17px,2.1vw,22px);color:var(--gris5);padding:0 var(--gr) 0 var(--gl)}
+
+/* 3. La laptop que se abre */
+.s-lap{height:340vh}
+.s-lap .fijo{display:grid;grid-template-rows:auto 1fr;justify-items:center;padding-top:calc(48px + env(safe-area-inset-top,0px) + 4vh)}
+.s-lap .cap{text-align:center;display:grid;gap:10px;position:relative;height:clamp(110px,16vh,170px);width:100%}
+.s-lap .cap>div{position:absolute;inset:0;display:grid;justify-items:center;align-content:start;gap:10px;opacity:0;transform:translateY(20px);transition:opacity .6s,transform .8s cubic-bezier(.2,.75,.2,1)}
+.s-lap .cap>div.on{opacity:1;transform:none}
+.s-lap .cap h2{font-size:clamp(36px,6vw,76px);font-weight:700;letter-spacing:-.045em;line-height:1.02}
+.s-lap .cap p{font-size:clamp(17px,2vw,21px);color:var(--gris5)}
+.mesa{position:relative;width:min(900px,88vw);--W:min(900px,88vw);perspective:2400px;perspective-origin:50% -30%;align-self:center;margin-top:-4vh;transform:scale(calc(.92 + var(--z,0) * .08))}
+.tapa{position:relative;width:100%;aspect-ratio:16/10.2;transform-origin:50% 100%;transform:rotateX(calc(-92deg + var(--o,0) * 98deg));transform-style:preserve-3d;border-radius:calc(var(--W) * .025) calc(var(--W) * .025) 6px 6px;background:#0b0b0d;box-shadow:inset 0 0 0 2px #2c2c30;padding:calc(var(--W) * .018) calc(var(--W) * .018) calc(var(--W) * .03)}
+.tapa::after{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(160deg,#cfd3da,#8e939b);transform:rotateY(180deg) translateZ(1px);backface-visibility:hidden}
+.tapa .pant{position:relative;width:100%;height:100%;border-radius:6px;overflow:hidden;background:#000;backface-visibility:hidden}
+.tapa .pant img{width:100%;height:100%;object-fit:cover;object-position:top;filter:brightness(calc(.2 + var(--o,0) * .8))}
+.tapa .pant::after{content:"";position:absolute;inset:0;background:linear-gradient(120deg,rgba(255,255,255,.12),transparent 35%)}
+.tapa .cam{position:absolute;top:calc(var(--W) * .007);left:50%;width:6px;height:6px;margin-left:-3px;border-radius:50%;background:#222}
+.base{position:relative;width:112%;margin-left:-6%;height:calc(var(--W) * .03);border-radius:0 0 calc(var(--W) * .02) calc(var(--W) * .02);background:linear-gradient(#dfe2e7,#9ea3ab 60%,#6d7178);box-shadow:0 30px 60px -20px rgba(0,0,0,.9),0 2px 0 #fff inset}
+.base::before{content:"";position:absolute;top:0;left:50%;width:16%;height:40%;translate:-50% 0;border-radius:0 0 10px 10px;background:linear-gradient(#a7abb2,#c9ccd2)}
+.mesa .sombra{position:absolute;left:-10%;right:-10%;bottom:-40px;height:60px;background:radial-gradient(ellipse,rgba(47,107,255,.35),transparent 70%);filter:blur(10px);opacity:var(--o,0)}
+.mesa .celu{position:absolute;right:-4%;bottom:-2%;--w:calc(var(--W) * .2);transform:translate(calc((1 - var(--c,0)) * 60vw),0) rotate(calc((1 - var(--c,0)) * 12deg));opacity:calc(var(--c,0) * 1.5)}
+@media (max-width:760px){.mesa .celu{right:-8%;--w:calc(var(--W) * .3)}}
+
+/* 4. Capas que se separan */
+.s-capas{height:360vh}
+.s-capas .fijo{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);align-items:center;gap:30px;max-width:1180px;margin:0 auto;padding:calc(48px + env(safe-area-inset-top,0px)) var(--gr) 0 var(--gl)}
+.s-capas .txt h2{font-size:clamp(36px,5.4vw,68px);font-weight:700;letter-spacing:-.045em;line-height:1.03}
+.s-capas .txt>p{font-size:clamp(17px,2vw,21px);color:var(--gris5);margin-top:14px;max-width:34ch}
+.lista-capas{list-style:none;padding:0;margin:34px 0 0;display:grid;gap:4px}
+.lista-capas li{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;padding:14px 0;border-top:1px solid #1d1d1f;opacity:.28;transition:opacity .5s}
+.lista-capas li.on{opacity:1}
+.lista-capas li i{grid-row:span 2;width:10px;height:10px;margin-top:8px;border-radius:50%;background:var(--k)}
+.lista-capas li.on i{box-shadow:0 0 14px var(--k)}
+.lista-capas b{font-size:19px;font-weight:600;letter-spacing:-.02em}
+.lista-capas span{color:var(--gris5);font-size:15px}
+.escenario{position:relative;height:min(78svh,720px);perspective:1800px;display:grid;place-items:center}
+.pila{position:relative;width:min(300px,62vw);aspect-ratio:3/4;transform-style:preserve-3d;transform:rotateX(58deg) rotateZ(-36deg) translateZ(-60px) scale(calc(.9 + var(--p,0) * .1))}
+.capa{position:absolute;inset:0;border-radius:22px;transform:translateZ(calc(var(--i) * var(--sep,0px)));transition:box-shadow .5s,border-color .5s;border:1px solid rgba(255,255,255,.14);overflow:hidden}
+.capa.on{border-color:var(--k);box-shadow:0 0 0 1px var(--k),0 0 60px -10px var(--k)}
+.c0{--k:#5fd39a;background:linear-gradient(135deg,#071a14,#03100c);background-image:linear-gradient(rgba(95,211,154,.14) 1px,transparent 1px),linear-gradient(90deg,rgba(95,211,154,.14) 1px,transparent 1px);background-size:22px 22px;background-color:#04120d}
+.c0 svg{position:absolute;left:50%;top:50%;width:34%;translate:-50% -50%;stroke:#5fd39a;fill:none;stroke-width:1.2;opacity:.9}
+.c1{--k:#a99bff;background:rgba(20,16,48,.92);padding:9%}
+.c1 .fila{display:flex;align-items:center;gap:8px;margin-bottom:9%}
+.c1 .fila i{height:8px;border-radius:9px;background:rgba(169,155,255,.35);flex:1}
+.c1 .fila u{width:30px;height:16px;border-radius:9px;background:#a99bff;flex:none;position:relative;text-decoration:none}
+.c1 .fila u::after{content:"";position:absolute;right:2px;top:2px;width:12px;height:12px;border-radius:50%;background:#fff}
+.c1 .barras{display:flex;align-items:end;gap:8%;height:34%;margin-top:6%}
+.c1 .barras i{flex:1;border-radius:6px 6px 2px 2px;background:linear-gradient(#a99bff,#5b4bd6)}
+.c2{--k:#7cc4ff;background:rgba(6,20,44,.9);padding:8%;display:grid;grid-template-columns:1fr 1fr;gap:7%;align-content:start}
+.c2 i{aspect-ratio:1;border-radius:12px;background:linear-gradient(135deg,rgba(124,196,255,.45),rgba(47,107,255,.25))}
+.c2 b{grid-column:span 2;height:10px;border-radius:9px;background:rgba(124,196,255,.3)}
+.c3{--k:#ffffff;background:linear-gradient(160deg,rgba(255,255,255,.16),rgba(255,255,255,.04));backdrop-filter:blur(2px);padding:8%}
+.c3 .bar{height:9%;border-radius:10px;background:rgba(255,255,255,.22);display:flex;align-items:center;gap:6px;padding:0 8px}
+.c3 .bar i{width:10px;height:10px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#7cc4ff 40%,#2f6bff)}
+.c3 .hero3{margin-top:9%;height:36%;border-radius:14px;background:radial-gradient(circle at 70% 40%,#7cc4ff,#2f6bff 40%,#0a1c5a)}
+.c3 .lin{height:8px;border-radius:9px;background:rgba(255,255,255,.35);margin-top:8%;width:80%}
+.c3 .btn3{margin-top:8%;width:48%;height:12%;border-radius:999px;background:#fff}
+@media (max-width:860px){
+  .s-capas .fijo{grid-template-columns:1fr;grid-template-rows:auto 1fr;gap:0;align-items:start;padding-top:calc(60px + env(safe-area-inset-top,0px))}
+  .s-capas .txt{text-align:center}.s-capas .txt>p{margin-left:auto;margin-right:auto}
+  .lista-capas{position:absolute;left:var(--gl);right:var(--gr);bottom:calc(16px + env(safe-area-inset-bottom,0px));margin:0}
+  .lista-capas li{display:none;border:0;text-align:center;grid-template-columns:1fr;padding:0}
+  .lista-capas li.on{display:grid}
+  .lista-capas li i{display:none}
+  .escenario{height:auto;min-height:0}
+  .pila{width:min(220px,52vw)}
+}
+
+/* 5. Cifras */
+.cifras{padding:clamp(90px,14vw,160px) 0;border-top:1px solid #1d1d1f}
+.cifras .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:30px}
+@media (max-width:760px){.cifras .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:40px 20px}}
+.cifras .n{font-size:clamp(52px,8vw,96px);font-weight:700;letter-spacing:-.05em;line-height:1;background:linear-gradient(180deg,#fff,#6e7a90);-webkit-background-clip:text;background-clip:text;color:transparent}
+.cifras p{color:var(--gris5);font-size:16px;margin-top:10px;font-weight:500}
+@media (prefers-reduced-motion:reduce){.s-orbe,.s-palabras,.s-lap,.s-capas{height:auto}.escena>.fijo{position:relative;height:auto;min-height:100svh}.s-palabras .pal{position:relative;opacity:1}}
 </style>
 </head>
 <body>
-
 <nav class="nav" aria-label="Principal"><div class="wrap">
   <a class="marca" href="#top"><i aria-hidden="true"></i>RBM Solutions</a>
-  <div class="links"><a href="#historia">Páginas web</a><a href="#incluido">Qué incluye</a><a href="#precios">Precios</a><a href="#compus">Computadoras</a><a href="../#demos">Demos</a></div>
+  <div class="links"><a href="#laptop">Páginas web</a><a href="#capas">Cómo se hace</a><a href="#precios">Precios</a><a href="#compus">Computadoras</a><a href="../#demos">Demos</a></div>
   <a class="cta" href="../#agendar">Agendar</a>
 </div></nav>
 
 <main id="top">
-  <!-- 1. Portada -->
-  <section class="portada" data-esc aria-labelledby="t1">
-    <div class="fijo">
-      <div class="glow" aria-hidden="true"></div>
-      <div class="txt">
-        <p class="eyebrow">RBM Solutions</p>
-        <h1 id="t1"><span><i>Tu negocio.</i></span><span><i>En el bolsillo</i></span><span><i>de todos.</i></span></h1>
-        <p class="sub">Páginas web y apps que se ven increíbles y trabajan por vos.</p>
-        <div class="acc"><a class="lnk" href="#historia">Ver cómo funciona</a><a class="lnk" href="../#demos">Probar las demos</a></div>
-      </div>
-      <div class="celwrap"><div class="cel"><div class="pant"><img class="on" src="rbm.jpg" alt="La página de RBM Solutions en un celular"></div><div class="brillo"></div></div></div>
-    </div>
-  </section>
+  <!-- 1 -->
+  <section class="escena s-orbe" data-esc aria-labelledby="t1"><div class="fijo">
+    <div class="halo" aria-hidden="true"></div>
+    <canvas id="gl" aria-hidden="true"></canvas>
+    <div class="titulo"><h1 id="t1">RBM <b>Solutions</b></h1><p>Tecnología, hecha con precisión.</p><div style="display:flex;gap:28px;flex-wrap:wrap;justify-content:center"><a class="lnk" href="#laptop">Descubrir</a><a class="lnk" href="../#agendar">Agendar una cita</a></div></div>
+    <div class="bajar" aria-hidden="true">Bajá<i></i></div>
+    <div class="velo" aria-hidden="true"></div><div class="velo2" aria-hidden="true"></div>
+  </div></section>
 
-  <!-- 2. Historia con el celular fijo -->
-  <section class="historia" id="historia" data-esc aria-label="Lo que hacemos">
-    <div class="fijo">
-      <div class="pasos">
-        <div class="paso on"><small>Menús digitales</small><h2>Menús que se mueven.</h2><p>Rayos, chispas y un oráculo que recomienda cócteles. <b>Así se vende hoy.</b></p></div>
-        <div class="paso"><small>Lealtad</small><h2>Sellos en el celular.</h2><p>Tus clientes ven sus sellos y promociones al instante. <b>Sin cartoncitos.</b></p></div>
-        <div class="paso"><small>Catálogos</small><h2>Catálogos que venden solos.</h2><p>Fotos por color, tallas y pedidos que te llegan <b>ordenados por WhatsApp.</b></p></div>
-        <div class="paso"><small>Pedidos</small><h2>Pedidos para llevar.</h2><p>El cliente arma su pedido y te llega <b>listo para preparar.</b></p></div>
-        <div class="paso"><small>Diseño</small><h2>Tu marca. A tu manera.</h2><p>Cada página se diseña desde cero con la <b>identidad de tu negocio.</b></p></div>
-      </div>
-      <div class="celwrap"><div class="cel"><div class="pant" id="pantalla">
-        <img class="on" src="koktela.jpg" alt="Menú de coctelería en el celular" loading="lazy"><img src="matcha.jpg" alt="Menú de cafetería con tarjeta de sellos" loading="lazy"><img src="cosmo.jpg" alt="Catálogo de uniformes médicos" loading="lazy"><img src="genki.jpg" alt="Menú de restaurante con pedidos" loading="lazy"><img src="chemas.jpg" alt="Tienda de camisas de fútbol" loading="lazy">
-      </div><div class="brillo"></div></div></div>
-      <div class="puntos" aria-hidden="true"><i class="on"></i><i></i><i></i><i></i><i></i></div>
-    </div>
-  </section>
+  <!-- 2 -->
+  <section class="escena s-palabras" data-esc aria-label="Diseño, velocidad, precisión"><div class="fijo">
+    <span class="pal">Diseño.</span><span class="pal">Velocidad.</span><span class="pal">Precisión.</span>
+    <p class="nota" id="notaPal">Cada página se piensa, se diseña y se construye a la medida de tu negocio.</p>
+  </div></section>
 
-  <!-- 3. Frase -->
-  <section class="frase" data-esc aria-label="Quiénes somos">
-    <div class="fijo"><div class="wrap"><p id="frase">Páginas web, apps y reparación de computadoras. Hechas en <span class="az">Costa Rica</span>, con atención de <span class="az">persona a persona.</span></p></div></div>
-  </section>
+  <!-- 3 -->
+  <section class="escena s-lap" id="laptop" data-esc aria-label="Tu página en la computadora y el celular"><div class="fijo">
+    <div class="cap"><div class="on"><h2>Abrí. Y enamorá.</h2><p>Tu página se ve impecable desde el primer segundo.</p></div>
+      <div><h2>En la compu.<br>Y en el celular.</h2><p>Se adapta sola a cualquier pantalla y se instala como app.</p></div></div>
+    <div class="mesa"><div class="tapa"><span class="cam"></span><div class="pant"><img src="rbm-pc.jpg" alt="La página de RBM Solutions en una computadora"></div></div><div class="base"></div><div class="sombra"></div>
+      <div class="celu"><div class="cel"><div class="pant"><img class="on" src="rbm.jpg" alt="La página de RBM Solutions en un celular"></div><div class="brillo"></div></div></div></div>
+  </div></section>
 
-  <!-- 4. Todo incluido -->
-  <section class="claro sec" id="incluido">
-    <div class="wrap">
-      <div class="cab rv"><h2>Todo incluido. Nada de sorpresas.</h2><p>Lo que tu negocio necesita para vender en línea, desde el primer día.</p></div>
-      <div class="bento">
-        <div class="bx g oscuro rv"><span class="orbe" aria-hidden="true"></span><h3 style="max-width:16ch">Se instala en el celular como una app.</h3><p style="max-width:34ch">Tus clientes la agregan a su pantalla de inicio y entran con un toque, con tu ícono y tu nombre.</p></div>
-        <div class="bx rv" style="--d:.08s"><span class="num">₡0</span><h3>de hosting.</h3><p>Tu página en línea sin pagar alojamiento.</p></div>
-        <div class="bx rv"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4M8 15h3"/></svg><h3>Citas en línea, 24/7.</h3><p>Tus clientes reservan solos, a cualquier hora.</p></div>
-        <div class="bx rv" style="--d:.08s"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18M9 21V9"/></svg><h3>Tu propio panel.</h3><p>Cambiás precios, fotos y promos vos mismo.</p></div>
-        <div class="bx rv" style="--d:.16s"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21a2 2 0 0 0 4 0"/></svg><h3>Avisos al celular.</h3><p>Te enterás al instante de cada cita o pedido.</p></div>
-        <div class="bx n rv"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/></svg><h3>Cambios cuando los necesités.</h3><p>Mantenimiento mensual para precios, fotos, textos y soporte.</p></div>
-        <div class="bx n rv" style="--d:.08s"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 4 6v6c0 5 3.5 8.7 8 10 4.5-1.3 8-5 8-10V6z"/><path d="m9 12 2 2 4-4"/></svg><h3>Precio cerrado antes de empezar.</h3><p>Sabés exactamente cuánto vas a pagar. Sin letra pequeña.</p></div>
-      </div>
-    </div>
-  </section>
+  <!-- 4 -->
+  <section class="escena s-capas" id="capas" data-esc aria-label="Cómo se construye tu página"><div class="fijo">
+    <div class="txt"><h2>Cuatro capas.<br>Una sola experiencia.</h2><p>Lo que tu cliente ve es solo la punta. Debajo hay un sistema completo trabajando por vos.</p>
+      <ol class="lista-capas">
+        <li style="--k:#ffffff"><i></i><b>Diseño a la medida</b><span>Tu marca, tus colores, tu estilo. Nada de plantillas.</span></li>
+        <li style="--k:#7cc4ff"><i></i><b>Contenido que vende</b><span>Productos, servicios y fotos ordenados para convertir.</span></li>
+        <li style="--k:#a99bff"><i></i><b>Sistema y panel</b><span>Citas, pedidos y un panel para cambiar todo vos mismo.</span></li>
+        <li style="--k:#5fd39a"><i></i><b>Hosting y seguridad</b><span>En línea, rápida y protegida. Sin pagar alojamiento.</span></li>
+      </ol></div>
+    <div class="escenario"><div class="pila">
+      <div class="capa c0" style="--i:0"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 4 6v6c0 5 3.5 8.7 8 10 4.5-1.3 8-5 8-10V6z"/><path d="m9 12 2 2 4-4"/></svg></div>
+      <div class="capa c1" style="--i:1"><div class="fila"><i></i><u></u></div><div class="fila"><i></i><u></u></div><div class="fila"><i style="flex:.6"></i><u></u></div><div class="barras"><i style="height:40%"></i><i style="height:70%"></i><i style="height:55%"></i><i style="height:95%"></i><i style="height:80%"></i></div></div>
+      <div class="capa c2" style="--i:2"><b></b><i></i><i></i><i></i><i></i><b style="width:60%"></b></div>
+      <div class="capa c3" style="--i:3"><div class="bar"><i></i></div><div class="hero3"></div><div class="lin"></div><div class="lin" style="width:55%"></div><div class="btn3"></div></div>
+    </div></div>
+  </div></section>
+
+  <!-- 5 -->
+  <section class="cifras"><div class="wrap grid">
+    <div class="rv"><div class="n">₡0</div><p>de hosting. Tu página en línea sin pagar alojamiento.</p></div>
+    <div class="rv" style="--d:.08s"><div class="n">24/7</div><p>agenda en línea. Tus clientes reservan a cualquier hora.</p></div>
+    <div class="rv" style="--d:.16s"><div class="n">3</div><p>formas de atenderte: a domicilio, en el taller o a distancia.</p></div>
+    <div class="rv" style="--d:.24s"><div class="n">1</div><p>precio cerrado antes de empezar. Sin sorpresas.</p></div>
+  </div></section>
 
   <!-- 5. Precios -->
   <section class="claro sec" id="precios" style="padding-top:0">
@@ -289,8 +388,8 @@ footer a:hover{color:var(--claro);text-decoration:underline}
       </div>
     </div>
   </section>
-</main>
 
+</main>
 <footer><div class="wrap">
   <span>© <span id="anio">2026</span> RBM Solutions CR · San Miguel de Santo Domingo, Heredia</span>
   <span><a href="mailto:info@rbmsolutionscr.com">info@rbmsolutionscr.com</a> · <a href="https://www.instagram.com/rbmsolutionscr" target="_blank" rel="noopener">Instagram</a> · <a href="../">Página principal</a></span>
@@ -300,31 +399,100 @@ footer a:hover{color:var(--claro);text-decoration:underline}
 (() => {
   "use strict";
   const QUIETO = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  document.getElementById("anio").textContent = new Date().getFullYear();
-  // progreso de cada escena al bajar (0 a 1)
-  const esc = [...document.querySelectorAll("[data-esc]")];
-  const pasos = [...document.querySelectorAll(".historia .paso")], imgs = [...document.querySelectorAll("#pantalla img")], puntos = [...document.querySelectorAll(".historia .puntos i")];
-  const hist = document.querySelector(".historia");
-  const palabras = (() => { const p = document.getElementById("frase"); const out = [];
-    const partir = (nodo, az) => nodo.textContent.split(/(\s+)/).map(t => { if (!t.trim()) return document.createTextNode(t); const s = document.createElement("span"); s.textContent = t; if (az) s.className = "az"; out.push(s); return s; });
-    [...p.childNodes].forEach(n => { const nuevos = partir(n, n.nodeType === 1); n.replaceWith(...nuevos); }); return out; })();
-  let paso = -1;
+  const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+  const anio = document.getElementById("anio"); if (anio) anio.textContent = new Date().getFullYear();
+  const lim = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v)), tramo = (p, a, b) => lim((p - a) / (b - a));
+  const suave = t => t * t * (3 - 2 * t);
+
+  /* ---------- La bola de RBM en 3D (WebGL, sin librerías) ---------- */
+  const orbe = (() => {
+    const cv = $("#gl"), gl = cv.getContext("webgl", { antialias: true, alpha: true, premultipliedAlpha: false });
+    if (!gl) { cv.insertAdjacentHTML("afterend", '<div class="css-orbe" aria-hidden="true"></div>'); return null; }
+    const NOISE = `vec3 m289(vec3 x){return x-floor(x*(1./289.))*289.;}vec4 m289(vec4 x){return x-floor(x*(1./289.))*289.;}vec4 perm(vec4 x){return m289(((x*34.)+1.)*x);}vec4 tis(vec4 r){return 1.79284291400159-.85373472095314*r;}
+      float snoise(vec3 v){const vec2 C=vec2(1./6.,1./3.);const vec4 D=vec4(0.,.5,1.,2.);vec3 i=floor(v+dot(v,C.yyy));vec3 x0=v-i+dot(i,C.xxx);vec3 g=step(x0.yzx,x0.xyz);vec3 l=1.-g;vec3 i1=min(g.xyz,l.zxy);vec3 i2=max(g.xyz,l.zxy);
+      vec3 x1=x0-i1+C.xxx;vec3 x2=x0-i2+C.yyy;vec3 x3=x0-D.yyy;i=m289(i);vec4 p=perm(perm(perm(i.z+vec4(0.,i1.z,i2.z,1.))+i.y+vec4(0.,i1.y,i2.y,1.))+i.x+vec4(0.,i1.x,i2.x,1.));
+      float n_=.142857142857;vec3 ns=n_*D.wyz-D.xzx;vec4 j=p-49.*floor(p*ns.z*ns.z);vec4 x_=floor(j*ns.z);vec4 y_=floor(j-7.*x_);vec4 x=x_*ns.x+ns.yyyy;vec4 y=y_*ns.x+ns.yyyy;vec4 h=1.-abs(x)-abs(y);
+      vec4 b0=vec4(x.xy,y.xy);vec4 b1=vec4(x.zw,y.zw);vec4 s0=floor(b0)*2.+1.;vec4 s1=floor(b1)*2.+1.;vec4 sh=-step(h,vec4(0.));vec4 a0=b0.xzyw+s0.xzyw*sh.xxyy;vec4 a1=b1.xzyw+s1.xzyw*sh.zzww;
+      vec3 p0=vec3(a0.xy,h.x);vec3 p1=vec3(a0.zw,h.y);vec3 p2=vec3(a1.xy,h.z);vec3 p3=vec3(a1.zw,h.w);vec4 norm=tis(vec4(dot(p0,p0),dot(p1,p1),dot(p2,p2),dot(p3,p3)));p0*=norm.x;p1*=norm.y;p2*=norm.z;p3*=norm.w;
+      vec4 m=max(.6-vec4(dot(x0,x0),dot(x1,x1),dot(x2,x2),dot(x3,x3)),0.);m=m*m;return 42.*dot(m*m,vec4(dot(p0,x0),dot(p1,x1),dot(p2,x2),dot(p3,x3)));}`;
+    const VS = `precision highp float;attribute vec3 p;uniform mat4 uP;uniform mat4 uM;uniform float uT;uniform float uA;uniform float uS;varying vec3 vN;varying vec3 vV;varying float vD;${NOISE}
+      float desp(vec3 q){return snoise(q*.9+vec3(uT*.11,uT*.08,-uT*.05))*.85+snoise(q*1.8-vec3(uT*.13))*.15;}
+      vec3 mover(vec3 q){return q*(1.+desp(q)*uA);}
+      void main(){vec3 q=normalize(p);vec3 t=normalize(cross(q,abs(q.y)>.99?vec3(1.,0.,0.):vec3(0.,1.,0.)));vec3 b=cross(q,t);float e=.015;
+      vec3 a=mover(q);vec3 a1=mover(normalize(q+t*e));vec3 a2=mover(normalize(q+b*e));vec3 n=normalize(cross(a1-a,a2-a));
+      vec4 w=uM*vec4(a*uS,1.);vN=normalize(mat3(uM)*n);vV=-w.xyz;vD=desp(q);gl_Position=uP*w;}`;
+    const FS = `precision highp float;varying vec3 vN;varying vec3 vV;varying float vD;uniform float uT;uniform float uO;
+      void main(){vec3 N=normalize(vN);vec3 V=normalize(vV);if(dot(N,V)<0.)N=-N;float f=pow(1.-max(dot(N,V),0.),2.6);
+      vec3 hondo=vec3(.02,.07,.24),azul=vec3(.18,.42,1.),celeste=vec3(.49,.77,1.),blanco=vec3(.93,.97,1.);
+      float k=clamp(N.y*.5+.5+vD*.35,0.,1.);vec3 c=mix(hondo,azul,smoothstep(.0,.55,k));c=mix(c,celeste,smoothstep(.55,.85,k));
+      vec3 L=normalize(vec3(-.55,.75,.6));float dif=max(dot(N,L),0.);float esp=pow(max(dot(reflect(-L,N),V),0.),60.);float esp2=pow(max(dot(reflect(-normalize(vec3(.7,-.3,.5)),N),V),0.),25.);
+      vec3 iri=.5+.5*cos(6.2831*(vec3(.0,.33,.67)+f*1.2+vD*.4+uT*.03));
+      vec3 col=c*(.32+.85*dif)+blanco*esp*1.1+celeste*esp2*.35+mix(celeste,iri,.35)*f*1.1;
+      gl_FragColor=vec4(col,uO);}`;
+    const sh = (t, s) => { const o = gl.createShader(t); gl.shaderSource(o, s); gl.compileShader(o); if (!gl.getShaderParameter(o, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(o)); return o; };
+    let pr; try { pr = gl.createProgram(); gl.attachShader(pr, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, FS)); gl.linkProgram(pr); if (!gl.getProgramParameter(pr, gl.LINK_STATUS)) throw 0; }
+    catch (e) { cv.insertAdjacentHTML("afterend", '<div class="css-orbe" aria-hidden="true"></div>'); return null; }
+    gl.useProgram(pr);
+    const S = 120, pos = [], idx = [];
+    for (let i = 0; i <= S; i++) { const th = i / S * Math.PI; for (let j = 0; j <= S; j++) { const ph = j / S * Math.PI * 2; pos.push(Math.sin(th) * Math.cos(ph), Math.cos(th), Math.sin(th) * Math.sin(ph)); } }
+    for (let i = 0; i < S; i++) for (let j = 0; j < S; j++) { const a = i * (S + 1) + j, b = a + S + 1; idx.push(a, b, a + 1, b, b + 1, a + 1); }
+    const bp = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, bp); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(pos), gl.STATIC_DRAW);
+    const loc = gl.getAttribLocation(pr, "p"); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 3, gl.FLOAT, false, 0, 0);
+    const bi = gl.createBuffer(); gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, bi); gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(idx), gl.STATIC_DRAW);
+    const U = n => gl.getUniformLocation(pr, n), uP = U("uP"), uM = U("uM"), uT = U("uT"), uA = U("uA"), uS = U("uS"), uO = U("uO");
+    gl.enable(gl.DEPTH_TEST); gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    let W = 0, H = 0, mx = 0, my = 0, rx = 0, ry = 0, p = 0, vis = true;
+    const tam = () => { const d = Math.min(2, devicePixelRatio || 1); W = cv.clientWidth; H = cv.clientHeight; cv.width = W * d; cv.height = H * d; gl.viewport(0, 0, cv.width, cv.height); };
+    addEventListener("resize", tam); tam();
+    addEventListener("pointermove", e => { mx = e.clientX / innerWidth - .5; my = e.clientY / innerHeight - .5; }, { passive: true });
+    const persp = (f, a, n, fa) => { const t = 1 / Math.tan(f / 2), r = 1 / (n - fa); return [t / a, 0, 0, 0, 0, t, 0, 0, 0, 0, (fa + n) * r, -1, 0, 0, 2 * fa * n * r, 0]; };
+    const modelo = (ax, ay, z, dy) => { const cx = Math.cos(ax), sx = Math.sin(ax), cy = Math.cos(ay), sy = Math.sin(ay);
+      return [cy, sx * sy, -cx * sy, 0, 0, cx, sx, 0, sy, -sx * cy, cx * cy, 0, 0, dy, -z, 1]; };
+    const t0 = performance.now();
+    const cuadro = now => {
+      if (vis && !document.hidden) { const t = (now - t0) / 1000; rx += (my * .5 - rx) * .05; ry += (mx * .8 - ry) * .05;
+        const a = W / H, chico = a < .8, base = chico ? .58 : .66, esc = base * (1 + suave(p) * (chico ? 4.4 : 3.4)), arriba = (chico ? .62 : .42) * (1 - p);
+        gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        gl.uniformMatrix4fv(uP, false, persp(chico ? .9 : .62, a, .1, 50)); gl.uniformMatrix4fv(uM, false, modelo(rx + .15, t * .12 + ry, 4.2, arriba));
+        gl.uniform1f(uT, QUIETO ? 0 : t); gl.uniform1f(uA, .07 + p * .06); gl.uniform1f(uS, esc); gl.uniform1f(uO, 1);
+        gl.drawElements(gl.TRIANGLES, idx.length, gl.UNSIGNED_SHORT, 0); }
+      requestAnimationFrame(cuadro); };
+    requestAnimationFrame(cuadro);
+    if ("IntersectionObserver" in window) new IntersectionObserver(([e]) => vis = e.isIntersecting).observe(cv);
+    return { set p(v) { p = v; } };
+  })();
+
+  /* ---------- Escenas que avanzan al bajar ---------- */
+  const esc = $$("[data-esc]");
+  const pals = $$(".s-palabras .pal"), nota = $("#notaPal");
+  const caps = $$(".s-lap .cap > div"), mesa = $(".mesa");
+  const capas = $$(".capa"), items = $$(".lista-capas li"), pila = $(".pila");
+  const prog = s => { const r = s.getBoundingClientRect(), l = s.offsetHeight - innerHeight; return lim(-r.top / (l || 1)); };
   const pinta = () => {
-    const vh = innerHeight;
-    esc.forEach(s => { const r = s.getBoundingClientRect(), largo = s.offsetHeight - vh; const p = Math.min(1, Math.max(0, -r.top / (largo || 1))); s.style.setProperty("--p", p.toFixed(4));
-      if (s === hist) { const k = Math.min(pasos.length - 1, Math.floor(p * pasos.length * .999)); if (k !== paso) { paso = k; pasos.forEach((x, i) => x.classList.toggle("on", i === k)); imgs.forEach((x, i) => x.classList.toggle("on", i === k)); puntos.forEach((x, i) => x.classList.toggle("on", i === k)); } }
-      if (s.classList.contains("frase")) { const n = Math.round(palabras.length * Math.min(1, p * 1.15)); palabras.forEach((w, i) => w.classList.toggle("on", i < n)); } });
+    esc.forEach(s => { const p = prog(s); s.style.setProperty("--p", p.toFixed(4));
+      if (s.classList.contains("s-orbe") && orbe) orbe.p = p;
+      if (s.classList.contains("s-palabras")) { const n = pals.length;
+        pals.forEach((w, i) => { const a = i / n, b = (i + 1) / n, t = tramo(p, a, b); const ent = suave(tramo(t, 0, .35)), sal = i === n - 1 ? 0 : suave(tramo(t, .7, 1));
+          const sc = 1.5 - ent * .5 - sal * -.6, op = ent * (1 - sal); w.style.opacity = op.toFixed(3); w.style.transform = `scale(${(sc).toFixed(3)})`; w.style.filter = `blur(${((1 - ent) * 20 + sal * 16).toFixed(1)}px)`; });
+        nota.style.opacity = tramo(p, .75, .9).toFixed(3); }
+      if (s.classList.contains("s-lap")) { const o = suave(tramo(p, .02, .42)), c = suave(tramo(p, .5, .78)), z = suave(tramo(p, .42, .6));
+        mesa.style.setProperty("--o", o.toFixed(4)); mesa.style.setProperty("--c", c.toFixed(4)); mesa.style.setProperty("--z", z.toFixed(4));
+        const k = p < .5 ? 0 : 1; caps.forEach((x, i) => x.classList.toggle("on", i === k)); }
+      if (s.classList.contains("s-capas")) { const sep = suave(tramo(p, .05, .4)), max = innerWidth < 860 ? 46 : 78;
+        pila.style.setProperty("--sep", (sep * max).toFixed(1) + "px");
+        const act = p < .1 ? -1 : Math.min(3, Math.floor(tramo(p, .3, .98) * 4)); const capa = act < 0 ? -1 : 3 - act;
+        capas.forEach((x, i) => x.classList.toggle("on", i === capa)); items.forEach((x, i) => x.classList.toggle("on", act < 0 ? true : i === act)); }
+    });
   };
   let pend = false;
   addEventListener("scroll", () => { if (!pend) { pend = true; requestAnimationFrame(() => { pend = false; pinta(); }); } }, { passive: true });
   addEventListener("resize", pinta); pinta();
-  if (QUIETO) palabras.forEach(w => w.classList.add("on"));
-  // aparecer al bajar
+
+  /* ---------- Aparecer al bajar y carril de servicios ---------- */
   const io = "IntersectionObserver" in window ? new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add("vis"); io.unobserve(e.target); } }), { rootMargin: "0px 0px -10% 0px", threshold: .1 }) : null;
-  document.querySelectorAll(".rv").forEach(el => io ? io.observe(el) : el.classList.add("vis"));
-  // carril de servicios
-  const car = document.getElementById("carril");
-  document.querySelectorAll("[data-car]").forEach(b => b.addEventListener("click", () => car.scrollBy({ left: +b.dataset.car * (car.querySelector(".srv").offsetWidth + 18), behavior: QUIETO ? "auto" : "smooth" })));
+  $$(".rv").forEach(el => io ? io.observe(el) : el.classList.add("vis"));
+  const car = $("#carril");
+  if (car) $$("[data-car]").forEach(b => b.addEventListener("click", () => car.scrollBy({ left: +b.dataset.car * (car.querySelector(".srv").offsetWidth + 18), behavior: QUIETO ? "auto" : "smooth" })));
 })();
 </script>
 <script src="/visitas.js" defer></script>
