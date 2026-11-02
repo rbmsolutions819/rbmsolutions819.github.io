@@ -1,0 +1,25 @@
+plugins { id 'com.android.application' }
+android {
+    namespace 'cr.rbmsolutions.tv'
+    compileSdk 34
+    defaultConfig {
+        applicationId "cr.rbmsolutions.tv"
+        minSdk 23
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+    }
+    signingConfigs {
+        rbm {
+            storeFile file('rbm-tv.keystore')
+            storePassword 'rbmtv2026'
+            keyAlias 'rbmtv'
+            keyPassword 'rbmtv2026'
+        }
+    }
+    buildTypes {
+        release { minifyEnabled false; signingConfig signingConfigs.rbm }
+        debug { signingConfig signingConfigs.rbm }
+    }
+    compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
+}

@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>RBM TV</title>
+<link rel="icon" href="/icon-192.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+/* Todo se mide con el ancho de la pantalla: igual se ve en un televisor de 32" o de 75" */
+:root{--fondo:#060b18;--panel:#0e1730;--linea:rgba(255,255,255,.1);--texto:#eef2fb;--suave:#93a0bd;--azul:#3b82f6;--celeste:#60a5fa;color-scheme:dark}
+*{box-sizing:border-box}
+html{font-size:calc(100vw / 96)}
+body{margin:0;min-height:100vh;background:radial-gradient(60% 50% at 85% 0%,rgba(59,130,246,.22),transparent 60%),radial-gradient(50% 40% at 0% 100%,rgba(124,58,237,.18),transparent 60%),var(--fondo);color:var(--texto);font:400 1.5rem/1.4 "Inter",system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden;padding:3rem 4rem 5rem}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;padding:0}
+.cab{display:flex;align-items:center;gap:1.6rem}
+.cab img{width:4.6rem;height:4.6rem;border-radius:1.2rem}
+.cab h1{margin:0;font-size:2.8rem;font-weight:800;letter-spacing:-.02em}
+.cab h1 small{display:block;font-size:1.3rem;font-weight:500;color:var(--suave);letter-spacing:0}
+.hora{margin-left:auto;text-align:right}
+.hora b{display:block;font-size:3.4rem;font-weight:700;font-variant-numeric:tabular-nums;line-height:1}
+.hora span{color:var(--suave);font-size:1.3rem}
+h2{font-size:1.25rem;letter-spacing:.24em;text-transform:uppercase;color:var(--celeste);margin:3.4rem 0 1.4rem;font-weight:700}
+.fila{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1.6rem}
+.t{position:relative;display:flex;flex-direction:column;justify-content:flex-end;gap:.4rem;text-align:left;min-height:11rem;border-radius:1.6rem;padding:1.6rem 1.8rem;background:var(--panel);border:.15rem solid var(--linea);transition:transform .18s,box-shadow .18s,border-color .18s;overflow:hidden;outline:none}
+.t.grande{min-height:15rem;background:linear-gradient(140deg,var(--c1,#1d4ed8),var(--c2,#0b1b4a))}
+.t .ic{position:absolute;top:1.4rem;left:1.6rem;font-size:3.2rem;line-height:1}
+.t b{font-size:1.9rem;font-weight:700;letter-spacing:-.01em;line-height:1.15}
+.t span{font-size:1.25rem;color:var(--suave);line-height:1.3}
+.t.grande span{color:rgba(255,255,255,.78)}
+.t em{position:absolute;top:1.3rem;right:1.4rem;font-style:normal;font-size:1.05rem;font-weight:700;padding:.3rem .8rem;border-radius:99rem;background:rgba(255,255,255,.12)}
+.t:focus{transform:scale(1.06);border-color:#fff;box-shadow:0 0 0 .3rem rgba(255,255,255,.25),0 1.6rem 4rem -1rem rgba(59,130,246,.65);z-index:2}
+.t:focus::after{content:"";position:absolute;inset:0;background:linear-gradient(120deg,transparent 30%,rgba(255,255,255,.14) 50%,transparent 70%);animation:brillo 1.6s ease-in-out infinite}
+@keyframes brillo{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
+.demos{grid-template-columns:repeat(5,minmax(0,1fr))}
+.demos .t{min-height:14rem;justify-content:flex-start;gap:.5rem}
+.demos .t em{position:static;align-self:flex-start;margin-top:1rem;background:rgba(96,165,250,.16);color:#bfdbfe}
+.demos .t em+b{margin-top:.2rem}
+.demos .t b{margin-top:1.2rem;font-size:1.7rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.demos .t span:not(.ini){display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.demos .t .ini{flex:none;margin-bottom:auto;width:3.6rem;height:3.6rem;border-radius:1rem;display:grid;place-items:center;font-size:1.7rem;font-weight:800;background:linear-gradient(140deg,var(--c1),var(--c2))}
+.pie{position:fixed;left:0;right:0;bottom:0;display:flex;gap:2.6rem;justify-content:center;padding:1.1rem;background:linear-gradient(transparent,rgba(6,11,24,.95) 40%);color:var(--suave);font-size:1.2rem}
+.pie b{color:var(--texto);border:.12rem solid var(--linea);border-radius:.5rem;padding:.1rem .6rem;margin-right:.5rem}
+.cargando{color:var(--suave);font-size:1.4rem}
+</style>
+</head>
+<body>
+<header class="cab"><img src="/icon-192.png" alt=""><h1>RBM Solutions<small>Mis páginas y demos</small></h1><div class="hora"><b id="hora">--:--</b><span id="fecha"></span></div></header>
+
+<h2>Inicio</h2>
+<div class="fila">
+  <button class="t grande" data-foco data-inicio data-url="/" style="--c1:#2563eb;--c2:#0b1b4a"><span class="ic">🌐</span><b>Mi página</b><span>rbmsolutionscr.com</span></button>
+  <button class="t grande" data-foco data-url="/#admin" style="--c1:#7c3aed;--c2:#1e0b4a"><span class="ic">🔐</span><b>Administración</b><span>Citas, boletas, demos y más</span></button>
+  <button class="t grande" data-foco data-url="/tv/monitor.html" style="--c1:#059669;--c2:#06291f"><span class="ic">📈</span><b>Monitoreo</b><span>Visitas de cada página en vivo</span></button>
+  <button class="t grande" data-foco data-url="https://iglesiajesuseselrey.github.io/" style="--c1:#4338ca;--c2:#140f4a"><span class="ic">👑</span><b>Iglesia Jesús es el Rey</b><span>Página del cliente</span></button>
+</div>
+<div id="grupos"><p class="cargando">Cargando las demos…</p></div>
+
+<div class="pie"><span><b>◀ ▲ ▼ ▶</b>Moverse</span><span><b>OK</b>Abrir</span><span><b>Atrás</b>Volver aquí</span><span><b>Mantener OK</b>Puntero / flechas</span></div>
+
+<script src="tv.js"></script>
+<script>
+(() => {
+const $ = s => document.querySelector(s), esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const DIAS = ["domingo","lunes","martes","miércoles","jueves","viernes","sábado"], MESES = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","setiembre","octubre","noviembre","diciembre"];
+function reloj(){ const d = new Date(); let h = d.getHours(); const pm = h >= 12; h = h % 12 || 12;
+  $("#hora").textContent = `${h}:${String(d.getMinutes()).padStart(2, "0")} ${pm ? "p. m." : "a. m."}`; $("#fecha").textContent = `${DIAS[d.getDay()]} ${d.getDate()} de ${MESES[d.getMonth()]}`; }
+reloj(); setInterval(reloj, 10000);
+document.addEventListener("click", e => { const t = e.target.closest("[data-url]"); if (t) { try { sessionStorage.setItem("tv-foco", t.dataset.url); } catch {} location.href = t.dataset.url; } });
+
+// Las demos se leen de la página principal: si agregás una demo nueva, sale aquí sola.
+const COLORES = [["#2563eb","#1e3a8a"],["#7c3aed","#4c1d95"],["#db2777","#831843"],["#059669","#064e3b"],["#d97706","#78350f"],["#0891b2","#164e63"],["#dc2626","#7f1d1d"],["#4f46e5","#312e81"]];
+const ICONOS = { cal: "📅", precio: "🛍️", chat: "💬", caja: "📦", web: "🌐" };
+async function cargar(){
+  let demos = [], dos = [];
+  try { const html = await (await fetch("/index.html", { cache: "no-store" })).text();
+    const a = html.indexOf("const DEMOS = ["), b = html.indexOf("\n];", a);
+    demos = Function(`"use strict";return ${html.slice(a + 14, b + 2)}`)();
+    const m = html.match(/const DEMOS_2_PRINCIPAL = (\[[^\]]*\])/); if (m) dos = JSON.parse(m[1]); }
+  catch (e) { console.warn(e); $("#grupos").innerHTML = `<p class="cargando">No se pudieron cargar las demos. Revisá la conexión a internet.</p>`; return; }
+  const grupo = d => /-(3|pro)$/.test(d.id) ? "3" : (/-2$/.test(d.id) || dos.includes(d.id)) ? "2" : "1";
+  const G = [["3", "Demos 3.0"], ["2", "Demos 2.0"], ["1", "Demos básicas"]];
+  let i = 0;
+  $("#grupos").innerHTML = G.map(([k, t]) => { const l = demos.filter(d => grupo(d) === k).sort((a, b) => a.nombre.localeCompare(b.nombre, "es")); if (!l.length) return "";
+    return `<h2>${t} · ${l.length}</h2><div class="fila demos">${l.flatMap(d => (d.links || [{ t: "", url: d.url }]).map(lk => { const [c1, c2] = COLORES[i++ % COLORES.length];
+      return `<button class="t" data-foco data-url="/${esc(lk.url)}" style="--c1:${c1};--c2:${c2}"><span class="ini">${ICONOS[d.ic] || "✨"}</span>${lk.t ? `<em>${esc(lk.t)}</em>` : ""}<b>${esc(d.nombre.replace(/ \(propuesta\)$/, ""))}</b><span>${esc(d.tipo)}</span></button>`; })).join("")}</div>`; }).join("");
+  let ult = null; try { ult = sessionStorage.getItem("tv-foco"); } catch {}
+  const el = ult && [...document.querySelectorAll("[data-url]")].find(x => x.dataset.url === ult);
+  if (el) { el.focus({ preventScroll: true }); el.scrollIntoView({ block: "center" }); } else TV.foco();
+}
+TV.foco(); cargar();
+})();
+</script>
+</body>
+</html>

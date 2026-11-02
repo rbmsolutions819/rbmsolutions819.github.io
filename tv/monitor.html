@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Monitoreo · RBM TV</title>
+<link rel="icon" href="/icon-192.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+:root{--fondo:#050a16;--panel:#0d1630;--panel2:#13203f;--linea:rgba(255,255,255,.1);--texto:#eef2fb;--suave:#93a0bd;--azul:#3b82f6;--celeste:#60a5fa;--verde:#34d399;--ambar:#fbbf24;color-scheme:dark}
+*{box-sizing:border-box}
+html{font-size:calc(100vw / 96)}
+body{margin:0;min-height:100vh;background:radial-gradient(55% 45% at 90% 0%,rgba(16,185,129,.16),transparent 60%),radial-gradient(50% 40% at 0% 100%,rgba(59,130,246,.18),transparent 60%),var(--fondo);color:var(--texto);font:400 1.5rem/1.4 "Inter",system-ui,sans-serif;-webkit-font-smoothing:antialiased;padding:2.6rem 3.6rem 4rem}
+[hidden]{display:none!important}
+button,input{font:inherit;color:inherit}
+button{border:0;background:none;cursor:pointer;padding:0}
+.cab{display:flex;align-items:center;gap:1.6rem;flex-wrap:wrap}
+.cab h1{margin:0;font-size:2.8rem;font-weight:800;letter-spacing:-.02em;display:flex;align-items:center;gap:1rem}
+.vivo{display:inline-flex;align-items:center;gap:.6rem;font-size:1.1rem;font-weight:700;letter-spacing:.14em;color:var(--verde);padding:.4rem 1rem;border-radius:99rem;background:rgba(52,211,153,.12)}
+.vivo i{width:.8rem;height:.8rem;border-radius:50%;background:var(--verde);animation:late 1.6s infinite}
+@keyframes late{50%{opacity:.25}}
+.per{display:flex;gap:.6rem;margin-left:auto}
+.per button,.btn{border-radius:99rem;padding:.8rem 1.6rem;font-size:1.3rem;font-weight:700;background:var(--panel);border:.15rem solid var(--linea);outline:none}
+.per button.si{background:var(--azul);border-color:var(--azul)}
+.per button:focus,.btn:focus,.t:focus,input:focus{box-shadow:0 0 0 .3rem #fff;border-color:#fff}
+.act{color:var(--suave);font-size:1.15rem;width:100%;text-align:right;margin-top:-.4rem}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1.4rem;margin-top:2rem}
+.kpis div{background:var(--panel);border:.15rem solid var(--linea);border-radius:1.6rem;padding:1.4rem 1.8rem}
+.kpis small{display:block;color:var(--suave);font-size:1.2rem;font-weight:600}
+.kpis b{display:block;font-size:4rem;font-weight:800;letter-spacing:-.03em;line-height:1.1;font-variant-numeric:tabular-nums}
+.kpis span{color:var(--suave);font-size:1.15rem}
+.caja{background:var(--panel);border:.15rem solid var(--linea);border-radius:1.6rem;padding:1.6rem 1.8rem;margin-top:1.4rem}
+.caja h3{margin:0 0 1rem;font-size:1.2rem;letter-spacing:.2em;text-transform:uppercase;color:var(--celeste)}
+.barras{margin-top:2.4rem;display:flex;align-items:flex-end;gap:.35rem;height:12rem;border-bottom:.12rem solid var(--linea)}
+.barras div{flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%;position:relative;min-width:0}
+.barras i{display:block;border-radius:.4rem .4rem 0 0;background:linear-gradient(var(--celeste),var(--azul));min-height:.15rem}
+.barras i.p{background:rgba(147,160,189,.45);border-radius:0}
+.barras div.hoy i:not(.p){background:linear-gradient(#6ee7b7,var(--verde))}
+.barras em{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);font-style:normal;font-size:1rem;color:var(--suave);padding-bottom:.2rem}
+.ejes{display:flex;gap:.35rem;margin-top:.5rem;font-size:1rem;color:var(--suave)}
+.ejes span{flex:1;text-align:center;min-width:0}
+.ley{display:flex;gap:1.6rem;font-size:1.1rem;color:var(--suave);margin-top:.8rem}
+.ley i{display:inline-block;width:1rem;height:1rem;border-radius:.3rem;vertical-align:-.1rem;margin-right:.4rem}
+h2{font-size:1.2rem;letter-spacing:.24em;text-transform:uppercase;color:var(--celeste);margin:2.6rem 0 1.2rem;font-weight:700}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1.4rem}
+.t{position:relative;display:grid;gap:.3rem;text-align:left;background:var(--panel);border:.15rem solid var(--linea);border-radius:1.6rem;padding:1.4rem 1.6rem 1.2rem;outline:none;transition:transform .15s,box-shadow .15s}
+.t:focus{transform:scale(1.04);z-index:2}
+.t .n{padding-right:6.4rem;font-size:1.4rem;font-weight:700;line-height:1.2;min-height:3.4rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.t b{font-size:3.4rem;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
+.t .s{color:var(--suave);font-size:1.1rem}
+.t svg{width:100%;height:3.6rem;margin-top:.4rem}
+.t .hoy{position:absolute;top:1.2rem;right:1.2rem;font-size:1rem;font-weight:700;padding:.25rem .7rem;border-radius:99rem;background:rgba(52,211,153,.14);color:var(--verde)}
+.t .hoy.cero{background:rgba(255,255,255,.06);color:var(--suave)}
+.t.ig{background:linear-gradient(140deg,#1e1a6e,#0d1630)}
+/* capas: ingreso y detalle */
+.capa{position:fixed;inset:0;z-index:20;background:rgba(3,6,14,.9);backdrop-filter:blur(8px);display:grid;place-items:center;padding:3rem}
+.hoja{width:min(80rem,100%);max-height:100%;overflow:auto;background:var(--panel);border:.15rem solid var(--linea);border-radius:2rem;padding:2.4rem 2.8rem}
+.hoja h2{margin-top:0}
+.hoja>h3{font-size:3rem;margin:0 0 .4rem;letter-spacing:-.02em}
+.mini{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1rem;margin:1.6rem 0}
+.mini div{background:var(--panel2);border-radius:1.2rem;padding:1rem 1.2rem}
+.mini small{display:block;color:var(--suave);font-size:1.1rem}
+.mini b{font-size:2.6rem;font-weight:800}
+.pags{display:grid;gap:.6rem;margin-top:1.4rem;font-size:1.3rem}
+.pags div{display:grid;grid-template-columns:16rem 1fr 4rem;gap:1rem;align-items:center}
+.pags i{display:block;height:.9rem;border-radius:99rem;background:linear-gradient(90deg,var(--azul),var(--celeste))}
+.pags b{text-align:right}
+.login{width:min(46rem,100%);text-align:center}
+.login p{color:var(--suave)}
+.login input{width:100%;margin:1.4rem 0 .6rem;padding:1.2rem 1.4rem;border-radius:1.2rem;border:.15rem solid var(--linea);background:var(--fondo);font-size:1.6rem;text-align:center;outline:none}
+.err{color:#fca5a5;min-height:1.6rem;font-weight:600}
+.acc{display:flex;gap:1rem;justify-content:center;margin-top:1rem}
+.btn.pri{background:var(--azul);border-color:var(--azul)}
+.vacio{color:var(--suave);padding:2rem 0}
+</style>
+</head>
+<body>
+<header class="cab">
+  <h1>📈 Monitoreo <span class="vivo"><i></i>EN VIVO</span></h1>
+  <div class="per" id="per"><button data-foco data-inicio data-d="1">Hoy</button><button data-foco data-d="7">7 días</button><button data-foco data-d="30">30 días</button><button data-foco data-d="90">90 días</button></div>
+  <div class="act" id="act"></div>
+</header>
+<div id="cuerpo"><p class="vacio">Cargando…</p></div>
+
+<div class="capa" id="cLogin" data-capa hidden><div class="hoja login">
+  <h3 id="lT">Monitoreo</h3><p id="lP">Escribí la contraseña de la administración de RBM. Solo se pide una vez en este televisor.</p>
+  <input id="lC" type="password" data-foco autocomplete="current-password" placeholder="Contraseña">
+  <p class="err" id="lE"></p>
+  <div class="acc"><button class="btn pri" data-foco id="lOk">Entrar</button><button class="btn" data-foco id="lNo">Cancelar</button></div>
+</div></div>
+<div class="capa" id="cDet" data-capa hidden><div class="hoja" id="det"></div></div>
+
+<script src="tv.js"></script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+const $ = s => document.querySelector(s), esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+// Dos bases de datos: la de RBM (página y demos) y la de la iglesia (su propio contador)
+const RBM = { cfg: { apiKey: "AIzaSyCdNwaEKRzhLAXf-vG5WJkf7qbrQJ4lkWg", authDomain: "rbm-solutions-2a4ce.firebaseapp.com", projectId: "rbm-solutions-2a4ce", storageBucket: "rbm-solutions-2a4ce.firebasestorage.app", messagingSenderId: "602522235911", appId: "1:602522235911:web:bd4fe58dcecb79edefe6a2" }, email: "rbmsolutions819@gmail.com" };
+const IGL = { cfg: { apiKey: "AIzaSyBzPQdobrW5Ts53fIPAtDigT2KNbB-nttE", authDomain: "jesus-es-el-rey-d470e.firebaseapp.com", projectId: "jesus-es-el-rey-d470e", storageBucket: "jesus-es-el-rey-d470e.firebasestorage.app", messagingSenderId: "1095762950405", appId: "1:1095762950405:web:e379f796c9cdcc79ca1f6c" }, email: "admin@iglesiajesuseselrey.app" };
+for (const x of [RBM, IGL]) { x.app = initializeApp(x.cfg, x === RBM ? "rbm" : "iglesia"); x.db = getFirestore(x.app); x.auth = getAuth(x.app); x.user = undefined; }
+
+// fechas en hora de Costa Rica, igual que el contador de visitas
+const crHoy = () => new Date(Date.now() - 6 * 3600e3).toISOString().slice(0, 10);
+const masDias = (f, n) => new Date(Date.parse(f + "T00:00:00Z") + n * 864e5).toISOString().slice(0, 10);
+const DIAS = ["dom","lun","mar","mié","jue","vie","sáb"];
+const claveVis = url => (url.replace(/^demos\//, "").replace(/(index)?\.html$/, "").replace(/\/+$/, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "inicio");
+
+let dias = 7, DEMOS = [], rbmDatos = null, iglDatos = null, ultima = 0, detalle = null;
+try { dias = +localStorage.getItem("tv-mon-dias") || 7; } catch {}
+
+async function cargarDemos(){
+  try { const html = await (await fetch("/index.html", { cache: "no-store" })).text(); const a = html.indexOf("const DEMOS = ["), b = html.indexOf("\n];", a);
+    DEMOS = Function(`"use strict";return ${html.slice(a + 14, b + 2)}`)(); } catch (e) { console.warn(e); }
+}
+function demoDe(p){
+  for (const d of DEMOS) { for (const l of (d.links || [{ t: "", url: d.url }])) if (claveVis(l.url) === p) return [d, l.t || ""]; if (claveVis(d.url) === p) return [d, ""]; }
+  const d = [...DEMOS].sort((a, b) => b.id.length - a.id.length).find(d => p === d.id || p.startsWith(d.id + "-"));
+  return d ? [d, p.slice(d.id.length + 1).replace(/-/g, " ")] : [null, p];
+}
+async function leer(){
+  const desde = masDias(crHoy(), -89);
+  if (RBM.user) { try { const s = await getDocs(query(collection(RBM.db, "visitas"), where("f", ">=", desde))); rbmDatos = s.docs.map(d => d.data()); } catch (e) { console.warn(e); rbmDatos = null; } }
+  if (IGL.user) { try { const s = await getDocs(collection(IGL.db, "visitas")); iglDatos = s.docs.map(d => ({ f: d.id, n: +d.data().n || 0, u: +d.data().n || 0, p: "iglesia" })).filter(x => x.f >= desde); } catch (e) { console.warn(e); iglDatos = null; } }
+  ultima = Date.now(); pintar();
+}
+// agrupa las visitas por página (cada demo junta sus páginas)
+function grupos(){
+  const g = {};
+  const add = (id, nombre, x, sub) => { const o = g[id] = g[id] || { id, nombre, porDia: {}, porDiaU: {}, pags: {}, ig: id === "iglesia" }; o.porDia[x.f] = (o.porDia[x.f] || 0) + (x.n || 0); o.porDiaU[x.f] = (o.porDiaU[x.f] || 0) + (x.u || 0); if (sub !== undefined) o.pags[sub || "Página principal"] = (o.pags[sub || "Página principal"] || 0) + (x.n || 0); };
+  for (const x of rbmDatos || []) { if (x.p === "inicio") { add("inicio", "rbmsolutionscr.com", x); continue; } const [d, sub] = demoDe(x.p); add(d ? d.id : x.p, d ? d.nombre.replace(/ \(propuesta\)$/, "") : x.p, x, sub); }
+  for (const x of iglDatos || []) add("iglesia", "Iglesia Jesús es el Rey", x);
+  return Object.values(g);
+}
+const rango = n => Array.from({ length: n }, (_, i) => masDias(crHoy(), i - n + 1));
+const sumar = (o, n, k = "porDia") => rango(n).reduce((t, f) => t + (o[k][f] || 0), 0);
+function chispa(o){ const r = rango(14), v = r.map(f => o.porDia[f] || 0), m = Math.max(1, ...v), w = 100, h = 30;
+  const pts = v.map((n, i) => `${(i / (r.length - 1) * w).toFixed(1)},${(h - 2 - n / m * (h - 6)).toFixed(1)}`).join(" ");
+  return `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none"><polyline points="0,${h} ${pts} ${w},${h}" fill="rgba(96,165,250,.16)" stroke="none"/><polyline points="${pts}" fill="none" stroke="#60a5fa" stroke-width="1.6" vector-effect="non-scaling-stroke"/></svg>`; }
+function barras(series, n){
+  const r = rango(Math.max(n, 7)), hoy = crHoy(), tot = r.map(f => series.reduce((t, s) => t + (s.o[f] || 0), 0)), m = Math.max(1, ...tot), salto = r.length > 31 ? 7 : r.length > 14 ? 3 : 1;
+  return `<div class="barras">${r.map((f, i) => `<div class="${f === hoy ? "hoy" : ""}">${r.length <= 14 && tot[i] ? `<em>${tot[i]}</em>` : ""}${series.slice().reverse().map(s => `<i class="${s.cl || ""}" style="height:${(s.o[f] || 0) / m * 100}%"></i>`).join("")}</div>`).join("")}</div>
+    <div class="ejes">${r.map((f, i) => `<span>${i % salto === 0 || f === hoy ? (r.length <= 14 ? DIAS[new Date(f + "T12:00:00Z").getUTCDay()] + " " : "") + +f.slice(8) : ""}</span>`).join("")}</div>`;
+}
+function pintar(){
+  document.querySelectorAll("#per button").forEach(b => b.classList.toggle("si", +b.dataset.d === dias));
+  if (!RBM.user) { $("#cuerpo").innerHTML = `<p class="vacio">Conectá el monitoreo con la contraseña de la administración.</p><button class="btn pri" data-foco id="conRbm">Conectar</button>`; $("#conRbm").onclick = () => login(RBM); return; }
+  if (!rbmDatos) { $("#cuerpo").innerHTML = `<p class="vacio">Cargando visitas…</p>`; return; }
+  const gs = grupos(), dem = gs.filter(g => g.id !== "inicio" && !g.ig), ini = gs.find(g => g.id === "inicio"), ig = gs.find(g => g.ig);
+  const sD = dem.reduce((t, g) => t + sumar(g, dias), 0), sU = dem.reduce((t, g) => t + sumar(g, dias, "porDiaU"), 0), hoy = crHoy();
+  const top = [...dem].sort((a, b) => sumar(b, dias) - sumar(a, dias))[0];
+  const tiles = [...(ini ? [ini] : [{ id: "inicio", nombre: "rbmsolutionscr.com", porDia: {}, porDiaU: {}, pags: {} }]), ...(ig ? [ig] : []), ...dem.sort((a, b) => sumar(b, dias) - sumar(a, dias) || a.nombre.localeCompare(b.nombre, "es"))];
+  const foco = document.activeElement?.dataset?.g;
+  $("#cuerpo").innerHTML = `<div class="kpis">
+      <div><small>Visitas a demos</small><b>${sD}</b><span>${sU} personas aprox.</span></div>
+      <div><small>Página principal</small><b>${ini ? sumar(ini, dias) : 0}</b><span>hoy ${ini ? ini.porDia[hoy] || 0 : 0}</span></div>
+      <div><small>Hoy en demos</small><b>${dem.reduce((t, g) => t + (g.porDia[hoy] || 0), 0)}</b><span>${dem.filter(g => g.porDia[hoy]).length} demos con visitas</span></div>
+      <div><small>Demo más vista</small><b style="font-size:2.2rem;line-height:1.25;padding:.6rem 0 .5rem">${top && sumar(top, dias) ? esc(top.nombre) : "—"}</b><span>${top ? sumar(top, dias) + " visitas" : ""}</span></div></div>
+    <div class="caja"><h3>Visitas por día</h3>${barras([{ o: Object.fromEntries(rango(90).map(f => [f, dem.reduce((t, g) => t + (g.porDia[f] || 0), 0)])) }, { o: ini ? ini.porDia : {}, cl: "p" }], dias)}
+      <div class="ley"><span><i style="background:var(--azul)"></i>Demos</span><span><i style="background:rgba(147,160,189,.45)"></i>Página principal</span><span><i style="background:var(--verde)"></i>Hoy</span></div></div>
+    <h2>Páginas · toca una para ver el detalle</h2>
+    <div class="grid">${tiles.map(g => { const h = g.porDia[hoy] || 0;
+      return `<button class="t${g.ig ? " ig" : ""}" data-foco data-g="${esc(g.id)}"><span class="hoy ${h ? "" : "cero"}">hoy ${h}</span><span class="n">${esc(g.nombre)}</span><b>${sumar(g, dias)}</b><span class="s">${dias === 1 ? "visitas hoy" : `visitas en ${dias} días`}</span>${chispa(g)}</button>`; }).join("")}
+      ${IGL.user ? "" : `<button class="t ig" data-foco id="conIgl"><span class="n">Iglesia Jesús es el Rey</span><b>🔒</b><span class="s">Toca para conectar con la contraseña de la iglesia</span></button>`}</div>`;
+  $("#cuerpo").querySelectorAll("[data-g]").forEach(b => b.onclick = () => abrir(b.dataset.g));
+  const ci = $("#conIgl"); if (ci) ci.onclick = () => login(IGL);
+  const vuelta = foco && document.querySelector(`[data-g="${CSS.escape(foco)}"]`); if (vuelta) vuelta.focus({ preventScroll: true });
+  if (detalle) abrir(detalle, true);
+}
+function abrir(id, refresco){
+  const g = grupos().find(x => x.id === id); if (!g) return;
+  detalle = id; const hoy = crHoy(), pags = Object.entries(g.pags).sort((a, b) => b[1] - a[1]), mx = Math.max(1, ...pags.map(p => p[1]));
+  $("#det").innerHTML = `<h2>${g.ig ? "Cliente" : g.id === "inicio" ? "Mi página" : "Demo"}</h2><h3>${esc(g.nombre)}</h3>
+    <div class="mini"><div><small>Hoy</small><b>${g.porDia[hoy] || 0}</b></div><div><small>Ayer</small><b>${g.porDia[masDias(hoy, -1)] || 0}</b></div><div><small>7 días</small><b>${sumar(g, 7)}</b></div><div><small>30 días</small><b>${sumar(g, 30)}</b></div></div>
+    <div class="caja" style="background:var(--panel2)"><h3>Últimos 30 días</h3>${barras([{ o: g.porDia }], 30)}</div>
+    ${pags.length > 1 ? `<div class="pags">${pags.map(([t, n]) => `<div><span>${esc(t.charAt(0).toUpperCase() + t.slice(1))}</span><i style="width:${n / mx * 100}%"></i><b>${n}</b></div>`).join("")}</div>` : ""}
+    <div class="acc" style="justify-content:flex-start;margin-top:1.6rem"><button class="btn pri" data-foco id="dCer">Volver</button></div>`;
+  $("#cDet").hidden = false; $("#dCer").onclick = cerrarDet;
+  if (!refresco) { history.pushState({ det: 1 }, ""); $("#dCer").focus(); }
+}
+function cerrarDet(){ if (history.state?.det) history.back(); else ocultarDet(); }
+function ocultarDet(){ const id = detalle; detalle = null; $("#cDet").hidden = true; document.querySelector(`[data-g="${CSS.escape(id || "")}"]`)?.focus(); }
+addEventListener("popstate", () => { if (!$("#cDet").hidden) ocultarDet(); });
+
+let quien = null;
+function login(x){
+  quien = x; $("#lT").textContent = x === RBM ? "Monitoreo de RBM" : "Iglesia Jesús es el Rey";
+  $("#lP").textContent = x === RBM ? "Escribí la contraseña de la administración de RBM. Solo se pide una vez en este televisor." : "Escribí la contraseña de la administración de la iglesia para ver sus visitas.";
+  $("#lE").textContent = ""; $("#lC").value = ""; $("#cLogin").hidden = false; setTimeout(() => { $("#lC").focus(); TV.teclado(); }, 80);
+}
+$("#lNo").onclick = () => { $("#cLogin").hidden = true; TV.foco(); };
+async function entrar(){ const c = $("#lC").value; if (!c) { $("#lE").textContent = "Escribí la contraseña."; return; }
+  $("#lOk").disabled = true; try { await signInWithEmailAndPassword(quien.auth, quien.email, c); $("#cLogin").hidden = true; } catch { $("#lE").textContent = "Contraseña incorrecta."; } $("#lOk").disabled = false; }
+$("#lOk").onclick = entrar; $("#lC").addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); entrar(); } });
+$("#per").addEventListener("click", e => { const b = e.target.closest("[data-d]"); if (!b) return; dias = +b.dataset.d; try { localStorage.setItem("tv-mon-dias", dias); } catch {} pintar(); });
+
+let listos = 0;
+for (const x of [RBM, IGL]) onAuthStateChanged(x.auth, u => { x.user = u && u.email === x.email ? u : null; if (++listos >= 2 || x.user) { if (!RBM.user && listos >= 2 && $("#cLogin").hidden) login(RBM); leer(); } });
+setInterval(() => { if (document.visibilityState === "visible") leer(); }, 60000);
+setInterval(() => { $("#act").textContent = ultima ? `Se actualiza solo cada minuto · última vez hace ${Math.max(0, Math.round((Date.now() - ultima) / 1000))} s` : ""; }, 1000);
+await cargarDemos(); pintar(); TV.foco();
+</script>
+</body>
+</html>
