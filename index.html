@@ -3118,7 +3118,7 @@ pintarDemos();
 const demoTab = {};
 // Grupos del administrador: 3.0, 2.0 (animadas) y básicas
 let demoGrupo = "3";
-const DEMOS_2_PRINCIPAL = ["koktela", "matcha"];   // su versión principal ya es la animada 2.0
+const DEMOS_2_PRINCIPAL = ["lucitours", "koktela", "matcha"];   // su versión principal ya es la animada 2.0
 const grupoDemo = d => /-(3|pro)$/.test(d.id) ? "3" : (/-2$/.test(d.id) || DEMOS_2_PRINCIPAL.includes(d.id)) ? "2" : "1";
 const GRUPOS_DEMO = [["3", "Demos 3.0", "Las más nuevas: entrada con la marca, ambiente animado y efectos al tocar."], ["2", "Demos 2.0", "Versiones animadas: portadas con movimiento, carruseles y cintas."], ["1", "Básicas", "Las versiones originales, más sencillas y sin tantas animaciones."]];
 function pintarDemosAdmin(){
