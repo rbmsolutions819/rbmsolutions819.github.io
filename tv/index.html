@@ -55,6 +55,7 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;paddin
 .vista .marco{position:absolute;left:0;right:0;top:2.4rem;bottom:0;overflow:hidden}
 .vista iframe{position:absolute;left:0;top:0;width:1280px;height:800px;border:0;transform-origin:0 0;pointer-events:none;opacity:0;transition:opacity .6s}
 .vista iframe.lista{opacity:1}
+.vista .arte svg{width:8rem;height:8rem;opacity:.9}
 .vista .arte{position:absolute;inset:2.4rem 0 0;display:grid;place-items:center;background:radial-gradient(circle at 50% 40%,var(--c1),transparent 70%),linear-gradient(140deg,var(--c1),var(--c2));font-size:9rem;transition:opacity .5s}
 .vista .arte.fuera{opacity:0}
 .vista .vivo{position:absolute;right:1rem;bottom:1rem;z-index:3;font-size:.95rem;font-weight:800;letter-spacing:.14em;padding:.35rem .9rem;border-radius:99rem;background:rgba(4,7,15,.75);color:#86efac;display:flex;align-items:center;gap:.5rem}
@@ -70,14 +71,16 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;paddin
 .carril{display:flex;gap:1.4rem;padding:1.2rem 4rem 1.6rem;overflow:hidden;scroll-behavior:smooth}
 .t{position:relative;flex:none;width:21rem;aspect-ratio:16/9;border-radius:1.3rem;overflow:hidden;text-align:left;outline:none;background:linear-gradient(140deg,var(--c1),var(--c2));box-shadow:0 1rem 2.4rem -1rem rgba(0,0,0,.8);transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s}
 .t::before{content:"";position:absolute;inset:0;background:radial-gradient(120% 90% at 100% 0%,rgba(255,255,255,.22),transparent 55%),linear-gradient(180deg,transparent 35%,rgba(0,0,0,.55))}
-.t .ic{position:absolute;right:1.2rem;top:1rem;font-size:3.6rem;filter:drop-shadow(0 .4rem .8rem rgba(0,0,0,.4));transition:transform .3s}
+.t .ic{position:absolute;right:1.3rem;top:1.2rem;width:3.4rem;height:3.4rem;opacity:.92;filter:drop-shadow(0 .4rem .8rem rgba(0,0,0,.35));transition:transform .3s,opacity .3s}
+.t .ic svg,.vista .arte svg{width:100%;height:100%;fill:none;stroke:#fff;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.t:focus .ic{opacity:1}
 .t b{position:absolute;left:1.3rem;right:1.3rem;bottom:1.1rem;font-size:1.55rem;font-weight:800;letter-spacing:-.01em;line-height:1.15;text-shadow:0 .2rem .8rem rgba(0,0,0,.5);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .t em{position:absolute;left:1.1rem;top:1rem;font-style:normal;font-size:.95rem;font-weight:800;letter-spacing:.06em;padding:.3rem .8rem;border-radius:99rem;background:rgba(0,0,0,.35);backdrop-filter:blur(.4rem)}
 .t:focus{transform:scale(1.1);z-index:5;box-shadow:0 0 0 .3rem #fff,0 2rem 4rem -1rem rgba(0,0,0,.9),0 0 4rem -.4rem var(--c1)}
-.t:focus .ic{transform:scale(1.15) rotate(-6deg)}
+.t:focus .ic{transform:scale(1.12)}
 .t:focus::after{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.25) 50%,transparent 65%);animation:brillo 2.2s ease-in-out infinite}
 @keyframes brillo{from{transform:translateX(-120%)}to{transform:translateX(120%)}}
-.t.grande{width:27rem}
+.t.grande{width:24rem}
 
 /* pie con la ayuda del control */
 .pie{position:fixed;z-index:4;left:0;right:0;bottom:0;display:flex;gap:2.4rem;justify-content:center;padding:1rem;font-size:1.1rem;color:var(--suave);background:linear-gradient(transparent,rgba(4,7,15,.95) 45%)}
@@ -105,7 +108,7 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;paddin
 
 <section class="hero">
   <div class="info" id="info"><span class="ceja" id="hCeja">Inicio</span><h1 id="hT">RBM Solutions</h1><p id="hD"></p><div class="chips" id="hC"></div></div>
-  <div class="vista" id="vista"><div class="cromo"><i></i><i></i><i></i><span id="vUrl">rbmsolutionscr.com</span></div><div class="marco" id="marco"></div><div class="arte" id="vArte">🌐</div><div class="vivo">VISTA EN VIVO</div></div>
+  <div class="vista" id="vista"><div class="cromo"><i></i><i></i><i></i><span id="vUrl">rbmsolutionscr.com</span></div><div class="marco" id="marco"></div><div class="arte" id="vArte"></div><div class="vivo">VISTA EN VIVO</div></div>
 </section>
 
 <div class="filas" id="filas"><div class="filas-in" id="filasIn"></div></div>
@@ -126,9 +129,11 @@ let vino = false; try { vino = sessionStorage.getItem("tv-intro") === "1"; sessi
 if (vino) $("#intro").remove(); else setTimeout(() => { $("#intro").classList.add("fuera"); setTimeout(() => $("#intro")?.remove(), 800); }, 1900);
 
 const COLORES = [["#2563eb","#0b1f5c"],["#7c3aed","#2e1065"],["#db2777","#500724"],["#059669","#022c22"],["#ea580c","#431407"],["#0891b2","#083344"],["#dc2626","#450a0a"],["#4f46e5","#1e1b4b"],["#ca8a04","#422006"],["#0d9488","#042f2e"]];
-const ICONOS = { cal: "📅", precio: "🛍️", chat: "💬", caja: "📦", web: "🌐" };
-const EMOJI = { condominio: "🏘️", lucitours: "✈️", genki: "🍣", matcha: "🍵", koktela: "🍸", spa: "💆", candelas: "🕯️", alick: "🌸", chemas: "⚽", cosmo: "🩺", "doctor-outlet": "🩺", "service-desk": "🎧", "mesa-compras": "🧾", compras: "🛒", aurora: "🕯️" };
-const emojiDe = d => { const k = Object.keys(EMOJI).sort((a, b) => b.length - a.length).find(k => d.id === k || d.id.startsWith(k + "-") || d.id.startsWith(k)); return k ? EMOJI[k] : ICONOS[d.ic] || "✨"; };
+const SVG = {web:`<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>`,lock:`<rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/><circle cx="12" cy="15.5" r="1.3"/>`,chart:`<path d="M3.5 20.5h17"/><path d="M5.5 16l4.5-5 3.5 3 6-7"/><path d="M15.5 7h4v4"/>`,crown:`<path d="M3.5 8l4 4 4.5-6.5L16.5 12l4-4-1.8 10.5H5.3z"/><path d="M5.5 21h13"/>`,edificio:`<path d="M3.5 20.5h17M5.5 20.5V9l6.5-5 6.5 5v11.5"/><path d="M9.5 20.5v-5h5v5M9 11h.01M15 11h.01"/>`,avion:`<path d="M10.5 13.5L3 11l1.5-1.5 8 1 4.5-4.5c1-1 2.6-1.3 3.3-.6s.4 2.3-.6 3.3L15.2 13.2l1 8L14.7 22.7 12.2 15.2 9 18.4v2.6l-1.5 1.5-1-3.5-3.5-1 1.5-1.5h2.6z"/>`,palillos:`<path d="M4 20L18 4M8 20L20 7"/><path d="M3.5 14.5h17a8.5 8.5 0 0 1-17 0z" transform="translate(0 -1)"/>`,taza:`<path d="M4.5 9h12v5a5 5 0 0 1-5 5h-2a5 5 0 0 1-5-5z"/><path d="M16.5 10.5h1.5a2.5 2.5 0 0 1 0 5h-1.6M8 3.5c-.8 1 .8 2 0 3M12 3.5c-.8 1 .8 2 0 3"/>`,copa:`<path d="M5 4h14l-7 8z"/><path d="M12 12v8M8 20h8"/>`,hoja:`<path d="M5 19c0-8 5-14 15-15-1 10-7 15-15 15z"/><path d="M5 19c3-4 6-7 10-10"/>`,llama:`<path d="M12 3c3 4 6 6.5 6 11a6 6 0 0 1-12 0c0-3 2-4.5 2.5-7 1.5 1 2 2.5 2 3.5 1.5-2 1.5-5 1.5-7.5z"/>`,frasco:`<rect x="6" y="9" width="12" height="12" rx="3"/><path d="M9.5 9V5.5h5V9M10.5 3h3"/>`,camisa:`<path d="M8.5 3.5L4 6l1.8 4.5 2.2-1V20.5h8V9.5l2.2 1L20 6l-4.5-2.5a3.5 3.5 0 0 1-7 0z"/>`,salud:`<path d="M9.5 3.5h5v6h6v5h-6v6h-5v-6h-6v-5h6z"/>`,audif:`<path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="3.5" y="13.5" width="4" height="6.5" rx="1.5"/><rect x="16.5" y="13.5" width="4" height="6.5" rx="1.5"/>`,recibo:`<path d="M6 3.5h12v17l-3-2-3 2-3-2-3 2z"/><path d="M9 8.5h6M9 12h6"/>`,carrito:`<path d="M3 4h2.5l2.2 11h10.6l2-8H6.5"/><circle cx="9" cy="19.5" r="1.4"/><circle cx="17" cy="19.5" r="1.4"/>`,cal:`<rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/>`,bolsa:`<path d="M5 8h14l-1 12.5H6z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/>`,chat:`<path d="M20 12a8 8 0 0 1-11.6 7.1L4 20.5l1.4-4.4A8 8 0 1 1 20 12z"/>`,caja:`<path d="M3.5 7.5L12 3l8.5 4.5v9L12 21l-8.5-4.5z"/><path d="M3.5 7.5L12 12l8.5-4.5M12 12v9"/>`,chispa:`<path d="M12 3l1.8 5.4L19 10.2l-5.2 1.8L12 17.5l-1.8-5.5L5 10.2l5.2-1.8z"/>`};
+const icono = k => `<svg viewBox="0 0 24 24" aria-hidden="true">${SVG[k] || SVG.chispa}</svg>`;
+const ICONOS = { cal: "cal", precio: "bolsa", chat: "chat", caja: "caja", web: "web" };
+const MARCA = { condominio: "edificio", lucitours: "avion", genki: "palillos", matcha: "taza", koktela: "copa", spa: "hoja", candelas: "llama", aurora: "llama", alick: "frasco", chemas: "camisa", cosmo: "salud", "doctor-outlet": "salud", "service-desk": "audif", "mesa-compras": "recibo", compras: "carrito" };
+const emojiDe = d => { const k = Object.keys(MARCA).sort((a, b) => b.length - a.length).find(k => d.id === k || d.id.startsWith(k + "-") || d.id.startsWith(k)); return icono(k ? MARCA[k] : ICONOS[d.ic] || "chispa"); };
 
 const items = new Map();   // datos de cada cuadro para la portada
 let n = 0;
@@ -136,10 +141,10 @@ const tile = (it, grande) => { const id = "i" + n++; const [c1, c2] = it.col || 
   return `<button class="t${grande ? " grande" : ""}" data-foco data-id="${id}" data-url="${esc(it.url)}" style="--c1:${c1};--c2:${c2}">${it.etq ? `<em>${esc(it.etq)}</em>` : ""}<span class="ic">${it.emoji}</span><b>${esc(it.nombre)}</b></button>`; };
 const fila = (titulo, html) => `<section class="fila"><h2>${titulo}</h2><div class="carril">${html}</div></section>`;
 const INICIO = [
-  { nombre: "Mi página", url: "/", emoji: "🌐", ceja: "Inicio", desc: "rbmsolutionscr.com: servicios, citas, galería, reseñas y demos publicadas.", chips: ["Página principal"], col: ["#2563eb", "#0b1f5c"] },
-  { nombre: "Administración", url: "/#admin", emoji: "🔐", ceja: "Inicio", desc: "Citas, boletas del taller, ingresos, opiniones, galería, demos y visitas.", chips: ["Con contraseña"], col: ["#7c3aed", "#2e1065"] },
-  { nombre: "Monitoreo", url: "/tv/monitor.html", emoji: "📈", ceja: "Inicio", desc: "Cuántas personas entran a cada página y a cada demo, día por día y en vivo.", chips: ["Se actualiza cada minuto"], col: ["#059669", "#022c22"], sinVista: true },
-  { nombre: "Iglesia Jesús es el Rey", url: "https://iglesiajesuseselrey.github.io/", emoji: "👑", ceja: "Clientes", desc: "Página de la iglesia: cultos en vivo, eventos, peticiones de oración, fotos y panel del equipo.", chips: ["Cliente"], col: ["#4338ca", "#1e1b4b"] }];
+  { nombre: "Mi página", url: "/", emoji: icono("web"), ceja: "Inicio", desc: "rbmsolutionscr.com: servicios, citas, galería, reseñas y demos publicadas.", chips: ["Página principal"], col: ["#2563eb", "#0b1f5c"] },
+  { nombre: "Administración", url: "/#admin", emoji: icono("lock"), ceja: "Inicio", desc: "Citas, boletas del taller, ingresos, opiniones, galería, demos y visitas.", chips: ["Con contraseña"], col: ["#7c3aed", "#2e1065"] },
+  { nombre: "Monitoreo", url: "/tv/monitor.html", emoji: icono("chart"), ceja: "Inicio", desc: "Cuántas personas entran a cada página y a cada demo, día por día y en vivo.", chips: ["Se actualiza cada minuto"], col: ["#059669", "#022c22"], sinVista: true },
+  { nombre: "Iglesia Jesús es el Rey", url: "https://iglesiajesuseselrey.github.io/", emoji: icono("crown"), ceja: "Clientes", desc: "Página de la iglesia: cultos en vivo, eventos, peticiones de oración, fotos y panel del equipo.", chips: ["Cliente"], col: ["#4338ca", "#1e1b4b"] }];
 
 async function cargar(){
   let demos = [], dos = [];
@@ -168,7 +173,7 @@ function portada(btn){
     $("#hC").innerHTML = `<span class="ok">OK para abrir</span>` + (it.chips || []).filter(Boolean).map(c => `<span>${esc(c)}</span>`).join(""); info.classList.remove("cambia"); }, 180);
   document.querySelector("#aurora").style.cssText = `--c1:${it.c1};--c2:${it.c2}`;
   const v = $("#vista"); v.style.setProperty("--c1", it.c1); v.style.setProperty("--c2", it.c2);
-  $("#vArte").textContent = it.emoji; $("#vArte").classList.remove("fuera");
+  $("#vArte").innerHTML = it.emoji; $("#vArte").classList.remove("fuera");
   $("#vUrl").textContent = it.url.startsWith("http") ? it.url.replace(/^https?:\/\//, "").replace(/\/$/, "") : "rbmsolutionscr.com" + it.url.replace(/\/$/, "");
   $("#marco").innerHTML = ""; clearTimeout(tVista);
   if (it.sinVista) return;

@@ -77,7 +77,7 @@ h2{font-size:1.2rem;letter-spacing:.24em;text-transform:uppercase;color:var(--ce
 </head>
 <body>
 <header class="cab">
-  <h1>📈 Monitoreo <span class="vivo"><i></i>EN VIVO</span></h1>
+  <h1><svg viewBox="0 0 24 24" style="width:3rem;height:3rem;fill:none;stroke:#34d399;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><path d="M3.5 20.5h17"/><path d="M5.5 16l4.5-5 3.5 3 6-7"/><path d="M15.5 7h4v4"/></svg> Monitoreo <span class="vivo"><i></i>EN VIVO</span></h1>
   <div class="per" id="per"><button data-foco data-inicio data-d="1">Hoy</button><button data-foco data-d="7">7 días</button><button data-foco data-d="30">30 días</button><button data-foco data-d="90">90 días</button></div>
   <div class="act" id="act"></div>
 </header>
@@ -164,7 +164,7 @@ function pintar(){
     <h2>Páginas · toca una para ver el detalle</h2>
     <div class="grid">${tiles.map(g => { const h = g.porDia[hoy] || 0;
       return `<button class="t${g.ig ? " ig" : ""}" data-foco data-g="${esc(g.id)}"><span class="hoy ${h ? "" : "cero"}">hoy ${h}</span><span class="n">${esc(g.nombre)}</span><b>${sumar(g, dias)}</b><span class="s">${dias === 1 ? "visitas hoy" : `visitas en ${dias} días`}</span>${chispa(g)}</button>`; }).join("")}
-      ${IGL.user ? "" : `<button class="t ig" data-foco id="conIgl"><span class="n">Iglesia Jesús es el Rey</span><b>🔒</b><span class="s">Toca para conectar con la contraseña de la iglesia</span></button>`}</div>`;
+      ${IGL.user ? "" : `<button class="t ig" data-foco id="conIgl"><span class="n">Iglesia Jesús es el Rey</span><b style="font-size:2rem;padding:.6rem 0">Conectar</b><span class="s">Toca para conectar con la contraseña de la iglesia</span></button>`}</div>`;
   $("#cuerpo").querySelectorAll("[data-g]").forEach(b => b.onclick = () => abrir(b.dataset.g));
   const ci = $("#conIgl"); if (ci) ci.onclick = () => login(IGL);
   const vuelta = foco && document.querySelector(`[data-g="${CSS.escape(foco)}"]`); if (vuelta) vuelta.focus({ preventScroll: true });
