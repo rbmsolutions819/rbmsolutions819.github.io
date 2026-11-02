@@ -6,58 +6,111 @@
 <meta name="robots" content="noindex">
 <title>RBM TV</title>
 <link rel="icon" href="/icon-192.png">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
 <style>
-/* Todo se mide con el ancho de la pantalla: igual se ve en un televisor de 32" o de 75" */
-:root{--fondo:#060b18;--panel:#0e1730;--linea:rgba(255,255,255,.1);--texto:#eef2fb;--suave:#93a0bd;--azul:#3b82f6;--celeste:#60a5fa;color-scheme:dark}
+/* Todo se mide con el ancho de la pantalla (1rem = 1 % del ancho): se ve igual en un televisor de 32" o de 75" */
+:root{--fondo:#04070f;--panel:rgba(255,255,255,.06);--linea:rgba(255,255,255,.12);--texto:#f2f5fc;--suave:#9aa6c2;--azul:#3b82f6;--celeste:#7cc0ff;color-scheme:dark}
 *{box-sizing:border-box}
 html{font-size:calc(100vw / 96)}
-body{margin:0;min-height:100vh;background:radial-gradient(60% 50% at 85% 0%,rgba(59,130,246,.22),transparent 60%),radial-gradient(50% 40% at 0% 100%,rgba(124,58,237,.18),transparent 60%),var(--fondo);color:var(--texto);font:400 1.5rem/1.4 "Inter",system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden;padding:3rem 4rem 5rem}
+body{margin:0;height:100vh;overflow:hidden;background:var(--fondo);color:var(--texto);font:400 1.5rem/1.4 "Inter",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
 button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;padding:0}
-.cab{display:flex;align-items:center;gap:1.6rem}
-.cab img{width:4.6rem;height:4.6rem;border-radius:1.2rem}
-.cab h1{margin:0;font-size:2.8rem;font-weight:800;letter-spacing:-.02em}
-.cab h1 small{display:block;font-size:1.3rem;font-weight:500;color:var(--suave);letter-spacing:0}
+[hidden]{display:none!important}
+
+/* fondo vivo: luces que se mueven despacio */
+.aurora{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.aurora i{position:absolute;width:60vw;height:60vw;border-radius:50%;filter:blur(9vw);opacity:.55;transition:background 1.2s}
+.aurora i:nth-child(1){left:-15vw;top:-25vw;background:var(--c1,#1d4ed8);animation:flota1 26s ease-in-out infinite}
+.aurora i:nth-child(2){right:-20vw;top:-10vw;background:var(--c2,#7c3aed);animation:flota2 32s ease-in-out infinite;opacity:.4}
+.aurora i:nth-child(3){left:30vw;bottom:-40vw;background:#0ea5e9;opacity:.18;animation:flota1 40s ease-in-out infinite reverse}
+@keyframes flota1{50%{transform:translate(8vw,6vw) scale(1.1)}}
+@keyframes flota2{50%{transform:translate(-10vw,8vw) scale(.9)}}
+.grano{position:fixed;inset:0;z-index:0;pointer-events:none;background:linear-gradient(180deg,rgba(4,7,15,.2),rgba(4,7,15,.75) 55%,var(--fondo) 80%)}
+
+/* barra de arriba */
+.barra{position:relative;z-index:3;display:flex;align-items:center;gap:1.4rem;padding:2.2rem 4rem 0}
+.barra img{width:3.8rem;height:3.8rem;border-radius:1rem;box-shadow:0 0 0 .1rem rgba(255,255,255,.25),0 .8rem 2rem -.6rem rgba(59,130,246,.8)}
+.barra b{font-size:1.9rem;font-weight:800;letter-spacing:-.02em}
+.barra b small{display:block;font-size:1.05rem;font-weight:600;color:var(--suave);letter-spacing:.18em;text-transform:uppercase;margin-top:.1rem}
 .hora{margin-left:auto;text-align:right}
-.hora b{display:block;font-size:3.4rem;font-weight:700;font-variant-numeric:tabular-nums;line-height:1}
-.hora span{color:var(--suave);font-size:1.3rem}
-h2{font-size:1.25rem;letter-spacing:.24em;text-transform:uppercase;color:var(--celeste);margin:3.4rem 0 1.4rem;font-weight:700}
-.fila{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1.6rem}
-.t{position:relative;display:flex;flex-direction:column;justify-content:flex-end;gap:.4rem;text-align:left;min-height:11rem;border-radius:1.6rem;padding:1.6rem 1.8rem;background:var(--panel);border:.15rem solid var(--linea);transition:transform .18s,box-shadow .18s,border-color .18s;overflow:hidden;outline:none}
-.t.grande{min-height:15rem;background:linear-gradient(140deg,var(--c1,#1d4ed8),var(--c2,#0b1b4a))}
-.t .ic{position:absolute;top:1.4rem;left:1.6rem;font-size:3.2rem;line-height:1}
-.t b{font-size:1.9rem;font-weight:700;letter-spacing:-.01em;line-height:1.15}
-.t span{font-size:1.25rem;color:var(--suave);line-height:1.3}
-.t.grande span{color:rgba(255,255,255,.78)}
-.t em{position:absolute;top:1.3rem;right:1.4rem;font-style:normal;font-size:1.05rem;font-weight:700;padding:.3rem .8rem;border-radius:99rem;background:rgba(255,255,255,.12)}
-.t:focus{transform:scale(1.06);border-color:#fff;box-shadow:0 0 0 .3rem rgba(255,255,255,.25),0 1.6rem 4rem -1rem rgba(59,130,246,.65);z-index:2}
-.t:focus::after{content:"";position:absolute;inset:0;background:linear-gradient(120deg,transparent 30%,rgba(255,255,255,.14) 50%,transparent 70%);animation:brillo 1.6s ease-in-out infinite}
-@keyframes brillo{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
-.demos{grid-template-columns:repeat(5,minmax(0,1fr))}
-.demos .t{min-height:14rem;justify-content:flex-start;gap:.5rem}
-.demos .t em{position:static;align-self:flex-start;margin-top:1rem;background:rgba(96,165,250,.16);color:#bfdbfe}
-.demos .t em+b{margin-top:.2rem}
-.demos .t b{margin-top:1.2rem;font-size:1.7rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.demos .t span:not(.ini){display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.demos .t .ini{flex:none;margin-bottom:auto;width:3.6rem;height:3.6rem;border-radius:1rem;display:grid;place-items:center;font-size:1.7rem;font-weight:800;background:linear-gradient(140deg,var(--c1),var(--c2))}
-.pie{position:fixed;left:0;right:0;bottom:0;display:flex;gap:2.6rem;justify-content:center;padding:1.1rem;background:linear-gradient(transparent,rgba(6,11,24,.95) 40%);color:var(--suave);font-size:1.2rem}
-.pie b{color:var(--texto);border:.12rem solid var(--linea);border-radius:.5rem;padding:.1rem .6rem;margin-right:.5rem}
-.cargando{color:var(--suave);font-size:1.4rem}
+.hora b{display:block;font-size:2.6rem;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.02em;line-height:1}
+.hora span{font-size:1.15rem;color:var(--suave)}
+
+/* portada: lo que está seleccionado, con vista previa en vivo */
+.hero{position:relative;z-index:2;height:47vh;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:3rem;align-items:center;padding:1.2rem 4rem 1.6rem}
+.info{min-width:0;max-height:100%;overflow:hidden}
+.ceja{display:inline-flex;align-items:center;gap:.8rem;font-size:1.15rem;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:var(--celeste)}
+.ceja::before{content:"";width:2.4rem;height:.15rem;background:currentColor}
+.hero h1{margin:.8rem 0 0;font-size:4.6rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-weight:900;letter-spacing:-.04em;line-height:.98;max-width:52rem}
+.hero p{margin:1rem 0 0;color:#c6cfe3;font-size:1.5rem;line-height:1.45;max-width:50rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.chips{display:flex;gap:.8rem;margin-top:1.4rem;flex-wrap:nowrap;overflow:hidden}
+.chips span{white-space:nowrap}
+.chips span{font-size:1.15rem;font-weight:600;padding:.5rem 1.2rem;border-radius:99rem;background:var(--panel);border:.1rem solid var(--linea)}
+.chips .ok{background:#fff;color:#04070f;border-color:#fff}
+.info>*{transition:opacity .35s,transform .45s cubic-bezier(.2,.8,.2,1)}
+.info.cambia>*{opacity:0;transform:translateY(1.2rem)}
+.vista{position:relative;height:100%;aspect-ratio:16/10;justify-self:end;border-radius:1.6rem;overflow:hidden;background:#0b1224;box-shadow:0 3rem 7rem -2rem rgba(0,0,0,.85),0 0 0 .12rem rgba(255,255,255,.14)}
+.vista .cromo{position:absolute;inset:0 0 auto;height:2.4rem;display:flex;align-items:center;gap:.5rem;padding:0 1rem;background:rgba(15,22,42,.95);z-index:2;font-size:1rem;color:var(--suave)}
+.vista .cromo i{width:.8rem;height:.8rem;border-radius:50%;background:#ef4444}.vista .cromo i:nth-child(2){background:#f59e0b}.vista .cromo i:nth-child(3){background:#22c55e}
+.vista .cromo span{margin-left:1rem;padding:.2rem 1rem;border-radius:99rem;background:rgba(255,255,255,.06);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vista .marco{position:absolute;left:0;right:0;top:2.4rem;bottom:0;overflow:hidden}
+.vista iframe{position:absolute;left:0;top:0;width:1280px;height:800px;border:0;transform-origin:0 0;pointer-events:none;opacity:0;transition:opacity .6s}
+.vista iframe.lista{opacity:1}
+.vista .arte{position:absolute;inset:2.4rem 0 0;display:grid;place-items:center;background:radial-gradient(circle at 50% 40%,var(--c1),transparent 70%),linear-gradient(140deg,var(--c1),var(--c2));font-size:9rem;transition:opacity .5s}
+.vista .arte.fuera{opacity:0}
+.vista .vivo{position:absolute;right:1rem;bottom:1rem;z-index:3;font-size:.95rem;font-weight:800;letter-spacing:.14em;padding:.35rem .9rem;border-radius:99rem;background:rgba(4,7,15,.75);color:#86efac;display:flex;align-items:center;gap:.5rem}
+.vista .vivo::before{content:"";width:.6rem;height:.6rem;border-radius:50%;background:#22c55e;animation:late 1.5s infinite}
+@keyframes late{50%{opacity:.3}}
+
+/* filas tipo Netflix */
+.filas{position:relative;z-index:2;height:calc(100vh - 47vh - 6.2rem);overflow:hidden;padding:0 0 4rem}
+.filas-in{transition:transform .45s cubic-bezier(.2,.8,.2,1)}
+.fila{margin-bottom:2.4rem}
+.fila h2{margin:0 4rem 1rem;font-size:1.35rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--suave);transition:color .3s}
+.fila.activa h2{color:#fff}
+.carril{display:flex;gap:1.4rem;padding:1.2rem 4rem 1.6rem;overflow:hidden;scroll-behavior:smooth}
+.t{position:relative;flex:none;width:21rem;aspect-ratio:16/9;border-radius:1.3rem;overflow:hidden;text-align:left;outline:none;background:linear-gradient(140deg,var(--c1),var(--c2));box-shadow:0 1rem 2.4rem -1rem rgba(0,0,0,.8);transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s}
+.t::before{content:"";position:absolute;inset:0;background:radial-gradient(120% 90% at 100% 0%,rgba(255,255,255,.22),transparent 55%),linear-gradient(180deg,transparent 35%,rgba(0,0,0,.55))}
+.t .ic{position:absolute;right:1.2rem;top:1rem;font-size:3.6rem;filter:drop-shadow(0 .4rem .8rem rgba(0,0,0,.4));transition:transform .3s}
+.t b{position:absolute;left:1.3rem;right:1.3rem;bottom:1.1rem;font-size:1.55rem;font-weight:800;letter-spacing:-.01em;line-height:1.15;text-shadow:0 .2rem .8rem rgba(0,0,0,.5);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.t em{position:absolute;left:1.1rem;top:1rem;font-style:normal;font-size:.95rem;font-weight:800;letter-spacing:.06em;padding:.3rem .8rem;border-radius:99rem;background:rgba(0,0,0,.35);backdrop-filter:blur(.4rem)}
+.t:focus{transform:scale(1.1);z-index:5;box-shadow:0 0 0 .3rem #fff,0 2rem 4rem -1rem rgba(0,0,0,.9),0 0 4rem -.4rem var(--c1)}
+.t:focus .ic{transform:scale(1.15) rotate(-6deg)}
+.t:focus::after{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.25) 50%,transparent 65%);animation:brillo 2.2s ease-in-out infinite}
+@keyframes brillo{from{transform:translateX(-120%)}to{transform:translateX(120%)}}
+.t.grande{width:27rem}
+
+/* pie con la ayuda del control */
+.pie{position:fixed;z-index:4;left:0;right:0;bottom:0;display:flex;gap:2.4rem;justify-content:center;padding:1rem;font-size:1.1rem;color:var(--suave);background:linear-gradient(transparent,rgba(4,7,15,.95) 45%)}
+.pie b{color:var(--texto);border:.1rem solid var(--linea);border-radius:.5rem;padding:.05rem .6rem;margin-right:.5rem;font-weight:700}
+
+/* entrada con la marca */
+.intro{position:fixed;inset:0;z-index:50;display:grid;place-items:center;background:radial-gradient(circle at 50% 45%,#10204a,#04070f 65%);transition:opacity .7s,visibility .7s}
+.intro.fuera{opacity:0;visibility:hidden}
+.intro div{display:grid;justify-items:center;gap:1.6rem}
+.intro img{width:13rem;height:13rem;border-radius:3.2rem;animation:logo 1.2s cubic-bezier(.2,1.3,.4,1) both;box-shadow:0 0 0 .15rem rgba(255,255,255,.2),0 0 8rem rgba(59,130,246,.7)}
+.intro b{font-size:4rem;font-weight:900;letter-spacing:-.03em;animation:sube .8s .35s both}
+.intro span{font-size:1.4rem;letter-spacing:.4em;text-transform:uppercase;color:var(--celeste);animation:sube .8s .55s both}
+.intro i{width:22rem;height:.3rem;border-radius:99rem;background:rgba(255,255,255,.1);overflow:hidden;animation:sube .6s .7s both}
+.intro i::after{content:"";display:block;height:100%;width:40%;background:linear-gradient(90deg,transparent,#7cc0ff,transparent);animation:carga 1.1s ease-in-out infinite}
+@keyframes logo{from{opacity:0;transform:scale(.5) rotate(-10deg);filter:blur(1rem)}}
+@keyframes sube{from{opacity:0;transform:translateY(1.4rem)}}
+@keyframes carga{from{transform:translateX(-100%)}to{transform:translateX(250%)}}
 </style>
 </head>
-<body>
-<header class="cab"><img src="/icon-192.png" alt=""><h1>RBM Solutions<small>Mis páginas y demos</small></h1><div class="hora"><b id="hora">--:--</b><span id="fecha"></span></div></header>
+<body data-propio>
+<div class="intro" id="intro"><div><img src="/icon-512.png" alt=""><b>RBM Solutions</b><span>Páginas y demos</span><i></i></div></div>
+<div class="aurora" id="aurora"><i></i><i></i><i></i></div><div class="grano"></div>
 
-<h2>Inicio</h2>
-<div class="fila">
-  <button class="t grande" data-foco data-inicio data-url="/" style="--c1:#2563eb;--c2:#0b1b4a"><span class="ic">🌐</span><b>Mi página</b><span>rbmsolutionscr.com</span></button>
-  <button class="t grande" data-foco data-url="/#admin" style="--c1:#7c3aed;--c2:#1e0b4a"><span class="ic">🔐</span><b>Administración</b><span>Citas, boletas, demos y más</span></button>
-  <button class="t grande" data-foco data-url="/tv/monitor.html" style="--c1:#059669;--c2:#06291f"><span class="ic">📈</span><b>Monitoreo</b><span>Visitas de cada página en vivo</span></button>
-  <button class="t grande" data-foco data-url="https://iglesiajesuseselrey.github.io/" style="--c1:#4338ca;--c2:#140f4a"><span class="ic">👑</span><b>Iglesia Jesús es el Rey</b><span>Página del cliente</span></button>
-</div>
-<div id="grupos"><p class="cargando">Cargando las demos…</p></div>
+<header class="barra"><img src="/icon-192.png" alt=""><b>RBM Solutions<small>RBM TV</small></b><div class="hora"><b id="hora">--:--</b><span id="fecha"></span></div></header>
 
-<div class="pie"><span><b>◀ ▲ ▼ ▶</b>Moverse</span><span><b>OK</b>Abrir</span><span><b>Atrás</b>Volver aquí</span><span><b>Mantener OK</b>Puntero / flechas</span></div>
+<section class="hero">
+  <div class="info" id="info"><span class="ceja" id="hCeja">Inicio</span><h1 id="hT">RBM Solutions</h1><p id="hD"></p><div class="chips" id="hC"></div></div>
+  <div class="vista" id="vista"><div class="cromo"><i></i><i></i><i></i><span id="vUrl">rbmsolutionscr.com</span></div><div class="marco" id="marco"></div><div class="arte" id="vArte">🌐</div><div class="vivo">VISTA EN VIVO</div></div>
+</section>
+
+<div class="filas" id="filas"><div class="filas-in" id="filasIn"></div></div>
+
+<div class="pie"><span><b>◀ ▲ ▼ ▶</b>Moverse</span><span><b>OK</b>Abrir</span><span><b>Atrás</b>Volver</span><span><b>Mantener OK</b>Puntero / flechas</span></div>
 
 <script src="tv.js"></script>
 <script>
@@ -67,29 +120,80 @@ const DIAS = ["domingo","lunes","martes","miércoles","jueves","viernes","sábad
 function reloj(){ const d = new Date(); let h = d.getHours(); const pm = h >= 12; h = h % 12 || 12;
   $("#hora").textContent = `${h}:${String(d.getMinutes()).padStart(2, "0")} ${pm ? "p. m." : "a. m."}`; $("#fecha").textContent = `${DIAS[d.getDay()]} ${d.getDate()} de ${MESES[d.getMonth()]}`; }
 reloj(); setInterval(reloj, 10000);
-document.addEventListener("click", e => { const t = e.target.closest("[data-url]"); if (t) { try { sessionStorage.setItem("tv-foco", t.dataset.url); } catch {} location.href = t.dataset.url; } });
 
-// Las demos se leen de la página principal: si agregás una demo nueva, sale aquí sola.
-const COLORES = [["#2563eb","#1e3a8a"],["#7c3aed","#4c1d95"],["#db2777","#831843"],["#059669","#064e3b"],["#d97706","#78350f"],["#0891b2","#164e63"],["#dc2626","#7f1d1d"],["#4f46e5","#312e81"]];
+// entrada con la marca: solo al abrir la app, no al volver de una demo
+let vino = false; try { vino = sessionStorage.getItem("tv-intro") === "1"; sessionStorage.setItem("tv-intro", "1"); } catch {}
+if (vino) $("#intro").remove(); else setTimeout(() => { $("#intro").classList.add("fuera"); setTimeout(() => $("#intro")?.remove(), 800); }, 1900);
+
+const COLORES = [["#2563eb","#0b1f5c"],["#7c3aed","#2e1065"],["#db2777","#500724"],["#059669","#022c22"],["#ea580c","#431407"],["#0891b2","#083344"],["#dc2626","#450a0a"],["#4f46e5","#1e1b4b"],["#ca8a04","#422006"],["#0d9488","#042f2e"]];
 const ICONOS = { cal: "📅", precio: "🛍️", chat: "💬", caja: "📦", web: "🌐" };
+const EMOJI = { condominio: "🏘️", lucitours: "✈️", genki: "🍣", matcha: "🍵", koktela: "🍸", spa: "💆", candelas: "🕯️", alick: "🌸", chemas: "⚽", cosmo: "🩺", "doctor-outlet": "🩺", "service-desk": "🎧", "mesa-compras": "🧾", compras: "🛒", aurora: "🕯️" };
+const emojiDe = d => { const k = Object.keys(EMOJI).sort((a, b) => b.length - a.length).find(k => d.id === k || d.id.startsWith(k + "-") || d.id.startsWith(k)); return k ? EMOJI[k] : ICONOS[d.ic] || "✨"; };
+
+const items = new Map();   // datos de cada cuadro para la portada
+let n = 0;
+const tile = (it, grande) => { const id = "i" + n++; const [c1, c2] = it.col || COLORES[n % COLORES.length]; it.c1 = c1; it.c2 = c2; items.set(id, it);
+  return `<button class="t${grande ? " grande" : ""}" data-foco data-id="${id}" data-url="${esc(it.url)}" style="--c1:${c1};--c2:${c2}">${it.etq ? `<em>${esc(it.etq)}</em>` : ""}<span class="ic">${it.emoji}</span><b>${esc(it.nombre)}</b></button>`; };
+const fila = (titulo, html) => `<section class="fila"><h2>${titulo}</h2><div class="carril">${html}</div></section>`;
+const INICIO = [
+  { nombre: "Mi página", url: "/", emoji: "🌐", ceja: "Inicio", desc: "rbmsolutionscr.com: servicios, citas, galería, reseñas y demos publicadas.", chips: ["Página principal"], col: ["#2563eb", "#0b1f5c"] },
+  { nombre: "Administración", url: "/#admin", emoji: "🔐", ceja: "Inicio", desc: "Citas, boletas del taller, ingresos, opiniones, galería, demos y visitas.", chips: ["Con contraseña"], col: ["#7c3aed", "#2e1065"] },
+  { nombre: "Monitoreo", url: "/tv/monitor.html", emoji: "📈", ceja: "Inicio", desc: "Cuántas personas entran a cada página y a cada demo, día por día y en vivo.", chips: ["Se actualiza cada minuto"], col: ["#059669", "#022c22"], sinVista: true },
+  { nombre: "Iglesia Jesús es el Rey", url: "https://iglesiajesuseselrey.github.io/", emoji: "👑", ceja: "Clientes", desc: "Página de la iglesia: cultos en vivo, eventos, peticiones de oración, fotos y panel del equipo.", chips: ["Cliente"], col: ["#4338ca", "#1e1b4b"] }];
+
 async function cargar(){
   let demos = [], dos = [];
   try { const html = await (await fetch("/index.html", { cache: "no-store" })).text();
     const a = html.indexOf("const DEMOS = ["), b = html.indexOf("\n];", a);
     demos = Function(`"use strict";return ${html.slice(a + 14, b + 2)}`)();
-    const m = html.match(/const DEMOS_2_PRINCIPAL = (\[[^\]]*\])/); if (m) dos = JSON.parse(m[1]); }
-  catch (e) { console.warn(e); $("#grupos").innerHTML = `<p class="cargando">No se pudieron cargar las demos. Revisá la conexión a internet.</p>`; return; }
+    const m = html.match(/const DEMOS_2_PRINCIPAL = (\[[^\]]*\])/); if (m) dos = JSON.parse(m[1]); } catch (e) { console.warn(e); }
   const grupo = d => /-(3|pro)$/.test(d.id) ? "3" : (/-2$/.test(d.id) || dos.includes(d.id)) ? "2" : "1";
-  const G = [["3", "Demos 3.0"], ["2", "Demos 2.0"], ["1", "Demos básicas"]];
-  let i = 0;
-  $("#grupos").innerHTML = G.map(([k, t]) => { const l = demos.filter(d => grupo(d) === k).sort((a, b) => a.nombre.localeCompare(b.nombre, "es")); if (!l.length) return "";
-    return `<h2>${t} · ${l.length}</h2><div class="fila demos">${l.flatMap(d => (d.links || [{ t: "", url: d.url }]).map(lk => { const [c1, c2] = COLORES[i++ % COLORES.length];
-      return `<button class="t" data-foco data-url="/${esc(lk.url)}" style="--c1:${c1};--c2:${c2}"><span class="ini">${ICONOS[d.ic] || "✨"}</span>${lk.t ? `<em>${esc(lk.t)}</em>` : ""}<b>${esc(d.nombre.replace(/ \(propuesta\)$/, ""))}</b><span>${esc(d.tipo)}</span></button>`; })).join("")}</div>`; }).join("");
+  const G = [["3", "Demos 3.0 · las más nuevas"], ["2", "Demos 2.0 · animadas"], ["1", "Demos básicas"]];
+  let h = fila("Inicio", INICIO.map(it => tile(it, true)).join(""));
+  for (const [k, t] of G) { const l = demos.filter(d => grupo(d) === k).sort((a, b) => a.nombre.localeCompare(b.nombre, "es")); if (!l.length) continue;
+    h += fila(`${t} · ${l.length}`, l.flatMap(d => (d.links || [{ t: "", url: d.url }]).map(lk => tile({ nombre: d.nombre.replace(/ \(propuesta\)$/, ""), url: "/" + lk.url, emoji: emojiDe(d), etq: lk.t,
+      ceja: t.split(" · ")[0], desc: d.desc, chips: [d.tipo, ...(lk.t ? [lk.t] : []), ...(lk.nota ? [lk.nota + " · clave demo1234"] : [])] }))).join("")); }
+  $("#filasIn").innerHTML = h;
   let ult = null; try { ult = sessionStorage.getItem("tv-foco"); } catch {}
-  const el = ult && [...document.querySelectorAll("[data-url]")].find(x => x.dataset.url === ult);
-  if (el) { el.focus({ preventScroll: true }); el.scrollIntoView({ block: "center" }); } else TV.foco();
+  const el = ult && document.querySelector(`.t[data-url="${CSS.escape(ult)}"]`);
+  (el || document.querySelector(".t")).focus({ preventScroll: true });
 }
-TV.foco(); cargar();
+
+// la portada sigue al cuadro seleccionado y muestra la página en vivo
+let tVista = null, actual = null;
+function portada(btn){
+  const it = items.get(btn.dataset.id); if (!it || it === actual) return; actual = it;
+  const info = $("#info"); info.classList.add("cambia");
+  setTimeout(() => { $("#hCeja").textContent = it.ceja || "Demo"; $("#hT").textContent = it.nombre; $("#hD").textContent = it.desc || "";
+    $("#hC").innerHTML = `<span class="ok">OK para abrir</span>` + (it.chips || []).filter(Boolean).map(c => `<span>${esc(c)}</span>`).join(""); info.classList.remove("cambia"); }, 180);
+  document.querySelector("#aurora").style.cssText = `--c1:${it.c1};--c2:${it.c2}`;
+  const v = $("#vista"); v.style.setProperty("--c1", it.c1); v.style.setProperty("--c2", it.c2);
+  $("#vArte").textContent = it.emoji; $("#vArte").classList.remove("fuera");
+  $("#vUrl").textContent = it.url.startsWith("http") ? it.url.replace(/^https?:\/\//, "").replace(/\/$/, "") : "rbmsolutionscr.com" + it.url.replace(/\/$/, "");
+  $("#marco").innerHTML = ""; clearTimeout(tVista);
+  if (it.sinVista) return;
+  tVista = setTimeout(() => {   // espera a que se quede quieto para no cargar páginas de más
+    const f = document.createElement("iframe"); f.tabIndex = -1; f.setAttribute("aria-hidden", "true"); f.loading = "eager";
+    f.src = it.url.replace("#admin", "");
+    const ajustar = () => { const m = $("#marco"); f.style.transform = `scale(${m.clientWidth / 1280})`; };
+    f.onload = () => { ajustar(); setTimeout(() => { f.classList.add("lista"); $("#vArte").classList.add("fuera"); }, 350); };
+    $("#marco").append(f); ajustar();
+  }, 650);
+}
+// mueve las filas para que la seleccionada quede arriba, y el carril para que se vea el cuadro
+function acomodar(btn){
+  const filaEl = btn.closest(".fila"), filas = [...document.querySelectorAll(".fila")], i = filas.indexOf(filaEl);
+  filas.forEach(f => f.classList.toggle("activa", f === filaEl));
+  $("#filasIn").style.transform = `translateY(${-filaEl.offsetTop}px)`;
+  const c = btn.parentElement, x = btn.offsetLeft - c.clientWidth * .5 + btn.offsetWidth * .5; c.scrollTo({ left: Math.max(0, x - c.clientWidth * .18), behavior: "smooth" });
+}
+// un "tic" suave al moverse, como en los televisores
+let ctx = null; function tic(){ try { ctx = ctx || new (window.AudioContext || window.webkitAudioContext)(); const o = ctx.createOscillator(), g = ctx.createGain(); o.type = "sine"; o.frequency.value = 1400;
+  g.gain.setValueAtTime(.025, ctx.currentTime); g.gain.exponentialRampToValueAtTime(.0001, ctx.currentTime + .05); o.connect(g); g.connect(ctx.destination); o.start(); o.stop(ctx.currentTime + .06); } catch {} }
+document.addEventListener("focusin", e => { const b = e.target.closest(".t"); if (!b) return; acomodar(b); portada(b); tic(); });
+document.addEventListener("click", e => { const t = e.target.closest("[data-url]"); if (!t) return; try { sessionStorage.setItem("tv-foco", t.dataset.url); } catch {} location.href = t.dataset.url; });
+addEventListener("resize", () => { const f = $("#marco iframe"); if (f) f.style.transform = `scale(${$("#marco").clientWidth / 1280})`; const a = document.activeElement; if (a?.classList.contains("t")) acomodar(a); });
+cargar();
 })();
 </script>
 </body>

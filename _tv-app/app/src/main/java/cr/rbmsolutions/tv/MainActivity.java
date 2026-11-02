@@ -23,6 +23,8 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 /**
@@ -40,6 +42,7 @@ public class MainActivity extends Activity {
     WebView web;
     CursorView cursor;
     TextView aviso;
+    View portada;   // pantalla con la marca mientras carga la primera página
     boolean puntero = false;          // modo puntero activo
     boolean elegidoAMano = false;     // el usuario cambió el modo en esta página
     long okDesde = 0;                 // cuándo se apretó OK (para detectar "mantener")
@@ -81,6 +84,7 @@ public class MainActivity extends Activity {
             }
             @Override
             public void onPageFinished(WebView v, String url) {
+                quitarPortada();
                 if (!elegidoAMano) cambiarModo(!esPaginaTv(url), false);
             }
             @Override
@@ -110,6 +114,33 @@ public class MainActivity extends Activity {
         lp.bottomMargin = 40;
         raiz.addView(aviso, lp);
 
+        // portada con la marca
+        LinearLayout pt = new LinearLayout(this);
+        pt.setOrientation(LinearLayout.VERTICAL);
+        pt.setGravity(Gravity.CENTER);
+        pt.setBackgroundColor(Color.parseColor("#04070f"));
+        ImageView logo = new ImageView(this);
+        logo.setImageResource(R.mipmap.ic_launcher);
+        int t = (int) (110 * getResources().getDisplayMetrics().density);
+        pt.addView(logo, new LinearLayout.LayoutParams(t, t));
+        TextView nom = new TextView(this);
+        nom.setText("RBM Solutions");
+        nom.setTextColor(Color.WHITE);
+        nom.setTextSize(30);
+        nom.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
+        nom.setPadding(0, 28, 0, 6);
+        pt.addView(nom);
+        TextView sub = new TextView(this);
+        sub.setText("P Á G I N A S   Y   D E M O S");
+        sub.setTextColor(Color.parseColor("#7cc0ff"));
+        sub.setTextSize(13);
+        pt.addView(sub);
+        portada = pt;
+        raiz.addView(pt, new FrameLayout.LayoutParams(-1, -1));
+        logo.setScaleX(.6f); logo.setScaleY(.6f); logo.setAlpha(0f);
+        logo.animate().scaleX(1f).scaleY(1f).alpha(1f).setDuration(700).start();
+        h.postDelayed(this::quitarPortada, 6000);
+
         setContentView(raiz);
         if (b != null) web.restoreState(b); else web.loadUrl(INICIO);
     }
@@ -117,6 +148,12 @@ public class MainActivity extends Activity {
     @Override protected void onSaveInstanceState(Bundle b) { super.onSaveInstanceState(b); web.saveState(b); }
     @Override protected void onPause() { super.onPause(); web.onPause(); CookieManager.getInstance().flush(); }
     @Override protected void onResume() { super.onResume(); web.onResume(); }
+
+    void quitarPortada() {
+        if (portada == null) return;
+        final View p = portada; portada = null;
+        h.postDelayed(() -> p.animate().alpha(0f).setDuration(500).withEndAction(() -> ((FrameLayout) p.getParent()).removeView(p)).start(), 600);
+    }
 
     static boolean esPaginaTv(String url) {
         return url == null || url.startsWith("file:") || url.contains("rbmsolutionscr.com/tv/") || url.endsWith("rbmsolutionscr.com/tv");

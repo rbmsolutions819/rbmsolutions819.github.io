@@ -16,6 +16,7 @@
       if (!ok) continue;
       const h = dir === "r" || dir === "l", p = h ? Math.abs(dx) : Math.abs(dy), s = h ? Math.abs(dy) : Math.abs(dx), d = p + s * 2.2;
       if (d < md) { md = d; mejor = e; } }
+    if (mejor && document.body.hasAttribute("data-propio")) { mejor.focus({ preventScroll: true }); return; }
     if (mejor) { mejor.focus({ preventScroll: true }); mejor.scrollIntoView({ block: "nearest", inline: "nearest", behavior: "smooth" });
       if (mejor.getBoundingClientRect().top < innerHeight * .12) scrollBy({ top: -innerHeight * .15, behavior: "smooth" }); }
   }
