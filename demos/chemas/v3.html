@@ -1,0 +1,1027 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0a0d14">
+<title>Chemas Collector CR · Camisas de fútbol (demo 3.0)</title>
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap">
+<style>svg.i{width:1em;height:1em;vertical-align:-.14em;flex:none;display:inline-block}
+/* Chemas Collector: fondo oscuro como sus historias, azul eléctrico y los colores de su tabla de pedidos
+   (naranja = versión, celeste = local/visita, verde = manga, rosado = talla). */
+:root{--fondo:#0a0d14;--panel:#121826;--panel2:#19213a;--linea:#26304a;--texto:#eef1f8;--suave:#98a2bd;--azul:#3b6cff;--azul2:#2550d9;
+  --naranja:#f6a623;--celeste:#29a8e0;--verde:#2ecc71;--rosa:#ff2e93;--oro:#ffd23f;
+  --f-t:"Bebas Neue","Impact","Arial Narrow",sans-serif;--f-x:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--fondo);color:var(--texto);font:400 16px/1.55 var(--f-x);-webkit-font-smoothing:antialiased}
+[hidden]{display:none!important}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+img{max-width:100%}
+a{color:var(--celeste)}
+:focus-visible{outline:2px solid var(--celeste);outline-offset:2px;border-radius:6px}
+.wrap{max-width:1100px;margin:0 auto;padding:0 16px}
+h1,h2,h3{font-family:var(--f-t);font-weight:400;line-height:.95;margin:0;letter-spacing:.02em}
+.k{font:800 12px var(--f-x);letter-spacing:.16em;text-transform:uppercase;color:var(--celeste)}
+.demo{background:#000;color:var(--suave);font-size:12.5px;text-align:center;padding:7px 12px;padding-top:calc(7px + env(safe-area-inset-top,0px))}
+.demo b{color:#fff}
+
+/* encabezado */
+.top{position:sticky;top:0;z-index:20;background:rgba(10,13,20,.9);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--linea)}
+.top .wrap{display:flex;align-items:center;gap:12px;height:62px}
+.marca{display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--texto);min-width:0;overflow:hidden}
+.marca svg{width:32px;height:32px;flex:none}
+.marca b{font:400 clamp(19px,5.4vw,26px)/1 var(--f-t);letter-spacing:.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.marca b span{color:var(--azul)}
+.hamb{flex:none;width:40px;height:40px;border-radius:10px;border:1px solid var(--linea);background:var(--panel);font-size:20px;line-height:1}
+.lat-velo{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:44}
+.lateral{position:fixed;top:0;bottom:0;left:0;width:min(300px,84vw);background:var(--panel);border-right:1px solid var(--linea);z-index:45;padding:calc(14px + env(safe-area-inset-top,0px)) 14px 20px;display:flex;flex-direction:column;gap:10px;box-shadow:20px 0 40px -20px rgba(0,0,0,.8);animation:entra .2s ease-out}
+@keyframes entra{from{transform:translateX(-100%)}to{transform:none}}
+.lat-cab{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-bottom:10px;border-bottom:1px solid var(--linea)}
+.lat-cab b{font:400 24px/1 var(--f-t);letter-spacing:.04em}.lat-cab b span{color:var(--azul)}
+.lat-item{display:flex;align-items:center;gap:10px;width:100%;border:1px solid var(--linea);background:var(--panel2);border-radius:12px;padding:14px;font:700 15px var(--f-x);text-align:left}
+.lat-item:hover{border-color:var(--azul)}
+.top nav{margin-left:auto;display:none;gap:4px}
+@media(min-width:820px){.top nav{display:flex}}
+.top nav a{text-decoration:none;color:var(--suave);font-weight:600;font-size:14px;padding:6px 12px;border-radius:999px}
+.top nav a:hover{background:var(--panel);color:var(--texto)}
+.btn-pedido{flex:none;margin-left:auto;border:0;background:var(--azul);color:#fff;border-radius:999px;padding:10px 16px;font:700 14px var(--f-x);white-space:nowrap;box-shadow:0 8px 20px -6px rgba(59,108,255,.6)}
+@media(min-width:820px){.btn-pedido{margin-left:8px}}
+.btn-pedido i{font-style:normal;background:#fff;color:var(--azul2);border-radius:999px;padding:0 7px;margin-left:6px;font-size:12px}
+
+/* portada */
+.hero{position:relative;overflow:hidden;padding:34px 0 28px;background:radial-gradient(520px 360px at 85% 20%,rgba(59,108,255,.35),transparent 70%),radial-gradient(420px 300px at 0% 100%,rgba(255,46,147,.16),transparent 70%)}
+.hero .wrap{display:grid;gap:22px;align-items:center}
+@media(min-width:860px){.hero .wrap{grid-template-columns:1.1fr 1fr}}
+.hero .wrap>div{min-width:0}
+.pill{display:inline-flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--linea);border-radius:999px;padding:6px 14px 6px 6px;font-weight:600;font-size:13.5px}
+.pill b{background:var(--oro);color:#1a1400;border-radius:999px;padding:3px 10px;font:800 11px var(--f-x);letter-spacing:.08em}
+.hero h1{font-size:clamp(56px,13vw,96px);margin-top:14px}
+.hero h1 span{color:var(--azul)}
+.hero p{color:var(--suave);font-size:17px;max-width:520px;margin:10px 0 0}
+.tipos{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.tipos span{font:800 12px var(--f-x);letter-spacing:.08em;text-transform:uppercase;padding:6px 12px;border-radius:6px}
+.t-retro{background:#3a2a10;color:var(--oro)}.t-fan{background:#0f2a3a;color:var(--celeste)}.t-player{background:#3a240a;color:var(--naranja)}
+.acc{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
+.b{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:999px;padding:13px 20px;font:700 15px var(--f-x);text-decoration:none;border:0}
+.b-azul{background:var(--azul);color:#fff;box-shadow:0 10px 24px -8px rgba(59,108,255,.7)}
+.b-claro{background:var(--panel);border:1px solid var(--linea);color:var(--texto)}
+.b-ig{background:linear-gradient(45deg,#f9a825,#e91e63 45%,#7b2ff7);color:#fff}
+.b-bloque{width:100%}
+.vitrina{position:relative;display:flex;justify-content:center;align-items:flex-end;min-height:250px}
+.vitrina .fig{width:36%;max-width:200px;filter:drop-shadow(0 18px 22px rgba(0,0,0,.55))}
+.vitrina .fig:nth-child(2){width:42%;max-width:230px;margin:0 -5%;z-index:1;transform:translateY(-10px)}
+.encargo{display:grid;gap:4px;background:var(--panel);border:1px solid var(--linea);border-left:4px solid var(--azul);border-radius:14px;padding:12px 14px;margin-top:18px;max-width:520px}
+.encargo b{font-size:15px}
+.encargo span{color:var(--suave);font-size:14px}
+
+section{padding:44px 0}
+.cab{margin-bottom:18px}
+.cab h2{font-size:clamp(40px,9vw,58px);margin-top:6px}
+.cab p{color:var(--suave);margin:6px 0 0}
+
+/* filtros y tarjetas */
+.chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px;margin-bottom:12px}
+.chips::-webkit-scrollbar{display:none}
+.chips button{flex:none;border:1px solid var(--linea);background:var(--panel);color:var(--suave);border-radius:999px;padding:8px 15px;font:700 13.5px var(--f-x)}
+.chips button.si{background:var(--texto);border-color:var(--texto);color:var(--fondo)}
+.buscar{width:100%;border:1px solid var(--linea);background:var(--panel);border-radius:12px;padding:12px 14px;margin-bottom:16px;font-size:15px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media(min-width:760px){.grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}}
+@media(min-width:1000px){.grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.card{background:var(--panel);border:1px solid var(--linea);border-radius:18px;overflow:hidden;display:flex;flex-direction:column;position:relative;cursor:pointer;transition:transform .15s,border-color .15s}
+.card:hover{transform:translateY(-2px);border-color:var(--azul)}
+.card .ft{aspect-ratio:1;background:radial-gradient(circle at 50% 40%,var(--panel2),var(--fondo) 75%);display:grid;place-items:center;overflow:hidden}
+.card .ft img{width:100%;height:100%;object-fit:cover}
+.card .ft svg{width:78%;height:auto;filter:drop-shadow(0 12px 14px rgba(0,0,0,.5))}
+.card .in{padding:10px 12px 12px;display:grid;gap:4px;flex:1;align-content:start}
+.card h3{font-size:22px;letter-spacing:.03em}
+.card .d{font-size:12.5px;color:var(--suave)}
+.prs{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:6px;margin-top:4px}
+.prs span{display:grid;background:var(--panel2);border-radius:8px;padding:5px 7px;line-height:1.25}
+.prs small{color:var(--suave);font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prs b{font-size:14.5px}
+.res-q{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--linea);border-radius:12px;padding:9px 12px;margin-bottom:12px;font-size:14px}
+.res-q button{border:0;background:none;color:var(--celeste);font-weight:700;font-size:13.5px;white-space:nowrap}
+.hbusca{display:flex;gap:8px;margin-top:18px;max-width:520px}
+.hbusca input{flex:1;min-width:0;border:1px solid var(--linea);background:var(--panel);border-radius:999px;padding:13px 18px;font-size:16px}
+.hbusca button{border:0;background:var(--azul);color:#fff;border-radius:999px;padding:0 20px;font:700 15px var(--f-x)}
+.equipos{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;max-width:520px}
+.equipos button{border:1px solid var(--linea);background:transparent;color:var(--suave);border-radius:999px;padding:6px 12px;font:600 13px var(--f-x)}
+.equipos button:hover{color:var(--texto);border-color:var(--azul)}
+.tag{position:absolute;top:8px;left:8px;font:800 10.5px var(--f-x);letter-spacing:.08em;text-transform:uppercase;padding:4px 8px;border-radius:6px;z-index:1}
+.tag.ya{background:var(--verde);color:#062012}
+.tag.enc{background:var(--panel2);color:var(--suave);border:1px solid var(--linea)}
+.tag.ret{background:var(--oro);color:#1a1400}
+
+/* incluye */
+.incluye{display:grid;gap:10px;grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(min-width:760px){.incluye{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.incluye div{background:var(--panel);border:1px solid var(--linea);border-radius:16px;padding:14px;display:grid;gap:4px}
+.incluye i{font-style:normal;font-size:24px}
+.incluye b{font-size:15px}
+.incluye span{color:var(--suave);font-size:13.5px}
+
+/* buscar chema */
+.busca{background:linear-gradient(135deg,#1b2a64,#2a1240);border:1px solid #3a4a8a;border-radius:24px;padding:22px 18px;display:grid;gap:16px}
+@media(min-width:860px){.busca{grid-template-columns:1fr 1.1fr;padding:30px}}
+.busca h2{font-size:clamp(40px,9vw,56px)}
+.busca p{color:#c9d1ee;margin:6px 0 0}
+.emoji{font-size:52px;line-height:1}
+.foto-ref{border:2px dashed #5b6bb0;border-radius:16px;min-height:120px;display:grid;place-items:center;text-align:center;padding:12px;cursor:pointer;color:#c9d1ee;background:rgba(0,0,0,.2);position:relative;overflow:hidden}
+.foto-ref img{max-height:220px;border-radius:10px}
+.foto-ref input{position:absolute;inset:0;opacity:0;cursor:pointer}
+
+/* tallas */
+.tabla-wrap{overflow-x:auto;background:var(--panel);border:1px solid var(--linea);border-radius:16px;padding:4px}
+table{border-collapse:collapse;width:100%;font-size:14.5px}
+th,td{padding:10px 6px;text-align:center;border-bottom:1px solid var(--linea)}
+th{font:800 12px var(--f-x);letter-spacing:.08em;text-transform:uppercase;color:var(--suave)}
+td:first-child{font:800 16px var(--f-x);color:var(--rosa)}
+tr:last-child td{border-bottom:0}
+.dos-t{display:grid;gap:14px}
+@media(min-width:860px){.dos-t{grid-template-columns:1fr 1fr}}
+.dos-t h3{font-size:26px;margin-bottom:8px}
+.nota{font-size:13px;color:var(--suave);margin-top:8px}
+.guia-img{border-radius:16px;border:1px solid var(--linea);display:block;margin-bottom:12px}
+
+/* pasos */
+.pasos{display:grid;gap:10px;counter-reset:p}
+@media(min-width:760px){.pasos{grid-template-columns:repeat(4,1fr)}}
+.pasos div{background:var(--panel);border:1px solid var(--linea);border-radius:16px;padding:16px}
+.pasos div::before{counter-increment:p;content:counter(p);width:34px;height:34px;border-radius:50%;background:var(--azul);color:#fff;display:grid;place-items:center;font:800 16px var(--f-x);margin-bottom:8px}
+.pasos b{display:block;font-size:15px}
+.pasos span{color:var(--suave);font-size:13.5px}
+footer{border-top:1px solid var(--linea);text-align:center;padding:30px 16px 110px;font-size:14px;color:var(--suave)}
+footer button{background:none;border:0;color:var(--suave);font-size:13px;margin-top:14px;text-decoration:underline}
+.ig-flot{position:fixed;right:16px;bottom:18px;z-index:30;width:58px;height:58px;border-radius:50%;background:linear-gradient(45deg,#f9a825,#e91e63 45%,#7b2ff7);display:grid;place-items:center;box-shadow:0 10px 30px rgba(0,0,0,.45)}
+.ig-flot svg{width:28px;height:28px}
+
+/* hojas */
+.velo{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:50;display:flex;align-items:flex-end;justify-content:center}
+@media(min-width:760px){.velo{align-items:center}}
+.hoja{background:var(--fondo);border:1px solid var(--linea);width:100%;max-width:580px;max-height:94vh;overflow:auto;border-radius:22px 22px 0 0;padding:18px 16px calc(26px + env(safe-area-inset-bottom,0px))}
+@media(min-width:760px){.hoja{border-radius:22px}}
+.hoja-cab{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.hoja-cab h3{font-size:30px}
+.x{border:0;background:var(--panel2);width:38px;height:38px;border-radius:50%;font-size:20px;flex:none}
+.prev{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:4px}
+.prev .ft{aspect-ratio:1;border-radius:14px;background:radial-gradient(circle at 50% 40%,var(--panel2),var(--fondo) 75%);display:grid;place-items:center;overflow:hidden;position:relative}
+.prev .ft svg{width:84%}
+.prev .ft img{width:100%;height:100%;object-fit:cover}
+.prev .ft small{position:absolute;bottom:6px;left:0;right:0;text-align:center;font-size:11px;color:var(--suave);font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.prev .zoom{border:1px solid var(--linea);padding:0;cursor:zoom-in;width:100%}
+.prev .zoom:hover{border-color:var(--azul)}
+.visor{position:fixed;inset:0;z-index:80;background:rgba(0,0,0,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:20px;cursor:zoom-out}
+.visor-img{width:min(92vw,620px);aspect-ratio:1;border-radius:18px;overflow:hidden;background:radial-gradient(circle at 50% 40%,var(--panel2),var(--fondo) 75%);display:grid;place-items:center}
+.visor-img img{width:100%;height:100%;object-fit:contain}
+.visor-img svg{width:86%;height:auto}
+.visor p{color:var(--suave);font-size:13px;margin:0;text-align:center}
+.visor-x{position:absolute;top:calc(14px + env(safe-area-inset-top,0px));right:14px}
+.lbl{font:800 12px var(--f-x);letter-spacing:.08em;text-transform:uppercase;color:var(--suave);margin:14px 0 7px}
+.ops{display:flex;flex-wrap:wrap;gap:7px}
+.ops button{border:1px solid var(--linea);background:var(--panel);border-radius:10px;padding:9px 13px;font:700 14px var(--f-x)}
+.ops button small{display:block;font-weight:600;font-size:11.5px;color:var(--suave)}
+.ops button.si{border-color:transparent;color:#0a0d14}
+.ops button.si small{color:inherit;opacity:.75}
+.ops.ver button.si{background:var(--naranja)}.ops.kit button.si{background:var(--celeste)}.ops.man button.si{background:var(--verde)}.ops.tal button.si{background:var(--rosa);color:#fff}.ops.pos button.si{background:var(--oro)}
+.ops button:disabled{opacity:.35;text-decoration:line-through;cursor:default}
+.ops.tal button{min-width:52px}
+.campo{display:grid;gap:5px;margin-bottom:10px}
+.campo label{font-size:13px;color:var(--suave);font-weight:700}
+.campo input,.campo select,.campo textarea{width:100%;border:1px solid var(--linea);background:var(--panel);border-radius:10px;padding:11px 12px;font-size:16px}
+.fila2{display:grid;grid-template-columns:1fr 92px;gap:10px}
+.fila3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.precio-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:16px 0 10px;padding-top:12px;border-top:1px solid var(--linea)}
+.precio-h b{font:800 26px var(--f-x)}
+.err{color:var(--rosa);font-size:14px;min-height:20px;margin:4px 0;font-weight:600}
+.aviso{background:var(--panel);border:1px dashed var(--linea);border-radius:12px;padding:10px 12px;font-size:13.5px;color:var(--suave);margin:10px 0}
+.aviso b{color:var(--texto)}
+/* pedido tipo tabla, con los mismos colores que usa Chemas */
+.item{background:var(--panel);border:1px solid var(--linea);border-radius:14px;padding:10px 12px;margin-bottom:8px;display:grid;gap:8px}
+.item .t{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.item .t b{font-size:15px}
+.item .t button{border:0;background:none;color:var(--rosa);font-size:13px;font-weight:700}
+.cel{display:flex;flex-wrap:wrap;gap:5px}
+.cel span{font:800 11px var(--f-x);letter-spacing:.05em;text-transform:uppercase;padding:4px 8px;border-radius:5px;color:#0a0d14}
+.c-v{background:var(--naranja)}.c-k{background:var(--celeste)}.c-m{background:var(--verde)}.c-t{background:var(--rosa);color:#fff!important}.c-n{background:var(--panel2);color:var(--texto)!important;border:1px solid var(--linea)}.c-p{background:var(--oro)}
+.res{display:grid;gap:4px;margin:12px 0}
+.res div{display:flex;justify-content:space-between}
+.res .total{font:800 22px var(--f-x);margin-top:4px}
+.res .adel{color:var(--celeste);font-weight:700}
+.msj{width:100%;min-height:150px;border:1px solid var(--linea);background:var(--panel);border-radius:12px;padding:10px;font:500 13px/1.45 ui-monospace,Menlo,Consolas,monospace;color:var(--suave)}
+
+/* administración */
+.admin{position:fixed;inset:0;z-index:40;background:var(--fondo);overflow:auto}
+.admin-top{position:sticky;top:0;background:#000;border-bottom:1px solid var(--linea);z-index:2}
+.admin-top .wrap{display:flex;align-items:center;gap:10px;height:58px}
+.admin-top b{font:400 24px var(--f-t);letter-spacing:.04em}
+.admin-top button{margin-left:auto;border:1px solid var(--linea);background:none;border-radius:999px;padding:7px 14px;font-size:14px}
+.tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:14px 0 6px}
+.tabs button{flex:none;border:1px solid var(--linea);background:var(--panel);border-radius:999px;padding:8px 15px;font:700 14px var(--f-x)}
+.tabs button.si{background:var(--azul);border-color:var(--azul);color:#fff}
+.alist{display:grid;gap:8px;margin:12px 0 40px}
+.arow{display:flex;gap:12px;align-items:center;background:var(--panel);border:1px solid var(--linea);border-radius:14px;padding:8px 10px}
+.arow .mini{width:56px;height:56px;border-radius:10px;overflow:hidden;background:var(--panel2);display:grid;place-items:center;flex:none}
+.arow .mini svg{width:84%}
+.arow .mini img{width:100%;height:100%;object-fit:cover}
+.arow .tx{flex:1;min-width:0}
+.arow .tx b{display:block;font-size:15px}
+.arow .tx span{font-size:12.5px;color:var(--suave)}
+.arow button{border:1px solid var(--linea);background:none;border-radius:999px;padding:6px 12px;font-size:13px}
+.inv .tl{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.inv .tl button{border:1px solid var(--linea);background:var(--panel2);border-radius:8px;padding:5px 10px;font:700 13px var(--f-x)}
+.inv .tl button.si{background:var(--verde);border-color:var(--verde);color:#062012}
+.check{display:flex;gap:8px;align-items:center;font-size:15px;margin:6px 0}
+.check input{width:20px;height:20px;accent-color:var(--azul)}
+.aviso-demo{background:var(--panel2);border:1px solid var(--linea);border-radius:12px;padding:12px 14px;font-size:14px;margin-top:12px}
+.toast{position:fixed;left:50%;bottom:92px;transform:translateX(-50%);background:var(--texto);color:var(--fondo);padding:10px 18px;border-radius:999px;font-size:14px;font-weight:700;z-index:90;box-shadow:0 10px 30px rgba(0,0,0,.4);max-width:calc(100% - 32px);text-align:center}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.card{transition:none}}
+
+/* RBM-ANCHO: en computadora la página usa todo el ancho */
+@media (min-width:1100px){.grid{grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}.wrap{max-width:1680px!important;padding-left:clamp(32px,4.5vw,96px)!important;padding-right:clamp(32px,4.5vw,96px)!important}}
+
+/* ===================== CHEMAS 2.0 ===================== */
+html{overflow-x:hidden}
+.progreso{position:fixed;top:0;left:0;right:0;height:3px;z-index:80;background:linear-gradient(90deg,var(--azul),var(--celeste),var(--rosa));transform:scaleX(0);transform-origin:0 50%;pointer-events:none}
+.top .wrap{transition:height .3s}
+.top.min .wrap{height:54px}
+/* portada tipo estadio */
+.hero{isolation:isolate;padding:40px 0 44px}
+.cancha{position:absolute;inset:0;z-index:-2;opacity:.13;background:
+  radial-gradient(circle at 72% 50%,transparent 118px,#fff 119px,#fff 121px,transparent 122px),
+  linear-gradient(90deg,transparent calc(72% - 1px),#fff calc(72% - 1px),#fff calc(72% + 1px),transparent calc(72% + 1px));
+  -webkit-mask-image:radial-gradient(ellipse 60% 70% at 70% 50%,#000,transparent 75%);mask-image:radial-gradient(ellipse 60% 70% at 70% 50%,#000,transparent 75%)}
+.luz{position:absolute;top:-30%;width:38%;height:160%;z-index:-1;pointer-events:none;background:linear-gradient(180deg,rgba(160,190,255,.22),rgba(160,190,255,0) 70%);filter:blur(8px);transform-origin:50% 0;mix-blend-mode:screen}
+.luz.l1{left:10%;animation:barre 9s ease-in-out infinite alternate;clip-path:polygon(45% 0,55% 0,100% 100%,0 100%)}
+.luz.l2{right:2%;animation:barre 11s ease-in-out -4s infinite alternate-reverse;clip-path:polygon(45% 0,55% 0,100% 100%,0 100%)}
+.hero h1{animation:sube .9s .1s cubic-bezier(.2,.7,.2,1) backwards}
+.hero h1 span{background:linear-gradient(100deg,var(--azul) 20%,var(--celeste) 40%,#fff 50%,var(--celeste) 60%,var(--azul) 80%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:brillo 5s linear 1s infinite}
+.hero .wrap>div:first-child>*:not(h1){animation:sube .9s cubic-bezier(.2,.7,.2,1) backwards}
+.hero .wrap>div:first-child>:nth-child(1){animation-delay:0s}.hero .wrap>div:first-child>:nth-child(3){animation-delay:.2s}.hero .wrap>div:first-child>:nth-child(4){animation-delay:.3s}.hero .wrap>div:first-child>:nth-child(6){animation-delay:.4s}.hero .wrap>div:first-child>:nth-child(7){animation-delay:.48s}.hero .wrap>div:first-child>:nth-child(8){animation-delay:.56s}.hero .wrap>div:first-child>:nth-child(9){animation-delay:.64s}.hero .wrap>div:first-child>:nth-child(10){animation-delay:.72s}
+.vitrina{min-height:300px;perspective:900px}
+.vitrina::after{content:"";position:absolute;left:12%;right:12%;bottom:-4px;height:34px;border-radius:50%;background:radial-gradient(ellipse,rgba(59,108,255,.55),transparent 70%);filter:blur(6px);z-index:-1;animation:piso 4s ease-in-out infinite}
+.vitrina .fig{animation:flota 5s ease-in-out infinite;transform-style:preserve-3d}
+.vitrina .fig:nth-child(1){animation-delay:-1.2s}.vitrina .fig:nth-child(3){animation-delay:-2.6s}
+.vitrina .fig:nth-child(2){animation-name:flota2}
+.vitrina .fig svg{transition:transform .9s cubic-bezier(.2,.7,.2,1)}
+.vitrina.gira .fig svg{transform:rotateY(90deg)}
+.vitrina .fig:nth-child(2) svg{transition-delay:.08s}.vitrina .fig:nth-child(3) svg{transition-delay:.16s}
+.marcador{display:inline-grid;gap:8px;margin-top:20px;background:#05070c;border:1px solid var(--linea);border-radius:16px;padding:12px 16px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.03),0 14px 30px -18px rgba(59,108,255,.7)}
+.marcador small{font:800 11px var(--f-x);letter-spacing:.16em;text-transform:uppercase;color:var(--suave)}
+.marcador .dig{display:flex;gap:8px;align-items:flex-start}
+.marcador .dig div{display:grid;justify-items:center;gap:2px;min-width:52px}
+.marcador .dig b{font:400 40px/1 var(--f-t);letter-spacing:.04em;color:var(--oro);background:#0d1220;border:1px solid #20283e;border-radius:8px;padding:6px 8px 2px;min-width:52px;text-align:center;text-shadow:0 0 14px rgba(255,210,63,.55);font-variant-numeric:tabular-nums}
+.marcador .dig span{font-size:10.5px;font-weight:700;color:var(--suave);text-transform:uppercase;letter-spacing:.08em}
+.marcador .dig i{font:400 36px/1 var(--f-t);color:#4a5578;font-style:normal;padding-top:6px;animation:parpadea 1s steps(1) infinite}
+.marcador.hoy b{color:var(--verde);text-shadow:0 0 14px rgba(46,204,113,.6)}
+/* cintas con equipos */
+.cintas{display:grid;gap:0;border-block:1px solid var(--linea);background:#070a11;overflow:hidden}
+.mq{display:flex;width:max-content;animation:corre 90s linear infinite}
+.mq.rev{animation-direction:reverse}
+.mq span{font:400 clamp(30px,6vw,52px)/1 var(--f-t);letter-spacing:.04em;padding:12px 0 10px 28px;white-space:nowrap;display:inline-flex;align-items:center;gap:28px}
+.mq span::after{content:"";width:12px;height:12px;border-radius:50%;background:var(--azul);box-shadow:0 0 12px var(--azul)}
+.mq.contorno span{color:transparent;-webkit-text-stroke:1.3px #58648a}
+.mq.contorno span::after{background:var(--rosa);box-shadow:0 0 12px var(--rosa)}
+.cintas:hover .mq{animation-play-state:paused}
+/* cifras */
+.cifras{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media(min-width:760px){.cifras{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.cifras div{background:linear-gradient(160deg,var(--panel2),var(--panel));border:1px solid var(--linea);border-radius:18px;padding:16px;display:grid;gap:2px;position:relative;overflow:hidden}
+.cifras div::before{content:"";position:absolute;inset:auto -30% -60% auto;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(59,108,255,.35),transparent 70%)}
+.cifras b{font:400 clamp(44px,9vw,62px)/1 var(--f-t);color:var(--texto)}
+.cifras span{color:var(--suave);font-size:13.5px;font-weight:600}
+.cifras div:nth-child(2) b{color:var(--celeste)}.cifras div:nth-child(3) b{color:var(--verde)}.cifras div:nth-child(4) b{color:var(--oro)}
+/* carrusel de entrega inmediata */
+.ya-sec{padding-bottom:20px}
+.cf{position:relative;height:calc(var(--w) * 1.55 + 34px);--w:clamp(200px,56vw,270px);touch-action:pan-y;user-select:none;outline:0;isolation:isolate;overflow:hidden;margin-inline:-16px}
+.cf-it{position:absolute;top:12px;left:50%;width:var(--w);border:1px solid var(--linea);border-radius:20px;overflow:hidden;padding:0;background:var(--panel);color:var(--texto);text-align:left;display:grid;cursor:pointer;transition:transform .75s cubic-bezier(.2,.75,.2,1),opacity .6s,filter .6s,box-shadow .6s,border-color .6s;will-change:transform;font:inherit}
+.cf-it .ft{height:var(--w);background:radial-gradient(circle at 50% 40%,var(--panel2),var(--fondo) 75%);display:grid;place-items:center;overflow:hidden}
+.cf-it .ft img{width:100%;height:100%;object-fit:cover;pointer-events:none}
+.cf-it .ft svg{width:78%;height:auto;filter:drop-shadow(0 12px 14px rgba(0,0,0,.5))}
+.cf-it .in{padding:12px 14px 14px;display:grid;gap:3px}
+.cf-it h3{font-size:26px}
+.cf-it .d{font-size:13px;color:var(--suave)}
+.cf-it .tl{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px}
+.cf-it .tl i{font:800 11px var(--f-x);font-style:normal;background:rgba(46,204,113,.14);color:var(--verde);border-radius:6px;padding:3px 7px}
+.cf-it:not(.on){filter:brightness(.55) saturate(.8)}
+.cf-it.on{border-color:var(--verde);box-shadow:0 0 0 1px rgba(46,204,113,.5),0 30px 60px -22px rgba(46,204,113,.55)}
+.cf-it.on::after{content:"Tocá para pedirla";position:absolute;top:10px;right:10px;background:var(--verde);color:#062012;font:800 11px var(--f-x);letter-spacing:.04em;padding:5px 9px;border-radius:999px}
+.cf-fl{position:absolute;top:40%;z-index:80;width:48px;height:48px;border-radius:50%;border:1px solid var(--linea);background:rgba(10,13,20,.85);color:#fff;font-size:24px;display:grid;place-items:center;transition:background .2s}
+.cf-fl:hover{background:var(--azul)}
+.cf-fl.izq{left:max(10px,calc(50% - var(--w) * 1.75))}.cf-fl.der{right:max(10px,calc(50% - var(--w) * 1.75))}
+@media(min-width:900px){.cf{--w:clamp(230px,19vw,290px)}}
+/* tarjetas */
+.card{transition:transform .2s ease,border-color .2s,box-shadow .3s,translate .75s cubic-bezier(.2,.7,.2,1) var(--d,0s),opacity .75s ease var(--d,0s)}
+.card:hover{box-shadow:0 20px 40px -18px rgba(59,108,255,.7)}
+.card .ft{position:relative}
+.card .ft::after{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.22) 50%,transparent 65%);transform:translateX(-120%);transition:transform .8s ease;pointer-events:none}
+.card:hover .ft::after{transform:translateX(120%)}
+.card .ft svg{transition:transform .5s cubic-bezier(.2,.7,.2,1)}
+.card:hover .ft svg{transform:scale(1.08) rotate(-3deg)}
+.card .ft img{transition:transform .6s ease}
+.card:hover .ft img{transform:scale(1.06)}
+.tag.ya{animation:pulso 2s ease-in-out infinite}
+/* aparecer al bajar */
+.js .rv{opacity:0;translate:0 34px}
+.js .rv.vis{opacity:1;translate:0 0;transition:opacity .75s ease var(--d,0s),translate .75s cubic-bezier(.2,.7,.2,1) var(--d,0s)}
+.js .card.rv.vis{transition:transform .2s ease,border-color .2s,box-shadow .3s,translate .75s cubic-bezier(.2,.7,.2,1) var(--d,0s),opacity .75s ease var(--d,0s)}
+.busca{position:relative;overflow:hidden;isolation:isolate}
+.busca::before{content:"";position:absolute;inset:-50%;z-index:-1;background:conic-gradient(from 0deg,transparent 0 70%,rgba(255,46,147,.25) 80%,rgba(59,108,255,.25) 90%,transparent);animation:gira 10s linear infinite}
+.busca .emoji{animation:rebota 2.4s ease-in-out infinite;display:inline-block}
+.pasos div{transition:border-color .3s,translate .3s}
+.pasos div:hover{border-color:var(--azul)}
+.ig-flot{animation:latido 2.6s ease-in-out infinite}
+@keyframes sube{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+@keyframes brillo{to{background-position:-250% 0}}
+@keyframes barre{from{transform:rotate(-14deg)}to{transform:rotate(14deg)}}
+@keyframes flota{0%,100%{translate:0 0}50%{translate:0 -10px}}
+@keyframes flota2{0%,100%{translate:0 -10px}50%{translate:0 -22px}}
+@keyframes piso{0%,100%{opacity:.7;transform:scaleX(1)}50%{opacity:1;transform:scaleX(1.08)}}
+@keyframes parpadea{50%{opacity:.25}}
+@keyframes corre{to{transform:translateX(-50%)}}
+@keyframes pulso{0%,100%{box-shadow:0 0 0 0 rgba(46,204,113,.6)}60%{box-shadow:0 0 0 7px rgba(46,204,113,0)}}
+@keyframes gira{to{rotate:360deg}}
+@keyframes rebota{0%,100%{transform:none}50%{transform:translateY(-6px) rotate(-8deg)}}
+@keyframes latido{0%,100%{scale:1}50%{scale:1.08}}
+@media (prefers-reduced-motion:reduce){.js .rv{opacity:1;translate:none}*{animation:none!important}}
+</style>
+<link rel="stylesheet" href="../_3/rbm3.css">
+<script>window.RBM3={"nombre": "Chemas Collector", "mono": "C", "lema": "Camisas de fútbol", "c1": "#3b6cff", "c2": "#7fe3ff", "fondo": "#0a0d14", "tinta": "#eef1f8", "font": "'Bebas Neue',sans-serif", "fx": "confeti", "colores": ["#3b6cff", "#ffffff", "#ffd400", "#e3262e", "#7fe3ff"], "hero": ".hero", "cards": ".card, .item", "tilt": false, "densidad": 0.7}</script>
+<script src="../_3/rbm3.js"></script>
+</head>
+<body>
+<div class="progreso" id="progreso" aria-hidden="true"></div>
+<div class="demo"><b>Página de ejemplo 3.0</b> hecha por RBM Solutions CR · camisas y precios de prueba</div>
+
+<header class="top"><div class="wrap">
+  <button class="hamb" id="hamb" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="lateral"><svg class="i" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+  <a class="marca" href="#" aria-label="Chemas Collector CR, inicio">
+    <svg viewBox="0 0 200 200" aria-hidden="true"><path d="M62 30l22-8q16 14 32 0l22 8 34 26-14 34-18-8v94H60V82l-18 8-14-34z" fill="#3b6cff"/><path d="M84 22q16 18 32 0" fill="none" stroke="#0a0d14" stroke-width="7"/><text x="100" y="140" text-anchor="middle" font-family="Bebas Neue,Impact,sans-serif" font-size="58" fill="#fff">CC</text></svg>
+    <b>CHEMAS <span>COLLECTOR</span></b>
+  </a>
+  <nav><a href="#catalogo">Catálogo</a><a href="#buscar">¿No la encontrás?</a><a href="#tallas">Tallas</a><a href="#como">Cómo pedir</a></nav>
+  <button class="btn-pedido" data-abrir-pedido>Mi pedido<i id="n-pedido">0</i></button>
+</div></header>
+
+<section class="hero"><div class="cancha" aria-hidden="true"></div><span class="luz l1" aria-hidden="true"></span><span class="luz l2" aria-hidden="true"></span><div class="wrap">
+  <div>
+    <span class="pill"><b>ENVÍO GRATIS</b>A todo Costa Rica por Correos de CR</span>
+    <h1>Tu chema, <span>tu equipo</span></h1>
+    <p>Camisas de fútbol de clubes y selecciones. Escogé versión, talla y personalización, y validamos la disponibilidad por Instagram.</p>
+    <form class="hbusca" id="hbusca" role="search"><input id="hq" type="search" placeholder="Poné tu equipo: Real Madrid, Liga, Barça…" aria-label="¿Qué equipo querés?" autocomplete="off" list="lista-equipos"><button type="submit">Buscar</button></form>
+    <datalist id="lista-equipos"></datalist>
+    <div class="equipos" id="equipos"></div>
+    <div class="tipos"><span class="t-retro">Retro</span><span class="t-fan">Fan</span><span class="t-player">Player</span></div>
+    <div class="encargo" id="encargo"></div>
+    <div class="acc"><a class="b b-azul" href="#catalogo">Ver catálogo</a><a class="b b-claro" href="#buscar">¿No encontrás la tuya?</a></div>
+    <div class="marcador" id="marcador" role="timer" aria-live="off"><small>Cierre del próximo encargo</small>
+      <div class="dig"><div><b data-d>00</b><span>días</span></div><i>:</i><div><b data-h>00</b><span>horas</span></div><i>:</i><div><b data-m>00</b><span>min</span></div><i>:</i><div><b data-s>00</b><span>seg</span></div></div></div>
+  </div>
+  <div class="vitrina" id="vitrina"></div>
+</div></section>
+
+<div class="cintas" aria-hidden="true"><div class="mq" id="mq-a"></div><div class="mq rev contorno" id="mq-b"></div></div>
+
+<section style="padding-bottom:10px"><div class="wrap">
+  <div class="cifras"><div><b id="c-cam" data-n="0">0</b><span>camisas en el catálogo</span></div><div><b id="c-eq" data-n="0">0</b><span>clubes y selecciones</span></div><div><b id="c-ya" data-n="0">0</b><span>listas para entrega inmediata</span></div><div><b id="c-ret" data-n="0">0</b><span>joyas retro</span></div></div>
+</div></section>
+
+<section class="ya-sec" id="ya"><div class="wrap">
+  <div class="cab"><div class="k">Entrega inmediata</div><h2>Listas para estrenar ya</h2><p>Deslizá para verlas. Tocá la del centro para escoger talla y pedirla.</p></div>
+  <div class="cf" id="cf" tabindex="0" aria-roledescription="carrusel" aria-label="Camisas de entrega inmediata"><div id="cf-pista"></div>
+    <button type="button" class="cf-fl izq" data-cfm="-1" aria-label="Anterior">‹</button><button type="button" class="cf-fl der" data-cfm="1" aria-label="Siguiente">›</button></div>
+</div></section>
+
+<section id="catalogo" style="padding-top:20px"><div class="wrap">
+  <div class="cab"><div class="k">Catálogo</div><h2>Escogé tu chema</h2><p>Tocá una camisa para escoger versión, talla, nombre y número.</p></div>
+  <div class="chips" id="filtros"></div>
+  <input class="buscar" id="q" type="search" placeholder="Buscar equipo o selección…" aria-label="Buscar equipo o selección">
+  <div class="res-q" id="resQ" hidden></div>
+  <div class="grid" id="grid"></div>
+</div></section>
+
+<section style="padding-top:0"><div class="wrap">
+  <div class="cab"><div class="k">Todas incluyen</div><h2>Sin cobros extra</h2></div>
+  <div class="incluye">
+    <div><i><svg class="i" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/></svg></i><b>Personalización</b><span>Nombre, número y parche.</span></div>
+    <div><i><svg class="i" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.59 2.59A2 2 0 0 0 11.17 2H4a2 2 0 0 0-2 2v7.17a2 2 0 0 0 .59 1.41l8.7 8.7a2.43 2.43 0 0 0 3.42 0l6.58-6.58a2.43 2.43 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/></svg></i><b>Calcomanía</b><span>Del logo de tu equipo.</span></div>
+    <div><i><svg class="i" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="m3 8 9 5 9-5"/><path d="M12 13v8"/></svg></i><b>Cajita</b><span>Lista para regalar.</span></div>
+    <div><i><svg class="i" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.62l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg></i><b>Envío gratis</b><span>Por Correos de CR o mensajero.</span></div>
+  </div>
+</div></section>
+
+<section id="buscar" style="padding-top:0"><div class="wrap">
+  <div class="busca">
+    <div>
+      <div class="emoji"><svg class="i" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg></div>
+      <h2>¿No encontrás la chema que querés?</h2>
+      <p>No te preocupés: mandanos una foto de la que andás buscando y te ayudamos a encontrarla.</p>
+      <p style="margin-top:10px;font-size:14px">Sirve una captura de Instagram, de Google o de un partido.</p>
+    </div>
+    <div>
+      <label class="foto-ref" id="refBox"><span id="refTxt"><b>Tocá para subir la foto</b><br><small>o tomala con la cámara</small></span><input type="file" id="refFoto" accept="image/*" aria-label="Foto de la chema que buscás"></label>
+      <div class="fila3" style="margin-top:10px">
+        <div class="campo"><label for="refEq">Equipo</label><input id="refEq" placeholder="Ej.: Portugal"></div>
+        <div class="campo"><label for="refAn">Año</label><input id="refAn" placeholder="Ej.: 2026"></div>
+        <div class="campo"><label for="refTa">Talla</label><select id="refTa"><option>S</option><option>M</option><option selected>L</option><option>XL</option><option>XXL</option><option>No sé</option></select></div>
+      </div>
+      <div class="campo"><label for="refVe">Versión</label><select id="refVe"><option>Fan</option><option>Player</option><option>Retro</option><option>No sé</option></select></div>
+      <div class="campo"><label for="refNo">Detalles (opcional)</label><input id="refNo" placeholder="Ej.: la negra, con el nombre de Ronaldo 7"></div>
+      <button class="b b-ig b-bloque" id="refEnviar" type="button">Enviar por Instagram</button>
+      <p class="nota" id="refNota" style="color:#c9d1ee;text-align:center"></p>
+    </div>
+  </div>
+</div></section>
+
+<section id="tallas" style="padding-top:0"><div class="wrap">
+  <div class="cab"><div class="k">Guía de tallas</div><h2>Medí antes de pedir</h2><p>Medí una camisa que te quede bien, acostada y sin estirar, y comparala con la tabla. La Player es más ajustada que la Fan.</p></div>
+  <img class="guia-img" id="guiaImg" alt="Guía de tallas de Chemas Collector" hidden>
+  <div class="dos-t" id="tablas"></div>
+  <p class="nota" id="t-nota"></p>
+</div></section>
+
+<section id="como" style="padding-top:0"><div class="wrap">
+  <div class="cab"><div class="k">Cómo pedir</div><h2>Tu chema en 4 pasos</h2></div>
+  <div class="pasos">
+    <div><b>Armá tu pedido</b><span>Versión, local o visita, manga, talla, nombre, número, parche y póster.</span></div>
+    <div><b>Validá por Instagram</b><span>El mensaje se arma solo: lo pegás en el chat y listo.</span></div>
+    <div><b>Encargá con el 50%</b><span id="paso3">El resto se paga cuando esté lista para entregar.</span></div>
+    <div><b>Te llega a la casa</b><span id="paso4">Llega en 19 a 28 días. Envío gratis.</span></div>
+  </div>
+</div></section>
+
+<footer>
+  <div style="font:400 30px var(--f-t);color:var(--texto)">CHEMAS <span style="color:var(--azul)">COLLECTOR</span> CR</div>
+  <div id="f-datos" style="margin-top:6px"></div>
+  <div style="margin-top:14px;font-size:12px;opacity:.7">Hecho por <a href="https://rbmsolutionscr.com">RBM Solutions CR</a></div>
+</footer>
+<a class="ig-flot" href="#" data-ig-general aria-label="Escribir por Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="#fff"/></svg></a>
+
+<!-- menú lateral -->
+<div class="lat-velo" id="latVelo" hidden></div>
+<aside class="lateral" id="lateral" aria-label="Menú" hidden>
+  <div class="lat-cab"><b>CHEMAS <span>COLLECTOR</span></b><button class="x" type="button" id="latCerrar" aria-label="Cerrar menú">×</button></div>
+  <button type="button" id="abrir-admin" class="lat-item">Acceso administrador</button>
+</aside>
+
+<!-- panel de administración -->
+<div class="admin" id="admin" hidden>
+  <div class="admin-top"><div class="wrap"><b>PANEL DE CHEMAS COLLECTOR</b><button id="cerrar-admin">Ver la página</button></div></div>
+  <div class="wrap">
+    <div class="aviso-demo">Versión de prueba: los cambios se guardan <b>solo en este celular</b>. En la versión final se guardan en la nube y los ven todos los clientes al instante.</div>
+    <div class="tabs" id="a-tabs">
+      <button data-at="inv" class="si">Entrega inmediata</button><button data-at="prod">Camisas</button><button data-at="precios">Precios</button><button data-at="tallas">Guía de tallas</button><button data-at="datos">Datos</button>
+    </div>
+    <div id="a-cuerpo"></div>
+  </div>
+</div>
+
+<script>
+/* ===================== DATOS ===================== */
+const CLAVE_DEMO = "demo1234";
+const KEY = "chemas_demo_v4";
+const TALLAS = ["S","M","L","XL","XXL"];
+const KITS = ["Local","Visita","Tercera","Ed. especial"];
+const PARCHES = ["Sin parche","Liga","Champions League","Mundial 2026","Eliminatorias","Campeón del Mundo","Otro"];
+// Dibujo: c1 = color principal, c2 = segundo color, cuello, mangas y patrón (liso, rayas, aros, mitad, banda, franja).
+const P = (id, equipo, temporada, kit, liga, dib, extra = {}) => ({ id, equipo, temporada, kit, liga, dib, entrega:"encargo", stock:{}, retro:false, nuevo:false, oculto:false, foto:"", ...extra });
+const BASE = {
+  negocio: { nombre:"Chemas Collector CR", instagram:"chemascollectorcr", instagramMuestra:"chemascollectorcr", diasEncargo:[5,20], llegaMin:19, llegaMax:28, adelanto:50,
+    envio:"Correos de CR o mensajero" },
+  precios: { Fan:27000, Player:29000, Retro:29000, poster:2900 },
+  productos: [
+    P("rma-l","Real Madrid","25/26","Local","LaLiga",{c1:"#f5f5f2",c2:"#d4af37",cuello:"#d4af37",pat:"liso"},{entrega:"inmediata",stock:{Fan:["M","L"],Player:["L","XL"]},foto:"f/rma.jpg"}),
+    P("bar-l","Barcelona","25/26","Local","LaLiga",{c1:"#a50044",c2:"#004d98",cuello:"#e8b923",pat:"rayas"},{entrega:"inmediata",stock:{Fan:["S","M","L"],Player:["M"]},foto:"f/bar.jpg"}),
+    P("rma-v","Real Madrid","25/26","Visita","LaLiga",{c1:"#1d2b4f",c2:"#e8a33d",cuello:"#e8a33d",pat:"liso"}),
+    P("rma-t","Real Madrid","25/26","Tercera","LaLiga",{c1:"#2b2b2e",c2:"#7fd1c7",cuello:"#7fd1c7",pat:"liso"},{precios:{Fan:28000,Player:30000}}),
+    P("bar-v","Barcelona","25/26","Visita","LaLiga",{c1:"#111827",c2:"#e8c547",cuello:"#e8c547",pat:"liso"}),
+    P("liv-l","Liverpool","25/26","Local","Premier League",{c1:"#c8102e",c2:"#ffffff",cuello:"#ffffff",pat:"liso"},{entrega:"inmediata",stock:{Fan:["L","XL"]},foto:"f/liv.jpg"}),
+    P("arg-l","Argentina","2026","Local","Mundial 2026",{c1:"#ffffff",c2:"#75aadb",cuello:"#111827",pat:"rayas"},{entrega:"inmediata",stock:{Fan:["M","L","XL"],Player:["L"]},nuevo:true}),
+    P("sap-l","Saprissa","25/26","Local","Costa Rica",{c1:"#5b2a86",c2:"#ffffff",cuello:"#ffffff",pat:"liso"},{entrega:"inmediata",stock:{Fan:["M","L"]}}),
+    P("por-e","Portugal","2026","Ed. especial","Mundial 2026",{c1:"#121212",c2:"#c9a227",cuello:"#c9a227",pat:"liso"},{nuevo:true}),
+    P("arg-v","Argentina","2026","Visita","Mundial 2026",{c1:"#1b2a5c",c2:"#75aadb",cuello:"#75aadb",pat:"liso"}),
+    P("cr-l","Costa Rica","2026","Local","Mundial 2026",{c1:"#ce1126",c2:"#002b7f",cuello:"#002b7f",pat:"liso"}),
+    P("bra-l","Brasil","2026","Local","Mundial 2026",{c1:"#ffdf00",c2:"#009c3b",cuello:"#009c3b",pat:"liso"}),
+    P("mex-l","México","2026","Local","Mundial 2026",{c1:"#006847",c2:"#ffffff",cuello:"#ce1126",pat:"liso"}),
+    P("mci-l","Manchester City","25/26","Local","Premier League",{c1:"#6cabdd",c2:"#1c2c5b",cuello:"#1c2c5b",pat:"liso"}),
+    P("ars-l","Arsenal","25/26","Local","Premier League",{c1:"#db0007",c2:"#ffffff",cuello:"#ffffff",pat:"liso",mangas:"#ffffff"}),
+    P("psg-l","PSG","25/26","Local","Otras ligas",{c1:"#0b1c3c",c2:"#d6001c",cuello:"#d6001c",pat:"franja"},{foto:"f/psg.jpg"}),
+    P("bay-l","Bayern Múnich","25/26","Visita","Otras ligas",{c1:"#f4f4f2",c2:"#1c2c5b",cuello:"#1c2c5b",pat:"liso"},{foto:"f/bay.jpg",entrega:"inmediata",stock:{Fan:["M","L"],Player:["L"]}}),
+    P("atm-l","Atlético de Madrid","25/26","Local","LaLiga",{c1:"#ffffff",c2:"#cb3524",cuello:"#1b2a5c",pat:"rayas"},{foto:"f/atm.jpg",nuevo:true}),
+    P("juv-l","Juventus","25/26","Local","Serie A",{c1:"#ffffff",c2:"#111111",cuello:"#111111",pat:"rayas"}),
+    P("mil-l","AC Milan","25/26","Local","Serie A",{c1:"#c8102e",c2:"#111111",cuello:"#111111",pat:"rayas"}),
+    P("int-l","Inter","25/26","Local","Serie A",{c1:"#0068a8",c2:"#111111",cuello:"#111111",pat:"rayas"}),
+    P("ala-l","Alajuelense","25/26","Local","Costa Rica",{c1:"#d10f1f",c2:"#111111",cuello:"#111111",pat:"rayas"},{precios:{Fan:25000,Player:27000},entrega:"inmediata",stock:{Fan:["M","L","XL"]}}),
+    P("ala-v","Alajuelense","25/26","Visita","Costa Rica",{c1:"#ffffff",c2:"#d10f1f",cuello:"#d10f1f",pat:"banda"},{precios:{Fan:25000,Player:27000}}),
+    P("ala-e","Alajuelense","25/26","Ed. especial","Costa Rica",{c1:"#111111",c2:"#d10f1f",cuello:"#d10f1f",pat:"liso"},{precios:{Fan:30000,Player:32000},nuevo:true}),
+    P("sap-v","Saprissa","25/26","Visita","Costa Rica",{c1:"#ffffff",c2:"#5b2a86",cuello:"#5b2a86",pat:"franja"}),
+    P("her-l","Herediano","25/26","Local","Costa Rica",{c1:"#d10f1f",c2:"#f2c300",cuello:"#f2c300",pat:"rayas"}),
+    P("bra-02","Brasil","2002","Local","Retro",{c1:"#ffdf00",c2:"#009c3b",cuello:"#009c3b",pat:"liso"},{retro:true}),
+    P("mil-07","AC Milan","06/07","Local","Retro",{c1:"#c8102e",c2:"#111111",cuello:"#ffffff",pat:"rayas"},{retro:true}),
+    P("bar-09","Barcelona","08/09","Ed. especial","Retro",{c1:"#a50044",c2:"#004d98",cuello:"#a50044",pat:"mitad"},{retro:true,foto:"f/bar09.jpg"}),
+    P("cr-90","Costa Rica","1990","Local","Retro",{c1:"#ce1126",c2:"#ffffff",cuello:"#ffffff",pat:"liso"},{retro:true,entrega:"inmediata",stock:{Retro:["M","L"]}})
+  ],
+  medidas: {
+    Fan:    [["S","53–55","69–71","1,62–1,70 m"],["M","55–57","71–73","1,70–1,76 m"],["L","57–58","73–75","1,76–1,82 m"],["XL","58–60","75–78","1,82–1,90 m"],["XXL","60–62","78–81","1,90–1,95 m"]],
+    Player: [["S","48–50","66–68","1,60–1,68 m"],["M","50–52","68–70","1,68–1,74 m"],["L","52–54","70–72","1,74–1,80 m"],["XL","54–56","72–74","1,80–1,86 m"],["XXL","56–58","74–76","1,86–1,92 m"]]
+  },
+  guiaFoto: ""
+};
+const lsGet = () => { try { return JSON.parse(localStorage.getItem(KEY)); } catch { return null; } };
+const lsSet = v => { try { localStorage.setItem(KEY, JSON.stringify(v)); return true; } catch { return false; } };
+let DB = lsGet() || structuredClone(BASE);
+const guardar = () => { if (!lsSet(DB)) toast("No se pudo guardar (memoria llena). Probá con fotos más livianas."); };
+let pedido = []; // {p, ver, kit, man, tal, nom, num, par, pos, posDe}
+
+/* ===================== UTILIDADES ===================== */
+const $ = (s, r = document) => r.querySelector(s);
+const esc = t => String(t ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const crc = n => "₡" + String(Math.round(+n || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+const prod = id => DB.productos.find(p => p.id === id);
+const titulo = p => `${p.equipo} ${p.temporada}`;
+function toast(t){ const d = document.createElement("div"); d.className = "toast"; d.textContent = t; d.setAttribute("role", "status"); document.body.append(d); setTimeout(() => d.remove(), 2800); }
+const versiones = p => p.retro ? ["Retro"] : ["Fan","Player"];
+const precioBase = (p, ver) => +(p.precios && p.precios[ver]) || DB.precios[ver] || 0;
+const precioDe = (p, ver, pos) => precioBase(p, ver) + (pos ? DB.precios.poster : 0);
+const desde = p => Math.min(...versiones(p).map(v => precioBase(p, v)));
+// ----- Buscador de equipos: entiende apodos (Liga, LDA, Barça, Sapri, la Sele…) -----
+const norm = t => String(t || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9 ]/g, " ").replace(/\s+/g, " ").trim();
+const ALIAS = {
+  "Real Madrid": ["madrid", "rm", "merengue", "merengues", "real"], "Barcelona": ["barca", "barça", "fcb", "blaugrana", "barcelona fc"],
+  "Alajuelense": ["liga", "lda", "liga deportiva alajuelense", "la liga cr", "manudos", "manudo", "rojinegros"],
+  "Saprissa": ["sapri", "saprissa", "deportivo saprissa", "morado", "monstruo", "tibas"], "Herediano": ["team", "heredia", "florenses", "cs herediano"],
+  "Costa Rica": ["sele", "la sele", "tricolor", "seleccion de costa rica"], "Argentina": ["albiceleste", "seleccion argentina"], "Brasil": ["brazil", "canarinha", "verdeamarela"],
+  "México": ["mexico", "seleccion mexicana"], "Portugal": ["seleccion portuguesa"], "Manchester City": ["city", "man city", "citizens"], "Liverpool": ["reds", "lfc"],
+  "Arsenal": ["gunners"], "PSG": ["paris", "paris saint germain", "psg"], "Bayern Múnich": ["bayern", "munich"], "Juventus": ["juve"], "Atlético de Madrid": ["atletico", "atleti", "colchoneros", "atm"], "AC Milan": ["milan", "rossoneri"], "Inter": ["inter de milan", "internazionale", "nerazzurri"]
+};
+function equipoCoincide(p, t){
+  const e = norm(p.equipo); if (!t) return true;
+  if (e.includes(t) || (t.length >= 4 && t.includes(e))) return true;
+  return (ALIAS[p.equipo] || []).some(a => { const n = norm(a); return n === t || (t.length >= 3 && n.startsWith(t)) || (n.length >= 4 && t.includes(n)); });
+}
+function buscarChemas(lista, texto){
+  const t = norm(texto); if (!t) return lista;
+  // Primero los apodos exactos ("sele" = Costa Rica, "liga" = Alajuelense), después lo demás.
+  const exacto = lista.filter(p => norm(p.equipo) === t || (ALIAS[p.equipo] || []).some(a => norm(a) === t));
+  if (exacto.length) return exacto;
+  const porEquipo = lista.filter(p => equipoCoincide(p, t));
+  return porEquipo.length ? porEquipo : lista.filter(p => norm(`${p.equipo} ${p.temporada} ${p.kit} ${p.liga} ${p.retro ? "retro" : ""}`).includes(t));
+}
+const enStock = (p, ver, t) => p.entrega === "inmediata" && (p.stock?.[ver] || []).includes(t);
+const igUser = () => String(DB.negocio.instagram || DB.negocio.instagramMuestra || "").replace(/^@/, "").trim();
+// Abre directo el chat de Chemas en Instagram. (Instagram no deja que una página escriba el mensaje: se copia para pegarlo.)
+const igLink = () => `https://ig.me/m/${igUser()}`;
+async function copiar(t){ try { await navigator.clipboard.writeText(t); return true; } catch { try { const a = document.createElement("textarea"); a.value = t; a.style.position = "fixed"; a.style.opacity = "0"; document.body.append(a); a.select(); const ok = document.execCommand("copy"); a.remove(); return ok; } catch { return false; } } }
+
+/* ----- Fechas de encargo (los días 5 y 20) y cuándo llega ----- */
+const MESES = ["ene.","feb.","mar.","abr.","may.","jun.","jul.","ago.","sept.","oct.","nov.","dic."], DIAS = ["domingo","lunes","martes","miércoles","jueves","viernes","sábado"];
+const hoyCR = () => { const d = new Date(Date.now() - 6 * 3600e3); return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate())); };
+const fmt = d => `${DIAS[d.getUTCDay()]} ${d.getUTCDate()} de ${MESES[d.getUTCMonth()]}`;
+const fmtC = d => `${d.getUTCDate()} de ${MESES[d.getUTCMonth()]}`;
+const suma = (d, n) => new Date(d.getTime() + n * 864e5);
+function proximoEncargo(){
+  const h = hoyCR(), dias = [...(DB.negocio.diasEncargo || [5,20])].sort((a, b) => a - b);
+  for (let m = 0; m < 3; m++) for (const dd of dias) { const f = new Date(Date.UTC(h.getUTCFullYear(), h.getUTCMonth() + m, dd)); if (f >= h) return f; }
+  return h;
+}
+function textoEncargo(){
+  const f = proximoEncargo(), h = hoyCR(), falta = Math.round((f - h) / 864e5), n = DB.negocio;
+  return { f, falta, desde: suma(f, n.llegaMin), hasta: suma(f, n.llegaMax),
+    cuando: falta === 0 ? "hoy" : falta === 1 ? "mañana" : `el ${fmt(f)}` };
+}
+
+/* ----- Dibujo de la camisa (sin escudos ni marcas: solo los colores del equipo) ----- */
+function oscuro(hex){ const n = parseInt(hex.slice(1), 16); return ((n >> 16) * .299 + ((n >> 8) & 255) * .587 + (n & 255) * .114) < 140; }
+let uid = 0;
+function camisa(p, { espalda = false, nom = "", num = "" } = {}){
+  const d = p.dib, c1 = d.c1, c2 = d.c2, mangas = d.mangas || (d.pat === "rayas" || d.pat === "aros" ? c1 : c1), id = "cl" + (++uid);
+  const cuerpo = "M60 34l22-10q18 12 36 0l22 10 32 24-14 32-18-8v96H60V82l-18 8-14-32z";
+  let pat = "";
+  if (d.pat === "rayas") pat = [0,1,2,3,4,5].map(i => `<rect x="${52 + i * 18}" y="20" width="9" height="170" fill="${c2}"/>`).join("");
+  if (d.pat === "aros") pat = [0,1,2,3,4].map(i => `<rect x="20" y="${46 + i * 30}" width="160" height="14" fill="${c2}"/>`).join("");
+  if (d.pat === "mitad") pat = `<rect x="100" y="20" width="80" height="170" fill="${c2}"/>`;
+  if (d.pat === "banda") pat = `<path d="M40 40l26-12 110 140-10 18z" fill="${c2}"/>`;
+  if (d.pat === "franja") pat = `<rect x="86" y="20" width="28" height="170" fill="${c2}"/><rect x="82" y="20" width="4" height="170" fill="#fff"/><rect x="114" y="20" width="4" height="170" fill="#fff"/>`;
+  const txt = oscuro(c1) ? "#ffffff" : "#111111";
+  const frente = espalda
+    ? `<text x="100" y="72" text-anchor="middle" font-family="Bebas Neue,Impact,sans-serif" font-size="${Math.max(10, 20 - Math.max(0, nom.length - 8))}" fill="${txt}" letter-spacing="1">${esc(nom.toUpperCase())}</text>
+       <text x="100" y="140" text-anchor="middle" font-family="Bebas Neue,Impact,sans-serif" font-size="62" fill="${txt}">${esc(num)}</text>`
+    : `<path d="M84 26q16 16 32 0" fill="none" stroke="${d.cuello}" stroke-width="6"/><circle cx="124" cy="66" r="7" fill="none" stroke="${d.cuello}" stroke-width="2.5" opacity=".9"/>
+       <rect x="70" y="60" width="14" height="10" rx="2" fill="${d.cuello}" opacity=".85"/>`;
+  return `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <defs><clipPath id="${id}"><path d="${cuerpo}"/></clipPath></defs>
+    <path d="${cuerpo}" fill="${c1}"/>
+    <g clip-path="url(#${id})">${pat}
+      <path d="M28 58l32-24v48l-18 8z" fill="${mangas}"/><path d="M172 58l-32-24v48l18 8z" fill="${mangas}"/>
+      <path d="M42 90l-14-32" stroke="${d.cuello}" stroke-width="5"/><path d="M158 90l14-32" stroke="${d.cuello}" stroke-width="5"/>
+      <path d="M60 172h80" stroke="${d.cuello}" stroke-width="4" opacity=".7"/>
+      <path d="M70 40q-8 60 0 130" stroke="#fff" stroke-width="10" opacity=".07" fill="none"/></g>
+    <path d="${cuerpo}" fill="none" stroke="rgba(0,0,0,.35)" stroke-width="1.5"/>
+    ${espalda ? `<path d="M84 26q16 8 32 0" fill="none" stroke="${d.cuello}" stroke-width="6"/>` : ""}
+    ${frente}
+  </svg>`;
+}
+const vista = (p, o) => p.foto && !(o && o.espalda) ? `<img src="${p.foto}" alt="${esc(titulo(p))}" loading="lazy">` : camisa(p, o);
+
+/* ===================== PÁGINA PÚBLICA ===================== */
+let filtro = "Todas", q = "";
+const FILTROS = ["Todas","Entrega inmediata","Mundial 2026","Premier League","LaLiga","Serie A","Otras ligas","Costa Rica","Retro"];
+function pintar(){
+  pintarEquipos();
+  const n = DB.negocio, vis = DB.productos.filter(p => !p.oculto), e = textoEncargo();
+  $("#vitrina").innerHTML = ["arg-l","por-e","bar-l"].map(id => prod(id)).filter(Boolean).map(p => `<div class="fig">${camisa(p)}</div>`).join("");
+  $("#encargo").innerHTML = `<b>Próximo encargo: ${e.cuando}</b><span>Encargos los días ${n.diasEncargo.join(" y ")} de cada mes. Si encargás para esa fecha, te llega entre el ${fmtC(e.desde)} y el ${fmtC(e.hasta)}</span>`;
+  $("#filtros").innerHTML = FILTROS.filter(f => f === "Todas" || f === "Entrega inmediata" ? true : vis.some(p => p.liga === f)).map(f => `<button class="${f === filtro ? "si" : ""}" data-f="${esc(f)}">${f === "Entrega inmediata" ? "<svg class='i' width='1em' height='1em' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M13 2 3 14h9l-1 8 10-12h-9l1-8z'/></svg> " : ""}${esc(f)}</button>`).join("");
+  const lista = buscarChemas(vis.filter(p => filtro === "Todas" || (filtro === "Entrega inmediata" ? p.entrega === "inmediata" : p.liga === filtro)), q);
+  const equipos = [...new Set(lista.map(p => p.equipo))];
+  $("#resQ").hidden = !q.trim();
+  $("#resQ").innerHTML = q.trim() ? `<span>${lista.length ? `${equipos.length === 1 ? `Camisas de <b>${esc(equipos[0])}</b>` : `Resultados para <b>«${esc(q.trim())}»</b>`} · ${lista.length} ${lista.length === 1 ? "edición" : "ediciones"}` : `No encontramos <b>«${esc(q.trim())}»</b>`}</span><button type="button" data-limpiar>Ver todas</button>` : "";
+  $("#grid").innerHTML = lista.map(p => `<article class="card" data-elegir="${p.id}" tabindex="0" role="button" aria-label="${esc(titulo(p))}">
+      ${p.retro ? `<span class="tag ret">Retro</span>` : p.entrega === "inmediata" ? `<span class="tag ya">Entrega inmediata</span>` : `<span class="tag enc">Por encargo</span>`}
+      <div class="ft">${vista(p)}</div>
+      <div class="in"><h3>${esc(titulo(p))}</h3><span class="d">${esc(p.kit)} · ${esc(versiones(p).join(" / "))}${p.nuevo ? " · <b style='color:var(--oro)'>Nuevo</b>" : ""}</span>
+        <div class="prs">${versiones(p).map(v => `<span><small>${v}</small><b>${crc(precioBase(p, v))}</b></span>`).join("")}</div></div></article>`).join("")
+    || `<p style="color:var(--suave)">No encontramos esa chema. <a href="#buscar">Mandanos una foto y te ayudamos a encontrarla.</a></p>`;
+  // tallas
+  const g = DB.guiaFoto; $("#guiaImg").hidden = !g; if (g) $("#guiaImg").src = g;
+  $("#tablas").innerHTML = ["Fan","Player"].map(v => `<div><h3>Versión ${v}</h3><div class="tabla-wrap"><table><tr><th>Talla</th><th>Ancho</th><th>Largo</th><th>Estatura</th></tr>${DB.medidas[v].map(r => `<tr>${[0,1,2,3].map(k => `<td>${esc(r[k] || "—")}</td>`).join("")}</tr>`).join("")}</table></div></div>`).join("");
+  $("#t-nota").textContent = "Medidas en centímetros. Ancho: de axila a axila, con la camisa acostada. Largo: del cuello al ruedo. La Player es más ajustada: si estás entre dos tallas, en Player escogé la más grande. Las medidas pueden variar 1–2 cm.";
+  $("#paso3").textContent = `Encargás con el ${n.adelanto}% y el resto se paga cuando esté lista para entregar.`;
+  $("#paso4").textContent = `Llega en ${n.llegaMin} a ${n.llegaMax} días. Envío gratis por ${n.envio}.`;
+  $("#f-datos").innerHTML = `Instagram <a href="https://instagram.com/${esc(igUser() || n.instagramMuestra)}" target="_blank" rel="noopener">@${esc(igUser() || n.instagramMuestra)}</a> · Pedidos por privado · Costa Rica`;
+  document.querySelectorAll("[data-ig-general]").forEach(a => { a.href = igLink(); a.target = "_blank"; a.rel = "noopener"; });
+  $("#n-pedido").textContent = pedido.length;
+}
+document.addEventListener("click", e => {
+  const f = e.target.closest("[data-f]"); if (f) { filtro = f.dataset.f; pintar(); return; }
+  const el = e.target.closest("[data-elegir]"); if (el) { elegir(el.dataset.elegir); return; }
+  if (e.target.closest("[data-abrir-pedido]")) verPedido();
+});
+document.addEventListener("keydown", e => { if ((e.key === "Enter" || e.key === " ") && e.target.matches?.(".card")) { e.preventDefault(); elegir(e.target.dataset.elegir); } });
+$("#q").addEventListener("input", e => { q = e.target.value; pintar(); });
+function irAEquipo(t){ q = t; filtro = "Todas"; $("#q").value = t; $("#hq").value = t; pintar(); $("#catalogo").scrollIntoView({behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth"}); }
+$("#hbusca").addEventListener("submit", e => { e.preventDefault(); const t = $("#hq").value.trim(); if (t) irAEquipo(t); else $("#hq").focus(); });
+document.addEventListener("click", e => {
+  const eq = e.target.closest("[data-eq]"); if (eq) { irAEquipo(eq.dataset.eq); return; }
+  if (e.target.closest("[data-limpiar]")) { q = ""; $("#q").value = ""; $("#hq").value = ""; pintar(); }
+});
+function pintarEquipos(){
+  const todos = [...new Set(DB.productos.filter(p => !p.oculto).map(p => p.equipo))];
+  $("#lista-equipos").innerHTML = todos.map(t => `<option value="${esc(t)}">`).join("");
+  const top = ["Real Madrid", "Barcelona", "Alajuelense", "Saprissa", "Argentina", "Costa Rica"].filter(t => todos.includes(t));
+  $("#equipos").innerHTML = top.map(t => `<button type="button" data-eq="${esc(t)}">${esc(t)}</button>`).join("");
+}
+
+/* ---- visor: la camisa en grande ---- */
+function ampliar(html, tit){
+  const v = document.createElement("div"); v.className = "visor"; v.setAttribute("role", "dialog"); v.setAttribute("aria-modal", "true"); v.setAttribute("aria-label", tit);
+  v.innerHTML = `<button type="button" class="x visor-x" aria-label="Cerrar">×</button><div class="visor-img">${html}</div><p>${esc(tit)} · tocá para cerrar</p>`;
+  document.body.append(v);
+  const cerrar = () => { v.remove(); document.removeEventListener("keydown", tecla); };
+  const tecla = e => { if (e.key === "Escape") cerrar(); };
+  v.addEventListener("click", cerrar); document.addEventListener("keydown", tecla);
+  v.querySelector(".visor-x").focus();
+}
+/* ---- hojas ---- */
+function hoja(html, alAbrir){
+  const v = document.createElement("div"); v.className = "velo"; v.innerHTML = `<div class="hoja" role="dialog" aria-modal="true">${html}</div>`;
+  document.body.append(v); document.body.style.overflow = "hidden";
+  const cerrar = () => { v.remove(); if (!$(".velo")) document.body.style.overflow = ""; };
+  v.addEventListener("click", e => { if (e.target === v || e.target.closest("[data-cerrar]")) cerrar(); });
+  alAbrir?.(v.firstElementChild, cerrar); return cerrar;
+}
+function elegir(id){
+  const p = prod(id); if (!p) return;
+  const vs = versiones(p);
+  let s = { ver: vs.includes("Player") && p.entrega !== "inmediata" ? vs[0] : vs[0], kit: p.kit, man: "Corta", tal: null, nom: "", num: "", par: "Sin parche", parOtro: "", pos: false, posDe: "" };
+  hoja(`<div class="hoja-cab"><h3>${esc(titulo(p))}</h3><button class="x" data-cerrar aria-label="Cerrar">×</button></div>
+    <div class="prev"><button type="button" class="ft zoom" data-zoom="frente" aria-label="Ver el frente en grande">${vista(p)}<small>Frente ·</small></button><button type="button" class="ft zoom" id="e-esp" data-zoom="espalda" aria-label="Ver la espalda en grande"></button></div>
+    <p class="nota" style="margin:0">${p.entrega === "inmediata" ? "Hay tallas para <b>entrega inmediata</b>. Las demás se encargan." : (() => { const e = textoEncargo(); return `Por encargo: el próximo es ${e.cuando} y llega entre el ${fmtC(e.desde)} y el ${fmtC(e.hasta)}`; })()}</p>
+    <div class="lbl">Versión</div><div class="ops ver" id="e-ver"></div>
+    <div class="lbl">Local o visita</div><div class="ops kit" id="e-kit"></div>
+    <div class="lbl">Manga</div><div class="ops man" id="e-man"></div>
+    <div class="lbl">Talla <a href="#tallas" data-cerrar style="font-weight:600;text-transform:none;letter-spacing:0">· ver guía</a></div><div class="ops tal" id="e-tal"></div>
+    <div class="lbl">Personalización (incluida)</div>
+    <div class="fila2"><div class="campo"><label for="e-nom">Nombre</label><input id="e-nom" maxlength="14" placeholder="Ej.: Ronaldo" autocomplete="off"></div>
+      <div class="campo"><label for="e-num">Número</label><input id="e-num" inputmode="numeric" maxlength="2" placeholder="7" autocomplete="off"></div></div>
+    <div class="campo"><label for="e-par">Parche</label><select id="e-par">${PARCHES.map(x => `<option>${x}</option>`).join("")}</select></div>
+    <div class="campo" id="e-parw" hidden><label for="e-paro">¿Cuál parche?</label><input id="e-paro" maxlength="40" placeholder="Ej.: Eliminatorias + Campeón del Mundo"></div>
+    <div class="lbl">Póster</div><div class="ops pos" id="e-pos"></div>
+    <div class="campo" id="e-posw" hidden style="margin-top:8px"><label for="e-pde">¿De quién querés el póster?</label><input id="e-pde" maxlength="30" placeholder="Ej.: Messi"></div>
+    <div class="precio-h"><span>Precio</span><b id="e-pr"></b></div>
+    <p class="err" id="e-err"></p>
+    <button class="b b-azul b-bloque" id="e-ok">Agregar al pedido</button>`, (h, cerrar) => {
+    const pint = () => {
+      $("#e-ver", h).innerHTML = vs.map(v => `<button class="${v === s.ver ? "si" : ""}" data-ver="${v}">${v}<small>${crc(precioBase(p, v))}</small></button>`).join("");
+      $("#e-kit", h).innerHTML = KITS.map(k => `<button class="${k === s.kit ? "si" : ""}" data-kit="${k}">${k}</button>`).join("");
+      $("#e-man", h).innerHTML = ["Corta","Larga"].map(k => `<button class="${k === s.man ? "si" : ""}" data-man="${k}">${k}</button>`).join("");
+      $("#e-tal", h).innerHTML = TALLAS.map(t => `<button class="${t === s.tal ? "si" : ""}" data-tal="${t}">${t}${enStock(p, s.ver, t) ? "<small>ya</small>" : ""}</button>`).join("");
+      $("#e-pos", h).innerHTML = [["No", false], ["Sí, con póster", true]].map(([l, v]) => `<button class="${s.pos === v ? "si" : ""}" data-pos="${v}">${l}${v ? `<small>+${crc(DB.precios.poster)}</small>` : ""}</button>`).join("");
+      $("#e-posw", h).hidden = !s.pos;
+      $("#e-esp", h).innerHTML = camisa(p, { espalda: true, nom: s.nom || "Tu nombre", num: s.num || "10" }) + `<small>Espalda ·</small>`;
+      $("#e-pr", h).textContent = crc(precioDe(p, s.ver, s.pos));
+    };
+    pint();
+    h.addEventListener("click", e => {
+      const b = e.target.closest("button"); if (!b) return;
+      if (b.dataset.zoom) { ampliar(b.dataset.zoom === "frente" ? vista(p) : camisa(p, { espalda: true, nom: s.nom || "Tu nombre", num: s.num || "10" }), `${titulo(p)} · ${b.dataset.zoom === "frente" ? "Frente" : "Espalda"}`); return; }
+      if (b.dataset.ver) s.ver = b.dataset.ver; else if (b.dataset.kit) s.kit = b.dataset.kit; else if (b.dataset.man) s.man = b.dataset.man;
+      else if (b.dataset.tal) { s.tal = b.dataset.tal; $("#e-err", h).textContent = ""; } else if (b.dataset.pos) s.pos = b.dataset.pos === "true";
+      if (b.dataset.ver || b.dataset.kit || b.dataset.man || b.dataset.tal || b.dataset.pos) pint();
+      if (b.id === "e-ok") {
+        if (!s.tal) { $("#e-err", h).textContent = "Escogé tu talla."; return; }
+        if (s.pos && !$("#e-pde", h).value.trim()) { $("#e-err", h).textContent = "Decinos de quién querés el póster."; $("#e-pde", h).focus(); return; }
+        s.posDe = $("#e-pde", h).value.trim(); s.parOtro = $("#e-paro", h).value.trim();
+        pedido.push({ p: id, ...s, ya: enStock(p, s.ver, s.tal) });
+        cerrar(); pintar(); toast(`${titulo(p)} ${s.ver}, talla ${s.tal}, agregada ✓`);
+      }
+    });
+    const nom = $("#e-nom", h), num = $("#e-num", h);
+    nom.addEventListener("input", () => { s.nom = nom.value; pint(); });
+    num.addEventListener("input", () => { num.value = num.value.replace(/\D/g, ""); s.num = num.value; pint(); });
+    $("#e-par", h).addEventListener("change", e => { s.par = e.target.value; $("#e-parw", h).hidden = s.par !== "Otro"; });
+  });
+}
+const parcheTxt = x => x.par === "Otro" ? (x.parOtro || "Otro") : x.par;
+const lineaItem = (x, i) => { const p = prod(x.p); if (!p) return "";
+  return `${i + 1}) ${titulo(p)}${x.ya ? " entrega inmediata" : ""}
+   Versión: ${x.ver.toUpperCase()} · ${x.kit.toUpperCase()} · Manga ${x.man.toLowerCase()} · Talla ${x.tal}
+   Nombre: ${x.nom.trim() || "—"} · #${x.num || "—"} · Parche: ${parcheTxt(x)}
+   Póster: ${x.pos ? "SÍ (" + x.posDe + ")" : "NO"} — ${crc(precioDe(p, x.ver, x.pos))}`; };
+function verPedido(){
+  hoja(`<div class="hoja-cab"><h3>Mi pedido</h3><button class="x" data-cerrar aria-label="Cerrar">×</button></div><div id="pp"></div>`, (h, cerrar) => {
+    const pint = () => {
+      if (!pedido.length) { $("#pp", h).innerHTML = `<p style="color:var(--suave)">Todavía no has agregado chemas. Tocá una del catálogo para empezar.</p><button class="b b-claro b-bloque" data-cerrar>Ver catálogo</button>`; return; }
+      const total = pedido.reduce((a, x) => { const p = prod(x.p); return a + (p ? precioDe(p, x.ver, x.pos) : 0); }, 0), n = DB.negocio, e = textoEncargo();
+      const hayEnc = pedido.some(x => !x.ya), adel = Math.round(total * n.adelanto / 100);
+      $("#pp", h).innerHTML = pedido.map((x, i) => { const p = prod(x.p); if (!p) return "";
+        return `<div class="item"><div class="t"><b>${esc(titulo(p))}${x.ya ? " <svg class='i' width='1em' height='1em' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M13 2 3 14h9l-1 8 10-12h-9l1-8z'/></svg>" : ""}</b><span>${crc(precioDe(p, x.ver, x.pos))} <button data-q="${i}">Quitar</button></span></div>
+          <div class="cel"><span class="c-v">${esc(x.ver)}</span><span class="c-k">${esc(x.kit)}</span><span class="c-m">${esc(x.man)}</span><span class="c-t">${esc(x.tal)}</span>
+            ${x.nom.trim() ? `<span class="c-n">${esc(x.nom.trim())}</span>` : ""}${x.num ? `<span class="c-n">#${esc(x.num)}</span>` : ""}<span class="c-n">${esc(parcheTxt(x))}</span><span class="c-p">${x.pos ? "Póster: " + esc(x.posDe) : "Sin póster"}</span></div></div>`; }).join("")
+        + `<div class="res"><div class="total"><span>Total</span><span>${crc(total)}</span></div>
+            ${hayEnc ? `<div class="adel"><span>Para encargar (${n.adelanto}%)</span><span>${crc(adel)}</span></div><div style="color:var(--suave);font-size:13.5px"><span>El resto, cuando esté lista para entregar.</span></div>` : ""}</div>
+          <div class="aviso">Incluye personalización, calcomanía del equipo, cajita y <b>envío gratis</b>.${hayEnc ? `<br>Próximo encargo ${e.cuando}: llega entre el <b>${fmtC(e.desde)}</b> y el <b>${fmtC(e.hasta)}</b>` : ""}</div>
+          <div class="lbl">Tus datos para el envío</div>
+          <div class="campo"><label for="d-nom">Nombre completo</label><input id="d-nom" autocomplete="name"></div>
+          <div class="fila3" style="grid-template-columns:1fr 1fr"><div class="campo"><label for="d-tel">Teléfono</label><input id="d-tel" inputmode="tel" autocomplete="tel" placeholder="88887777"></div>
+            <div class="campo"><label for="d-cor">Correo</label><input id="d-cor" type="email" autocomplete="email"></div></div>
+          <div class="fila3"><div class="campo"><label for="d-pro">Provincia</label><select id="d-pro">${["","San José","Alajuela","Cartago","Heredia","Guanacaste","Puntarenas","Limón"].map(x => `<option>${x}</option>`).join("")}</select></div>
+            <div class="campo"><label for="d-can">Cantón</label><input id="d-can"></div><div class="campo"><label for="d-dis">Distrito</label><input id="d-dis"></div></div>
+          <div class="campo"><label for="d-dir">Dirección exacta</label><textarea id="d-dir" rows="2"></textarea></div>
+          <p class="nota" style="margin-top:-4px">Podés dejar los datos para después: Chemas te los pide cuando llegue tu chema.</p>
+          <button class="b b-ig b-bloque" id="pp-ig" style="margin-top:8px">Validar disponibilidad por Instagram</button>
+          <p class="nota" style="text-align:center">Se abre el chat de <b>@${esc(igUser())}</b> con tu pedido listo para pegar: mantené presionado, <b>Pegar</b> y enviar.</p>
+          <details style="margin-top:6px"><summary class="nota" style="cursor:pointer">Ver el mensaje que se envía</summary><textarea class="msj" id="pp-msj" readonly></textarea></details>`;
+      const armar = () => {
+        const v = s => ($(s, h)?.value || "").trim();
+        const datos = [["Nombre completo", v("#d-nom")], ["Teléfono", v("#d-tel").replace(/\D/g, "")], ["Correo", v("#d-cor")], ["Provincia", v("#d-pro")], ["Cantón", v("#d-can")], ["Distrito", v("#d-dis")], ["Dirección exacta", v("#d-dir")]].filter(d => d[1]);
+        const m = [`Hola pura vida! Quiero validar si tienen disponible:`, "", ...pedido.map(lineaItem).filter(Boolean), "",
+          `Total: ${crc(total)}${hayEnc ? ` · Adelanto ${n.adelanto}%: ${crc(adel)}` : ""}`,
+          datos.length ? "\nMis datos para el envío:\n" + datos.map(d => `${d[0]}: ${d[1]}`).join("\n") : null,
+          "", "¿Me confirman disponibilidad?"].filter(l => l !== null).join("\n");
+        $("#pp-msj", h).value = m; return m;
+      };
+      armar(); h.querySelectorAll("input,select,textarea:not(#pp-msj)").forEach(i => i.addEventListener("input", armar));
+      $("#pp-ig", h).addEventListener("click", async () => {
+        const m = armar(), ok = await copiar(m);
+        window.open(igLink(), "_blank", "noopener");
+        toast(ok ? `Abriendo el chat de @${igUser()}: pegá tu pedido y envialo` : "Copiá el mensaje de abajo y pegalo en el chat");
+        if (!ok) h.querySelector("details").open = true;
+      });
+    };
+    pint();
+    h.addEventListener("click", e => { const q2 = e.target.closest("[data-q]"); if (q2) { pedido.splice(+q2.dataset.q, 1); pint(); pintar(); } });
+  });
+}
+
+/* ---- ¿No encontrás tu chema? Mandá la foto ---- */
+let refArchivo = null;
+$("#refFoto").addEventListener("change", e => {
+  refArchivo = e.target.files[0] || null; if (!refArchivo) return;
+  const u = URL.createObjectURL(refArchivo);
+  $("#refTxt").innerHTML = `<img src="${u}" alt="Tu foto de referencia"><br><small>Tocá para cambiarla</small>`;
+});
+$("#refEnviar").addEventListener("click", async () => {
+  const v = s => $(s).value.trim();
+  const m = [`Hola pura vida! Ando buscando esta chema:`, `Equipo: ${v("#refEq") || "—"}`, `Año: ${v("#refAn") || "—"}`, `Versión: ${v("#refVe")}`, `Talla: ${v("#refTa")}`, v("#refNo") ? `Detalles: ${v("#refNo")}` : null, "", "¿Me ayudan a encontrarla?"].filter(Boolean).join("\n");
+  const ok = await copiar(m);
+  // En el celular se puede compartir la foto directo a Instagram (o WhatsApp) con el menú de compartir.
+  if (refArchivo && navigator.canShare && navigator.canShare({ files: [refArchivo] })) {
+    try { await navigator.share({ files: [refArchivo], text: m, title: "Chema que busco" }); $("#refNota").textContent = "Si Instagram no pegó el texto, pegalo vos: ya está copiado"; return; }
+    catch (x) { if (x && x.name === "AbortError") return; }
+  }
+  window.open(igLink(), "_blank", "noopener");
+  $("#refNota").textContent = refArchivo ? "Mensaje copiado. En el chat pegalo y adjuntá la foto con el botón de galería." : "Mensaje copiado. Pegalo en el chat y, si tenés, mandá también una foto.";
+});
+
+/* ===================== ADMINISTRACIÓN ===================== */
+let aTab = "inv", admin = false;
+// Menú lateral ()
+function lateral(abrir){ $("#lateral").hidden = !abrir; $("#latVelo").hidden = !abrir; $("#hamb").setAttribute("aria-expanded", String(abrir)); document.body.style.overflow = abrir ? "hidden" : ""; }
+$("#hamb").addEventListener("click", () => lateral(true));
+$("#latCerrar").addEventListener("click", () => lateral(false));
+$("#latVelo").addEventListener("click", () => lateral(false));
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("#lateral").hidden) lateral(false); });
+$("#abrir-admin").addEventListener("click", () => {
+  lateral(false);
+  if (admin) return abrirAdmin();
+  hoja(`<div class="hoja-cab"><h3>Administrar</h3><button class="x" data-cerrar aria-label="Cerrar">×</button></div>
+    <div class="campo"><label for="ac">Contraseña</label><input id="ac" type="password" autocomplete="current-password"></div>
+    <p class="err" id="ae"></p><button class="b b-azul b-bloque" id="aok">Entrar</button>
+    <p class="nota" style="text-align:center">Versión de prueba · contraseña: <b style="user-select:all">${CLAVE_DEMO}</b></p>`, (h, cerrar) => {
+    const ir = () => { if ($("#ac", h).value === CLAVE_DEMO) { admin = true; cerrar(); abrirAdmin(); } else $("#ae", h).textContent = "Contraseña incorrecta."; };
+    $("#aok", h).addEventListener("click", ir); $("#ac", h).addEventListener("keydown", e => { if (e.key === "Enter") ir(); });
+    setTimeout(() => $("#ac", h).focus(), 50);
+  });
+});
+$("#cerrar-admin").addEventListener("click", () => { $("#admin").hidden = true; document.body.style.overflow = ""; pintar(); });
+$("#a-tabs").addEventListener("click", e => { const b = e.target.closest("[data-at]"); if (!b) return; aTab = b.dataset.at; pintarAdmin(); });
+function abrirAdmin(){ $("#admin").hidden = false; document.body.style.overflow = "hidden"; pintarAdmin(); }
+
+function pintarAdmin(){
+  document.querySelectorAll("#a-tabs button").forEach(b => b.classList.toggle("si", b.dataset.at === aTab));
+  const c = $("#a-cuerpo");
+  if (aTab === "inv") {
+    c.innerHTML = `<p style="color:var(--suave);margin:10px 0">Marcá las tallas que tenés <b>ya en mano</b>. Esas camisas salen con Entrega inmediata; lo demás queda por encargo.</p>
+      <div class="alist inv">${DB.productos.filter(p => !p.oculto).map(p => `<div class="arow" style="align-items:flex-start"><div class="mini">${vista(p)}</div><div class="tx"><b>${esc(titulo(p))} · ${esc(p.kit)}</b>
+        ${versiones(p).map(v => `<div class="tl"><span style="font-size:12px;color:var(--suave);width:48px">${v}</span>${TALLAS.map(t => `<button class="${(p.stock?.[v] || []).includes(t) ? "si" : ""}" data-st="${p.id}:${v}:${t}">${t}</button>`).join("")}</div>`).join("")}</div></div>`).join("")}</div>`;
+    c.querySelectorAll("[data-st]").forEach(b => b.onclick = () => { const [id, v, t] = b.dataset.st.split(":"), p = prod(id); p.stock ||= {}; const l = p.stock[v] ||= [];
+      const i = l.indexOf(t); if (i >= 0) l.splice(i, 1); else l.push(t);
+      p.entrega = Object.values(p.stock).some(x => x.length) ? "inmediata" : "encargo"; guardar(); pintarAdmin(); });
+  } else if (aTab === "prod") {
+    c.innerHTML = `<button class="b b-azul" id="nuevo-p" style="margin-top:10px">+ Agregar camisa</button>
+      <div class="alist">${DB.productos.map(p => `<div class="arow"><div class="mini">${vista(p)}</div><div class="tx"><b>${esc(titulo(p))}</b><span>${esc(p.kit)} · ${versiones(p).map(v => crc(precioBase(p, v))).join(" / ")} · ${esc(p.liga)}${p.entrega === "inmediata" ? " ·" : ""}${p.nuevo ? " · Nuevo" : ""}${p.oculto ? " · Oculta" : ""}</span></div><button data-ed="${p.id}">Editar</button></div>`).join("")}</div>`;
+    $("#nuevo-p").onclick = () => editar(null);
+    c.querySelectorAll("[data-ed]").forEach(b => b.onclick = () => editar(b.dataset.ed));
+  } else if (aTab === "precios") {
+    const pr = DB.precios;
+    c.innerHTML = `<div style="margin:12px 0 40px">${[["Fan","Versión Fan"],["Player","Versión Player"],["Retro","Retro"],["poster","Póster (se suma al precio)"]].map(([k, l]) => `<div class="campo"><label>${l} (₡)</label><input inputmode="numeric" data-pr="${k}" value="${pr[k]}"></div>`).join("")}
+      <p class="nota">Estos son los precios generales. Cada camisa puede tener su propio precio: se pone en Camisas → Editar.</p>
+      <button class="b b-azul" id="pr-g" style="margin-top:8px">Guardar precios</button></div>`;
+    $("#pr-g").onclick = () => { c.querySelectorAll("[data-pr]").forEach(i => pr[i.dataset.pr] = +i.value.replace(/\D/g, "") || 0); guardar(); pintar(); toast("Precios guardados"); };
+  } else if (aTab === "tallas") {
+    c.innerHTML = `<div style="margin:12px 0 40px">
+      <div class="lbl">Foto de la guía de tallas</div>
+      <p class="nota" style="margin-top:0">Si ya tenés la imagen con las medidas (la que mandás por Instagram), subila y sale arriba de las tablas.</p>
+      ${DB.guiaFoto ? `<img src="${DB.guiaFoto}" alt="" style="max-height:200px;border-radius:12px;display:block;margin:8px 0">` : ""}
+      <div class="acc" style="margin-top:8px"><label class="b b-claro" style="cursor:pointer">${DB.guiaFoto ? "Cambiar" : "Subir"} foto<input type="file" accept="image/*" id="gf" hidden></label>${DB.guiaFoto ? `<button class="b b-claro" id="gf-x">Quitar foto</button>` : ""}</div>
+      ${["Fan","Player"].map(v => `<div class="lbl">Medidas versión ${v} (ancho · largo en cm · estatura)</div>${DB.medidas[v].map((r, i) => `<div class="fila3" style="grid-template-columns:44px 1fr 1fr 1.2fr;align-items:center"><b>${r[0]}</b>${[1,2,3].map(k => `<input class="buscar" style="margin:0 0 6px;padding:10px 8px" data-md="${v}:${i}:${k}" value="${esc(r[k] || "")}" aria-label="${v} ${r[0]} ${["","ancho","largo","estatura"][k]}">`).join("")}</div>`).join("")}`).join("")}
+      <button class="b b-azul" id="md-g" style="margin-top:8px">Guardar medidas</button></div>`;
+    $("#gf").onchange = async e => { const f = e.target.files[0]; if (!f) return; try { DB.guiaFoto = await comprimir(f, 1200); guardar(); pintar(); pintarAdmin(); toast("Guía de tallas lista"); } catch { toast("No se pudo leer la foto."); } };
+    $("#gf-x")?.addEventListener("click", () => { DB.guiaFoto = ""; guardar(); pintar(); pintarAdmin(); });
+    $("#md-g").onclick = () => { c.querySelectorAll("[data-md]").forEach(i => { const [v, r, k] = i.dataset.md.split(":"); DB.medidas[v][+r][+k] = i.value.trim(); }); guardar(); pintar(); toast("Medidas guardadas"); };
+  } else if (aTab === "datos") {
+    const n = DB.negocio;
+    c.innerHTML = `<div style="margin:12px 0 40px">
+      <div class="campo"><label>Instagram que recibe los pedidos (sin @)</label><input data-n="instagram" value="${esc(n.instagram)}" placeholder="${esc(n.instagramMuestra)}"></div>
+      <div class="campo"><label>Días de encargo (separados por coma)</label><input id="dn-dias" value="${esc(n.diasEncargo.join(", "))}"></div>
+      <div class="fila3"><div class="campo"><label>Llega desde (días)</label><input inputmode="numeric" data-nn="llegaMin" value="${n.llegaMin}"></div><div class="campo"><label>Hasta (días)</label><input inputmode="numeric" data-nn="llegaMax" value="${n.llegaMax}"></div><div class="campo"><label>Adelanto (%)</label><input inputmode="numeric" data-nn="adelanto" value="${n.adelanto}"></div></div>
+      <div class="campo"><label>Envío</label><input data-n="envio" value="${esc(n.envio)}"></div>
+      <button class="b b-azul" id="d-g">Guardar datos</button>
+      <button class="b b-claro" id="d-reset" style="margin-left:6px">Volver al ejemplo</button></div>`;
+    $("#d-g").onclick = () => {
+      c.querySelectorAll("[data-n]").forEach(i => n[i.dataset.n] = i.value.trim().replace(/^@/, ""));
+      c.querySelectorAll("[data-nn]").forEach(i => n[i.dataset.nn] = Math.max(0, +i.value.replace(/\D/g, "") || 0));
+      const d = $("#dn-dias").value.split(/[,\s]+/).map(Number).filter(x => x >= 1 && x <= 28); if (d.length) n.diasEncargo = [...new Set(d)].sort((a, b) => a - b);
+      guardar(); pintar(); pintarAdmin(); toast("Datos guardados");
+    };
+    $("#d-reset").onclick = () => { if (!confirm("¿Volver a los datos de ejemplo? Se borran tus cambios de prueba.")) return; DB = structuredClone(BASE); guardar(); pintar(); pintarAdmin(); toast("Listo"); };
+  }
+}
+function editar(id){
+  const nuevo = !id, p = nuevo ? P("p" + Date.now(), "", "25/26", "Local", "Otras ligas", {c1:"#3b6cff",c2:"#ffffff",cuello:"#ffffff",pat:"liso"}, {nuevo:true}) : structuredClone(prod(id));
+  const ligas = [...new Set(["Mundial 2026","Premier League","LaLiga","Serie A","Otras ligas","Costa Rica","Retro", ...DB.productos.map(x => x.liga)])];
+  hoja(`<div class="hoja-cab"><h3>${nuevo ? "Nueva camisa" : "Editar camisa"}</h3><button class="x" data-cerrar aria-label="Cerrar">×</button></div>
+    <div class="prev"><div class="ft" id="ed-prev"></div><div style="display:grid;gap:8px;align-content:center"><label class="b b-claro" style="cursor:pointer">${p.foto ? "Cambiar foto" : "Subir foto real"}<input type="file" accept="image/*" id="ed-foto" hidden></label>${p.foto ? `<button class="b b-claro" id="ed-fx">Usar el dibujo</button>` : ""}</div></div>
+    <div class="fila2" style="grid-template-columns:1fr 110px"><div class="campo"><label>Equipo o selección</label><input id="ed-e" value="${esc(p.equipo)}" placeholder="Ej.: Portugal"></div><div class="campo"><label>Temporada</label><input id="ed-t" value="${esc(p.temporada)}" placeholder="2026"></div></div>
+    <div class="fila2" style="grid-template-columns:1fr 1fr"><div class="campo"><label>Tipo</label><select id="ed-k">${KITS.map(k => `<option ${k === p.kit ? "selected" : ""}>${k}</option>`).join("")}</select></div>
+      <div class="campo"><label>Sección</label><select id="ed-l">${ligas.map(l => `<option ${l === p.liga ? "selected" : ""}>${esc(l)}</option>`).join("")}</select></div></div>
+    <div class="lbl">Colores del dibujo</div>
+    <div class="fila3" style="grid-template-columns:repeat(4,minmax(0,1fr))">${[["c1","Principal"],["c2","Segundo"],["cuello","Cuello"]].map(([k, l]) => `<div class="campo"><label>${l}</label><input type="color" data-dc="${k}" value="${p.dib[k]}" style="height:44px;padding:4px"></div>`).join("")}
+      <div class="campo"><label>Diseño</label><select id="ed-pat">${[["liso","Liso"],["rayas","Rayas"],["aros","Aros"],["mitad","Mitad"],["banda","Banda"],["franja","Franja"]].map(([v, l]) => `<option value="${v}" ${v === p.dib.pat ? "selected" : ""}>${l}</option>`).join("")}</select></div></div>
+    <label class="check"><input type="checkbox" id="ed-r" ${p.retro ? "checked" : ""}> Es <b>retro</b></label>
+    <div class="lbl">Precio de esta camisa (₡)</div>
+    <div class="fila3" id="ed-prs"></div>
+    <p class="nota" style="margin-top:-2px">Si lo dejás vacío, usa el precio general de la pestaña Precios.</p>
+    <label class="check"><input type="checkbox" id="ed-nu" ${p.nuevo ? "checked" : ""}> Marcar como <b>Nueva</b></label>
+    <label class="check"><input type="checkbox" id="ed-oc" ${p.oculto ? "checked" : ""}> <b>Ocultar</b> del catálogo</label>
+    <p class="err" id="ed-err"></p>
+    <button class="b b-azul b-bloque" id="ed-g">Guardar</button>
+    ${nuevo ? "" : `<button class="b b-bloque" id="ed-b" style="background:none;color:var(--rosa);margin-top:6px">Borrar esta camisa</button>`}`, (h, cerrar) => {
+    const prev = () => { $("#ed-prev", h).innerHTML = vista(p); };
+    prev();
+    const pintarPrs = () => { const vs = $("#ed-r", h).checked ? ["Retro"] : ["Fan", "Player"];
+      $("#ed-prs", h).style.gridTemplateColumns = `repeat(${vs.length},minmax(0,1fr))`;
+      $("#ed-prs", h).innerHTML = vs.map(v => `<div class="campo"><label>${v === "Player" ? "Player (jugador)" : v}</label><input inputmode="numeric" data-pv="${v}" value="${(p.precios && p.precios[v]) || ""}" placeholder="${DB.precios[v]}"></div>`).join(""); };
+    pintarPrs();
+    $("#ed-r", h).addEventListener("change", () => { const g = {}; h.querySelectorAll("[data-pv]").forEach(i => g[i.dataset.pv] = i.value); p.precios = {...(p.precios || {}), ...Object.fromEntries(Object.entries(g).map(([k, v]) => [k, +v.replace(/\D/g, "") || 0]))}; pintarPrs(); });
+    h.querySelectorAll("[data-dc]").forEach(i => i.addEventListener("input", () => { p.dib[i.dataset.dc] = i.value; p.dib.mangas = ""; prev(); }));
+    $("#ed-pat", h).addEventListener("change", e => { p.dib.pat = e.target.value; prev(); });
+    $("#ed-foto", h).addEventListener("change", async e => { const f = e.target.files[0]; if (!f) return; try { p.foto = await comprimir(f); prev(); toast("Foto lista. Tocá Guardar."); } catch { toast("No se pudo leer la foto."); } });
+    $("#ed-fx", h)?.addEventListener("click", () => { p.foto = ""; prev(); });
+    $("#ed-g", h).addEventListener("click", () => {
+      p.equipo = $("#ed-e", h).value.trim(); p.temporada = $("#ed-t", h).value.trim(); p.kit = $("#ed-k", h).value; p.liga = $("#ed-l", h).value;
+      p.retro = $("#ed-r", h).checked; p.nuevo = $("#ed-nu", h).checked; p.oculto = $("#ed-oc", h).checked;
+      p.precios = {...(p.precios || {})}; h.querySelectorAll("[data-pv]").forEach(i => { const v = +i.value.replace(/\D/g, "") || 0; if (v) p.precios[i.dataset.pv] = v; else delete p.precios[i.dataset.pv]; });
+      if (p.equipo.length < 2) { $("#ed-err", h).textContent = "Escribí el equipo o la selección."; return; }
+      if (nuevo) DB.productos.unshift(p); else DB.productos[DB.productos.findIndex(x => x.id === p.id)] = p;
+      guardar(); cerrar(); pintar(); pintarAdmin(); toast("Guardado");
+    });
+    $("#ed-b", h)?.addEventListener("click", () => { if (!confirm(`¿Borrar "${titulo(p)}"?`)) return; DB.productos = DB.productos.filter(x => x.id !== p.id); guardar(); cerrar(); pintar(); pintarAdmin(); toast("Borrada"); });
+  });
+}
+function comprimir(file, max = 900, q = .82){
+  return new Promise((ok, mal) => { const r = new FileReader(); r.onload = () => { const im = new Image(); im.onload = () => {
+    const s = Math.min(1, max / Math.max(im.width, im.height)), cv = document.createElement("canvas"); cv.width = Math.round(im.width * s); cv.height = Math.round(im.height * s);
+    cv.getContext("2d").drawImage(im, 0, 0, cv.width, cv.height); ok(cv.toDataURL("image/jpeg", q)); }; im.onerror = mal; im.src = r.result; }; r.onerror = mal; r.readAsDataURL(file); });
+}
+pintar();
+</script>
+<script>
+/* ===================== CHEMAS 2.0: ANIMACIONES ===================== */
+(() => {
+const QUIETO = matchMedia("(prefers-reduced-motion: reduce)").matches, FINO = matchMedia("(pointer: fine)").matches;
+const io = "IntersectionObserver" in window ? new IntersectionObserver(es => es.forEach(e => { if (!e.isIntersecting) return; const el = e.target; el.classList.add("vis"); if (el.dataset.n) contar(el); io.unobserve(el); }), { rootMargin: "0px 0px -8% 0px", threshold: .06 }) : null;
+const observar = (r = document) => r.querySelectorAll(".rv:not(.vis),[data-n]:not(.ok)").forEach(el => io ? io.observe(el) : (el.classList.add("vis"), el.dataset.n && contar(el)));
+function contar(el){ el.classList.add("ok"); const n = +el.dataset.n; if (QUIETO) { el.textContent = n; return; } const t0 = performance.now();
+  const f = t => { const k = Math.min(1, (t - t0) / 1200); el.textContent = Math.round(n * (1 - Math.pow(1 - k, 3))); if (k < 1) requestAnimationFrame(f); }; requestAnimationFrame(f); }
+
+// vitrina: van pasando las camisas de tres en tres, con un giro
+let vi = 0, grupos = [];
+const armarGrupos = () => { const v = DB.productos.filter(p => !p.oculto), g = []; for (let k = 0; k + 2 < v.length; k += 3) g.push(v.slice(k, k + 3)); grupos = g.length ? g : [v]; if (vi >= grupos.length) vi = 0; };
+const pintarVitrina = () => { $("#vitrina").innerHTML = grupos[vi].map(p => `<div class="fig">${camisa(p)}</div>`).join(""); };
+
+// cada vez que se pinta la página: tarjetas que aparecen (solo al cambiar de filtro, no en cada letra que se escribe)
+let ultFiltro = null;
+const _pintar = pintar;
+pintar = function(){ _pintar(); armarGrupos(); pintarVitrina();
+  const anim = filtro !== ultFiltro; ultFiltro = filtro;
+  $("#grid").querySelectorAll(".card").forEach((c, i) => { if (anim) { c.classList.add("rv"); c.style.setProperty("--d", (i % 4) * 70 + "ms"); } });
+  if (anim) observar($("#grid")); pintarCifras(); };
+function pintarCifras(){ const v = DB.productos.filter(p => !p.oculto);
+  [["#c-cam", v.length], ["#c-eq", new Set(v.map(p => p.equipo)).size], ["#c-ya", v.filter(p => p.entrega === "inmediata").length], ["#c-ret", v.filter(p => p.retro).length]]
+    .forEach(([s, n]) => { const el = $(s); if (+el.dataset.n !== n) { el.dataset.n = n; if (el.classList.contains("ok")) el.textContent = n; } }); }
+pintar();
+if (!QUIETO) setInterval(() => { if (document.hidden || grupos.length < 2) return; const v = $("#vitrina"); v.classList.add("gira");
+  setTimeout(() => { vi = (vi + 1) % grupos.length; pintarVitrina(); v.classList.add("gira"); requestAnimationFrame(() => requestAnimationFrame(() => v.classList.remove("gira"))); }, 900); }, 4200);
+
+// marcador: cuenta regresiva al próximo día de encargo
+(() => { const m = $("#marcador"); const tic = () => { const e = textoEncargo(); const meta = e.f.getTime() + 6 * 3600e3, r = Math.max(0, meta - Date.now());
+  if (e.falta === 0 || r === 0) { m.classList.add("hoy"); m.querySelector("small").textContent = "¡Hoy se hace el encargo! Pedí la tuya"; ["d","h","m","s"].forEach(k => m.querySelector(`[data-${k}]`).textContent = "00"); return; }
+  m.querySelector("small").textContent = `Cierre del próximo encargo · ${e.cuando}`;
+  const p = n => String(n).padStart(2, "0"); m.querySelector("[data-d]").textContent = p(Math.floor(r / 864e5)); m.querySelector("[data-h]").textContent = p(Math.floor(r / 36e5) % 24);
+  m.querySelector("[data-m]").textContent = p(Math.floor(r / 6e4) % 60); m.querySelector("[data-s]").textContent = p(Math.floor(r / 1e3) % 60); };
+  tic(); setInterval(tic, 1000); })();
+
+// cintas con los equipos
+(() => { const eqs = [...new Set(DB.productos.filter(p => !p.oculto).map(p => p.equipo))]; const mitad = Math.ceil(eqs.length / 2);
+  [["#mq-a", eqs], ["#mq-b", [...eqs.slice(mitad), ...eqs.slice(0, mitad)]]].forEach(([s, l]) => { const el = $(s); el.innerHTML = l.map(t => `<span>${esc(t)}</span>`).join(""); el.innerHTML += el.innerHTML;
+    const vel = () => el.style.animationDuration = (el.scrollWidth / 2 / 40).toFixed(1) + "s"; vel(); addEventListener("load", vel); }); })();
+
+// carrusel: listas para entregar ya
+(() => { const L = DB.productos.filter(p => !p.oculto && p.entrega === "inmediata"); if (L.length < 2) { $("#ya").hidden = true; return; }
+  const pista = $("#cf-pista"), box = $("#cf"); let i = 0, visto = false, sobre = false, arr = false;
+  pista.innerHTML = L.map((p, k) => { const tl = [...new Set(Object.values(p.stock || {}).flat())].sort((a, b) => TALLAS.indexOf(a) - TALLAS.indexOf(b));
+    return `<button type="button" class="cf-it" data-k="${k}" aria-label="${esc(titulo(p))}"><div class="ft">${vista(p)}</div><div class="in"><h3>${esc(titulo(p))}</h3><span class="d">${esc(p.kit)} · desde ${crc(desde(p))}</span><div class="tl">${tl.map(t => `<i>${t}</i>`).join("")}</div></div></button>`; }).join("");
+  const pos = () => { const n = L.length, an = innerWidth < 600 ? 62 : 72;
+    pista.querySelectorAll(".cf-it").forEach((el, k) => { let d = k - i; if (d > n / 2) d -= n; if (d < -n / 2) d += n; const a = Math.abs(d);
+      el.style.transform = `translateX(calc(-50% + ${d * an}%)) scale(${Math.max(.5, 1 - a * .15)})`; el.style.zIndex = 60 - a; el.style.opacity = a > 3 ? 0 : 1 - a * .2;
+      el.style.pointerEvents = a > 3 ? "none" : ""; el.classList.toggle("on", d === 0); el.tabIndex = d === 0 ? 0 : -1; }); };
+  const mover = d => { i = (i + d + L.length) % L.length; pos(); };
+  box.addEventListener("click", e => { const f = e.target.closest("[data-cfm]"); if (f) return mover(+f.dataset.cfm); const it = e.target.closest(".cf-it"); if (!it || arr) return;
+    const k = +it.dataset.k; if (k === i) elegir(L[k].id); else { i = k; pos(); } });
+  box.addEventListener("keydown", e => { if (e.key === "ArrowRight") { e.preventDefault(); mover(1); } if (e.key === "ArrowLeft") { e.preventDefault(); mover(-1); } });
+  let x0 = null, y0 = 0;
+  box.addEventListener("pointerdown", e => { if (e.target.closest("[data-cfm]")) return; x0 = e.clientX; y0 = e.clientY; arr = false; });
+  box.addEventListener("pointermove", e => { if (x0 == null) return; const dx = e.clientX - x0; if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(e.clientY - y0)) { arr = true; mover(dx < 0 ? 1 : -1); x0 = e.clientX; } });
+  addEventListener("pointerup", () => { x0 = null; setTimeout(() => arr = false, 0); });
+  box.addEventListener("pointerenter", e => { if (e.pointerType === "mouse") sobre = true; }); box.addEventListener("pointerleave", () => sobre = false);
+  box.addEventListener("touchstart", () => { sobre = true; clearTimeout(box._t); }, { passive: true }); box.addEventListener("touchend", () => { box._t = setTimeout(() => sobre = false, 6000); }, { passive: true });
+  if (io) new IntersectionObserver(([e]) => visto = e.isIntersecting, { threshold: .35 }).observe(box);
+  if (!QUIETO) setInterval(() => { if (visto && !sobre && !document.hidden && !$(".velo,.hoja-v,[role=dialog]:not([hidden])")) mover(1); }, 3200);
+  addEventListener("resize", pos); pos(); })();
+
+// tarjetas que se inclinan con el mouse
+if (FINO && !QUIETO) {
+  document.addEventListener("pointermove", e => { const c = e.target.closest?.(".card"); if (!c) return; const r = c.getBoundingClientRect(), x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
+    c.style.transform = `perspective(700px) rotateX(${-y * 7}deg) rotateY(${x * 9}deg) translateY(-4px)`; }, { passive: true });
+  document.addEventListener("pointerout", e => { const c = e.target.closest?.(".card"); if (c && !c.contains(e.relatedTarget)) c.style.transform = ""; });
+}
+// barra de avance y encabezado
+const barra = $("#progreso"), top_ = $(".top"); let pend = false;
+addEventListener("scroll", () => { if (pend) return; pend = true; requestAnimationFrame(() => { pend = false; const h = document.documentElement, m = h.scrollHeight - h.clientHeight;
+  barra.style.transform = `scaleX(${m > 0 ? h.scrollTop / m : 0})`; top_.classList.toggle("min", h.scrollTop > 40); }); }, { passive: true });
+document.querySelectorAll(".cab,.incluye>div,.busca,.pasos>div,.cifras>div,.dos-t>div").forEach((el, i) => { el.classList.add("rv"); if (el.parentElement.matches(".incluye,.pasos,.cifras,.dos-t")) el.style.setProperty("--d", ([...el.parentElement.children].indexOf(el)) * 90 + "ms"); });
+document.documentElement.classList.add("js");
+observar();
+})();
+</script>
+<script src="/visitas.js" defer></script></body>
+</html>
