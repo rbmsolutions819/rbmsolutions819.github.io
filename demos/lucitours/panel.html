@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0a1020">
+<title>Panel · Lucitours (propuesta)</title>
+<link rel="icon" href="f/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Inter:wght@400;500;600;700;800;900&display=swap">
+<link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+<div class="demo">✈️ <b>Propuesta</b> de panel hecha por RBM Solutions CR · datos de ejemplo guardados en este navegador</div>
+<header class="top"><div class="wrap"><img src="f/logo.png" alt=""><b>Panel Lucitours</b><nav><a class="btn sm" href="./" target="_blank" rel="noopener">Ver página ↗</a><button class="btn sm" type="button" id="salir" hidden>Salir</button></nav></div></header>
+<main class="wrap pan" id="app"></main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="viajes.js"></script>
+<script>
+(() => {
+const $ = (s, r = document) => r.querySelector(s), esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const { usd, deIso } = Luci, app = $("#app");
+let tT; const aviso = t => { const e = $("#toast"); e.textContent = t; e.classList.add("on"); clearTimeout(tT); tT = setTimeout(() => e.classList.remove("on"), 3000); };
+const hace = t => { const m = Math.round((Date.now() - t) / 60000); if (m < 1) return "recién"; if (m < 60) return `hace ${m} min`; const h = Math.round(m / 60); if (h < 24) return `hace ${h} h`; const d = Math.round(h / 24); return d === 1 ? "ayer" : `hace ${d} días`; };
+const waA = (tel, txt) => `https://wa.me/${tel.length === 8 ? "506" + tel : tel}?text=${encodeURIComponent(txt)}`;
+const salidaDe = (v, id) => (v.salidas.find(s => s.id === id) || v.salidas[0]);
+
+// Datos de ejemplo la primera vez que se abre el panel
+(function sembrar(){
+  const d = Luci.leer(); if (d.sembrado) return;
+  const H = 36e5, ahora = Date.now();
+  d.solicitudes = [
+    { id: "S7K2Q", t: ahora - 2 * H, estado: "nueva", viaje: "cusco", salida: "s1", personas: 2, nombre: "Daniela Rojas", tel: "88881111", total: 1998, reserva: 300 },
+    { id: "S7K1M", t: ahora - 5 * H, estado: "nueva", viaje: "medellin", salida: "mar", personas: 2, nombre: "Andrés Mora", tel: "88882222", total: 899, reserva: 200 },
+    { id: "S7J9P", t: ahora - 26 * H, estado: "nueva", viaje: "estambul", salida: "s1", personas: 1, nombre: "Karla Jiménez", tel: "88883333", total: 1999, reserva: 300 },
+    { id: "S7H3T", t: ahora - 3 * 24 * H, estado: "conf", viaje: "noruega", salida: "s1", personas: 2, nombre: "Luis Vargas", tel: "88884444", total: 6380, reserva: 800 }, ...d.solicitudes];
+  d.espera = [{ id: "E1", t: ahora - 8 * H, viaje: "japon", nombre: "Sofía Castro", tel: "88885555" }, { id: "E2", t: ahora - 30 * H, viaje: "japon", nombre: "Marco Solís", tel: "88886666" }, ...d.espera];
+  d.sembrado = true; localStorage.setItem("luci-demo-v1", JSON.stringify(d));
+})();
+
+let tab = "res";
+function login(){
+  app.innerHTML = `<form class="caja" id="fL" style="max-width:380px;margin:30px auto;text-align:center" novalidate><img src="f/logo.png" alt="" style="width:84px;border-radius:50%"><h2 style="font-size:34px;margin-top:10px">Panel de Lucitours</h2>
+    <div class="campo" style="margin-top:14px;text-align:left"><label for="c">Contraseña</label><input id="c" type="password" autocomplete="current-password"></div><p class="err" id="e"></p>
+    <button class="btn oro bloque" type="submit">Entrar</button><p class="nota">Demo: la contraseña es <b>demo1234</b></p></form>`;
+  $("#fL").onsubmit = e => { e.preventDefault(); if ($("#c").value === "demo1234") { sessionStorage.setItem("luci-panel", "1"); pintar(); } else $("#e").textContent = "Contraseña incorrecta."; };
+  setTimeout(() => $("#c").focus(), 50);
+}
+function pintar(){
+  if (!sessionStorage.getItem("luci-panel")) return login();
+  $("#salir").hidden = false;
+  const d = Luci.leer(), vs = Luci.viajes(), nuevas = d.solicitudes.filter(s => s.estado === "nueva");
+  app.innerHTML = `<h2 style="font-size:40px">Hola 👋</h2>
+    <div class="tabs" id="tabs">${[["res", "Resumen"], ["sol", `Solicitudes${nuevas.length ? `<span class="n">${nuevas.length}</span>` : ""}`], ["via", "Viajes y cupos"], ["esp", `Lista de espera${d.espera.length ? `<span class="n">${d.espera.length}</span>` : ""}`]].map(([k, t]) => `<button type="button" data-t="${k}" aria-pressed="${k === tab}">${t}</button>`).join("")}</div>
+    <div id="cuerpo"></div>`;
+  const c = $("#cuerpo");
+  if (tab === "res") {
+    const conf = d.solicitudes.filter(s => s.estado === "conf"), vendidos = vs.reduce((t, v) => t + v.vendidos, 0), cupos = vs.reduce((t, v) => t + v.cupos, 0);
+    c.innerHTML = `<div class="kpis"><div><small>Solicitudes nuevas</small><b>${nuevas.length}</b></div><div><small>Cupos vendidos</small><b>${vendidos} / ${cupos}</b></div>
+      <div><small>Reservas confirmadas</small><b>${usd(conf.reduce((t, s) => t + s.reserva, 0))}</b></div><div><small>En lista de espera</small><b>${d.espera.length}</b></div></div>
+      <div class="caja"><h3 style="font-size:26px">Cómo van los viajes</h3>${vs.map(v => { const pct = Math.round(v.vendidos / v.cupos * 100);
+        return `<div style="margin-top:12px"><div style="display:flex;justify-content:space-between;gap:10px;font-weight:700"><span>${esc(v.destino)}${v.oculto ? " <span class='nota'>(oculto)</span>" : ""}</span><span class="oro">${v.vendidos}/${v.cupos}</span></div>
+          <div class="cupos" style="margin-top:4px"><i><b style="width:${pct}%"></b></i></div></div>`; }).join("")}</div>`;
+  }
+  if (tab === "sol") {
+    const l = [...d.solicitudes].sort((a, b) => (a.estado === "nueva" ? 0 : 1) - (b.estado === "nueva" ? 0 : 1) || b.t - a.t);
+    c.innerHTML = `<p class="nota">Cada vez que alguien toca “Apartar por WhatsApp” queda aquí. Cuando paga la reserva, marcala como confirmada y el cupo se descuenta solo.</p>` + (l.length ? l.map(s => { const v = Luci.viaje(s.viaje); if (!v) return ""; const sal = salidaDe(v, s.salida);
+      return `<div class="fila">${v.foto ? `<img src="${v.foto}" alt="">` : `<span class="mini arte ${v.arte}">${v.ic}</span>`}
+        <div><div class="t">${esc(s.nombre)} · ${s.personas} persona${s.personas === 1 ? "" : "s"}</div><div class="m">${esc(v.destino)} · ${esc(sal.nombre)} · total ${usd(s.total)} · reserva ${usd(s.reserva)}</div><div class="m">${s.id} · ${hace(s.t)}</div></div>
+        <div class="acc"><span class="est ${s.estado}">${s.estado === "nueva" ? "Nueva" : s.estado === "conf" ? "Confirmada" : "Descartada"}</span>
+          <a class="btn sm wa" target="_blank" rel="noopener" href="${waA(s.tel, `Hola ${s.nombre.split(" ")[0]} 👋, te escribimos de Lucitours por tu solicitud ${s.id} para ${v.destino}.`)}">WhatsApp</a>
+          ${s.estado === "nueva" ? `<button class="btn sm oro" type="button" data-conf="${s.id}">✓ Pagó la reserva</button><button class="btn sm" type="button" data-desc="${s.id}">Descartar</button>` : ""}</div></div>`; }).join("") : `<p class="vacio">Todavía no hay solicitudes.</p>`);
+  }
+  if (tab === "via") {
+    c.innerHTML = `<p class="nota">Cambiá precios y cupos: la página se actualiza al instante. En la versión real también se suben viajes nuevos con su afiche.</p>` + vs.map(v => `<div class="fila">${v.foto ? `<img src="${v.foto}" alt="">` : `<span class="mini arte ${v.arte}">${v.ic}</span>`}
+      <div><div class="t">${esc(v.destino)}</div><div class="m">${esc(salidaDe(v).nombre)}${v.salidas.length > 1 ? ` y ${v.salidas.length - 1} salida${v.salidas.length > 2 ? "s" : ""} más` : ""}</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;align-items:end">
+          <label class="campo"><span class="m">Precio $</span><input class="mini-in" type="number" min="1" value="${v.precio}" data-precio="${v.id}"></label>
+          <label class="campo"><span class="m">Cupos</span><input class="mini-in" type="number" min="1" value="${v.cupos}" data-cupos="${v.id}"></label>
+          <div class="campo"><span class="m">Vendidos</span><div class="cant"><button type="button" data-vend="${v.id}:-1" aria-label="Menos">−</button><b>${v.vendidos}</b><button type="button" data-vend="${v.id}:1" aria-label="Más">+</button></div></div></div></div>
+      <div class="acc"><button class="btn sm" type="button" data-ocu="${v.id}">${v.oculto ? "Mostrar en la página" : "Ocultar"}</button></div></div>`).join("");
+  }
+  if (tab === "esp") {
+    c.innerHTML = `<p class="nota">Personas que quieren un viaje lleno. Si se libera un cupo o abrís otra salida, escribiles primero.</p>` + (d.espera.length ? d.espera.map(e => { const v = Luci.viaje(e.viaje);
+      return `<div class="fila">${v && v.foto ? `<img src="${v.foto}" alt="">` : `<span class="mini arte ${v ? v.arte : ""}">${v ? v.ic : "✈️"}</span>`}<div><div class="t">${esc(e.nombre)}</div><div class="m">${esc(v ? v.destino : e.viaje)} · ${hace(e.t)}</div></div>
+        <div class="acc"><a class="btn sm wa" target="_blank" rel="noopener" href="${waA(e.tel, `Hola ${e.nombre.split(" ")[0]} 👋, ¡se liberó un cupo para ${v ? v.destino : "tu viaje"}! ¿Lo querés apartar?`)}">Avisarle</a><button class="btn sm" type="button" data-esp="${e.id}">Quitar</button></div></div>`; }).join("") : `<p class="vacio">Nadie en lista de espera.</p>`);
+  }
+}
+app.addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.dataset.t) { tab = b.dataset.t; pintar(); return; }
+  if (b.dataset.conf) { const s = Luci.leer().solicitudes.find(x => x.id === b.dataset.conf), v = Luci.viaje(s.viaje);
+    Luci.cambiarSolicitud(s.id, { estado: "conf" }); Luci.cambiar(v.id, { vendidos: Math.min(v.cupos, v.vendidos + s.personas) }); aviso(`✅ ${s.nombre}: cupo confirmado`); pintar(); return; }
+  if (b.dataset.desc) { Luci.cambiarSolicitud(b.dataset.desc, { estado: "desc" }); pintar(); return; }
+  if (b.dataset.vend) { const [id, n] = b.dataset.vend.split(":"), v = Luci.viaje(id); Luci.cambiar(id, { vendidos: Math.max(0, Math.min(v.cupos, v.vendidos + +n)) }); pintar(); return; }
+  if (b.dataset.ocu) { const v = Luci.viaje(b.dataset.ocu); Luci.cambiar(v.id, { oculto: !v.oculto }); aviso(v.oculto ? "Viaje visible en la página" : "Viaje oculto"); pintar(); return; }
+  if (b.dataset.esp) { Luci.borrarEspera(b.dataset.esp); pintar(); return; }
+});
+app.addEventListener("change", e => {
+  const i = e.target; const n = Math.max(1, Math.round(+i.value || 0));
+  if (i.dataset.precio) { Luci.cambiar(i.dataset.precio, { precio: n }); aviso("Precio actualizado"); }
+  if (i.dataset.cupos) { const v = Luci.viaje(i.dataset.cupos); Luci.cambiar(v.id, { cupos: n, vendidos: Math.min(n, v.vendidos) }); aviso("Cupos actualizados"); pintar(); }
+});
+$("#salir").onclick = () => { sessionStorage.removeItem("luci-panel"); $("#salir").hidden = true; login(); };
+addEventListener("storage", () => sessionStorage.getItem("luci-panel") && pintar());
+pintar();
+})();
+</script>
+<script src="/visitas.js" defer></script></body>
+</html>
