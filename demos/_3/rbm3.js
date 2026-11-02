@@ -28,7 +28,7 @@
   const listo = f => document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", f) : f();
   listo(() => {
     /* ---- 2. Barra de avance ---- */
-    const barra = document.createElement("div"); barra.className = "r3-progreso"; barra.setAttribute("aria-hidden", "true"); document.body.append(barra);
+    const barra = document.createElement("div"); barra.className = "r3-progreso"; barra.setAttribute("aria-hidden", "true"); if (C.progreso !== false) document.body.append(barra);
     let arriba = null;
     if (C.arriba) { arriba = document.createElement("button"); arriba.type = "button"; arriba.className = "r3-arriba"; arriba.setAttribute("aria-label", "Volver arriba");
       arriba.innerHTML = `<svg class="anillo" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="22"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>`;
