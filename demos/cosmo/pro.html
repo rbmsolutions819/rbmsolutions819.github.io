@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Cosmo Scrubs Medical · Hecho para reinar</title>
+<meta name="description" content="Scrubs de diseño único, fabricados en San Ramón con telas colombianas antifluidos y stretch.">
+<meta name="theme-color" content="#000000">
+<link rel="icon" href="logo.png">
+<link rel="preload" as="image" href="fotos/aloha-degradado-lila.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* Propuesta de lanzamiento para Cosmo: negro absoluto, su verde lima como único acento y las fotos de sus scrubs
+   como protagonistas. Cada escena avanza al bajar. */
+:root{
+  --negro:#000;--g9:#1d1d1f;--g8:#2a2a2d;--g5:#86868b;--g3:#d2d2d7;--claro:#f5f5f7;
+  --lima:#cdf54f;--lima2:#b4dc2e;
+  --f:-apple-system,BlinkMacSystemFont,"SF Pro Display","Inter","Segoe UI",Roboto,sans-serif;
+  --gl:max(22px,env(safe-area-inset-left,0px));--gr:max(22px,env(safe-area-inset-right,0px));
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--negro);color:var(--claro);font:400 17px/1.47 var(--f);-webkit-font-smoothing:antialiased;overflow-x:clip;letter-spacing:-.022em}
+a{color:inherit;text-decoration:none}
+h1,h2,h3,p{margin:0}
+img{display:block;max-width:100%}
+.wrap{max-width:1080px;margin:0 auto;padding-left:var(--gl);padding-right:var(--gr)}
+.demo{position:relative;z-index:60;background:var(--lima);color:#000;font-size:12px;font-weight:600;text-align:center;padding:6px var(--gr) 6px var(--gl);padding-top:calc(6px + env(safe-area-inset-top,0px))}
+.nav{position:sticky;top:0;z-index:50;height:48px;background:rgba(0,0,0,.72);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid rgba(255,255,255,.08)}
+.nav .wrap{height:48px;display:flex;align-items:center;gap:26px}
+.marca{font-weight:700;font-size:17px;letter-spacing:-.02em}.marca span{color:var(--g5);font-weight:400;margin-left:6px;font-size:13px}
+.nav .links{display:flex;gap:24px;margin-left:auto;font-size:13px;color:rgba(245,245,247,.82)}
+.nav .links a:hover{color:#fff}
+.nav .cta{font-size:13px;font-weight:600;background:var(--lima);color:#000;padding:5px 14px;border-radius:999px}
+@media (max-width:760px){.nav .links{display:none}.nav .cta{margin-left:auto}}
+.lnk{color:var(--lima);font-size:clamp(17px,2vw,21px);display:inline-flex;align-items:center;gap:4px}
+.lnk::after{content:"›";font-size:1.15em;line-height:1;transition:transform .25s}
+.lnk:hover::after{transform:translateX(3px)}
+.bt{flex:none;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:999px;padding:13px 24px;font-size:17px;font-weight:600;background:var(--lima);color:#000;transition:filter .25s}
+.bt:hover{filter:brightness(1.06)}
+.bt.gris{background:rgba(255,255,255,.1);color:#fff}
+.escena{position:relative}
+.escena>.fijo{position:sticky;top:0;height:100svh;overflow:hidden}
+.rv{opacity:0;transform:translateY(40px);transition:opacity 1s cubic-bezier(.2,.75,.2,1) var(--d,0s),transform 1s cubic-bezier(.2,.75,.2,1) var(--d,0s)}
+.rv.vis{opacity:1;transform:none}
+@keyframes aparece{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+@keyframes sube{from{transform:translateY(105%)}to{transform:none}}
+
+/* 1. Portada: la foto crece hasta llenar la pantalla */
+.s-hero{height:260vh}
+.s-hero .fijo{display:grid;place-items:center}
+.s-hero .marco{position:absolute;left:50%;top:50%;width:calc(min(360px,62vw) + var(--e,0) * (100vw - min(360px,62vw)));height:calc(min(460px,44svh) + var(--e,0) * (100svh - min(460px,44svh)));translate:-50% calc(-50% + (1 - var(--e,0)) * 22svh);border-radius:calc((1 - var(--e,0)) * 34px);overflow:hidden;animation:aparece 1.6s .35s cubic-bezier(.2,.75,.2,1) both}
+.s-hero .marco img{width:100%;height:100%;object-fit:cover;object-position:50% 30%;transform:scale(calc(1.15 - var(--e,0) * .15))}
+.s-hero .marco::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.25),transparent 30%,transparent 55%,rgba(0,0,0,.85));opacity:var(--e,0)}
+.s-hero .txt{position:absolute;top:calc(48px + 7svh);left:0;right:0;text-align:center;display:grid;gap:12px;justify-items:center;padding:0 var(--gr) 0 var(--gl);opacity:calc(1 - var(--e,0) * 2.4);transform:translateY(calc(var(--e,0) * -40px))}
+.s-hero .eyebrow{color:var(--lima);font-weight:600;font-size:clamp(16px,2vw,20px);animation:aparece 1.2s both}
+.s-hero h1{font-size:clamp(48px,9vw,116px);line-height:1;font-weight:700;letter-spacing:-.05em}
+.s-hero h1 span{display:block;overflow:hidden}.s-hero h1 i{display:block;font-style:normal;animation:sube 1.2s cubic-bezier(.2,.75,.2,1) both}
+.s-hero h1 span:nth-child(2) i{animation-delay:.12s;color:var(--lima)}
+.s-hero .final{position:absolute;left:0;right:0;bottom:calc(9svh + env(safe-area-inset-bottom,0px));text-align:center;display:grid;gap:14px;justify-items:center;padding:0 var(--gr) 0 var(--gl);opacity:calc((var(--e,0) - .75) * 4);transform:translateY(calc((1 - var(--e,0)) * 40px))}
+.s-hero .final h2{font-size:clamp(34px,5.4vw,64px);font-weight:700;letter-spacing:-.045em;line-height:1.05}
+.s-hero .final p{color:#d2d2d7;font-size:clamp(17px,2vw,21px);max-width:36ch}
+.s-hero .chip{position:absolute;right:calc(50% - min(180px,31vw) - 18px);top:calc(50% - min(230px,22svh) + 22svh - 20px);background:var(--lima);color:#000;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;border-radius:999px;padding:8px 14px;rotate:8deg;opacity:calc(1 - var(--e,0) * 4);animation:aparece 1.2s 1s both}
+
+/* 2. Tres palabras */
+.s-pal{height:300vh}
+.s-pal .fijo{display:grid;place-items:center}
+.s-pal .pal{position:absolute;font-size:clamp(60px,14vw,210px);font-weight:700;letter-spacing:-.06em;line-height:1;text-align:center;opacity:0;will-change:transform,opacity,filter}
+.s-pal .pal small{display:block;font-size:.16em;font-weight:500;letter-spacing:-.01em;color:var(--g5);margin-top:.5em}
+.s-pal .pal:nth-child(3) b{color:var(--lima);font-weight:700}
+
+/* 3. Escoja su color */
+.s-color{height:560vh;background:#0a0a0b}
+.s-color .fijo{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:center;gap:clamp(24px,5vw,70px);max-width:1180px;margin:0 auto;padding:60px var(--gr) 0 var(--gl)}
+.s-color .lado h2{font-size:clamp(38px,5.6vw,72px);font-weight:700;letter-spacing:-.045em;line-height:1.02}
+.s-color .lado>p{color:var(--g5);font-size:clamp(17px,2vw,21px);margin-top:14px;max-width:30ch}
+.s-color .nombre{margin-top:clamp(26px,5vh,46px);font-size:clamp(30px,4.4vw,52px);font-weight:700;letter-spacing:-.04em;color:var(--c);transition:color .6s;min-height:1.1em;text-shadow:0 0 40px color-mix(in srgb,var(--c) 40%,transparent)}
+.s-color .nombre small{display:block;font-size:14px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--g5);text-shadow:none;margin-bottom:6px}
+.puntos{display:flex;flex-wrap:wrap;gap:12px;margin-top:22px;max-width:360px}
+.puntos button{width:30px;height:30px;border-radius:50%;border:0;background:var(--c);cursor:pointer;box-shadow:inset 0 0 0 1px rgba(255,255,255,.18);transition:transform .3s,box-shadow .3s;outline-offset:3px}
+.puntos button[aria-pressed="true"]{transform:scale(1.15);box-shadow:inset 0 0 0 1px rgba(255,255,255,.18),0 0 0 3px #0a0a0b,0 0 0 5px var(--claro)}
+.vitrina{position:relative;height:min(78svh,720px);border-radius:34px;overflow:hidden;background:radial-gradient(circle at 50% 40%,color-mix(in srgb,var(--c) 30%,#f5f5f7),#e9e9ed 70%);transition:background .8s}
+.vitrina img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity .8s,transform 1.2s cubic-bezier(.2,.75,.2,1)}
+.vitrina img:not(.on){opacity:0;transform:scale(1.06)}
+.vitrina .cuenta{position:absolute;left:22px;bottom:18px;font-size:13px;font-weight:700;color:rgba(0,0,0,.55);background:rgba(255,255,255,.7);backdrop-filter:blur(8px);padding:6px 12px;border-radius:999px;font-variant-numeric:tabular-nums}
+@media (max-width:820px){
+  .s-color .fijo{grid-template-columns:1fr;grid-template-rows:auto 1fr;gap:16px;padding-top:66px;align-items:start}
+  .s-color .lado{text-align:center;display:grid;justify-items:center}
+  .s-color .lado>p{display:none}
+  .s-color .nombre{margin-top:10px;font-size:28px}
+  .puntos{justify-content:center;margin-top:12px;gap:10px}
+  .puntos button{width:24px;height:24px}
+  .vitrina{height:auto;min-height:0;aspect-ratio:3/4;width:min(84vw,calc((100svh - 290px) * .75));margin:0 auto;justify-self:center}
+}
+
+/* 4. Las líneas, de lado */
+.s-lineas{height:500vh}
+.s-lineas .fijo{display:grid;grid-template-columns:100%;grid-template-rows:auto 1fr;align-content:center;gap:clamp(20px,4vh,40px);padding-top:48px}
+.s-lineas .cab{padding:0 var(--gr) 0 var(--gl);max-width:1180px;margin:0 auto;width:100%}
+.s-lineas .cab h2{font-size:clamp(38px,5.6vw,72px);font-weight:700;letter-spacing:-.045em;line-height:1.02}
+.s-lineas .cab p{color:var(--g5);font-size:clamp(17px,2vw,21px);margin-top:10px}
+.riel{display:flex;gap:clamp(16px,2.4vw,28px);padding-left:max(var(--gl),calc((100vw - 1180px) / 2 + 22px));width:max-content;transform:translateX(var(--x,0px));will-change:transform}
+.linea{position:relative;width:clamp(260px,30vw,400px);height:min(62svh,560px);border-radius:30px;overflow:hidden;flex:none;background:#111}
+.linea img{width:100%;height:100%;object-fit:cover;object-position:50% 25%;transition:transform 1.2s cubic-bezier(.2,.75,.2,1)}
+.linea:hover img{transform:scale(1.05)}
+.linea .info{position:absolute;left:0;right:0;bottom:0;padding:70px 24px 24px;background:linear-gradient(transparent,rgba(0,0,0,.88));display:grid;gap:4px}
+.linea small{color:var(--lima);font-size:13px;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
+.linea b{font-size:clamp(26px,3vw,34px);font-weight:700;letter-spacing:-.035em;line-height:1.05}
+.linea span{color:#d2d2d7;font-size:15px}
+.linea em{font-style:normal;font-weight:700;font-size:18px;margin-top:6px}
+.riel-barra{height:3px;border-radius:3px;background:var(--g8);margin:0 auto;width:min(240px,50vw);overflow:hidden}
+.riel-barra i{display:block;height:100%;background:var(--lima);transform-origin:0 50%;transform:scaleX(var(--b,0))}
+
+/* 5. Frase de la fábrica */
+.s-frase{height:240vh}
+.s-frase .fijo{display:grid;place-items:center}
+.s-frase p{font-size:clamp(32px,5.6vw,72px);line-height:1.1;font-weight:700;letter-spacing:-.045em;max-width:19ch}
+.s-frase p span{color:#262628;transition:color .35s}
+.s-frase p span.on{color:var(--claro)}
+.s-frase p span.li.on{color:var(--lima)}
+
+/* 6. Cifras */
+.cifras{padding:clamp(90px,13vw,150px) 0;border-top:1px solid var(--g9)}
+.cifras .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:30px}
+@media (max-width:760px){.cifras .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:40px 20px}}
+.cifras .n{font-size:clamp(46px,7vw,88px);font-weight:700;letter-spacing:-.05em;line-height:1;background:linear-gradient(180deg,#fff,#7a7a80);-webkit-background-clip:text;background-clip:text;color:transparent}
+.cifras .n.li{background:linear-gradient(180deg,#e9ffa0,var(--lima2))}
+.cifras p{color:var(--g5);font-size:16px;margin-top:10px;font-weight:500}
+
+/* 7. Promo */
+.promo{background:var(--claro);color:var(--g9);padding:clamp(90px,13vw,150px) 0}
+.promo .cab{text-align:center;display:grid;gap:14px;justify-items:center;margin-bottom:clamp(40px,6vw,64px)}
+.promo h2{font-size:clamp(40px,7vw,88px);font-weight:700;letter-spacing:-.05em;line-height:1}
+.promo .cab p{color:var(--g5);font-size:clamp(18px,2.2vw,23px);max-width:34ch;font-weight:500}
+.planes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+@media (max-width:820px){.planes{grid-template-columns:1fr;max-width:440px;margin:0 auto}}
+.plan{background:#fff;border-radius:28px;padding:34px 28px;display:grid;gap:8px;position:relative;border:2px solid transparent}
+.plan.top{border-color:#000;box-shadow:0 30px 60px -36px rgba(0,0,0,.6)}
+.plan .tag{position:absolute;top:-14px;left:28px;background:var(--lima);color:#000;font-size:12px;font-weight:800;padding:4px 12px;border-radius:999px;letter-spacing:.04em}
+.plan h3{font-size:22px;font-weight:700;letter-spacing:-.03em}
+.plan .pr{font-size:clamp(40px,4.6vw,52px);font-weight:800;letter-spacing:-.045em;line-height:1;margin-top:8px;font-variant-numeric:tabular-nums}
+.plan .u{color:var(--g5);font-size:15px}
+.plan .ah{justify-self:start;margin-top:8px;background:#000;color:var(--lima);font-size:13px;font-weight:700;border-radius:999px;padding:5px 12px}
+.promo .nota{text-align:center;color:#6e6e73;margin-top:30px;font-size:15px}
+
+/* 8. Cierre */
+.cierre{padding:clamp(110px,16vw,190px) 0 clamp(90px,12vw,140px);text-align:center;position:relative;overflow:hidden}
+.cierre::before{content:"";position:absolute;left:50%;bottom:-45%;width:110vmax;height:80vmax;translate:-50% 0;background:radial-gradient(ellipse,rgba(205,245,79,.18),transparent 60%);pointer-events:none}
+.cierre .wrap{position:relative;display:grid;gap:22px;justify-items:center}
+.cierre h2{font-size:clamp(48px,10vw,140px);line-height:.98;font-weight:800;letter-spacing:-.06em;background:linear-gradient(180deg,#fff 30%,#6b6b70);-webkit-background-clip:text;background-clip:text;color:transparent}
+.cierre p{font-size:clamp(19px,2.4vw,24px);color:var(--g5);font-weight:500;max-width:32ch}
+.cierre .acc{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-top:8px}
+footer{border-top:1px solid var(--g8);padding:28px 0 calc(34px + env(safe-area-inset-bottom,0px));font-size:12.5px;color:var(--g5)}
+footer .wrap{display:flex;flex-wrap:wrap;gap:10px 24px;justify-content:space-between}
+footer a:hover{color:var(--claro);text-decoration:underline}
+@media (prefers-reduced-motion:reduce){.s-hero,.s-pal,.s-color,.s-lineas,.s-frase{height:auto}.escena>.fijo{position:relative;height:auto;min-height:100svh}.s-pal .pal{position:relative;opacity:1}.rv{opacity:1;transform:none}*{animation:none!important}.riel{width:auto;flex-wrap:wrap}}
+</style>
+</head>
+<body>
+<div class="demo">Propuesta de RBM Solutions CR para Cosmo Scrubs Medical · página de ejemplo</div>
+<nav class="nav" aria-label="Principal"><div class="wrap">
+  <a class="marca" href="#top">Cosmo<span>Scrubs Medical</span></a>
+  <div class="links"><a href="#colores">Colores</a><a href="#lineas">Líneas</a><a href="#fabrica">Fábrica</a><a href="#promo">Promo</a></div>
+  <a class="cta" href="v3.html#catalogo">Comprar</a>
+</div></nav>
+
+<main id="top">
+  <!-- 1 -->
+  <section class="escena s-hero" data-esc aria-labelledby="t1"><div class="fijo">
+    <div class="txt"><p class="eyebrow">Nuevo · Uniforme Aloha</p><h1 id="t1"><span><i>Hecho para</i></span><span><i>reinar.</i></span></h1></div>
+    <div class="marco"><img src="fotos/aloha-degradado-lila.jpg" alt="Uniforme Aloha en degradado lila"></div>
+    <span class="chip">Hecho en Costa Rica</span>
+    <div class="final"><h2>En cada turno.</h2><p>Scrubs de diseño único, fabricados en San Ramón con telas colombianas antifluidos y stretch.</p><a class="lnk" href="#colores">Encontrar mi color</a></div>
+  </div></section>
+
+  <!-- 2 -->
+  <section class="escena s-pal" data-esc aria-label="Antifluidos, stretch y a su medida"><div class="fijo">
+    <span class="pal">Antifluidos.<small>Protección en cada jornada.</small></span>
+    <span class="pal">Stretch.<small>Se mueve con usted, no en su contra.</small></span>
+    <span class="pal"><b>A su medida.</b><small>Petite, regular o tall. O el largo exacto que necesite.</small></span>
+  </div></section>
+
+  <!-- 3 -->
+  <section class="escena s-color" id="colores" data-esc aria-label="Colores del uniforme Cosmo"><div class="fijo">
+    <div class="lado"><h2>Nueve colores.<br>Un solo estilo.</h2><p>La línea Cosmo en toda su paleta. Baje para recorrerla o toque un color.</p>
+      <div class="nombre" id="nombreColor"><small>Uniforme Cosmo</small><span></span></div>
+      <div class="puntos" id="puntos"></div></div>
+    <div class="vitrina" id="vitrina"><span class="cuenta" id="cuenta">01 / 09</span></div>
+  </div></section>
+
+  <!-- 4 -->
+  <section class="escena s-lineas" id="lineas" data-esc aria-label="Las líneas de Cosmo"><div class="fijo">
+    <div class="cab"><h2>Una línea para cada turno.</h2><p>Del quirófano al laboratorio, con el mismo cuidado.</p></div>
+    <div style="display:grid;gap:26px">
+      <div class="riel" id="riel">
+        <a class="linea" href="v3.html#catalogo"><img src="fotos/cosmo-vino.jpg" alt="Uniforme Cosmo color vino" loading="lazy"><div class="info"><small>Cosmo</small><b>Uniforme Cosmo</b><span>Nuestro clásico, en nueve colores.</span><em>₡33.800</em></div></a>
+        <a class="linea" href="v3.html#catalogo"><img src="fotos/aloha-coral.jpg" alt="Uniforme Aloha color coral" loading="lazy"><div class="info"><small>Aloha</small><b>Uniforme Aloha</b><span>Colores vivos y degradados.</span><em>₡32.800</em></div></a>
+        <a class="linea" href="v3.html#catalogo"><img src="fotos/ionik-azul-marino.jpg" alt="Uniforme IONIK azul marino" loading="lazy"><div class="info"><small>IONIK</small><b>Uniforme IONIK</b><span>Práctico para el día a día.</span><em>₡20.800</em></div></a>
+        <a class="linea" href="v3.html#catalogo"><img src="fotos/gabacha-cierre.jpg" alt="Gabacha de laboratorio con cierre" loading="lazy"><div class="info"><small>Laboratorio</small><b>Gabacha Cosmo</b><span>Con botones o con cierre.</span><em>₡22.000</em></div></a>
+        <a class="linea" href="v3.html#catalogo"><img src="fotos/gorro-modelo.jpg" alt="Gorro quirúrgico color vino" loading="lazy"><div class="info"><small>Complete el look</small><b>Gorro quirúrgico</b><span>En la misma tela de su scrub.</span><em>₡5.000</em></div></a>
+      </div>
+      <div class="riel-barra" aria-hidden="true"><i id="rielBarra"></i></div>
+    </div>
+  </div></section>
+
+  <!-- 5 -->
+  <section class="escena s-frase" id="fabrica" data-esc aria-label="Nuestra fábrica"><div class="fijo"><div class="wrap">
+    <p id="frase">Cada scrub se confecciona en <span class="li">San Ramón,</span> con telas premium importadas de <span class="li">Colombia.</span></p>
+  </div></div></section>
+
+  <!-- 6 -->
+  <section class="cifras"><div class="wrap grid">
+    <div class="rv"><div class="n li">3–5</div><p>días para confeccionar su talla si no está en existencia.</p></div>
+    <div class="rv" style="--d:.08s"><div class="n">₡0</div><p>de envío a todo Costa Rica por Correos.</p></div>
+    <div class="rv" style="--d:.16s"><div class="n">3</div><p>largos: petite, regular y tall.</p></div>
+    <div class="rv" style="--d:.24s"><div class="n">100%</div><p>hecho en Costa Rica, directo de la fábrica.</p></div>
+  </div></section>
+
+  <!-- 7 -->
+  <section class="promo" id="promo"><div class="wrap">
+    <div class="cab rv"><h2>Entre más lleva,<br>más ahorra.</h2><p>Combine estilos, colores y tallas de la línea Cosmo. Ideal para pedir con compañeros.</p></div>
+    <div class="planes">
+      <div class="plan rv"><h3>1 uniforme</h3><span class="pr">₡33.800</span><span class="u">Precio por unidad</span></div>
+      <div class="plan rv" style="--d:.08s"><h3>2 uniformes</h3><span class="pr">₡59.800</span><span class="u">₡29.900 cada uno</span><span class="ah">Ahorra ₡7.800</span></div>
+      <div class="plan top rv" style="--d:.16s"><span class="tag">Mejor precio</span><h3>3 uniformes</h3><span class="pr">₡86.400</span><span class="u">₡28.800 cada uno</span><span class="ah">Ahorra ₡15.000</span></div>
+    </div>
+    <p class="nota rv">Envío gratis a todo Costa Rica. El descuento se aplica solo en su pedido.</p>
+  </div></section>
+
+  <!-- 8 -->
+  <section class="cierre"><div class="wrap">
+    <h2 class="rv">Su próximo turno<br>empieza aquí.</h2>
+    <p class="rv" style="--d:.1s">Escoja su estilo, su color y su talla. Le asesoramos por WhatsApp.</p>
+    <div class="acc rv" style="--d:.2s"><a class="bt" href="v3.html#catalogo">Ver el catálogo</a><a class="bt gris" href="https://wa.me/50685145000?text=Hola%20Cosmo%2C%20quiero%20informaci%C3%B3n%20de%20los%20uniformes." target="_blank" rel="noopener">Escribir por WhatsApp</a></div>
+  </div></section>
+</main>
+<footer><div class="wrap">
+  <span>Cosmo Scrubs Medical · Fábrica en San Ramón de Alajuela · Grupo MATEX</span>
+  <span><a href="https://www.instagram.com/uniformes_medicos_cosmo" target="_blank" rel="noopener">Instagram</a> · Página de ejemplo hecha por <a href="https://rbmsolutionscr.com" target="_blank" rel="noopener">RBM Solutions CR</a></span>
+</div></footer>
+
+<script>
+(() => {
+  "use strict";
+  const QUIETO = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+  const lim = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v)), tramo = (p, a, b) => lim((p - a) / (b - a)), suave = t => t * t * (3 - 2 * t);
+
+  // colores de la línea Cosmo
+  const COL = [["durazno", "Durazno", "#f4a98a"], ["gris-acero", "Gris acero", "#7d8591"], ["lila", "Lila", "#a98ad6"], ["malva", "Malva", "#c48aa6"], ["negro", "Negro", "#2b2b30"],
+    ["rosado", "Rosado", "#f0a3bf"], ["turquesa", "Turquesa", "#2fb3b7"], ["verde-botella", "Verde botella", "#2f6b52"], ["vino", "Vino", "#8c1d3a"]];
+  const vit = $("#vitrina"), pts = $("#puntos"), nombre = $("#nombreColor span"), cuenta = $("#cuenta"), secColor = $(".s-color");
+  vit.insertAdjacentHTML("afterbegin", COL.map(([k, n], i) => `<img src="fotos/cosmo-${k}.jpg" alt="Uniforme Cosmo color ${n}" ${i ? 'loading="lazy"' : ""}>`).join(""));
+  pts.innerHTML = COL.map(([k, n, c], i) => `<button type="button" style="--c:${c}" aria-label="${n}" aria-pressed="false" data-i="${i}"></button>`).join("");
+  const imgs = $$("#vitrina img"), botones = $$("#puntos button");
+  let colAct = -1;
+  const ponColor = i => { if (i === colAct) return; colAct = i; const [, n, c] = COL[i];
+    imgs.forEach((im, k) => im.classList.toggle("on", k === i)); botones.forEach((b, k) => b.setAttribute("aria-pressed", String(k === i)));
+    secColor.style.setProperty("--c", c); nombre.textContent = n; cuenta.textContent = `${String(i + 1).padStart(2, "0")} / ${String(COL.length).padStart(2, "0")}`; };
+  pts.addEventListener("click", e => { const b = e.target.closest("[data-i]"); if (!b) return; const i = +b.dataset.i;
+    const r = secColor.getBoundingClientRect(), l = secColor.offsetHeight - innerHeight, y = scrollY + r.top + l * ((i + .5) / COL.length);
+    scrollTo({ top: y, behavior: QUIETO ? "auto" : "smooth" }); ponColor(i); });
+  ponColor(0);
+
+  const esc = $$("[data-esc]"), pals = $$(".s-pal .pal"), riel = $("#riel"), barra = $("#rielBarra");
+  const frase = (() => { const p = $("#frase"), out = [];
+    [...p.childNodes].forEach(n => { const li = n.nodeType === 1; const partes = n.textContent.split(/(\s+)/).map(t => { if (!t.trim()) return document.createTextNode(t); const s = document.createElement("span"); s.textContent = t; if (li) s.className = "li"; out.push(s); return s; }); n.replaceWith(...partes); });
+    return out; })();
+  const prog = s => { const r = s.getBoundingClientRect(), l = s.offsetHeight - innerHeight; return lim(-r.top / (l || 1)); };
+  const pinta = () => {
+    esc.forEach(s => { const p = prog(s);
+      if (s.classList.contains("s-hero")) s.style.setProperty("--e", suave(tramo(p, .05, .8)).toFixed(4));
+      if (s.classList.contains("s-pal")) { const n = pals.length;
+        pals.forEach((w, i) => { const t = tramo(p, i / n, (i + 1) / n), ent = suave(tramo(t, 0, .35)), sal = i === n - 1 ? 0 : suave(tramo(t, .7, 1));
+          w.style.opacity = (ent * (1 - sal)).toFixed(3); w.style.transform = `scale(${(1.4 - ent * .4 + sal * .5).toFixed(3)})`; w.style.filter = `blur(${((1 - ent) * 18 + sal * 14).toFixed(1)}px)`; }); }
+      if (s === secColor) ponColor(Math.min(COL.length - 1, Math.floor(tramo(p, .02, .98) * COL.length)));
+      if (s.classList.contains("s-lineas")) { const t = suave(tramo(p, .08, .92)), max = riel.scrollWidth - innerWidth + Math.max(22, (innerWidth - 1180) / 2 + 22);
+        riel.style.setProperty("--x", (-t * Math.max(0, max)).toFixed(1) + "px"); barra.style.setProperty("--b", t.toFixed(3)); }
+      if (s.classList.contains("s-frase")) { const n = Math.round(frase.length * tramo(p, .05, .85)); frase.forEach((w, i) => w.classList.toggle("on", i < n)); }
+    });
+  };
+  let pend = false;
+  addEventListener("scroll", () => { if (!pend) { pend = true; requestAnimationFrame(() => { pend = false; pinta(); }); } }, { passive: true });
+  addEventListener("resize", pinta); pinta();
+  if (QUIETO) frase.forEach(w => w.classList.add("on"));
+  const io = "IntersectionObserver" in window ? new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add("vis"); io.unobserve(e.target); } }), { rootMargin: "0px 0px -10% 0px", threshold: .1 }) : null;
+  $$(".rv").forEach(el => io ? io.observe(el) : el.classList.add("vis"));
+})();
+</script>
+<script src="/visitas.js" defer></script>
+</body>
+</html>

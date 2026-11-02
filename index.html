@@ -3074,6 +3074,8 @@ const DEMOS = [
   { id:"condominio-3", url:"demos/condominio-3/", ic:"precio", menu:"Condominio 3.0", tipo:"Condominio · Paneles animados", nombre:"Sistema de condominio 3.0",
     desc:"Versión 3.0: entrada con la marca, ambiente animado propio del negocio en la portada, cinta con frases, tarjetas con luz que sigue el mouse, imágenes que se enfocan al cargar, efecto al tocar los botones, barra de avance y botón para volver arriba. Comparte los mismos datos que la versión principal.",
     links:[{ t:"Residentes", url:"demos/condominio/residente-3.html", nota:"usuario ricardo" }, { t:"Seguridad", url:"demos/condominio/seguridad-3.html", nota:"usuario seguridad" }, { t:"Administración", url:"demos/condominio-3/", nota:"usuario administrador" }] },
+  { id:"cosmo-pro", url:"demos/cosmo/pro.html", ic:"precio", menu:"Cosmo Scrubs Medical · presentación", tipo:"Uniformes médicos · Presentación de lanzamiento", nombre:"Cosmo · presentación tipo lanzamiento",
+    desc:"Página de presentación al estilo de un lanzamiento de producto: la foto crece hasta llenar la pantalla, palabras de cine, selector de los nueve colores que avanza al bajar, las líneas deslizándose de lado, la frase de la fábrica que se ilumina y la promo." },
   { id:"koktela-3", url:"demos/koktela-3/", ic:"precio", menu:"Menú de coctelería 3.0", tipo:"Coctelería · Menú interactivo y sellos", nombre:"Koktela 3.0 (menú interactivo)",
     desc:"Entrada con las puertas del Olimpo, rayos que caen donde tocás el cielo, el Oráculo que escoge tu cóctel con tres preguntas, buscador por ingrediente, ficha de cada cóctel con sus ingredientes y sugerencias, vasos que se llenan al aparecer, tarjeta de sellos holográfica y cielo con estrellas fugaces. Comparte menú, sellos y panel con la versión principal." },
   { id:"koktela-v1", url:"demos/koktela/v1.html", ic:"precio", menu:"Menú de coctelería (versión anterior)", tipo:"Coctelería · Menú, pedidos y sellos", nombre:"Koktela (versión anterior, sin animaciones)",
@@ -3114,7 +3116,7 @@ const demoTab = {};
 // Grupos del administrador: 3.0, 2.0 (animadas) y básicas
 let demoGrupo = "3";
 const DEMOS_2_PRINCIPAL = ["koktela", "matcha"];   // su versión principal ya es la animada 2.0
-const grupoDemo = d => /-3$/.test(d.id) ? "3" : (/-2$/.test(d.id) || DEMOS_2_PRINCIPAL.includes(d.id)) ? "2" : "1";
+const grupoDemo = d => /-(3|pro)$/.test(d.id) ? "3" : (/-2$/.test(d.id) || DEMOS_2_PRINCIPAL.includes(d.id)) ? "2" : "1";
 const GRUPOS_DEMO = [["3", "Demos 3.0", "Las más nuevas: entrada con la marca, ambiente animado y efectos al tocar."], ["2", "Demos 2.0", "Versiones animadas: portadas con movimiento, carruseles y cintas."], ["1", "Básicas", "Las versiones originales, más sencillas y sin tantas animaciones."]];
 function pintarDemosAdmin(){
   const pub = Reservas.demosPub();
