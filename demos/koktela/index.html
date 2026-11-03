@@ -331,12 +331,172 @@ section h2 .t::after{content:"";position:absolute;top:0;bottom:0;left:-60%;width
 @keyframes aura{0%,100%{box-shadow:0 0 0 0 rgba(140,196,255,0)}50%{box-shadow:0 0 18px 2px rgba(140,196,255,.45)}}
 @media (min-width:900px){.cf{--w:clamp(230px,19vw,290px)}.top .wrap{min-height:max(100vh,720px);padding-bottom:70px}.top-fondo i{bottom:auto;height:66vh;background-size:cover;background-position:center 40%;-webkit-mask-image:linear-gradient(#000 75%,transparent);mask-image:linear-gradient(#000 75%,transparent)}}
 @media (prefers-reduced-motion:reduce){.js .rv{opacity:1;translate:none}.top-fondo i{animation:none}}
+/* ===================== KOKTELA 3.0 ===================== */
+@property --lleno{syntax:"<percentage>";inherits:false;initial-value:100%}
+@property --ang{syntax:"<angle>";inherits:false;initial-value:0deg}
+:root{--vidrio:rgba(14,26,52,.55);--brillo3:rgba(140,196,255,.35)}
+body{background:radial-gradient(1400px 700px at 85% -10%,rgba(31,91,181,.22),transparent 60%),radial-gradient(1000px 600px at -10% 40%,rgba(79,195,217,.09),transparent 60%),radial-gradient(900px 600px at 50% 110%,rgba(255,107,154,.07),transparent 60%),var(--fondo)}
+#cielo3{position:fixed;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none}
+.cursor3{position:fixed;left:0;top:0;width:420px;height:420px;margin:-210px 0 0 -210px;border-radius:50%;pointer-events:none;z-index:1;background:radial-gradient(circle,rgba(110,170,255,.12),transparent 65%);mix-blend-mode:screen;opacity:0;transition:opacity .4s}
+.cursor3.on{opacity:1}
+
+/* intro: las puertas del Olimpo */
+.intro{position:fixed;inset:0;z-index:95;display:grid;place-items:center;pointer-events:auto;cursor:pointer;overflow:hidden}
+.intro .puerta{position:absolute;top:0;bottom:0;width:50.5%;background:linear-gradient(90deg,#03050b,#0b1630 60%,#091124);animation:puerta 1s cubic-bezier(.7,0,.2,1) 1.75s forwards}
+.intro .puerta::after{content:"";position:absolute;top:0;bottom:0;width:22px;background:var(--greca) repeat-y center/20px 40px;opacity:.25;filter:drop-shadow(0 0 6px #8cc4ff)}
+.intro .izq{left:0}.intro .izq::after{right:12px}
+.intro .der{right:0;transform-origin:right;--dir:1;background:linear-gradient(270deg,#03050b,#0b1630 60%,#091124)}.intro .der::after{left:12px}
+.intro .izq{--dir:-1}
+.k-mono{position:relative;z-index:2;width:clamp(110px,26vw,170px);fill:none;stroke:#bfe0ff;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 10px #6fb2ff) drop-shadow(0 0 30px #2f6fd6);animation:monoFuera .5s ease 1.7s forwards}
+.k-mono *{stroke-dasharray:400;stroke-dashoffset:400;animation:traza 1.1s cubic-bezier(.6,0,.2,1) forwards}
+.k-mono path{animation-delay:.35s}
+.intro-t{position:absolute;z-index:2;top:calc(50% + clamp(70px,16vw,105px));font:800 clamp(18px,4.5vw,26px) var(--f-logo);letter-spacing:.6em;padding-left:.6em;color:#dfeaff;opacity:0;animation:introT .9s ease .7s forwards,monoFuera .5s ease 1.7s forwards}
+.intro-fl{position:absolute;inset:0;z-index:3;background:radial-gradient(circle at 50% 50%,#fff,rgba(160,200,255,.6) 30%,transparent 70%);opacity:0;animation:introFlash .6s ease 1.55s}
+.intro.fuera{opacity:0;visibility:hidden;transition:opacity .4s,visibility 0s .4s}
+@keyframes traza{to{stroke-dashoffset:0}}
+@keyframes introT{from{opacity:0;letter-spacing:1.2em}to{opacity:1;letter-spacing:.6em}}
+@keyframes introFlash{0%{opacity:0}20%{opacity:1}100%{opacity:0}}
+@keyframes monoFuera{to{opacity:0;transform:scale(1.4)}}
+@keyframes puerta{to{transform:translateX(calc(var(--dir) * 102%))}}
+
+/* portada 3.0 */
+.top .rayo,.top>.flash{animation:none!important;opacity:0}
+.top>.flash{background:radial-gradient(circle at var(--fx,50%) 20%,rgba(190,220,255,.55),transparent 65%)}
+#rayos{position:absolute;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none;mix-blend-mode:screen}
+.aurora{position:absolute;inset:-20%;z-index:-1;pointer-events:none;opacity:.55;mix-blend-mode:screen}
+.aurora i{position:absolute;width:60%;height:60%;border-radius:50%;background:radial-gradient(circle,rgba(47,111,214,.55),transparent 65%);animation:aurora 18s ease-in-out infinite alternate}
+.aurora i:nth-child(2){left:45%;top:10%;background:radial-gradient(circle,rgba(79,195,217,.4),transparent 65%);animation-duration:23s;animation-delay:-6s}
+.aurora i:nth-child(3){left:15%;top:45%;background:radial-gradient(circle,rgba(255,107,154,.25),transparent 65%);animation-duration:27s;animation-delay:-12s}
+@keyframes aurora{0%{transform:translate(0,0) scale(1)}50%{transform:translate(12%,8%) scale(1.2)}100%{transform:translate(-8%,14%) scale(.9)}}
+.top-fondo i{transition:translate .6s cubic-bezier(.2,.7,.2,1)}
+.titulo2{animation:sube 1s .15s cubic-bezier(.2,.7,.2,1) backwards,brillo 6s linear 1.2s infinite,revela 1.4s cubic-bezier(.7,0,.2,1) .2s backwards;filter:drop-shadow(0 4px 24px rgba(79,140,255,.35))}
+@keyframes revela{from{clip-path:inset(0 100% 0 0);filter:blur(8px)}to{clip-path:inset(0 -5% 0 0)}}
+.top .tocar{font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:rgba(223,233,255,.6);font-weight:700;animation:sube 1s 1s backwards}
+.btn.oro3{background:linear-gradient(135deg,rgba(255,226,160,.18),rgba(255,107,154,.12));border-color:rgba(255,226,160,.55);color:#ffe6a8;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);padding:14px 22px;font-size:16px}
+.btn{transition:transform .25s cubic-bezier(.2,.7,.2,1),box-shadow .25s,background .25s}
+.btn:active{transform:scale(.96)}
+.acc-top .btn{min-width:min(100%,170px)}
+#estado.abierto::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ok);margin-right:6px;box-shadow:0 0 0 0 rgba(79,227,154,.7);animation:pulso 1.8s infinite;vertical-align:1px}
+@keyframes pulso{70%{box-shadow:0 0 0 9px rgba(79,227,154,0)}100%{box-shadow:0 0 0 0 rgba(79,227,154,0)}}
+
+@media (max-width:700px){.top .wrap{min-height:max(100svh,700px);gap:10px;padding-bottom:64px}
+  .acc-top{display:grid;grid-template-columns:1fr 1fr;width:min(100%,400px);gap:8px}.acc-top .btn{min-width:0;padding:12px 10px;font-size:15px}.acc-top .btn.pri{grid-column:1/-1}
+  .titulo2{font-size:clamp(26px,7.4vw,40px)}}
+html,body{overflow-x:clip}
+@media (min-width:701px){.acc-top{flex-wrap:nowrap}}
+.vaso::after{text-shadow:0 1px 4px rgba(0,0,0,.55)}
+/* cifras */
+.cifras{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--linea);border-bottom:1px solid var(--linea)}
+.cifras div{background:linear-gradient(180deg,#081022,#060a16);padding:22px 8px;text-align:center;display:grid;gap:4px}
+.cifras b{font:800 clamp(26px,6vw,46px)/1 var(--f-logo);background:linear-gradient(180deg,#fff,#8cc4ff);-webkit-background-clip:text;background-clip:text;color:transparent;font-variant-numeric:tabular-nums}
+.cifras span{font-size:clamp(11px,2.6vw,13.5px);color:var(--suave);font-weight:700;letter-spacing:.04em}
+@media (max-width:520px){.cifras{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* tarjetas de vidrio */
+section h2 .t{border:0;padding:6px 22px;background:linear-gradient(var(--fondo),var(--fondo)) padding-box,linear-gradient(90deg,#4fc3d9,#8cc4ff,#ff6b9a,#4fc3d9) border-box;border:2px solid transparent;background-size:100% 100%,300% 100%;animation:bordeT 8s linear infinite}
+@keyframes bordeT{to{background-position:0 0,300% 0}}
+.prod{background:linear-gradient(180deg,rgba(18,32,56,.75),rgba(11,18,34,.85));backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-radius:16px;padding:12px;cursor:pointer;overflow:hidden;isolation:isolate}
+.prod::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(260px circle at var(--mx,50%) var(--my,0%),color-mix(in srgb,var(--c) 22%,transparent),transparent 60%);opacity:0;transition:opacity .3s}
+.prod:hover::before,.prod:focus-visible::before{opacity:1}
+.prod .lienzo{border-radius:12px;height:160px;position:relative}
+.prod .lienzo::after{content:"";position:absolute;left:50%;bottom:14px;width:70px;height:10px;translate:-50% 0;border-radius:50%;background:radial-gradient(color-mix(in srgb,var(--c) 60%,transparent),transparent 70%);filter:blur(2px)}
+.ings{display:flex;gap:4px;align-items:center}
+.ings i{width:9px;height:9px;border-radius:50%;box-shadow:0 0 6px currentColor}
+.ver3{font-size:12.5px;font-weight:800;color:color-mix(in srgb,var(--c) 60%,#fff);letter-spacing:.04em;opacity:.85;transition:translate .25s}
+.prod:hover .ver3{translate:4px 0}
+@media (max-width:520px){.prod .lienzo{height:136px}}
+/* el vaso se llena al aparecer */
+.vaso{background-size:100% var(--lleno)!important;background-position:bottom!important;background-repeat:no-repeat!important;background-color:rgba(255,255,255,.06)!important}
+.js .rv:not(.vis) .vaso{--lleno:0%}
+.js .rv.vis .vaso,.cf-it .vaso,.det3 .vaso,.or-res .vaso{animation:llena 1.6s cubic-bezier(.3,.7,.2,1) .25s backwards}
+@keyframes llena{from{--lleno:0%}to{--lleno:100%}}
+.taza{transition:scale .4s}
+
+/* carrusel 3D */
+.cf{perspective:1100px}
+#cf-pista{transform-style:preserve-3d}
+.cf-it{border-radius:20px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.cf-it.on::after{content:"";position:absolute;inset:-1px;border-radius:20px;padding:1px;background:conic-gradient(from var(--ang),transparent 0 70%,color-mix(in srgb,var(--c) 80%,#fff),transparent);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0);animation:giraAng 3s linear infinite;pointer-events:none}
+@keyframes giraAng{to{--ang:360deg}}
+.cf-it.on .taza{animation:flota 3s ease-in-out infinite}
+@keyframes flota{0%,100%{translate:0 0}50%{translate:0 -8px}}
+
+/* oráculo */
+.oraculo{position:relative;border-radius:24px;padding:clamp(22px,4vw,40px);overflow:hidden;overflow:clip;isolation:isolate;text-align:center;border:1px solid rgba(255,226,160,.25);background:radial-gradient(600px 300px at 50% 0%,rgba(255,226,160,.12),transparent 70%),linear-gradient(180deg,rgba(18,32,56,.85),rgba(6,10,22,.92))}
+.oraculo::before{content:"";position:absolute;width:520px;height:520px;left:50%;top:-260px;translate:-50% 0;z-index:-1;border-radius:50%;border:1px dashed rgba(255,226,160,.18);animation:gira 60s linear infinite}
+.oraculo::after{content:"";position:absolute;width:380px;height:380px;left:50%;top:-190px;translate:-50% 0;z-index:-1;border-radius:50%;border:1px solid rgba(140,196,255,.14);animation:gira 40s linear infinite reverse}
+.oraculo h2{margin-bottom:6px}
+.oraculo h2 .t{background:none!important;border:0!important;animation:none!important;font-size:clamp(22px,5vw,32px);color:#ffe6a8;text-shadow:0 0 24px rgba(255,226,160,.4)}
+.oraculo h2 .t::after{display:none}
+.or-ojo{width:64px;height:64px;margin:0 auto 6px;display:block;color:#ffe6a8;filter:drop-shadow(0 0 12px rgba(255,226,160,.6));animation:ojo 5s ease-in-out infinite}
+@keyframes ojo{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
+.or-paso{display:grid;gap:14px;justify-items:center;animation:entra .5s cubic-bezier(.2,.7,.2,1)}
+.or-paso>p{font:700 clamp(17px,4vw,21px) var(--f-txt);color:var(--texto)}
+.or-barra{display:flex;gap:6px;justify-content:center}
+.or-barra i{width:28px;height:4px;border-radius:4px;background:var(--linea)}
+.or-barra i.on{background:#ffe6a8;box-shadow:0 0 10px rgba(255,226,160,.6)}
+.or-ops{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;max-width:640px}
+.or-ops button{border:1px solid var(--linea);background:rgba(5,7,13,.5);color:var(--texto);border-radius:14px;padding:12px 16px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:transform .2s,border-color .2s,background .2s}
+.or-ops button:hover{transform:translateY(-3px);border-color:#ffe6a8;background:rgba(255,226,160,.08)}
+.or-ops button i{width:12px;height:12px;border-radius:50%;box-shadow:0 0 10px currentColor}
+.or-res{display:grid;gap:12px;justify-items:center;animation:resAparece .9s cubic-bezier(.2,.9,.2,1)}
+@keyframes resAparece{from{opacity:0;transform:perspective(800px) rotateX(70deg) scale(.8);filter:blur(10px)}to{opacity:1;transform:none;filter:none}}
+.or-res .lienzo{width:min(240px,70vw);height:220px;border-radius:50%;background:radial-gradient(circle at 50% 60%,color-mix(in srgb,var(--c) 45%,transparent),transparent 65%)!important;border:0}
+.or-res .taza{scale:1.6;animation:flota 3s ease-in-out infinite}
+.or-res small{font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:#ffe6a8;font-size:12px}
+.or-res h3{font:800 clamp(30px,7vw,44px) var(--f-logo);letter-spacing:.08em;color:#fff;text-shadow:0 0 30px color-mix(in srgb,var(--c) 70%,transparent)}
+.or-res p{color:var(--suave);max-width:420px}
+.or-afin{font-weight:800;color:color-mix(in srgb,var(--c) 55%,#fff)}
+
+/* buscador */
+.busca{display:grid;gap:10px;margin-bottom:-10px}
+.busca-in{position:relative}
+.busca-in svg{position:absolute;z-index:2;left:16px;top:50%;translate:0 -50%;width:20px;height:20px;color:var(--oro);pointer-events:none}
+.busca input{width:100%;border:1px solid var(--linea);border-radius:999px;background:rgba(11,18,34,.75);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);padding:15px 18px 15px 48px;font-weight:600;font-size:16px;color:var(--texto);transition:border-color .25s,box-shadow .25s}
+.busca input:focus{outline:0;border-color:var(--oro);box-shadow:0 0 0 4px rgba(140,196,255,.15),0 10px 40px -10px rgba(79,140,255,.5)}
+.ing-chips{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.ing-chips button{border:1px solid var(--linea);background:transparent;border-radius:999px;padding:6px 12px;font-weight:700;font-size:13px;color:var(--suave);cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:.2s}
+.ing-chips button i{width:9px;height:9px;border-radius:50%}
+.ing-chips button:hover,.ing-chips button[aria-pressed="true"]{color:#fff;border-color:var(--oro);background:rgba(140,196,255,.1)}
+.qres{text-align:center;font-weight:700;color:var(--oro);min-height:1.2em;font-size:14px}
+
+/* ficha del cóctel */
+.det3{display:grid;gap:10px}
+.det3 .lienzo{height:230px!important;border-radius:16px;background:radial-gradient(circle at 50% 65%,color-mix(in srgb,var(--c) 45%,transparent),transparent 62%),#070d1a!important}
+.det3 .taza{scale:1.7;animation:flota 3s ease-in-out infinite}
+.det3-cat{font-size:12px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:color-mix(in srgb,var(--c) 55%,#fff)}
+.det3 h2{font-size:30px!important;color:#fff!important}
+.det3-ing{list-style:none;margin:4px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+.det3-ing li{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--linea);border-radius:999px;padding:6px 12px;font-weight:700;font-size:14px;animation:sube .5s cubic-bezier(.2,.7,.2,1) backwards}
+.det3-ing li i{width:10px;height:10px;border-radius:50%;box-shadow:0 0 8px currentColor}
+.det3-pie{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:6px;flex-wrap:wrap}
+.det3-pie .precio{font-size:26px}
+.det3-sim{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.det3-sim button{border:1px solid var(--linea);background:var(--panel2);border-radius:12px;padding:30px 6px 10px;overflow:hidden;color:var(--texto);cursor:pointer;display:grid;gap:4px;justify-items:center;font-weight:800;font-size:13.5px;transition:border-color .2s,transform .2s}
+.det3-sim button:hover{border-color:var(--oro);transform:translateY(-2px)}
+.det3-sim .vaso{width:30px;height:48px}.det3-sim .tapa{height:5px;top:-4px}.det3-sim .pajilla{height:24px;top:-22px;width:3px}.det3-sim .vaso::after{display:none}
+.hoja{border-radius:24px 24px 0 0;background:linear-gradient(180deg,#0f1b33,var(--panel) 40%)}
+
+/* tarjeta holográfica */
+.tarjeta{border-radius:20px;transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:transform .4s cubic-bezier(.2,.7,.2,1);background:linear-gradient(135deg,rgba(18,40,80,.9),rgba(8,14,30,.95))}
+.tarjeta::after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;background:conic-gradient(from 180deg at var(--px,50%) var(--py,50%),rgba(255,107,154,.12),rgba(79,195,217,.14),rgba(255,226,160,.12),rgba(140,196,255,.14),rgba(255,107,154,.12));mix-blend-mode:screen;opacity:.8}
+.sellos i.si{box-shadow:0 0 14px rgba(140,196,255,.5)}
+
+/* pie grande */
+.pie-grande{font:800 clamp(64px,19vw,260px)/.9 var(--f-logo);letter-spacing:.06em;text-align:center;color:transparent;-webkit-text-stroke:1px rgba(140,196,255,.35);background:linear-gradient(180deg,rgba(140,196,255,.18),transparent 75%);-webkit-background-clip:text;background-clip:text;padding:30px 0 0;overflow:hidden;white-space:nowrap;user-select:none;translate:var(--pg,0) 0}
+footer{position:relative}
+
+@media (prefers-reduced-motion:reduce){.intro{display:none}.js .rv:not(.vis) .vaso{--lleno:100%}.tarjeta{transform:none}}
 </style>
 </head>
 <body>
+<canvas id="cielo3" aria-hidden="true"></canvas><div class="cursor3" id="cursor3" aria-hidden="true"></div>
+<div class="intro" id="intro" aria-hidden="true"><div class="puerta izq"></div><div class="puerta der"></div>
+  <svg class="k-mono" viewBox="0 0 120 120"><circle cx="60" cy="60" r="54"/><path d="M44 30v60M44 64 78 30M54 54l26 36"/><path d="M60 6v10M60 104v10"/></svg>
+  <span class="intro-t">KOKTELA</span><div class="intro-fl"></div></div>
 
 <div class="progreso" id="progreso" aria-hidden="true"></div>
-<div class="demo">Demo 2.0 de <b>RBM Solutions</b> · precios tomados del menú publicado; horario de ejemplo</div>
+<div class="demo">Demo de <b>RBM Solutions</b> · precios tomados del menú publicado; horario de ejemplo</div>
 <div class="prueba" id="bPrueba" hidden><b>Modo prueba</b> · los clientes y sellos son de ejemplo, no son reales · <a href="./">Salir</a></div>
 
 <div class="edad" id="edad" hidden><div>
@@ -348,11 +508,12 @@ section h2 .t::after{content:"";position:absolute;top:0;bottom:0;left:-60%;width
 <header class="top">
   <div class="top-fondo" aria-hidden="true"><i></i></div><div class="flash" aria-hidden="true"></div>
   <svg class="rayo r1" viewBox="0 0 56 100" aria-hidden="true"><path d="M38 0 6 58h22l-12 42 40-60H34L50 0z" fill="#dbe9ff"/></svg><svg class="rayo r2" viewBox="0 0 56 100" aria-hidden="true"><path d="M38 0 6 58h22l-12 42 40-60H34L50 0z" fill="#dbe9ff"/></svg>
-  <canvas id="chispas" aria-hidden="true"></canvas>
+  <div class="aurora" aria-hidden="true"><i></i><i></i><i></i></div><canvas id="chispas" aria-hidden="true"></canvas><canvas id="rayos" aria-hidden="true"></canvas>
   <div class="menu-top">
     <button type="button" class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="menuPanel" aria-label="Menú"><svg class="i" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
     <div class="menu-panel" id="menuPanel" hidden>
       <div class="menu-ceja">Menú</div>
+      <a href="#oraculo" data-menu-cerrar>El Oráculo: ¿qué me tomo?</a>
       <a href="#lealtad" data-menu-cerrar>Mi tarjeta de sellos</a>
       <a href="#info" data-menu-cerrar>Horario y ubicación</a>
       <button type="button" id="abrirAdmin" class="menu-admin">Acceso administrador</button>
@@ -364,13 +525,15 @@ section h2 .t::after{content:"";position:absolute;top:0;bottom:0;left:-60%;width
     <p class="titulo2" aria-hidden="true">Cócteles dignos de los dioses</p>
     <p class="lema" id="lema">El ride para llevar</p>
     <div class="chips-info"><span id="estado">Cargando horario…</span><a href="#lealtad">Mi tarjeta</a><a href="#info">La California</a><a id="ig" href="https://www.instagram.com/koktelaelride" target="_blank" rel="noopener">Instagram</a></div>
-    <div class="acc-top"><a class="btn pri brilla" href="#olimpo">Ver el menú</a><a class="btn vidrio" href="#lealtad">Mi tarjeta de sellos</a></div>
+    <div class="acc-top"><a class="btn pri brilla" href="#olimpo">Ver el menú</a><a class="btn oro3" href="#oraculo">Consultar al Oráculo</a><a class="btn vidrio" href="#lealtad">Mi tarjeta de sellos</a></div>
+    <p class="tocar" aria-hidden="true">Tocá el cielo y llamá a Zeus</p>
   </div>
   <a class="baja" href="#olimpo" aria-label="Bajar al menú"><i></i></a>
   <div class="greca rev" aria-hidden="true"></div>
 </header>
 
 <div class="cinta" aria-hidden="true"><div class="cinta-in" id="cinta"></div></div>
+<div class="cifras"><div><b id="c-coc" data-n="0">0</b><span>cócteles en el menú</span></div><div><b id="c-esp" data-n="0">0</b><span>especiales de la casa</span></div><div><b data-n="1">0</b><span>litro cada cóctel</span></div><div><b data-n="10">0</b><span>sellos = 1 gratis</span></div></div>
 
 <nav class="cats" aria-label="Categorías"><div class="wrap" id="cats"></div></nav>
 
@@ -386,6 +549,14 @@ section h2 .t::after{content:"";position:absolute;top:0;bottom:0;left:-60%;width
       </div>
       <div class="cf-dots" id="cf-dots" aria-hidden="true"></div>
     </section>
+    <section class="oraculo rv" id="oraculo" aria-labelledby="h-or">
+      <svg class="or-ojo" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 32s10-16 28-16 28 16 28 16-10 16-28 16S4 32 4 32z"/><circle cx="32" cy="32" r="8"/><circle cx="32" cy="32" r="2.5" fill="currentColor"/><path d="M32 4v6M14 9l3 5M50 9l-3 5"/></svg>
+      <h2 id="h-or"><span class="t">El Oráculo</span><span class="p">¿No sabés qué tomar? Respondé tres preguntas y los dioses escogen por vos</span></h2>
+      <div id="orC" aria-live="polite"></div>
+    </section>
+    <div class="busca"><div class="busca-in"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input type="search" id="q3" placeholder="¿Qué te provoca? Ej.: maracuyá, coco, tequila" autocomplete="off" aria-label="Buscar cóctel por nombre o ingrediente"></div>
+      <div class="ing-chips" id="ingChips"></div><p class="qres" id="qRes" aria-live="polite"></p></div>
     <div id="menu"></div>
     <p class="nota" style="text-align:center">Todos los cócteles vienen en presentación de un litro y se pueden preparar sin licor.</p>
 
@@ -408,6 +579,7 @@ section h2 .t::after{content:"";position:absolute;top:0;bottom:0;left:-60%;width
   </div>
 </main>
 
+<div class="pie-grande" aria-hidden="true">KOKTELA</div>
 <div class="greca" aria-hidden="true"></div>
 <footer>Hecho por RBM Solutions · Tomá con moderación</footer>
 
@@ -1256,6 +1428,217 @@ if (FINO && !QUIETO) {
       const al = Math.min(1, (H - p.y) / 120) * Math.min(1, p.y / 120); x.beginPath(); x.arc(p.x, p.y, p.r, 0, 7); x.fillStyle = `rgba(${p.c},${(.35 + .5 * Math.abs(Math.sin(p.a))) * Math.max(0, al)})`; x.shadowColor = `rgba(${p.c},.9)`; x.shadowBlur = 8; x.fill(); }); }
     requestAnimationFrame(paso); };
   tam(); addEventListener("resize", tam); if (io) new IntersectionObserver(([e]) => on = e.isIntersecting).observe(cv); paso(); })();
+
+/* ===================== KOKTELA 3.0 ===================== */
+const norm = s => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+const CAT_L = Object.fromEntries(CATS);
+const vivos = () => D.productos.filter(p => !p.oculto && !p.agotado && !p.kit);
+
+// --- intro: las puertas del Olimpo (una vez por visita) ---
+(() => { const el = $("#intro"); if (!el) return;
+  let ya = false; try { ya = sessionStorage.getItem("kk3-intro") === "1"; sessionStorage.setItem("kk3-intro", "1"); } catch {}
+  if (ya || QUIETO) { el.remove(); return; }
+  const fin = () => { if (!el.isConnected) return; el.classList.add("fuera"); setTimeout(() => el.remove(), 450); };
+  el.addEventListener("click", fin); setTimeout(fin, 2800);
+})();
+
+// --- rayos de verdad: se dibujan con ramas, al azar y donde toquen el cielo ---
+const rayar = (() => {
+  const top = $(".top"), cv = $("#rayos"); if (!cv) return () => {}; const x = cv.getContext("2d"), fl = $(".top > .flash");
+  let W, H, vivos3 = [], corriendo = false;
+  const tam = () => { const dpr = Math.min(2, devicePixelRatio || 1); W = top.clientWidth; H = top.clientHeight; cv.width = W * dpr; cv.height = H * dpr; x.setTransform(dpr, 0, 0, dpr, 0, 0); };
+  const rama = (x0, y0, x1, y1, d, out) => { if (d < 6) { out.push([x0, y0, x1, y1]); return; }
+    const mx = (x0 + x1) / 2 + (Math.random() - .5) * d, my = (y0 + y1) / 2 + (Math.random() - .5) * d * .3;
+    rama(x0, y0, mx, my, d / 2, out); rama(mx, my, x1, y1, d / 2, out); };
+  const crear = (tx, ty) => { const segs = [], ramas = [], x0 = tx + (Math.random() - .5) * W * .3;
+    rama(x0, -10, tx, ty, Math.max(80, H * .25), segs);
+    for (let k = 0; k < 3; k++) { const s = segs[Math.floor(segs.length * (.25 + Math.random() * .5))]; if (!s) continue; const b = [];
+      rama(s[2], s[3], s[2] + (Math.random() - .5) * 220, s[3] + 60 + Math.random() * 140, 50, b); ramas.push(b); }
+    return { segs, ramas, t: performance.now() }; };
+  const trazo = (segs, w, a) => { x.beginPath(); segs.forEach(([a1, b1, a2, b2]) => { x.moveTo(a1, b1); x.lineTo(a2, b2); });
+    x.lineWidth = w; x.strokeStyle = `rgba(215,232,255,${a})`; x.shadowColor = "rgba(120,170,255,1)"; x.shadowBlur = 22; x.stroke(); };
+  const paso = now => { x.clearRect(0, 0, W, H); vivos3 = vivos3.filter(r => now - r.t < 650);
+    vivos3.forEach(r => { const e = (now - r.t) / 650, a = e < .08 ? 1 : e < .14 ? .25 : e < .22 ? 1 : Math.max(0, 1 - (e - .22) / .78);
+      x.lineCap = "round"; trazo(r.segs, 3.2, a); trazo(r.segs, 1.2, a); r.ramas.forEach(b => trazo(b, 1.4, a * .7)); });
+    if (vivos3.length) requestAnimationFrame(paso); else { corriendo = false; x.clearRect(0, 0, W, H); } };
+  tam(); addEventListener("resize", tam);
+  return (tx, ty) => { if (QUIETO) return; if (tx == null) { tx = W * (.15 + Math.random() * .7); ty = H * (.35 + Math.random() * .35); }
+    vivos3.push(crear(tx, ty));
+    if (fl) { fl.style.setProperty("--fx", (tx / W * 100) + "%"); fl.animate([{ opacity: 0 }, { opacity: .95 }, { opacity: .1 }, { opacity: .7 }, { opacity: 0 }], { duration: 650, easing: "ease-out" }); }
+    if (!corriendo) { corriendo = true; requestAnimationFrame(paso); } };
+})();
+(() => { const top = $(".top"); let visto = true;
+  if (io) new IntersectionObserver(([e]) => visto = e.isIntersecting).observe(top);
+  top.addEventListener("pointerdown", e => { if (e.target.closest("a,button,input")) return; const r = top.getBoundingClientRect(); rayar(e.clientX - r.left, e.clientY - r.top); try { navigator.vibrate && navigator.vibrate(12); } catch {} });
+  const otro = () => { if (visto && !document.hidden) rayar(); setTimeout(otro, 4500 + Math.random() * 5500); };
+  setTimeout(otro, 3200);
+  // el fondo se mueve un poco con el mouse
+  if (FINO && !QUIETO) { const f = $(".top-fondo i"); top.addEventListener("pointermove", e => { const r = top.getBoundingClientRect();
+    f.style.translate = `${((e.clientX - r.left) / r.width - .5) * -18}px ${((e.clientY - r.top) / r.height - .5) * -12}px`; }); }
+})();
+
+// --- cifras que se cuentan solas ---
+(() => { const ps = D.productos.filter(p => !p.oculto), cats = new Set(ps.map(p => p.cat));
+  const n = { "c-coc": ps.filter(p => !p.kit).length, "c-cat": cats.size, "c-esp": ps.filter(p => p.cat === "especiales").length };
+  Object.entries(n).forEach(([id, v]) => { const el = $("#" + id); if (el) el.dataset.n = v; });
+  const contar = el => { const fin = +el.dataset.n, t0 = performance.now(), d = 1400;
+    const f = t => { const e = Math.min(1, (t - t0) / d); el.textContent = Math.round(fin * (1 - Math.pow(1 - e, 3))); if (e < 1) requestAnimationFrame(f); };
+    if (QUIETO) el.textContent = fin; else requestAnimationFrame(f); };
+  const els = document.querySelectorAll(".cifras b[data-n]");
+  if (io) { const o = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { contar(e.target); o.unobserve(e.target); } }), { threshold: .5 }); els.forEach(e => o.observe(e)); }
+  else els.forEach(contar);
+})();
+
+// --- horario: cuenta regresiva hasta que abran ---
+function estado3() {
+  const n = ahoraCR(), min = n.getUTCHours() * 60 + n.getUTCMinutes(), e = $("#estado"); if (e.classList.contains("abierto")) return;
+  const hoyI = (n.getUTCDay() + 6) % 7, H = D.negocio.horario;
+  for (let k = 0; k < 7; k++) { const h = H[(hoyI + k) % 7]; if (!h || !h[1]) continue; const ini = aMin(h[1]) + k * 1440;
+    if (ini <= min) continue; const falta = ini - min;
+    e.textContent = falta < 60 ? `Abrimos en ${falta} min` : falta < 1440 ? `Abrimos en ${Math.floor(falta / 60)} h ${falta % 60} min` : `Abrimos el ${h[0].toLowerCase()} a las ${h12(aMin(h[1]))}`; return; }
+}
+estado3(); setInterval(() => { pintarHorario(); estado3(); }, 30000);
+new MutationObserver(() => { const t = $("#estado").textContent; if (t === "Cerrado ahora" || t.startsWith("Abre hoy")) estado3(); }).observe($("#estado"), { childList: true });
+
+// --- tarjetas del menú: ingredientes de color, luz que sigue el dedo y ficha al tocar ---
+const prodDe = card => D.productos.find(x => x.nombre === card.querySelector("h3")?.textContent);
+function mejorar() {
+  $("#menu").querySelectorAll(".prod").forEach(card => { const p = prodDe(card); if (!p || card.dataset.id) return;
+    card.dataset.id = p.id; card.dataset.q = norm(p.nombre + " " + p.desc + " " + (CAT_L[p.cat] || ""));
+    card.tabIndex = 0; card.setAttribute("role", "button"); card.setAttribute("aria-label", `${p.nombre}, ${crc(p.precio)}. Ver detalle`);
+    const pie = card.querySelector(".pie"); if (pie && !p.agotado) pie.insertAdjacentHTML("beforeend", `<span class="ver3">Ver ›</span>`);
+    const cs = p.kit ? [] : colores(p.desc + " " + p.nombre);
+    if (cs.length) card.querySelector("p").insertAdjacentHTML("afterend", `<span class="ings" aria-hidden="true">${cs.map(c => `<i style="background:${c};color:${c}"></i>`).join("")}</span>`);
+  });
+  filtrar();
+}
+document.addEventListener("pointermove", e => { const c = e.target.closest?.(".prod"); if (!c) return; const r = c.getBoundingClientRect();
+  c.style.setProperty("--mx", (e.clientX - r.left) + "px"); c.style.setProperty("--my", (e.clientY - r.top) + "px"); }, { passive: true });
+const ingredientes = p => p.desc.replace(/\.$/, "").split(/,\s*|\s+y\s+/).map(s => s.trim()).filter(Boolean);
+function ficha(p) {
+  const c = colorDe(p), cs = colores(p.desc + " " + p.nombre);
+  const sim = vivos().filter(x => x.id !== p.id).map(x => ({ x, s: colores(x.desc + " " + x.nombre).filter(k => cs.includes(k)).length * 2 + (x.cat === p.cat ? 1 : 0) + Math.random() }))
+    .sort((a, b) => b.s - a.s).slice(0, 3).map(o => o.x);
+  abrirHoja(`<div class="asa"></div><button class="x" type="button" data-cerrar aria-label="Cerrar">×</button>
+    <div class="det3" style="--c:${c}">
+      <div class="lienzo">${dibujo(p)}</div>
+      <span class="det3-cat">${esc(CAT_L[p.cat] || "")}${p.kit ? " · para preparar en casa" : " · presentación de 1 litro"}</span>
+      <h2 id="hojaT">${esc(p.nombre)}</h2>
+      ${p.kit ? `<p class="nota">${esc(p.desc)}</p>` : `<ul class="det3-ing">${ingredientes(p).map((g, i) => { const k = colores(g)[0] || "#f2e6b8"; return `<li style="animation-delay:${.15 + i * .07}s"><i style="background:${k};color:${k}"></i>${esc(g.charAt(0).toUpperCase() + g.slice(1))}</li>`; }).join("")}</ul>`}
+      <div class="det3-pie"><span class="precio">${crc(p.precio)}</span><button class="btn pri" type="button" data-compartir3="${esc(p.id)}">Compartir con un amigo</button></div>
+      <p class="nota">${p.kit ? "Incluye mezcla, portavasos y decoración. Vos ponés el licor." : "Se puede preparar sin licor y con poco o nada de hielo. Pedilo en la barra."}</p>
+      ${sim.length ? `<div class="grupo"><b>También te puede gustar</b><div class="det3-sim">${sim.map(x => `<button type="button" data-ver3="${esc(x.id)}" style="--c:${colorDe(x)}">${dibujo(x)}<span>${esc(x.nombre)}</span></button>`).join("")}</div></div>` : ""}
+    </div>`);
+}
+$("#menu").addEventListener("click", e => { const c = e.target.closest(".prod"); if (!c || c.classList.contains("agotado")) return; const p = D.productos.find(x => x.id === c.dataset.id); if (p) ficha(p); });
+$("#menu").addEventListener("keydown", e => { if ((e.key === "Enter" || e.key === " ") && e.target.classList?.contains("prod")) { e.preventDefault(); e.target.click(); } });
+document.addEventListener("click", async e => {
+  const v = e.target.closest("[data-ver3]"); if (v) { const p = D.productos.find(x => x.id === v.dataset.ver3); if (p) ficha(p); return; }
+  const s = e.target.closest("[data-compartir3]"); if (s) { const p = D.productos.find(x => x.id === s.dataset.compartir3); if (!p) return;
+    const url = location.href.split("#")[0], text = `Mirá este cóctel de ${D.negocio.nombre}: ${p.nombre} (${p.desc})`;
+    try { if (navigator.share) { await navigator.share({ title: p.nombre, text, url }); return; } } catch { return; }
+    try { await navigator.clipboard.writeText(text + " " + url); aviso("Copiado: pegalo donde querás"); } catch { aviso(url); } }
+});
+function irA(p) {
+  if (qTxt) { qTxt = ""; $("#q3").value = ""; }
+  catSel = p.cat; pintarCats(); pintarMenu();
+  setTimeout(() => { const c = $(`#menu .prod[data-id="${p.id}"]`);
+    if (c) { c.classList.add("vis"); c.scrollIntoView({ behavior: QUIETO ? "auto" : "smooth", block: "center" });
+      c.animate([{ boxShadow: "0 0 0 0 transparent" }, { boxShadow: `0 0 0 3px ${colorDe(p)}, 0 0 50px ${colorDe(p)}` }, { boxShadow: "0 0 0 0 transparent" }], { duration: 1800, delay: 500 }); } }, 60);
+}
+
+// --- buscador por nombre o ingrediente ---
+let qTxt = "";
+const ING = [["Maracuyá", "#f6c90e"], ["Coco", "#f6f1e6"], ["Blue curacao", "#1f8bff"], ["Menta", "#33d6a0"], ["Piña", "#f9d56e"], ["Arándano", "#9b1d4a"], ["Limón", "#d4ef6a"], ["Sandía", "#ff5a73"], ["Café", "#a0673f"]];
+function filtrar() {
+  const terms = norm(qTxt).split(/\s+/).filter(Boolean); let n = 0;
+  $("#menu").querySelectorAll("section").forEach(sec => { let k = 0;
+    sec.querySelectorAll(".prod").forEach(c => { const ok = !terms.length || terms.every(t => (c.dataset.q || "").includes(t)); c.hidden = !ok; if (ok) { k++; if (terms.length) c.classList.add("vis"); } });
+    sec.hidden = !k; n += k; });
+  $("#qRes").textContent = terms.length ? (n ? `${n} cóctel${n === 1 ? "" : "es"} con “${qTxt.trim()}”` : `Nada con “${qTxt.trim()}”. Probá con otro ingrediente.`) : "";
+  document.querySelectorAll("#ingChips button").forEach(b => b.setAttribute("aria-pressed", String(!!terms.length && norm(b.dataset.ing) === norm(qTxt.trim()))));
+}
+$("#ingChips").innerHTML = ING.map(([n, c]) => `<button type="button" data-ing="${n}" aria-pressed="false"><i style="background:${c}"></i>${n}</button>`).join("");
+let tq; $("#q3").addEventListener("input", e => { clearTimeout(tq); tq = setTimeout(() => { qTxt = e.target.value;
+  if (qTxt.trim() && catSel !== "todo") { catSel = "todo"; pintarCats(); pintarMenu(); } else filtrar(); }, 120); });
+$("#ingChips").addEventListener("click", e => { const b = e.target.closest("[data-ing]"); if (!b) return;
+  const on = b.getAttribute("aria-pressed") === "true"; qTxt = on ? "" : b.dataset.ing; $("#q3").value = qTxt;
+  if (catSel !== "todo") { catSel = "todo"; pintarCats(); pintarMenu(); } else filtrar(); });
+const _pm3 = pintarMenu; pintarMenu = function () { _pm3(); mejorar(); };
+mejorar();
+
+// --- el Oráculo: tres preguntas y los dioses escogen tu cóctel ---
+(() => {
+  const box = $("#orC"); if (!box) return;
+  const PREG = [
+    { t: "¿Qué sabor te llama hoy?", k: "sabor", o: [["dulce", "Dulce y cremoso", "#f3efe6"], ["citrico", "Fresco y cítrico", "#d4ef6a"], ["frutal", "Frutal", "#f7931e"], ["fuerte", "Que pegue fuerte", "#d7263d"]] },
+    { t: "¿Con qué licor te llevás mejor?", k: "licor", o: [["ron", "Ron", "#c58b4a"], ["vodka", "Vodka", "#e6f7ff"], ["tequila", "Tequila", "#f6c90e"], ["guaro", "Guaro", "#7ed957"], ["ginebra", "Ginebra o whisky", "#d9c47a"], ["todo", "Me da igual", "#8cc4ff"]] },
+    { t: "Escogé un color", k: "color", o: [["azul", "Azul eléctrico", "#1f8bff"], ["rojo", "Rojo intenso", "#d7263d"], ["oro", "Dorado tropical", "#f6c90e"], ["verde", "Verde fresco", "#33d6a0"], ["blanco", "Blanco perla", "#f6f1e6"]] }];
+  const K = { dulce: ["crema", "leche", "coco", "helado", "baileys", "condensada", "amaretto"], citrico: ["limon", "limonada", "soda", "tonica", "hierbabuena", "ginger", "7up"],
+    frutal: ["maracuya", "pina", "naranja", "arandano", "sandia", "melocoton", "granadina", "melon"], fuerte: ["ron", "tequila", "vodka", "aguardiente", "cacique", "whisky", "chile"],
+    ron: ["ron", "malibu"], vodka: ["vodka"], tequila: ["tequila"], guaro: ["guaro", "cacique", "aguardiente", "chiliguaro"], ginebra: ["ginebra", "whisky", "vermouth"],
+    azul: ["blue curacao"], rojo: ["granadina", "arandano", "sandia", "chile", "sangria"], oro: ["maracuya", "pina", "naranja", "melocoton", "cerveza"], verde: ["menta", "hierbabuena", "melon", "limon"], blanco: ["leche", "coco", "helado", "baileys"] };
+  let r = {}, paso = 0;
+  const cuenta = (txt, l) => l.reduce((a, w) => a + (txt.includes(w) ? 1 : 0), 0);
+  const elegir = () => { const L = vivos().filter(p => p.cat !== "cerveza" || r.sabor === "fuerte");
+    const sc = L.map(p => { const t = norm(p.desc + " " + p.nombre + " " + p.cat); let s = cuenta(t, K[r.sabor]) * 3;
+      if (r.licor !== "todo") s += (p.cat === r.licor || (r.licor === "ginebra" && p.cat === "whisky") ? 5 : 0) + cuenta(t, K[r.licor]) * 3;
+      s += cuenta(t, K[r.color]) * 2; return { p, s: s + Math.random() * 1.5 }; }).sort((a, b) => b.s - a.s);
+    return sc[0]; };
+  const pintar = () => {
+    if (paso < PREG.length) { const q = PREG[paso];
+      box.innerHTML = `<div class="or-paso"><div class="or-barra" aria-hidden="true">${PREG.map((_, i) => `<i class="${i <= paso ? "on" : ""}"></i>`).join("")}</div>
+        <p>${q.t}</p><div class="or-ops">${q.o.map(([v, l, c]) => `<button type="button" data-or="${v}"><i style="background:${c};color:${c}"></i>${l}</button>`).join("")}</div>
+        ${paso ? `<button type="button" class="btn sm" data-or-atras style="border-color:var(--linea);color:var(--suave)">‹ Atrás</button>` : ""}</div>`; return; }
+    const g = elegir(), p = g.p, af = Math.min(99, 86 + Math.round(g.s));
+    box.innerHTML = `<div class="or-res" style="--c:${colorDe(p)}"><small>Los dioses escogieron</small><div class="lienzo">${dibujo(p)}</div>
+      <h3>${esc(p.nombre)}</h3><p>${esc(p.desc)}</p><span class="or-afin">${af}% de afinidad con vos · ${crc(p.precio)}</span>
+      <div class="fila-btn" style="justify-content:center"><button class="btn pri" type="button" data-or-ver="${esc(p.id)}">Verlo en el menú</button><button class="btn" type="button" data-or-otra>Consultar otra vez</button></div></div>`;
+    const tr = $(".top").getBoundingClientRect(); if (tr.bottom < 0) relampago();
+  };
+  // destello en toda la pantalla al revelar
+  const relampago = () => { if (QUIETO) return; const d = document.createElement("div"); d.style.cssText = "position:fixed;inset:0;z-index:85;pointer-events:none;background:radial-gradient(circle at 50% 40%,rgba(255,240,200,.55),transparent 70%)";
+    document.body.append(d); d.animate([{ opacity: 0 }, { opacity: 1 }, { opacity: .2 }, { opacity: .8 }, { opacity: 0 }], { duration: 700 }).onfinish = () => d.remove(); };
+  box.addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return;
+    if (b.dataset.or) { r[PREG[paso].k] = b.dataset.or; paso++; pintar(); return; }
+    if (b.hasAttribute("data-or-atras")) { paso = Math.max(0, paso - 1); pintar(); return; }
+    if (b.hasAttribute("data-or-otra")) { r = {}; paso = 0; pintar(); return; }
+    if (b.dataset.orVer) { const p = D.productos.find(x => x.id === b.dataset.orVer); if (p) irA(p); } });
+  pintar();
+})();
+
+// --- tarjeta de sellos holográfica ---
+if (FINO && !QUIETO) { const t = $("#tarjeta");
+  t.addEventListener("pointermove", e => { const r = t.getBoundingClientRect(), x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+    t.style.setProperty("--rx", ((.5 - y) * 10) + "deg"); t.style.setProperty("--ry", ((x - .5) * 12) + "deg"); t.style.setProperty("--px", x * 100 + "%"); t.style.setProperty("--py", y * 100 + "%"); });
+  t.addEventListener("pointerleave", () => { t.style.setProperty("--rx", "0deg"); t.style.setProperty("--ry", "0deg"); }); }
+
+// --- luz que sigue el mouse y botones magnéticos (computadora) ---
+if (FINO && !QUIETO) { const cu = $("#cursor3"); let mx = 0, my = 0, cx = 0, cy = 0, on = false;
+  addEventListener("pointermove", e => { mx = e.clientX; my = e.clientY; if (!on) { on = true; cu.classList.add("on"); cx = mx; cy = my; } }, { passive: true });
+  document.addEventListener("pointerleave", () => { on = false; cu.classList.remove("on"); });
+  const ani = () => { cx += (mx - cx) * .12; cy += (my - cy) * .12; cu.style.transform = `translate(${cx}px,${cy}px)`; requestAnimationFrame(ani); }; ani();
+  document.querySelectorAll(".acc-top .btn").forEach(b => { b.addEventListener("pointermove", e => { const r = b.getBoundingClientRect(); b.style.transform = `translate(${(e.clientX - r.left - r.width / 2) * .18}px,${(e.clientY - r.top - r.height / 2) * .3}px)`; });
+    b.addEventListener("pointerleave", () => b.style.transform = ""); }); }
+
+// --- cielo estrellado detrás de toda la página, con estrellas fugaces ---
+(() => { if (QUIETO) return; const cv = $("#cielo3"), x = cv.getContext("2d"); let W, H, es = [], fug = null;
+  const tam = () => { const dpr = Math.min(2, devicePixelRatio || 1); W = innerWidth; H = innerHeight; cv.width = W * dpr; cv.height = H * dpr; x.setTransform(dpr, 0, 0, dpr, 0, 0);
+    es = Array.from({ length: Math.round(Math.min(110, W * H / 9000)) }, () => ({ x: Math.random() * W, y: Math.random() * H, r: Math.random() * 1.2 + .3, f: Math.random() * 6.3, v: .01 + Math.random() * .03, z: Math.random() * .5 + .1 })); };
+  let sy = scrollY; addEventListener("scroll", () => sy = scrollY, { passive: true });
+  const paso = () => { if (!document.hidden) { x.clearRect(0, 0, W, H);
+      es.forEach(s => { s.f += s.v; const y = ((s.y - sy * s.z) % H + H) % H; x.globalAlpha = .25 + .55 * Math.abs(Math.sin(s.f)); x.fillStyle = "#cfe2ff"; x.beginPath(); x.arc(s.x, y, s.r, 0, 7); x.fill(); });
+      if (!fug && Math.random() < .004) fug = { x: Math.random() * W * .7 + W * .2, y: Math.random() * H * .4, t: 0 };
+      if (fug) { fug.t += 1; const l = 90, px = fug.x - fug.t * 9, py = fug.y + fug.t * 4, g = x.createLinearGradient(px, py, px + l, py - l * .44);
+        g.addColorStop(0, "rgba(220,235,255,.9)"); g.addColorStop(1, "rgba(220,235,255,0)"); x.globalAlpha = Math.max(0, 1 - fug.t / 45); x.strokeStyle = g; x.lineWidth = 1.6;
+        x.beginPath(); x.moveTo(px, py); x.lineTo(px + l, py - l * .44); x.stroke(); if (fug.t > 45) fug = null; }
+      x.globalAlpha = 1; }
+    requestAnimationFrame(paso); };
+  tam(); addEventListener("resize", tam); paso(); })();
+
+// --- letras gigantes del pie que se deslizan al bajar ---
+(() => { const g = $(".pie-grande"); if (!g || QUIETO) return; let p = false;
+  addEventListener("scroll", () => { if (p) return; p = true; requestAnimationFrame(() => { p = false; const r = g.getBoundingClientRect(); g.style.setProperty("--pg", ((r.top - innerHeight) * .12) + "px"); }); }, { passive: true }); })();
 
 })();
 </script>
