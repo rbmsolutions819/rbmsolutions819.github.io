@@ -123,14 +123,14 @@ function demoDe(p){
 }
 async function leer(){
   const desde = masDias(crHoy(), -89);
-  if (RBM.user) { try { const s = await getDocs(query(collection(RBM.db, "visitas"), where("f", ">=", desde))); rbmDatos = s.docs.map(d => d.data()); } catch (e) { console.warn(e); rbmDatos = null; } }
-  if (IGL.user) { try { const s = await getDocs(collection(IGL.db, "visitas")); iglDatos = s.docs.map(d => ({ f: d.id, n: +d.data().n || 0, u: +d.data().n || 0, p: "iglesia" })).filter(x => x.f >= desde); } catch (e) { console.warn(e); iglDatos = null; } }
+  if (RBM.user) { try { const s = await getDocs(query(collection(RBM.db, "visitas"), where("f", ">=", desde))); rbmDatos = s.docs.map(d => { const x = d.data(); return { ...x, t: x.t && x.t.toMillis ? x.t.toMillis() : 0 }; }); } catch (e) { console.warn(e); rbmDatos = null; } }
+  if (IGL.user) { try { const s = await getDocs(collection(IGL.db, "visitas")); iglDatos = s.docs.map(d => { const x = d.data(); return { f: d.id, n: +x.n || 0, u: +x.n || 0, p: "iglesia", h: x.h || {}, t: x.t && x.t.toMillis ? x.t.toMillis() : 0 }; }).filter(x => x.f >= desde); } catch (e) { console.warn(e); iglDatos = null; } }
   ultima = Date.now(); pintar();
 }
 // agrupa las visitas por página (cada demo junta sus páginas)
 function grupos(){
   const g = {};
-  const add = (id, nombre, x, sub) => { const o = g[id] = g[id] || { id, nombre, porDia: {}, porDiaU: {}, pags: {}, ig: id === "iglesia" }; o.porDia[x.f] = (o.porDia[x.f] || 0) + (x.n || 0); o.porDiaU[x.f] = (o.porDiaU[x.f] || 0) + (x.u || 0); if (sub !== undefined) o.pags[sub || "Página principal"] = (o.pags[sub || "Página principal"] || 0) + (x.n || 0); };
+  const add = (id, nombre, x, sub) => { const o = g[id] = g[id] || { id, nombre, porDia: {}, porDiaU: {}, pags: {}, horas: Array(24).fill(0), t: 0, ig: id === "iglesia" }; Object.entries(x.h || {}).forEach(([k, v]) => { const i = +k.slice(1); if (i >= 0 && i < 24) o.horas[i] += +v || 0; }); if ((x.t || 0) > o.t) o.t = x.t; o.porDia[x.f] = (o.porDia[x.f] || 0) + (x.n || 0); o.porDiaU[x.f] = (o.porDiaU[x.f] || 0) + (x.u || 0); if (sub !== undefined) o.pags[sub || "Página principal"] = (o.pags[sub || "Página principal"] || 0) + (x.n || 0); };
   for (const x of rbmDatos || []) { if (x.p === "inicio") { add("inicio", "rbmsolutionscr.com", x); continue; } const [d, sub] = demoDe(x.p); add(d ? d.id : x.p, d ? d.nombre.replace(/ \(propuesta\)$/, "") : x.p, x, sub); }
   for (const x of iglDatos || []) add("iglesia", "Iglesia Jesús es el Rey", x);
   return Object.values(g);
@@ -163,19 +163,28 @@ function pintar(){
       <div class="ley"><span><i style="background:var(--azul)"></i>Demos</span><span><i style="background:rgba(147,160,189,.45)"></i>Página principal</span><span><i style="background:var(--verde)"></i>Hoy</span></div></div>
     <h2>Páginas · toca una para ver el detalle</h2>
     <div class="grid">${tiles.map(g => { const h = g.porDia[hoy] || 0;
-      return `<button class="t${g.ig ? " ig" : ""}" data-foco data-g="${esc(g.id)}"><span class="hoy ${h ? "" : "cero"}">hoy ${h}</span><span class="n">${esc(g.nombre)}</span><b>${sumar(g, dias)}</b><span class="s">${dias === 1 ? "visitas hoy" : `visitas en ${dias} días`}</span>${chispa(g)}</button>`; }).join("")}
+      return `<button class="t${g.ig ? " ig" : ""}" data-foco data-g="${esc(g.id)}"><span class="hoy ${h ? "" : "cero"}">hoy ${h}</span><span class="n">${esc(g.nombre)}</span><b>${sumar(g, dias)}</b><span class="s">${dias === 1 ? "visitas hoy" : `visitas en ${dias} días`}${g.t ? ` · última ${cuandoT(g.t)}` : ""}</span>${chispa(g)}</button>`; }).join("")}
       ${IGL.user ? "" : `<button class="t ig" data-foco id="conIgl"><span class="n">Iglesia Jesús es el Rey</span><b style="font-size:2rem;padding:.6rem 0">Conectar</b><span class="s">Toca para conectar con la contraseña de la iglesia</span></button>`}</div>`;
   $("#cuerpo").querySelectorAll("[data-g]").forEach(b => b.onclick = () => abrir(b.dataset.g));
   const ci = $("#conIgl"); if (ci) ci.onclick = () => login(IGL);
   const vuelta = foco && document.querySelector(`[data-g="${CSS.escape(foco)}"]`); if (vuelta) vuelta.focus({ preventScroll: true });
   if (detalle) abrir(detalle, true);
 }
+const horaTxt = h => `${h % 12 || 12} ${h >= 12 ? "p. m." : "a. m."}`;
+const horaCR = t => { const d = new Date(t - 6 * 3600e3); let h = d.getUTCHours(); const pm = h >= 12; h = h % 12 || 12; return `${h}:${String(d.getUTCMinutes()).padStart(2, "0")} ${pm ? "p. m." : "a. m."}`; };
+const cuandoT = t => { const f = new Date(t - 6 * 3600e3).toISOString().slice(0, 10), hoy = crHoy(); return `${f === hoy ? "hoy" : f === masDias(hoy, -1) ? "ayer" : "el " + +f.slice(8) + "/" + +f.slice(5, 7)} a las ${horaCR(t)}`; };
+function horasHTML(a){ const m = Math.max(...a); if (!m) return `<p class="vacio" style="padding:1rem 0">Las horas se empiezan a guardar desde el 3 de noviembre.</p>`; const p = a.indexOf(m);
+  return `<p style="margin:0 0 .4rem;color:var(--suave);font-size:1.3rem">Más visitas entre las <b style="color:var(--texto)">${horaTxt(p)}</b> y las ${horaTxt((p + 1) % 24)}</p>
+    <div class="barras" style="margin-top:2rem;height:9rem">${a.map((n, h) => `<div class="${h === p ? "hoy" : ""}">${h === p ? `<em>${n}</em>` : ""}<i style="height:${n / m * 100}%"></i></div>`).join("")}</div>
+    <div class="ejes">${a.map((_, h) => `<span>${h % 3 === 0 ? `${h % 12 || 12}${h >= 12 ? "p" : "a"}` : ""}</span>`).join("")}</div>`; }
 function abrir(id, refresco){
   const g = grupos().find(x => x.id === id); if (!g) return;
   detalle = id; const hoy = crHoy(), pags = Object.entries(g.pags).sort((a, b) => b[1] - a[1]), mx = Math.max(1, ...pags.map(p => p[1]));
   $("#det").innerHTML = `<h2>${g.ig ? "Cliente" : g.id === "inicio" ? "Mi página" : "Demo"}</h2><h3>${esc(g.nombre)}</h3>
     <div class="mini"><div><small>Hoy</small><b>${g.porDia[hoy] || 0}</b></div><div><small>Ayer</small><b>${g.porDia[masDias(hoy, -1)] || 0}</b></div><div><small>7 días</small><b>${sumar(g, 7)}</b></div><div><small>30 días</small><b>${sumar(g, 30)}</b></div></div>
+    ${g.t ? `<p style="margin:-.4rem 0 1.2rem;font-size:1.4rem;color:var(--suave)">Última visita: <b style="color:var(--texto)">${cuandoT(g.t)}</b></p>` : ""}
     <div class="caja" style="background:var(--panel2)"><h3>Últimos 30 días</h3>${barras([{ o: g.porDia }], 30)}</div>
+    <div class="caja" style="background:var(--panel2)"><h3>¿A qué hora entran?</h3>${horasHTML(g.horas)}</div>
     ${pags.length > 1 ? `<div class="pags">${pags.map(([t, n]) => `<div><span>${esc(t.charAt(0).toUpperCase() + t.slice(1))}</span><i style="width:${n / mx * 100}%"></i><b>${n}</b></div>`).join("")}</div>` : ""}
     <div class="acc" style="justify-content:flex-start;margin-top:1.6rem"><button class="btn pri" data-foco id="dCer">Volver</button></div>`;
   $("#cDet").hidden = false; $("#dCer").onclick = cerrarDet;

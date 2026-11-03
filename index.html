@@ -580,6 +580,8 @@ section.panel{padding:0}
 .ing-dias.id-semana{gap:8px}
 .ing-dia i.vis{background:linear-gradient(to top,var(--azul) 0 var(--a),color-mix(in srgb,var(--gris) 40%,transparent) var(--a) 100%)!important}
 .vis-pags{margin:6px 0 0;font-size:12.5px;color:var(--gris)}
+.vis-ult{grid-column:1/-1;margin:2px 0 0;font-size:14px;color:var(--gris)}.vis-ult b{color:var(--texto,inherit)}
+.ing-dias.vis-horas{gap:3px}.ing-dias.vis-horas small{font-size:10px;white-space:nowrap}
 .ing-dia{display:grid;grid-template-rows:auto 1fr auto;height:100%;align-items:end;text-align:center;min-width:0}
 .ing-dia i{display:block;background:linear-gradient(var(--celeste),var(--azul));border-radius:4px 4px 1px 1px;min-height:2px;align-self:end}
 .ing-dia.hoy i{background:#fff}
@@ -1649,7 +1651,8 @@ const ReservasPrueba = (() => {
     async visitas(desde){   // visitas de ejemplo para la versión de prueba
       const out = [], pags = ["inicio", "condominio-residente", "condominio", "condominio-seguridad", "genki", "matcha", "cosmo", "cosmo-2", "spa", "chemas", "koktela", "candelas", "alick"];
       for (let d = deIso(desde), i = 0; iso(d) <= iso(crAhora()); d = masDias(d, 1), i++) pags.forEach((p, k) => { const n = Math.max(0, Math.round((pags.length - k) * (0.5 + ((i * 7 + k * 13) % 10) / 10) / 2) - (k > 8 && i % 3 ? 1 : 0));
-        if (n) out.push({ p, f: iso(d), n, u: Math.max(1, Math.round(n * 0.7)) }); });
+        if (n) { const h = {}; for (let j = 0; j < n; j++) { const hr = [9, 11, 12, 13, 15, 17, 19, 20, 21, 14][(i * 3 + k * 7 + j * 5) % 10]; h["h" + String(hr).padStart(2, "0")] = (h["h" + String(hr).padStart(2, "0")] || 0) + 1; }
+          out.push({ p, f: iso(d), n, u: Math.max(1, Math.round(n * 0.7)), h, t: Date.parse(iso(d) + "T00:00:00Z") + 6 * 3600e3 + ((i * 37 + k * 53) % 720 + 480) * 60e3 }); } });
       return out;
     },
     salir(){ this.admin = false; },
@@ -1748,7 +1751,7 @@ async function crearReservasFirebase(){
     async borrarFotoBol(id){ await F.deleteDoc(F.doc(db, "bolfotos", id)); },
     async guardarApuntes(id, txt){ await F.updateDoc(F.doc(db, "citas", id), { apuntes: txt }); const c = citas.find(x => x.id === id); if (c) c.apuntes = txt; },
     async entrar(clave){ await A.signInWithEmailAndPassword(auth, ADMIN_EMAIL, clave); },
-    async visitas(desde){ const s = await F.getDocs(F.query(F.collection(db, "visitas"), F.where("f", ">=", desde))); return s.docs.map(d => d.data()); },
+    async visitas(desde){ const s = await F.getDocs(F.query(F.collection(db, "visitas"), F.where("f", ">=", desde))); return s.docs.map(d => { const x = d.data(); return { ...x, t: x.t && x.t.toMillis ? x.t.toMillis() : null }; }); },
     salir(){ A.signOut(auth); }
   };
   let demosPub = null;
@@ -3148,6 +3151,11 @@ function demoDeVis(p){
   const d = [...DEMOS].sort((a, b) => b.id.length - a.id.length).find(d => p === d.id || p.startsWith(d.id + "-"));
   return d ? [d, p.slice(d.id.length + 1).replace(/-/g, " ") || ""] : [null, p];
 }
+// hora de Costa Rica de una visita: "3:12 p. m."
+const horaCR = t => { const d = new Date(t - 6 * 3600e3); let h = d.getUTCHours(); const pm = h >= 12; h = h % 12 || 12; return `${h}:${String(d.getUTCMinutes()).padStart(2, "0")} ${pm ? "p. m." : "a. m."}`; };
+const horaTxt = h => `${h % 12 || 12} ${h >= 12 ? "p. m." : "a. m."}`;
+const sumaHoras = l => { const a = Array(24).fill(0); l.forEach(x => Object.entries(x.h || {}).forEach(([k, v]) => { const i = +k.slice(1); if (i >= 0 && i < 24) a[i] += +v || 0; })); return a; };
+const pico = a => { const m = Math.max(...a); return m ? a.indexOf(m) : -1; };
 function pintarVisitas(){
   const hoy = iso(crAhora()), desde = iso(masDias(deIso(hoy), -(nVis.dias - 1))), k = nVis.dias;
   if (nVis.datos[k] === undefined && !nVis.cargando[k]) {
@@ -3168,11 +3176,14 @@ function pintarVisitas(){
   const grupos = {};
   for (const x of dem) { const [d, pag] = demoDeVis(x.p), id = d ? d.id : "otras";
     const g = grupos[id] = grupos[id] || { nombre: d ? d.nombre : "Otras páginas", n: 0, u: 0, ult: "", pags: {} };
-    g.n += x.n || 0; g.u += x.u || 0; if (x.f > g.ult) g.ult = x.f; const pk = pag || (d ? "Página principal" : x.p); g.pags[pk] = (g.pags[pk] || 0) + (x.n || 0); }
+    g.n += x.n || 0; g.u += x.u || 0; if (x.f > g.ult) g.ult = x.f; if (x.t && (!g.t || x.t > g.t)) g.t = x.t; (g.l = g.l || []).push(x); const pk = pag || (d ? "Página principal" : x.p); g.pags[pk] = (g.pags[pk] || 0) + (x.n || 0); }
   const lista = Object.values(grupos).sort((a, b) => b.n - a.n), max = Math.max(1, ...lista.map(g => g.n));
   const dias = []; for (let d = deIso(desde); iso(d) <= hoy; d = masDias(d, 1)) dias.push(iso(d));
   const porDia = dias.map(f => [f, suma(dem.filter(x => x.f === f)), suma(ini.filter(x => x.f === f))]), maxD = Math.max(1, ...porDia.map(x => x[1] + x[2]));
   const cuando = f => f === hoy ? "hoy" : f === iso(masDias(deIso(hoy), -1)) ? "ayer" : fechaLarga(f).toLowerCase();
+  const horas = sumaHoras(datos), maxH = Math.max(1, ...horas), pH = pico(horas), conHora = horas.some(Boolean);
+  const ultT = Math.max(0, ...datos.map(x => x.t || 0)), ultX = datos.find(x => x.t === ultT);
+  const ultNom = ultX ? (ultX.p === "inicio" ? "la página principal" : (demoDeVis(ultX.p)[0]?.nombre || ultX.p)) : "";
   return `<div class="ing">${per}
     <div class="ing-total"><small>Visitas a tus demos</small><b>${suma(dem)}</b><span>${suma(dem, "u")} persona${suma(dem, "u") === 1 ? "" : "s"} aprox. · ${lista.length} demo${lista.length === 1 ? "" : "s"} visitada${lista.length === 1 ? "" : "s"}</span></div>
     <div class="ing-kpis">
@@ -3180,12 +3191,17 @@ function pintarVisitas(){
       <div><small>Demo más vista</small><b style="font-size:15px">${lista[0] ? esc(lista[0].nombre) : "—"}</b></div>
       <div><small>Hoy (demos)</small><b>${suma(dem.filter(x => x.f === hoy))}</b></div>
     </div>
+    ${ultT ? `<p class="vis-ult">🕒 Última visita: <b>${cuando(iso(new Date(ultT - 6 * 3600e3)))} a las ${horaCR(ultT)}</b> · ${esc(ultNom)}</p>` : ""}
     ${nVis.dias > 1 ? `<div class="ing-box"><h4>Por día <em style="font-weight:500;font-style:normal;color:var(--gris)">· azul: demos · gris: página principal</em></h4>
       <div class="ing-dias${nVis.dias <= 7 ? " id-semana" : ""}">${porDia.map(([f, n, m], i) => { const d = deIso(f); return `<div class="ing-dia${f === hoy ? " hoy" : ""}" title="${fechaLarga(f)}: ${n} a demos, ${m} a la principal">
         <span class="v">${n + m && nVis.dias <= 7 ? n + m : ""}</span><i class="vis" style="height:${Math.round((n + m) / maxD * 100)}%;--a:${n + m ? Math.round(n / (n + m) * 100) : 100}%"></i><small>${nVis.dias <= 7 ? DIAS_C[d.getUTCDay()] : ((porDia.length - 1 - i) % (nVis.dias > 30 ? 15 : 5) === 0 ? d.getUTCDate() : "")}</small></div>`; }).join("")}</div></div>` : ""}
+    <div class="ing-box" style="grid-column:1/-1"><h4>¿A qué hora entran? ${pH >= 0 ? `<em style="font-weight:500;font-style:normal;color:var(--gris)">· más visitas entre las ${horaTxt(pH)} y las ${horaTxt((pH + 1) % 24)}</em>` : ""}</h4>
+      ${conHora ? `<div class="ing-dias vis-horas">${horas.map((n, h) => `<div class="ing-dia${h === pH ? " hoy" : ""}" title="${horaTxt(h)} a ${horaTxt((h + 1) % 24)}: ${n} visita${n === 1 ? "" : "s"}"><span class="v">${n && h === pH ? n : ""}</span><i style="height:${Math.round(n / maxH * 100)}%"></i><small>${h % 6 === 0 ? horaTxt(h).replace(" ", "") : ""}</small></div>`).join("")}</div>`
+        : `<p class="ing-vacio">Las horas se empiezan a guardar desde el 3 de noviembre: en cuanto entre alguien, aquí verás a qué hora.</p>`}</div>
     <div class="ing-box" style="grid-column:1/-1"><h4>¿A cuál demo entraron?</h4>
       ${lista.length ? lista.map(g => { const pags = Object.entries(g.pags).sort((a, b) => b[1] - a[1]);
-        return `<div class="ing-fila"><div class="t"><span>${esc(g.nombre)} <em>· ${g.u} persona${g.u === 1 ? "" : "s"} · última ${cuando(g.ult)}</em></span><b>${g.n}</b></div><div class="bar"><i style="width:${Math.round(g.n / max * 100)}%"></i></div>
+        const ph = pico(sumaHoras(g.l || []));
+        return `<div class="ing-fila"><div class="t"><span>${esc(g.nombre)} <em>· ${g.u} persona${g.u === 1 ? "" : "s"} · última ${g.t ? `${cuando(iso(new Date(g.t - 6 * 3600e3)))} a las ${horaCR(g.t)}` : cuando(g.ult)}${ph >= 0 ? ` · suelen entrar a las ${horaTxt(ph)}` : ""}</em></span><b>${g.n}</b></div><div class="bar"><i style="width:${Math.round(g.n / max * 100)}%"></i></div>
           ${pags.length > 1 ? `<p class="vis-pags">${pags.map(([t, n]) => `${esc(t.charAt(0).toUpperCase() + t.slice(1))}: <b>${n}</b>`).join(" · ")}</p>` : ""}</div>`; }).join("")
         : `<p class="ing-vacio">Todavía nadie ha entrado a tus demos en este periodo.</p>`}</div>
     ${pie}</div>`;

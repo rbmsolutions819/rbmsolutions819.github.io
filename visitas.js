@@ -1,5 +1,5 @@
 // Cuenta las visitas de rbmsolutionscr.com y de las demos. No usa cookies ni guarda datos personales:
-// solo suma 1 a la página del día. Lo ve únicamente el administrador de RBM (sección Visitas).
+// solo suma 1 a la página del día y a la hora en que entró. Lo ve únicamente el administrador de RBM (sección Visitas).
 (() => {
   try {
     if (/[?&]local\b/.test(location.search) || /^(localhost|127\.|0\.0\.0\.0)/.test(location.hostname)) return;
@@ -9,7 +9,8 @@
     const marca = "rbm-v-" + p;
     if (sessionStorage.getItem(marca)) return;            // recargar la página no suma otra visita
     sessionStorage.setItem(marca, "1");
-    const f = new Date(Date.now() - 6 * 3600e3).toISOString().slice(0, 10);   // fecha de Costa Rica
+    const cr = new Date(Date.now() - 6 * 3600e3), f = cr.toISOString().slice(0, 10);   // fecha y hora de Costa Rica
+    const hh = "h" + String(cr.getUTCHours()).padStart(2, "0");
     const dia = "rbm-vd-" + p, nueva = localStorage.getItem(dia) !== f;      // primera vez hoy en este aparato
     localStorage.setItem(dia, f);
     const P = "projects/rbm-solutions-2a4ce/databases/(default)/documents";
@@ -17,7 +18,8 @@
       method: "POST", keepalive: true, headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ writes: [{ update: { name: `${P}/visitas/${f}_${p}`, fields: { p: { stringValue: p }, f: { stringValue: f } } },
         updateMask: { fieldPaths: ["p", "f"] },
-        updateTransforms: [{ fieldPath: "n", increment: { integerValue: "1" } }, { fieldPath: "u", increment: { integerValue: nueva ? "1" : "0" } }] }] })
+        updateTransforms: [{ fieldPath: "n", increment: { integerValue: "1" } }, { fieldPath: "u", increment: { integerValue: nueva ? "1" : "0" } },
+          { fieldPath: "h." + hh, increment: { integerValue: "1" } }, { fieldPath: "t", setToServerValue: "REQUEST_TIME" }] }] })
     }).catch(() => {});
   } catch {}
 })();

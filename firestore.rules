@@ -25,12 +25,16 @@ service cloud.firestore {
     // Visitas: cada página suma 1 por día (sin datos personales). Solo el administrador las ve.
     match /visitas/{id} {
       allow read, delete: if esAdmin();
-      allow create: if request.resource.data.keys().hasOnly(['p','f','n','u'])
+      allow create: if request.resource.data.keys().hasOnly(['p','f','n','u','h','t'])
+        && (!('h' in request.resource.data) || (request.resource.data.h is map && request.resource.data.h.size() <= 24))
+        && (!('t' in request.resource.data) || request.resource.data.t == request.time)
         && fechaOk(request.resource.data.f)
         && request.resource.data.p is string && request.resource.data.p.matches('^[a-z0-9-]{1,50}$')
         && id == request.resource.data.f + '_' + request.resource.data.p
         && request.resource.data.n == 1 && request.resource.data.u in [0, 1];
-      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['n','u'])
+      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['n','u','h','t'])
+        && (!('h' in request.resource.data) || (request.resource.data.h is map && request.resource.data.h.size() <= 24))
+        && (!('t' in request.resource.data) || request.resource.data.t == request.time)
         && request.resource.data.n == resource.data.n + 1
         && (request.resource.data.u == resource.data.u || request.resource.data.u == resource.data.u + 1);
     }
