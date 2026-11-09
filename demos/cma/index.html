@@ -689,7 +689,7 @@ details.ev.brilla5{animation:brilla5 2.4s ease-out}
 .min-grid img{width:100%;max-width:300px;justify-self:center;border-radius:20px;box-shadow:0 24px 50px -28px rgba(90,15,36,.7)}
 .mins{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 0;padding:0;list-style:none}
 .mins li{padding:8px 14px;border-radius:999px;font-weight:800;font-size:14px;background:var(--soft);color:var(--ink)}
-.mins li:nth-child(5n+1){background:#ffe1d6;color:#7a2a12}.mins li:nth-child(5n+2){background:#f5dde3;color:#6e1630}.mins li:nth-child(5n+3){background:#fff1c7;color:#6b4b00}.mins li:nth-child(5n+4){background:#e4e1ff;color:#2e2a7a}.mins li:nth-child(5n){background:#dff5e6;color:#14532d}
+.mins li:nth-child(5n+1){background:#ffe1d6;color:#7a2a12}.mins li:nth-child(5n+2){background:#f5dde3;color:#6e1630}.mins li:nth-child(5n+3){background:#fff1c7;color:#6b4b00}.mins li:nth-child(5n+4){background:#e4e1ff;color:#6e1630}.mins li:nth-child(5n){background:#dff5e6;color:#14532d}
 .dir-cma{margin:4px 0 0;font-weight:700}
 @media (prefers-reduced-motion:reduce){.intro4{display:none}.an4,.kpi4>*,.hola4{animation:none}}
 </style>
@@ -2185,7 +2185,7 @@ async function imagenesGracias(items, start, end){
   for (let p = 0; p < paginas.length; p++) {
     const W = 1920, H = 1080, c = document.createElement("canvas"); c.width = W; c.height = H;
     const x = c.getContext("2d");
-    const g = x.createRadialGradient(W * .5, -200, 100, W * .5, 300, 1500); g.addColorStop(0, "#3326d6"); g.addColorStop(.55, "#1a1280"); g.addColorStop(1, "#2a0711");
+    const g = x.createRadialGradient(W * .5, -200, 100, W * .5, 300, 1500); g.addColorStop(0, "#3326d6"); g.addColorStop(.55, "#5a0f24"); g.addColorStop(1, "#2a0711");
     x.fillStyle = g; x.fillRect(0, 0, W, H);
     for (let k = 0; k < 90; k++) { x.fillStyle = `rgba(255,255,255,${.05 + Math.random()*.18})`; x.beginPath(); x.arc(Math.random()*W, Math.random()*H, 1 + Math.random()*2.4, 0, 7); x.fill(); }
     const lw = 190, lh = lw * logo.height / logo.width; x.drawImage(logo, 90, 58, lw, lh);
