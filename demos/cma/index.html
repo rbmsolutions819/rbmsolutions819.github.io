@@ -768,9 +768,9 @@ import { initializeApp, getFirestore, collection, doc, getDoc, getDocs, setDoc, 
   const ts = h => ({ __ts: Date.now() - h * 36e5 });
   const vis = {}; for (let i = 0; i < 21; i++) { const h = {}; let n = 0; [9,10,10,12,18,19,19,19,20,21,21].forEach((x, j) => { if ((i * 3 + j) % 4) { const k = "h" + String(x).padStart(2, "0"); h[k] = (h[k] || 0) + 1; n++; } }); vis["visitas/" + d(-i)] = { n, h, t: ts(i * 24 + 2) }; }
   sembrar({
-    "sitio/config": { iglesia: "Centro Mundial de Adoración", lema: "Más que una congregación, una familia", facebook: "", instagram: "https://www.instagram.com/iglesia_cma/", whatsapp: "50684681293",
-      sinpe: { numero: "", nombre: "", nota: "" }, vivo: { activo: false, url: "", titulo: "Culto dominical" }, zoom: { url: "", titulo: "", fecha: "", hora: "", id: "", clave: "" } },
-    "sitio/youtube": { canal: "" },
+    "sitio/config": { iglesia: "Centro Mundial de Adoración", lema: "Más que una congregación, una familia", facebook: "https://www.facebook.com/share/1DnDMWbtq5/", instagram: "https://www.instagram.com/iglesia_cma/", whatsapp: "https://wa.me/50684681293", spotify: "https://open.spotify.com/artist/4IQbHzguhZZzZ8LvEhMkny",
+      sinpe: { numero: "", nombre: "", nota: "" }, vivo: { activo: false, url: "https://www.facebook.com/share/1DnDMWbtq5/", titulo: "Culto dominical" }, zoom: { url: "", titulo: "", fecha: "", hora: "", id: "", clave: "" } },
+    "sitio/youtube": { canal: "https://www.youtube.com/watch?v=4BAYmzV8JkM" },
     "eventos/e1": { titulo: "Culto dominical", repite: "semanal", dia: 0, fecha: "", hora: "10:00", lugar: "Templo CMA, Tibás", desc: "Alabanza, adoración y Palabra. ¡Te esperamos con tu familia!", imagen: "" },
     "eventos/e2": { titulo: "Noche de intercesión", repite: "semanal", dia: 3, fecha: "", hora: "19:00", lugar: "Templo CMA, Tibás", desc: "Nos reunimos a orar por las familias, la iglesia y Costa Rica.", imagen: "" },
     "eventos/e3": { titulo: "Reunión de Juventud", repite: "semanal", dia: 6, fecha: "", hora: "18:00", lugar: "Templo CMA, Tibás", desc: "Un espacio para los jóvenes: adoración, Palabra y amistad.", imagen: "" },
@@ -944,7 +944,7 @@ async function revisarEspacio(forzar){
 }
 async function borrarVideoSubido(u){ if (esSubido(u)) { try { await deleteObject(sRef(almacen, u)); } catch {} } }
 
-const DEFAULT = { iglesia:"Centro Mundial de Adoración", lema:"Más que una congregación, una familia", facebook:"", instagram:"https://www.instagram.com/iglesia_cma/", whatsapp:"50684681293",
+const DEFAULT = { iglesia:"Centro Mundial de Adoración", lema:"Más que una congregación, una familia", facebook:"https://www.facebook.com/share/1DnDMWbtq5/", instagram:"https://www.instagram.com/iglesia_cma/", whatsapp:"https://wa.me/50684681293", spotify:"https://open.spotify.com/artist/4IQbHzguhZZzZ8LvEhMkny",
   sinpe:{numero:"",nombre:"",nota:""},
   vivo:{activo:false,url:"",titulo:"Culto dominical"}, zoom:{url:"",titulo:"",fecha:"",hora:"",id:"",clave:""} };
 let D = { cfg: structuredClone(DEFAULT), eventos:[], noticias:[], videos:[], encuestas:[] };
@@ -1018,12 +1018,13 @@ const ICON = {
   fb:'<svg viewBox="0 0 24 24"><path d="M14 8h3V4h-3a4 4 0 0 0-4 4v3H7v4h3v6h4v-6h3l1-4h-4V8z"/></svg>'
 };
 const RED_ICON = {
+  spotify: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.2c4-1.3 8.6-.9 12 1.1M6.8 12.5c3.3-1 6.9-.6 9.7 1M7.6 15.6c2.6-.7 5.3-.4 7.4.8" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round"/></svg>`,
   facebook:'<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#fff" d="M13.5 21v-7.5h2.6l.4-3h-3V8.6c0-.9.3-1.5 1.5-1.5h1.6V4.4c-.3 0-1.2-.1-2.3-.1-2.3 0-3.9 1.4-3.9 4v2.2H7.8v3h2.6V21h3.1z"/></svg>',
   instagram:'<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#fff" stroke-width="2"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r="1" fill="#fff" stroke="none"/></svg>',
   whatsapp:'<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#fff" d="M12 3a9 9 0 0 0-7.8 13.4L3 21l4.7-1.2A9 9 0 1 0 12 3zm0 16.4c-1.4 0-2.8-.4-4-1.1l-.3-.2-2.8.7.8-2.7-.2-.3A7.4 7.4 0 1 1 12 19.4zm4.1-5.5c-.2-.1-1.3-.7-1.5-.7-.2-.1-.4-.1-.5.1l-.7.9c-.1.2-.3.2-.5.1a6 6 0 0 1-3-2.6c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.7-1.6c-.2-.4-.4-.4-.5-.4h-.4c-.2 0-.4.1-.6.3-.2.2-.8.8-.8 1.9s.8 2.2.9 2.3c.1.2 1.6 2.5 4 3.5 1.5.6 2 .7 2.8.6.4-.1 1.3-.5 1.5-1.1.2-.5.2-1 .1-1.1l-.5-.3z"/></svg>'
 };
 function redesHTML(){
-  const c = D.cfg, redes = [["facebook","Facebook","#1877f2",c.facebook],["instagram","Instagram","linear-gradient(45deg,#f9a825,#e91e63 55%,#7b1fa2)",c.instagram],["whatsapp","Grupo de WhatsApp","#25d366",c.whatsapp]].filter(r => okUrl(r[3]));
+  const c = D.cfg, redes = [["facebook","Facebook","#1877f2",c.facebook],["instagram","Instagram","linear-gradient(45deg,#f9a825,#e91e63 55%,#7b1fa2)",c.instagram],["whatsapp","WhatsApp","#25d366",c.whatsapp],["spotify","Spotify","#1db954",c.spotify]].filter(r => okUrl(r[3]));
   if (!redes.length) return "";
   return `<div class="redes" id="redes">
     <div class="redes-lista" id="redes-lista" hidden>${redes.map(([k,n,col,u]) => `<a class="red" href="${esc(u)}" target="_blank" rel="noopener"><span class="red-txt">${n}</span><span class="red-ic" style="background:${col}">${RED_ICON[k]}</span></a>`).join("")}</div>
@@ -1822,17 +1823,18 @@ function renderTab(){
         <div class="field"><label class="label" for="c-le">Lema</label><input type="text" id="c-le" value="${esc(c.lema)}"></div>
         <div class="field"><label class="label" for="c-fb">Página de Facebook</label><input type="url" id="c-fb" value="${esc(c.facebook)}" placeholder="https://www.facebook.com/..."></div>
         <div class="field"><label class="label" for="c-ig2">Instagram</label><input type="url" id="c-ig2" value="${esc(c.instagram)}" placeholder="https://www.instagram.com/..."></div>
-        <div class="field"><label class="label" for="c-wa">Grupo de WhatsApp de la iglesia</label><input type="url" id="c-wa" value="${esc(c.whatsapp)}" placeholder="https://chat.whatsapp.com/..."><p class="hint">En WhatsApp: abre el grupo → toca el nombre → “Invitar al grupo mediante enlace” → copia el enlace. Estas tres redes aparecen en el botón flotante de la página.</p></div>
+        <div class="field"><label class="label" for="c-sp">Spotify</label><input type="url" id="c-sp" value="${esc(c.spotify||"")}" placeholder="https://open.spotify.com/artist/..."></div>
+        <div class="field"><label class="label" for="c-wa">WhatsApp de la iglesia (link)</label><input type="url" id="c-wa" value="${esc(c.whatsapp)}" placeholder="https://wa.me/506XXXXXXXX o link del grupo"><p class="hint">En WhatsApp: abre el grupo → toca el nombre → “Invitar al grupo mediante enlace” → copia el enlace. Estas tres redes aparecen en el botón flotante de la página.</p></div>
       </div>
       <p class="err" id="c-err" hidden></p>
       <div class="actions"><button class="btn" id="c-save">Guardar cambios</button></div></section>`;
     $("#c-save").addEventListener("click", async () => {
       const g = id => $("#"+id).value.trim();
       const err = m => { const p=$("#c-err"); p.textContent=m; p.hidden=!m; };
-      for (const [id,n] of [["c-fb","Facebook"],["c-ig2","Instagram"],["c-wa","WhatsApp"],["c-vurl","directo"],["c-zurl","Zoom"]]) if (g(id) && !okUrl(g(id))) return err(`El enlace de ${n} debe empezar con https://`);
+      for (const [id,n] of [["c-fb","Facebook"],["c-ig2","Instagram"],["c-wa","WhatsApp"],["c-sp","Spotify"],["c-vurl","directo"],["c-zurl","Zoom"]]) if (g(id) && !okUrl(g(id))) return err(`El enlace de ${n} debe empezar con https://`);
       if ($("#c-on").checked && !okUrl(g("c-vurl"))) return err("Pega el enlace del directo para marcar “en vivo”.");
       if (g("c-sn") && g("c-sn").replace(/\D/g,"").length < 8) return err("El número de SINPE debe tener 8 dígitos.");
-      const data = { iglesia:g("c-ig")||DEFAULT.iglesia, lema:g("c-le"), facebook:g("c-fb"), instagram:g("c-ig2"), whatsapp:g("c-wa"),
+      const data = { iglesia:g("c-ig")||DEFAULT.iglesia, lema:g("c-le"), facebook:g("c-fb"), instagram:g("c-ig2"), whatsapp:g("c-wa"), spotify:g("c-sp"),
         sinpe:{numero:g("c-sn"), nombre:g("c-sname"), nota:g("c-snota")},
         vivo:{activo:$("#c-on").checked, url:$("#c-on").checked ? g("c-vurl") : "", titulo:g("c-vt"), desde: $("#c-on").checked ? ((D.cfg.vivo?.activo && !directoVencido(D.cfg.vivo) && D.cfg.vivo.url === g("c-vurl")) ? (+D.cfg.vivo.desde || Date.now()) : Date.now()) : 0},
         zoom:{url:g("c-zurl"), titulo:g("c-zt"), fecha:g("c-zf"), hora:g("c-zh"), id:g("c-zid"), clave:g("c-zc")} };
@@ -2847,8 +2849,8 @@ function mejorarCMA(){
       <div class="yt-grid" id="ytLista"></div><div class="yt-acc" id="ytAcc"></div></section>
       <section id="ministerios-cma"><div class="min-grid"><img src="f/edificando.jpg" alt="Afiche de la serie radial Edificando la Casa de Dios" loading="lazy">
         <div><span class="ceja3">Serie de programas radiales</span><h2>Edificando la Casa de Dios</h2><p class="sub">El Centro Mundial de Adoración presenta su serie de programas para edificar la iglesia en cada área de servicio.</p>
-          <ul class="mins"><li>Intercesión</li><li>Evangelismo</li><li>Adoración</li><li>Pastoral</li><li>Juventud</li></ul>
-          <div class="yt-acc" style="margin-top:18px"><a class="btn" href="https://wa.me/${esc(D.cfg.whatsapp || DEFAULT.whatsapp)}?text=${encodeURIComponent("Hola 👋, quiero información sobre los ministerios del Centro Mundial de Adoración.")}" target="_blank" rel="noopener">💬 Quiero servir en un ministerio</a></div></div></div></section>`);
+          <ul class="mins"><li>Intercesión</li><li>Evangelismo</li><li>Adoración</li><li>Pastoral</li><li>Juventud</li></ul><p class="sub" style="margin-top:14px">🎵 Escuche a <b>Los Redimidos</b>, nuestro grupo de alabanza, y su nuevo sencillo <b>Majestuoso es Él</b>.</p>
+          <div class="yt-acc" style="margin-top:18px"><a class="btn" href="https://wa.me/50684681293?text=${encodeURIComponent("Hola 👋, quiero información sobre los ministerios del Centro Mundial de Adoración.")}" target="_blank" rel="noopener">💬 Quiero servir en un ministerio</a></div></div></div></section>`);
     pintarYT();
   }
   const ub = $("#ubicacion .sub"); if (ub && !$(".dir-cma")) ub.insertAdjacentHTML("afterend", `<p class="dir-cma">📍 100 m sur y 50 m este del Parque de Tibás, San José</p>`);
@@ -2857,7 +2859,7 @@ function mejorarCMA(){
 function pintarYT(){
   const l = $("#ytLista"); if (!l) return;
   l.innerHTML = YT.length ? YT.slice(0, 9).map(ytCard).join("") : `<div class="empty">Pronto subiremos aquí nuestras prédicas.</div>`;
-  $("#ytAcc").innerHTML = (YTCANAL ? `<a class="btn yt" href="${esc(YTCANAL)}" target="_blank" rel="noopener">▶ Ver el canal de YouTube</a>` : "") + (YTCANAL ? `<a class="btn" href="${esc(YTCANAL)}${YTCANAL.includes("?") ? "&" : "?"}sub_confirmation=1" target="_blank" rel="noopener">🔔 Suscribirme</a>` : "");
+  $("#ytAcc").innerHTML = (YTCANAL ? `<a class="btn yt" href="${esc(YTCANAL)}" target="_blank" rel="noopener">▶ Ver en YouTube</a>` : "") + ((D.cfg.spotify || DEFAULT.spotify) ? `<a class="btn" style="background:#1db954;border-color:#1db954;color:#04210f" href="${esc(D.cfg.spotify || DEFAULT.spotify)}" target="_blank" rel="noopener">🎧 Escuchar en Spotify</a>` : "") + (D.cfg.facebook ? `<a class="btn" style="background:#1877f2;border-color:#1877f2;color:#fff" href="${esc(D.cfg.facebook)}" target="_blank" rel="noopener">Ver en Facebook</a>` : "") + (YTCANAL && /\/(@|channel\/|c\/)/.test(YTCANAL) ? `<a class="btn" href="${esc(YTCANAL)}?sub_confirmation=1" target="_blank" rel="noopener">🔔 Suscribirme</a>` : "");
 }
 document.addEventListener("click", e => { const b = e.target.closest("[data-yt]"); if (!b) return; const y = YT.find(x => x.id === b.dataset.yt); if (y) verYT(y.url, y.titulo); });
 const _renderPublicCMA = renderPublic;

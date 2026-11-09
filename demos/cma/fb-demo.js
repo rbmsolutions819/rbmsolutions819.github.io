@@ -1,6 +1,6 @@
 // Versión de demostración: imita Firebase (base de datos, archivos y usuarios) guardando todo en este navegador.
 // Así la demo funciona completa sin tocar ninguna base de datos real. En la versión final se cambia por Firebase.
-const LS = "cma-demo-v1", USR = "cma-demo-usuario", CLAVE = "demo1234";
+const LS = "cma-demo-v3", USR = "cma-demo-usuario", CLAVE = "demo1234";
 const tsDe = ms => ({ seconds: Math.floor(ms / 1000), nanoseconds: 0, toMillis: () => ms, toDate: () => new Date(ms) });
 const SERV = { __srv: 1 }, INC = n => ({ __inc: n });
 
