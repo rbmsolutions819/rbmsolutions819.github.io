@@ -472,6 +472,124 @@ service cloud.firestore {
         && request.resource.data.cuenta is string && request.resource.data.cuenta.size() <= 60;
     }
 
+    // ---- Demo Doña Empanada (copia de las reglas de Matcha Mía) ----
+    match /demo_empanada_clientes/{t} {
+      allow get: if true;
+      allow list: if esAdmin();
+      allow create: if t.size() >= 16 && t.size() <= 40
+        && request.resource.data.keys().hasOnly(['nombre','ced4','correo','sellos','gratis','canjes','total','creado','actualizado'])
+        && correoOk(request.resource.data.get('correo', ''))
+        && request.resource.data.nombre is string && request.resource.data.nombre.size() >= 2 && request.resource.data.nombre.size() <= 60
+        && request.resource.data.ced4 is string && request.resource.data.ced4.size() == 4
+        && request.resource.data.sellos == 0 && request.resource.data.canjes == 0
+        && request.resource.data.get('gratis', 0) == 0 && request.resource.data.get('total', 0) == 0
+        && request.resource.data.creado == request.time && request.resource.data.actualizado == request.time;
+      // El cliente puede poner o cambiar su correo (solo eso).
+      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['correo'])
+        && correoOk(request.resource.data.correo);
+      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['sellos','gratis','canjes','total','actualizado'])
+        && request.resource.data.actualizado == request.time
+        && request.resource.data.sellos is int && request.resource.data.sellos >= 0 && request.resource.data.sellos <= 9
+        && request.resource.data.gratis is int && request.resource.data.gratis >= 0
+        && request.resource.data.canjes is int && request.resource.data.total is int
+        && (
+          (request.resource.data.canjes == resource.data.get('canjes', 0)
+            && request.resource.data.total > kkTotal(resource.data)
+            && request.resource.data.total - kkTotal(resource.data) <= 50
+            && kkVal(request.resource.data) == kkVal(resource.data) + (request.resource.data.total - kkTotal(resource.data)))
+          || (request.resource.data.total == kkTotal(resource.data)
+            && request.resource.data.canjes > resource.data.get('canjes', 0)
+            && kkVal(request.resource.data) == kkVal(resource.data) - 10 * (request.resource.data.canjes - resource.data.get('canjes', 0)))
+        );
+      allow delete: if esAdmin();
+    }
+    match /demo_empanada_ced/{h} {
+      allow get: if true;
+      allow list, update: if false;
+      allow create: if h.size() == 64
+        && request.resource.data.keys().hasOnly(['t'])
+        && request.resource.data.t is string
+        && existsAfter(/databases/$(database)/documents/demo_empanada_clientes/$(request.resource.data.t));
+      allow delete: if esAdmin();
+    }
+    match /demo_empanada_acceso/{h} {
+      allow get: if true;
+      allow list, update: if false;
+      allow create: if h.size() == 64
+        && request.resource.data.keys().hasOnly(['t'])
+        && request.resource.data.t is string
+        && exists(/databases/$(database)/documents/demo_empanada_clientes/$(request.resource.data.t));
+      allow delete: if esAdmin();
+    }
+    match /prueba_empanada_clientes/{t} {
+      allow read, delete: if true;
+      allow create, update: if t.size() >= 16 && t.size() <= 40
+        && request.resource.data.keys().hasOnly(['nombre','ced4','correo','sellos','gratis','canjes','total','creado','actualizado'])
+        && correoOk(request.resource.data.get('correo', ''))
+        && request.resource.data.nombre is string && request.resource.data.nombre.size() <= 60
+        && request.resource.data.sellos is int && request.resource.data.sellos >= 0 && request.resource.data.sellos <= 10
+        && request.resource.data.get('gratis', 0) is int && request.resource.data.get('gratis', 0) >= 0 && request.resource.data.get('gratis', 0) <= 1000
+        && request.resource.data.get('total', 0) is int && request.resource.data.get('total', 0) >= 0
+        && request.resource.data.canjes is int && request.resource.data.canjes >= 0 && request.resource.data.canjes <= 1000;
+    }
+    match /prueba_empanada_ced/{h} {
+      allow read, delete: if true;
+      allow create, update: if h.size() == 64 && request.resource.data.keys().hasOnly(['t']) && request.resource.data.t is string && request.resource.data.t.size() <= 40;
+    }
+    match /prueba_empanada_acceso/{h} {
+      allow read, delete: if true;
+      allow create, update: if h.size() == 64 && request.resource.data.keys().hasOnly(['t']) && request.resource.data.t is string && request.resource.data.t.size() <= 40;
+    }
+    match /demo_empanada_reclamos/{id} {
+      allow get: if true;
+      allow list: if esAdmin();
+      allow create: if id.size() >= 6 && id.size() <= 40
+        && request.resource.data.keys().hasOnly(['t','nombre','app','orden','estado','creado'])
+        && request.resource.data.app in ['UBER', 'DIDI', 'RAPPI']
+        && id == request.resource.data.app + '-' + request.resource.data.orden
+        && request.resource.data.orden is string && request.resource.data.orden.size() >= 3 && request.resource.data.orden.size() <= 30
+        && request.resource.data.nombre is string && request.resource.data.nombre.size() <= 60
+        && request.resource.data.t is string && exists(/databases/$(database)/documents/demo_empanada_clientes/$(request.resource.data.t))
+        && request.resource.data.estado == 'pendiente' && request.resource.data.creado == request.time;
+      allow update: if resource.data.estado == 'pendiente'
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['estado','sellos','revisado'])
+        && request.resource.data.estado in ['aprobado', 'rechazado']
+        && request.resource.data.sellos is int && request.resource.data.sellos >= 0 && request.resource.data.sellos <= 20
+        && request.resource.data.revisado == request.time;
+      allow delete: if esAdmin();
+    }
+    match /demo_empanada_pendientes/{id} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasOnly(['nombre','app','orden','creado'])
+        && request.resource.data.nombre is string && request.resource.data.nombre.size() <= 40
+        && request.resource.data.creado == request.time
+        && existsAfter(/databases/$(database)/documents/demo_empanada_reclamos/$(id))
+        && getAfter(/databases/$(database)/documents/demo_empanada_reclamos/$(id)).data.estado == 'pendiente';
+      allow delete: if esAdmin()
+        || (exists(/databases/$(database)/documents/demo_empanada_reclamos/$(id))
+          && getAfter(/databases/$(database)/documents/demo_empanada_reclamos/$(id)).data.estado != 'pendiente');
+    }
+    match /prueba_empanada_pendientes/{id} {
+      allow read, delete: if true;
+      allow create, update: if id.size() <= 40 && request.resource.data.keys().hasOnly(['nombre','app','orden','creado'])
+        && request.resource.data.nombre is string && request.resource.data.nombre.size() <= 40;
+    }
+    match /prueba_empanada_reclamos/{id} {
+      allow read, delete: if true;
+      allow create, update: if id.size() <= 40
+        && request.resource.data.keys().hasOnly(['t','nombre','app','orden','estado','creado','sellos','revisado'])
+        && request.resource.data.estado in ['pendiente', 'aprobado', 'rechazado'];
+    }
+    match /demo_empanada_promos/{id} {
+      allow read: if true;
+      allow create, update: if esAdmin() && promoOk(request.resource.data);
+      allow delete: if esAdmin();
+    }
+    match /prueba_empanada_promos/{id} {
+      allow read, delete: if true;
+      allow create, update: if promoOk(request.resource.data);
+    }
+
     match /{path=**} { allow read, write: if false; }
   }
 }

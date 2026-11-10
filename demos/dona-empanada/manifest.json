@@ -1,0 +1,21 @@
+{
+  "name": "Doña Empanada · Mi tarjeta",
+  "short_name": "Doña Empanada",
+  "start_url": "tarjeta.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f07a12",
+  "theme_color": "#f07a12",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

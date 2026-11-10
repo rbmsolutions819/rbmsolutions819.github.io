@@ -1649,7 +1649,7 @@ const ReservasPrueba = (() => {
     prueba: true, admin: false,
     async entrar(clave){ if (clave !== CLAVE_ADMIN) throw new Error("clave"); this.admin = true; },
     async visitas(desde){   // visitas de ejemplo para la versión de prueba
-      const out = [], pags = ["inicio", "condominio-residente", "condominio", "condominio-seguridad", "genki", "matcha", "cosmo", "cosmo-2", "spa", "chemas", "koktela", "candelas", "alick"];
+      const out = [], pags = ["inicio", "condominio-residente", "condominio", "condominio-seguridad", "genki", "matcha", "dona-empanada", "cosmo", "cosmo-2", "spa", "chemas", "koktela", "candelas", "alick"];
       for (let d = deIso(desde), i = 0; iso(d) <= iso(crAhora()); d = masDias(d, 1), i++) pags.forEach((p, k) => { const n = Math.max(0, Math.round((pags.length - k) * (0.5 + ((i * 7 + k * 13) % 10) / 10) / 2) - (k > 8 && i % 3 ? 1 : 0));
         if (n) { const h = {}; for (let j = 0; j < n; j++) { const hr = [9, 11, 12, 13, 15, 17, 19, 20, 21, 14][(i * 3 + k * 7 + j * 5) % 10]; h["h" + String(hr).padStart(2, "0")] = (h["h" + String(hr).padStart(2, "0")] || 0) + 1; }
           out.push({ p, f: iso(d), n, u: Math.max(1, Math.round(n * 0.7)), h, t: Date.parse(iso(d) + "T00:00:00Z") + 6 * 3600e3 + ((i * 37 + k * 53) % 720 + 480) * 60e3 }); } });
@@ -3046,6 +3046,8 @@ const DEMOS = [
     desc:"Búsqueda en tiendas de EE. UU., cotización en colones con casillero, impuestos y comisión, y control de cada pedido." },
   { id:"compras", url:"demos/compras/", ic:"web", menu:"Página de asesora de compras", tipo:"Compras por encargo · Vitrina", nombre:"Página de asesora de compras",
     desc:"Cómo funciona el servicio, categorías más pedidas y formulario de cotización que llega directo por WhatsApp." },
+  { id:"dona-empanada", url:"demos/dona-empanada/", ic:"precio", menu:"Menú de food truck con encargos", tipo:"Food truck · Menú animado, pedidos y encargos", nombre:"Doña Empanada",
+    desc:"Portada con mini empanadas que flotan, carrusel de las favoritas y cada producto dibujado. Pedidos por WhatsApp con sabores, arreglos y salsas; encargos para otro día con pago por SINPE y foto del comprobante; tarjeta de sellos y panel para el negocio." },
   { id:"matcha", url:"demos/matcha/", ic:"precio", menu:"Menú digital de cafetería", tipo:"Cafetería · Menú animado y pedidos", nombre:"Menú digital con pedidos",
     desc:"Portada con pétalos y hojitas que flotan, carrusel de las favoritas, cinta con las bebidas, vasos con burbujas y vapor, y sellos que aparecen uno por uno. Bebidas personalizables, pedido para recoger por WhatsApp, tarjeta de lealtad y panel para la dueña." },
   { id:"matcha-v1", url:"demos/matcha/v1.html", ic:"precio", menu:"Menú de cafetería (versión anterior)", tipo:"Cafetería · Menú y pedidos", nombre:"Matcha Mía (versión anterior, sin animaciones)",

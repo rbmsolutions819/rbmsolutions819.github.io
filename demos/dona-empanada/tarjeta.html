@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Mi tarjeta · Doña Empanada</title>
+<meta name="theme-color" content="#f07a12">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Doña Empanada">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="icon" href="logo.png">
+<link rel="apple-touch-icon" href="logo.png">
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>svg.i{width:1em;height:1em;vertical-align:-.14em;flex:none;display:inline-block}
+/* La tarjeta del cliente: se ve como una tarjeta física de sellos, con el QR arriba y los sellos abajo. Se actualiza sola. */
+:root{
+  --fondo:#f07a12; --tarjeta:#fffaf4; --rosa:#ffeedd; --rosa2:#ffd1a3; --fucsia:#f07a12; --fucsia2:#c25a05; --matcha:#f5a524;
+  --tinta:#3b2414; --suave:#8a6650; --linea:#f6dcc2;
+  --f-logo:"Lilita One","Arial Rounded MT Bold",system-ui,sans-serif; --f-txt:"Nunito",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{min-height:100%}
+body{margin:0;background:radial-gradient(circle at 20% 0%,#ffa64d,var(--fondo) 55%,#b34f04);color:var(--tinta);font:400 16px/1.5 var(--f-txt);-webkit-font-smoothing:antialiased;
+  padding:calc(20px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) calc(24px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+[hidden]{display:none!important}
+.t{max-width:420px;margin:0 auto;background:var(--tarjeta);border-radius:28px;padding:22px 20px 20px;box-shadow:0 30px 60px -24px rgba(59,36,20,.6);display:grid;gap:16px;text-align:center}
+.logo{width:104px;height:104px;border-radius:50%;margin:0 auto -6px;border:3px solid #fff;box-shadow:0 10px 24px -12px rgba(194,90,5,.6)}
+.marca{font:400 30px/1 var(--f-logo);color:var(--fucsia)}
+.sub{color:var(--suave);font-weight:700;font-size:14px;margin-top:-8px}
+.nombre{font-size:20px;font-weight:800}
+.qr{width:220px;height:220px;margin:0 auto;background:#fff;border-radius:18px;padding:10px;border:2px solid var(--linea)}
+.qr img,.qr canvas{width:100%!important;height:auto!important}
+.sellos{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.sellos i{aspect-ratio:1;border-radius:50%;border:2px solid var(--rosa2);display:grid;place-items:center;font-style:normal;font-size:20px;background:#fff;transition:transform .3s}
+.sellos i.si{background:var(--fucsia);border-color:var(--fucsia);color:#fff}
+.sellos i.gratis{border-style:dashed;font-size:10.5px;font-weight:800;color:var(--fucsia2)}
+.sellos i.nuevo{animation:pop .6s ease}
+@keyframes pop{0%{transform:scale(.4)}60%{transform:scale(1.2)}100%{transform:scale(1)}}
+.estado{font-size:17px}
+.estado b{color:var(--fucsia2)}
+.vivo{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--suave);font-weight:700;justify-self:center}
+.vivo i{width:8px;height:8px;border-radius:50%;background:var(--matcha);box-shadow:0 0 0 4px rgba(245,165,36,.2)}
+.guardar{background:#fff;border:2px dashed var(--rosa2);border-radius:18px;padding:12px 14px;text-align:left;font-size:14px;display:grid;gap:6px}
+.guardar b{font-size:15px}
+.guardar ol{margin:0;padding-left:20px;display:grid;gap:3px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:2px solid var(--fucsia);background:#fff;color:var(--fucsia2);font:800 15px var(--f-txt);border-radius:14px;padding:11px 16px;cursor:pointer;text-decoration:none}
+.btn.pri{background:var(--fucsia);color:#fff}
+.links{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.nota{font-size:13px;color:var(--suave)}
+.dueña{font-size:12.5px;color:var(--suave)}
+.dueña a{color:var(--suave)}
+.form{display:grid;gap:10px;text-align:left}
+.form label{display:grid;gap:5px;font-size:13px;font-weight:800;color:var(--suave)}
+.form input{border:2px solid var(--linea);border-radius:12px;background:#fff;padding:12px;font:700 17px var(--f-txt);color:var(--tinta);width:100%;min-width:0;letter-spacing:.04em}
+.err{color:var(--fucsia2);font-weight:800;font-size:14px;min-height:1em;margin:0}
+.ejemplo{border:2px dashed var(--rosa2);border-radius:14px;padding:10px 12px;font-size:13.5px;color:var(--suave);text-align:left}
+.ejemplo b{color:var(--tinta)}
+.ejs{display:grid;gap:6px;margin-top:8px}
+.ejs button{display:grid;gap:1px;text-align:left;border:2px solid var(--linea);background:#fff;border-radius:12px;padding:8px 10px;color:var(--tinta);font:600 14px var(--f-txt);cursor:pointer}
+.ejs button:hover{border-color:var(--fucsia)}
+.ejs small{color:var(--suave);font-size:12.5px}
+.salir{border:0;background:none;color:var(--suave);text-decoration:underline;cursor:pointer;font-size:13px;justify-self:center}
+details.clave{border:2px dashed var(--rosa2);border-radius:14px;padding:10px 12px;text-align:left}
+details.clave summary{cursor:pointer;font-weight:800;font-size:14.5px}
+details.clave .form{margin-top:10px}
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.stats div{background:#fff;border:2px solid var(--linea);border-radius:14px;padding:10px;display:grid;gap:2px}
+.stats b{font:400 26px/1.1 var(--f-logo);color:var(--fucsia)}
+.stats span{font-size:12.5px;color:var(--suave);font-weight:800}
+.stats .dest{border-color:var(--fucsia);background:var(--rosa)}
+.premio{border:2px solid var(--fucsia);border-radius:16px;padding:12px;background:var(--rosa);font-size:16px}
+.form select{border:2px solid var(--linea);border-radius:12px;background:#fff;padding:11px;font:700 16px var(--f-txt);color:var(--tinta);width:100%}
+.misPed{display:grid;gap:6px;margin-top:10px}
+.misPed div{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;background:#fff;border:2px solid var(--linea);border-radius:12px;padding:8px 10px;font-size:14px}
+.misPed .ok{color:#3f7a14;font-weight:800}.misPed .no{color:var(--fucsia2);font-weight:800}.misPed .esp{color:var(--suave);font-weight:800}
+.prueba{position:fixed;top:0;left:0;right:0;z-index:70;background:#f6c90e;color:#1a1400;font:800 13px var(--f-txt);text-align:center;padding:5px 10px;padding-top:calc(5px + env(safe-area-inset-top,0px))}
+.bloque{border:1px solid var(--linea);border-radius:14px;padding:12px;text-align:left;display:grid;gap:8px;background:#fff}
+.bloque>b{font-size:14.5px}
+.promoC{border-left:4px solid var(--fucsia);padding:4px 0 4px 10px;display:grid;gap:2px}
+.promoC small{color:var(--suave);font-weight:700;font-size:12.5px}
+.promoC.hoy small{color:var(--fucsia)}
+.promoC span{font-size:14.5px}
+.lista-av{display:grid;gap:6px;margin:0;padding:0;list-style:none}
+.lista-av li{display:grid;gap:1px;border-bottom:1px dashed var(--linea);padding-bottom:6px;font-size:14px}
+.lista-av small{color:var(--suave);font-size:12px}
+.notif{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:14px}
+.notif .ok{font-weight:800;color:var(--fucsia)}
+.toast{position:fixed;left:50%;transform:translate(-50%,20px);bottom:calc(24px + env(safe-area-inset-bottom,0px));background:var(--tinta);color:#fff;padding:12px 18px;border-radius:14px;font-weight:800;opacity:0;pointer-events:none;transition:.25s;max-width:calc(100% - 32px)}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<main class="t" id="t">
+  <img class="logo" src="logo.png" alt="" width="104" height="104"><div class="marca">Doña Empanada</div>
+  <div class="sub">Tarjeta de sellos</div>
+  <p class="nota" id="carga">Cargando tu tarjeta…</p>
+</main>
+<div class="toast" id="toast" role="status"></div>
+<div class="prueba" id="bPrueba" hidden>Modo prueba · datos de ejemplo</div>
+
+<script src="qrcode.min.js"></script>
+<script src="tarjetas.js"></script>
+<script>
+(() => {
+"use strict";
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const lsGet = (k, d) => { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch { return d; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
+const esIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+const instalada = () => matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+let tAviso; const aviso = t => { const el = $("#toast"); el.textContent = t; el.classList.add("on"); clearTimeout(tAviso); tAviso = setTimeout(() => el.classList.remove("on"), 3000); };
+
+// El código de la tarjeta viene en el link (#t=...). Se recuerda en este celular para abrirla aunque falte el link.
+addEventListener("hashchange", () => { const n = Tarjetas.tokenDeTexto(location.hash); if (n && n !== token) location.reload(); });
+if (Tarjetas.prueba) { $("#bPrueba").hidden = false; document.body.style.paddingTop = "48px"; }
+// Usuario de ejemplo para mostrar la demo (no usa la base de datos).
+const EJEMPLO = {ced: "111111111", pin: "1234", token: "ejemploempanada000", tarjeta: {nombre: "Cliente de ejemplo", sellos: 7, gratis: 2, canjes: 1, total: 37}};
+const token = location.hash === "#ingresar" ? null : (Tarjetas.tokenDeTexto(location.hash) || lsGet(Tarjetas.KEY, null));
+const t = $("#t");
+const LOGO = `<img class="logo" src="logo.png" alt="" width="104" height="104"><div class="marca">Doña Empanada</div>`;
+const entrar = tk => { lsSet(Tarjetas.KEY, tk); location.replace(Tarjetas.link(tk)); location.reload(); };
+
+// ---- Ingreso con cédula y clave ----
+function pintarIngreso() {
+  t.innerHTML = `${LOGO}<div class="sub">Ingresá a tu tarjeta</div>
+    <form class="form" id="fIng" novalidate>
+      <label>Cédula<input id="iCed" inputmode="numeric" autocomplete="username" maxlength="15" placeholder="Ej.: 1 1234 5678"></label>
+      <label>Clave (4 dígitos)<input id="iPin" type="password" inputmode="numeric" autocomplete="current-password" maxlength="4" placeholder="••••"></label>
+      <p class="err" id="iErr"></p>
+      <button class="btn pri" type="submit" id="iBtn">Ver mis sellos</button>
+    </form>
+    <div class="ejemplo"><b>Usuarios de prueba</b> · tocá uno para entrar
+      <div class="ejs">${Tarjetas.EJEMPLOS.slice(0, 5).map((e, i) => `<button type="button" data-ej="${i}"><span><b>${esc(e.nombre)}</b> · ${e.sellos} de 10${e.gratis ? ` · ${e.gratis} gratis` : ""}</span><small>cédula ${e.ced} · clave ${e.pin}</small></button>`).join("")}</div></div>
+    <p class="nota">¿No tenés clave? Pedila en el food truck, o abrí el link que te mandamos por WhatsApp y creala desde ahí.</p>
+    <a class="btn" href="${Tarjetas.url('./')}">Ver el menú</a>`;
+  t.querySelectorAll("[data-ej]").forEach(b => b.addEventListener("click", () => {
+    const e = Tarjetas.EJEMPLOS[+b.dataset.ej]; $("#iCed").value = e.ced; $("#iPin").value = e.pin; $("#fIng").requestSubmit();
+  }));
+  $("#fIng").addEventListener("submit", async e => {
+    e.preventDefault();
+    const ced = Tarjetas.soloDigitos($("#iCed").value), pin = Tarjetas.soloDigitos($("#iPin").value), err = $("#iErr");
+    if (ced.length < 9) { err.textContent = "Escribí tu cédula completa."; $("#iCed").focus(); return; }
+    if (pin.length !== 4) { err.textContent = "La clave tiene 4 dígitos."; $("#iPin").focus(); return; }
+    if (ced === EJEMPLO.ced && pin === EJEMPLO.pin) return entrar(EJEMPLO.token);
+    const ej = Tarjetas.EJEMPLOS.find(x => x.ced === ced && x.pin === pin);
+    // Un usuario de prueba siempre entra al modo prueba (base de datos aparte).
+    if (ej && !Tarjetas.prueba) { try { sessionStorage.setItem("de-auto", JSON.stringify({ced, pin})); } catch {} location.href = new URL("tarjeta.html?prueba#ingresar", location.href).href; return; }
+    $("#iBtn").disabled = true; $("#iBtn").textContent = "Entrando…"; err.textContent = "";
+    try {
+      if (ej) await Tarjetas.asegurarEjemplos();
+      let tk = await Tarjetas.ingresar(ced, pin);
+      // Si la base de prueba está vacía, se crean los clientes de ejemplo en ese momento.
+      if (!tk && ej) { await Tarjetas.cargarEjemplos(); tk = await Tarjetas.ingresar(ced, pin); }
+      if (!tk) { err.textContent = "La cédula o la clave no coinciden."; $("#iBtn").disabled = false; $("#iBtn").textContent = "Ver mis sellos"; return; }
+      entrar(tk);
+    } catch { err.textContent = "No se pudo ingresar. Revisá tu conexión."; $("#iBtn").disabled = false; $("#iBtn").textContent = "Ver mis sellos"; }
+  });
+}
+if (!token) {
+  pintarIngreso();
+  let auto = null; try { auto = JSON.parse(sessionStorage.getItem("de-auto")); sessionStorage.removeItem("de-auto"); } catch {}
+  if (auto && Tarjetas.prueba) { $("#iCed").value = auto.ced; $("#iPin").value = auto.pin; $("#fIng").requestSubmit(); }
+  return;
+}
+const esEjemplo = token === EJEMPLO.token;
+lsSet(Tarjetas.KEY, token);
+if (!location.hash.includes(token)) history.replaceState(null, "", "#t=" + token);
+
+// ---------- Avisos en el celular (sellos, gratis y promociones) ----------
+let swReg = null;
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").then(r => swReg = r).catch(() => {});
+const KEY_AV = Tarjetas.KEY + "-avisos", KEY_VISTAS = Tarjetas.KEY + "-promos-vistas";
+let misAvisos = lsGet(KEY_AV, []), promos = [];
+const puedeNotificar = () => "Notification" in window && Notification.permission === "granted";
+function avisar(titulo, cuerpo = "") {
+  aviso(titulo);
+  misAvisos = [{titulo, cuerpo, f: Date.now()}, ...misAvisos].slice(0, 15); lsSet(KEY_AV, misAvisos); pintarAvisos();
+  if (!puedeNotificar()) return;
+  const op = {body: cuerpo, icon: "logo.png", badge: "logo.png", tag: "av-" + Date.now(), data: {url: location.href}};
+  const sistema = swReg ? swReg.showNotification(titulo, op) : Promise.reject();
+  sistema.catch(() => { try { new Notification(titulo, op); } catch {} });
+}
+const haceRato = f => { const m = Math.round((Date.now() - f) / 60000); return m < 1 ? "recién" : m < 60 ? `hace ${m} min` : m < 1440 ? `hace ${Math.floor(m / 60)} h` : new Date(f).toLocaleDateString("es-CR", {day: "numeric", month: "short"}); };
+function pintarAvisos() {
+  const el = $("#avisosC"); if (!el) return;
+  el.innerHTML = misAvisos.length ? `<details><summary><b>Mis avisos (${misAvisos.length})</b></summary><ul class="lista-av" style="margin-top:8px">${misAvisos.map(a => `<li><b>${esc(a.titulo)}</b>${a.cuerpo ? `<span>${esc(a.cuerpo)}</span>` : ""}<small>${haceRato(a.f)}</small></li>`).join("")}</ul></details>` : "";
+  el.hidden = !misAvisos.length;
+}
+function pintarNotif() {
+  const el = $("#notifC"); if (!el) return;
+  const iOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+  if (!("Notification" in window)) { el.innerHTML = `<span class="nota">${iOS ? "En iPhone, agregá esta página a tu pantalla de inicio para recibir avisos." : "En este navegador los avisos salen dentro de la página."}</span>`; return; }
+  if (Notification.permission === "granted") { el.innerHTML = `<span class="ok">Avisos activados</span><span class="nota">Te avisamos de sellos, gratis y promos.</span>`; return; }
+  if (Notification.permission === "denied") { el.innerHTML = `<span class="nota">Los avisos están bloqueados. Activalos en los permisos del navegador para esta página.</span>`; return; }
+  el.innerHTML = `<span>¿Querés que te avisemos de tus sellos y promos?</span><button class="btn pri" type="button" id="activarAv">Activar avisos</button>`;
+  $("#activarAv").addEventListener("click", async () => {
+    try { await Notification.requestPermission(); } catch {}
+    pintarNotif(); if (puedeNotificar()) avisar("¡Listo! Avisos activados", "Te vamos a avisar cuando sumés sellos, ganés gratis o haya promos.");
+  });
+}
+// Promociones: las de una vez se avisan al salir; las que se repiten, cada día que les toca.
+const DIAS_PL = ["domingos", "lunes", "martes", "miércoles", "jueves", "viernes", "sábados"];
+const ahoraCR = () => new Date(Date.now() - 6 * 3600e3);
+const fechaPromo = p => p.creado && p.creado.toDate ? p.creado.toDate().getTime() : Date.now();
+const promoActiva = p => (p.dias && p.dias.length) || Date.now() - fechaPromo(p) < 14 * 864e5;
+const textoDias = d => d.length === 7 ? "Todos los días" : "Todos los " + d.map(x => DIAS_PL[x]).join(", ").replace(/, ([^,]*)$/, " y $1");
+function pintarPromos() {
+  const el = $("#promosC"); if (!el) return;
+  const hoy = ahoraCR().getUTCDay();
+  el.hidden = !promos.length;
+  el.innerHTML = `<b>Promociones</b>` + promos.map(p => { const rep = p.dias && p.dias.length, esHoy = rep && p.dias.includes(hoy);
+    return `<div class="promoC${esHoy || !rep ? " hoy" : ""}"><b>${esc(p.titulo)}${p.producto ? ` · ${esc(p.producto)}` : ""}</b>${p.texto ? `<span>${esc(p.texto)}</span>` : ""}<small>${rep ? textoDias(p.dias) + (esHoy ? " · ¡Hoy!" : "") : "Nueva"}</small></div>`; }).join("");
+}
+function iniciarPromos() {
+  Tarjetas.escucharPromos(lista => {
+    promos = lista.filter(promoActiva); pintarPromos();
+    const vistas = lsGet(KEY_VISTAS, []), hoy = ahoraCR().getUTCDay(), f = ahoraCR().toISOString().slice(0, 10), nuevas = [];
+    for (const p of promos) {
+      const clave = p.dias && p.dias.length ? (p.dias.includes(hoy) ? p.id + "@" + f : null) : (Date.now() - fechaPromo(p) < 3 * 864e5 ? p.id : null);
+      if (clave && !vistas.includes(clave)) { nuevas.push(p); vistas.push(clave); }
+    }
+    lsSet(KEY_VISTAS, vistas.slice(-80));
+    nuevas.slice(0, 3).forEach(p => avisar("" + p.titulo, [p.producto, p.texto].filter(Boolean).join(" · ")));
+  }).catch(() => {});
+}
+let antes = null, abiertoDom = false;
+const KEY_PED = Tarjetas.KEY + "-pedidos-" + token;
+let misPedidos = lsGet(KEY_PED, []);
+async function pintarMisPedidos() {
+  const el = $("#misPed"); if (!el || !misPedidos.length) return;
+  const nombreApp = k => (Tarjetas.APPS.find(a => a[0] === k) || [k, k])[1];
+  const lista = await Promise.all(misPedidos.map(id => Tarjetas.verReclamo(id).catch(() => null)));
+  el.innerHTML = `<b style="font-size:13px;color:var(--suave)">Mis pedidos a domicilio</b>` + lista.filter(Boolean).map(r => `<div><span>${nombreApp(r.app)} · #${esc(r.orden)}</span>${
+    r.estado === "aprobado" ? `<span class="ok">+${r.sellos} sello${r.sellos === 1 ? "" : "s"}</span>` : r.estado === "rechazado" ? `<span class="no">No se pudo confirmar</span>` : `<span class="esp">Esperando confirmación</span>`}</div>`).join("");
+}
+function pintar(c) {
+  if (!c) {
+    t.innerHTML = `<img class="logo" src="logo.png" alt="" width="104" height="104"><div class="marca">Doña Empanada</div><div class="sub">Tarjeta de sellos</div><p>Esta tarjeta ya no existe.</p><p class="nota">Pedí una nueva en el food truck.</p>`;
+    lsSet(Tarjetas.KEY, null); return;
+  }
+  c = Tarjetas.normal(c);
+  const s = c.sellos, g = c.gratis, prev = antes, sube = prev && c.total > prev.total;
+  const ganó = prev && g > prev.gratis, canjeó = prev && c.canjes > prev.canjes;
+  const sellos = Array.from({length: 10}, (_, i) => {
+    const cls = (i < s ? "si" : i === 9 ? "gratis" : "") + (sube && i < s && (ganó || i >= prev.sellos) ? " nuevo" : "");
+    return `<i class="${cls}">${i < s ? "<svg class='i' width='1em' height='1em' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><circle cx='11' cy='4' r='2'/><circle cx='18' cy='8' r='2'/><circle cx='20' cy='16' r='2'/><path d='M9 10a5 5 0 0 1 5 5v3.5a3.5 3.5 0 0 1-6.84 1.05Q6.52 17.48 4.46 16.84A3.5 3.5 0 0 1 5.5 10Z'/></svg>" : i === 9 ? "GRATIS" : ""}</i>`;
+  }).join("");
+  const pasos = esIOS ? `<li>Tocá <b>Compartir</b> (el cuadro con la flecha).</li><li>Tocá <b>Agregar a inicio</b>.</li>` : `<li>Tocá el menú <b>⋮</b> del navegador.</li><li>Tocá <b>Agregar a pantalla principal</b>.</li>`;
+  t.innerHTML = `<img class="logo" src="logo.png" alt="" width="104" height="104"><div class="marca">Doña Empanada</div><div class="sub">Tarjeta de sellos</div>
+    <div class="nombre">${esc(c.nombre)}</div>
+    <div class="qr" id="qr" aria-label="Tu código QR"></div>
+    <p class="nota">Mostrá este QR en el food truck para sumar sellos.</p>
+    <div class="sellos" aria-label="${s} de 10 sellos">${sellos}</div>
+    ${g ? `<div class="premio"><b>¡Tenés ${g} empanada${g === 1 ? "" : "s"} gratis!</b><br><span class="nota">Mostrá tu QR en el food truck para canjear${g === 1 ? "la" : "las"}.</span></div>` : ""}
+    <p class="estado">Llevás <b>${s} de 10</b>. Te falta${10 - s === 1 ? "" : "n"} ${10 - s} para tu próxima empanada gratis.</p>
+    <div class="stats">
+      <div class="dest"><b>${g}</b><span>Gratis disponible${g === 1 ? "" : "s"}</span></div>
+      <div><b>${10 - s}</b><span>Sello${10 - s === 1 ? "" : "s"} para la próxima</span></div>
+      <div><b>${c.total}</b><span>Sellos acumulados</span></div>
+      <div><b>${c.canjes}</b><span>Gratis canjeado${c.canjes === 1 ? "" : "s"}</span></div>
+    </div>
+    <div class="bloque" id="promosC" hidden></div>
+    <div class="bloque notif" id="notifC"></div>
+    <span class="vivo"><i></i>Se actualiza sola</span>
+    ${instalada() ? "" : `<div class="guardar"><b>Guardala en tu celular</b><span>Así la abrís como una app, sin buscar el link:</span><ol>${pasos}</ol></div>`}
+    <div class="links"><a class="btn" href="${Tarjetas.url('./')}">Ver el menú</a></div>
+    ${esEjemplo ? `<p class="nota">Esta es una tarjeta de ejemplo para ver cómo funciona.</p>` : `<details class="clave"><summary>Crear mi usuario y clave</summary>
+      <form class="form" id="fClave" novalidate>
+        <span class="nota">Así podés entrar desde cualquier celular con tu cédula y tu clave.</span>
+        <label>Tu cédula<input id="cCed" inputmode="numeric" autocomplete="username" maxlength="15" placeholder="Ej.: 1 1234 5678"></label>
+        <label>Elegí una clave de 4 dígitos<input id="cPin" type="password" inputmode="numeric" autocomplete="new-password" maxlength="4" placeholder="••••"></label>
+        <p class="err" id="cErr"></p><button class="btn pri" type="submit">Guardar mi clave</button>
+      </form></details>`}
+    ${esEjemplo ? "" : `<details class="clave" id="dDom"${abiertoDom ? " open" : ""}><summary>¿Pediste por Uber Eats o DiDi? Sumá tu sello</summary>
+      <form class="form" id="fDom" novalidate>
+        <span class="nota">Escribí el número de orden que te da la app. Cuando Doña Empanada lo confirme, el sello aparece aquí solito.</span>
+        <label>¿Por cuál app pediste?<select id="dApp">${Tarjetas.APPS.map(([k, n]) => `<option value="${k}">${n}</option>`).join("")}</select></label>
+        <label>Número de orden<input id="dOrden" autocomplete="off" autocapitalize="characters" maxlength="30" placeholder="Ej.: 4F2A1"></label>
+        <p class="err" id="dErr"></p><button class="btn pri" type="submit">Enviar mi número de orden</button>
+      </form>
+      <div class="misPed" id="misPed"></div></details>`}
+    <div class="bloque" id="avisosC" hidden></div>
+    ${esEjemplo ? "" : `<details class="clave" id="dMail"><summary>${c.correo ? "Mi correo: " + esc(c.correo) : "Agregar mi correo"}</summary>
+      <form class="form" id="fMail" novalidate><span class="nota">Para mandarte promos y novedades. No lo compartimos con nadie.</span>
+        <label>Correo electrónico<input id="mCorreo" type="email" autocomplete="email" maxlength="100" placeholder="tu@correo.com" value="${esc(c.correo || "")}"></label>
+        <p class="err" id="mErr"></p><button class="btn pri" type="submit">Guardar correo</button></form></details>`}
+    <button class="salir" type="button" id="salir">Salir de esta tarjeta</button>
+    ${esEjemplo ? "" : `<p class="dueña">¿Sos del personal? <a href="${Tarjetas.url('./#sellos-' + token)}">Sumar sellos</a></p>`}`;
+  // ---- Pedidos a domicilio: el cliente manda su número de orden ----
+  const fd = $("#fDom");
+  if (fd) {
+    $("#dDom").addEventListener("toggle", e => abiertoDom = e.target.open);
+    pintarMisPedidos();
+    fd.addEventListener("submit", async e => {
+      e.preventDefault();
+      const app = $("#dApp").value, orden = Tarjetas.ordenLimpia($("#dOrden").value), err = $("#dErr"), btn = fd.querySelector("button");
+      if (orden.length < 3) { err.textContent = "Escribí el número de orden completo."; $("#dOrden").focus(); return; }
+      err.textContent = ""; btn.disabled = true;
+      try {
+        const id = await Tarjetas.reclamar(token, c.nombre, app, orden);
+        misPedidos = [id, ...misPedidos.filter(x => x !== id)].slice(0, 20); lsSet(KEY_PED, misPedidos);
+        $("#dOrden").value = ""; aviso("¡Listo! Te avisamos cuando se confirme"); pintarMisPedidos();
+      } catch (x) { err.textContent = x.message === "ya-reclamada" ? "Esa orden ya fue reclamada." : x.message === "orden" ? "Revisá el número de orden." : "No se pudo enviar. Revisá tu conexión."; }
+      btn.disabled = false;
+    });
+  }
+  pintarPromos(); pintarNotif(); pintarAvisos();
+  const fm = $("#fMail");
+  if (fm) fm.addEventListener("submit", async e => {
+    e.preventDefault(); const v = $("#mCorreo").value.trim(), err = $("#mErr");
+    if (v && !Tarjetas.limpiarCorreo(v)) { err.textContent = "Revisá el correo."; return; }
+    err.textContent = "";
+    try { await Tarjetas.guardarCorreo(token, v); aviso(v ? "Correo guardado" : "Correo borrado"); } catch { err.textContent = "No se pudo guardar. Revisá tu conexión."; }
+  });
+  $("#salir").addEventListener("click", () => { lsSet(Tarjetas.KEY, null); location.replace(Tarjetas.url("tarjeta.html#ingresar")); location.reload(); });
+  const fc = $("#fClave");
+  if (fc) fc.addEventListener("submit", async e => {
+    e.preventDefault();
+    const ced = Tarjetas.soloDigitos($("#cCed").value), pin = Tarjetas.soloDigitos($("#cPin").value), err = $("#cErr");
+    if (ced.length < 9) { err.textContent = "Escribí tu cédula completa."; return; }
+    if (pin.length !== 4) { err.textContent = "La clave debe tener 4 dígitos."; return; }
+    err.textContent = "";
+    try { await Tarjetas.crearAcceso(token, ced, pin); fc.closest("details").outerHTML = `<p class="nota">Listo. Ya podés entrar con tu cédula y tu clave.</p>`; aviso("Clave guardada"); }
+    catch (x) { err.textContent = x.message === "cedula" ? "Esa cédula no es la de esta tarjeta." : "No se pudo guardar. Revisá tu conexión."; }
+  });
+  try { new QRCode($("#qr"), {text: Tarjetas.link(token), width: 240, height: 240, colorDark: "#3b2414", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.M}); }
+  catch { $("#qr").innerHTML = `<p class="nota">No se pudo dibujar el QR.</p>`; }
+  if (ganó) { avisar(`¡Ganaste ${g - prev.gratis === 1 ? "una empanada gratis" : (g - prev.gratis) + " empanadas gratis"}! Tu tarjeta empieza de cero.`); if (navigator.vibrate) navigator.vibrate([80, 50, 80, 50, 120]); }
+  else if (sube) { const n = c.total - prev.total; avisar(`¡Sumaste ${n} sello${n === 1 ? "" : "s"}!`); if (navigator.vibrate) navigator.vibrate([60, 40, 60]); }
+  else if (canjeó) { const n = c.canjes - prev.canjes; avisar(`¡Disfrutá tu${n === 1 ? "" : "s"} ${n === 1 ? "empanada" : n + " empanadas"} gratis!`); }
+  antes = c;
+}
+iniciarPromos();
+if (esEjemplo) { pintar(EJEMPLO.tarjeta); return; }
+Tarjetas.escuchar(token, pintar, () => { $("#carga") && ($("#carga").textContent = "No se pudo cargar tu tarjeta. Revisá tu conexión."); })
+  .catch(() => { t.innerHTML = `<img class="logo" src="logo.png" alt="" width="104" height="104"><div class="marca">Doña Empanada</div><div class="sub">Tarjeta de sellos</div><p>No se pudo cargar tu tarjeta.</p><p class="nota">Revisá tu conexión e intentá de nuevo.</p>`; });
+})();
+</script>
+<script src="/visitas.js" defer></script></body>
+</html>
