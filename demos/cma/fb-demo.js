@@ -73,7 +73,13 @@ export function writeBatch(){ const ops = []; return { set: (r, d, o) => ops.pus
 const oyentes = new Set();
 function avisar(){ for (const o of oyentes) setTimeout(o, 0); }
 export function onSnapshot(r, bien, mal){
-  const f = () => { try { bien(r.tipo === "doc" ? snapDoc(r) : snapCol(r.tipo === "q" ? r : { ruta: r.ruta })); } catch (e) { mal && mal(e); } };
+  let antes = null; // ids de la vez anterior, para docChanges()
+  const f = () => { try {
+    if (r.tipo === "doc") return bien(snapDoc(r));
+    const s = snapCol(r.tipo === "q" ? r : { ruta: r.ruta }), ids = new Set(s.docs.map(d => d.id));
+    s.docChanges = () => s.docs.filter(d => !antes || !antes.has(d.id)).map(d => ({ type: "added", doc: d }));
+    bien(s); antes = ids;
+  } catch (e) { mal && mal(e); } };
   oyentes.add(f); setTimeout(f, 0); return () => oyentes.delete(f);
 }
 

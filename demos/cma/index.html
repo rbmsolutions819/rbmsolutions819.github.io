@@ -282,6 +282,28 @@ input:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 
 .done h3{margin:0;font-family:var(--font-display);font-size:24px;font-weight:800}
 .done p{margin:0;color:var(--muted);max-width:42ch}
 .palabra{background:var(--soft);border-radius:14px;padding:14px 16px;font-style:italic;color:var(--ink);max-width:44ch}
+/* Mis peticiones (respuestas de los pastores) */
+#mispet{margin-top:18px}
+.mispet summary .badge{margin:0}
+.mplist{display:grid;gap:10px;padding:0 14px 14px}
+.mp{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:grid;gap:8px}
+.mp.nuevo{border-color:var(--accent)}
+.mp .top{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;font-size:13px;color:var(--muted)}
+.mp .est{font-weight:800;color:var(--ink);font-size:14px}
+.mp .est.ok{color:var(--accent)}
+.mp blockquote{margin:0;background:var(--surface);border-radius:10px;padding:10px 12px;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--ink);font-size:15px}
+.mp blockquote small{display:block;margin-top:6px;color:var(--muted);font-weight:700;font-size:12px}
+.codigo-box{display:grid;gap:6px;justify-items:center;background:var(--soft);border:2px dashed var(--accent);border-radius:16px;padding:14px 18px;max-width:44ch}
+.codigo-box small{font-weight:800;letter-spacing:.08em;text-transform:uppercase;font-size:12px;color:var(--muted)}
+.codigo-box>b{font-size:38px;letter-spacing:.12em;font-variant-numeric:tabular-nums;color:var(--ink);line-height:1.1}
+.codigo-box span{font-size:14px;color:var(--muted)}
+#buscap{margin-top:18px}
+.buscap{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px 16px;display:grid;gap:10px}
+.buscap h3{margin:0;font-size:18px}
+.buscap form{display:flex;gap:8px}
+.buscap input{flex:1;min-width:0;font-size:20px;letter-spacing:.12em;text-align:center;font-variant-numeric:tabular-nums}
+.resp-p{font-size:14px;color:var(--muted);background:var(--bg);border-radius:10px;padding:8px 12px;overflow-wrap:anywhere}
+.chips button.frase{border:1px solid var(--line);border-radius:999px;padding:7px 14px;font:inherit;font-size:14px;cursor:pointer;color:var(--muted);background:var(--surface);text-align:left}
 .palabra small{display:block;font-style:normal;font-weight:800;font-size:12px;letter-spacing:.06em;color:var(--muted);margin-top:6px;text-transform:uppercase}
 
 footer{border-top:1px solid var(--line);padding-block:28px;text-align:center;color:var(--muted);font-size:14px}
@@ -759,7 +781,7 @@ const BUZON = {
 };
 /* ===================================================================== */
 
-import { initializeApp, getFirestore, collection, doc, getDoc, getDocs, setDoc, addDoc, updateDoc, deleteDoc, onSnapshot, query, where, serverTimestamp, increment,
+import { initializeApp, getFirestore, collection, doc, getDoc, getDocs, setDoc, addDoc, updateDoc, deleteDoc, onSnapshot, query, where, serverTimestamp, increment, writeBatch,
   getStorage, ref as sRef, uploadBytesResumable, getDownloadURL, deleteObject, listAll, getMetadata,
   getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, updatePassword, reauthenticateWithCredential, EmailAuthProvider, sembrar } from "./fb-demo.js";
 /* ===== Datos de ejemplo para la demostración (se cargan una sola vez en este navegador) ===== */
@@ -1139,6 +1161,8 @@ function renderPublic(){
       <div class="prayer">
         <div class="intro"><h2>Peticiones de oración</h2>
           <p>Escribe tu petición y nuestro pastor orará por ella. Tú decides si dejas tu nombre o la envías de forma anónima. Nadie más puede ver lo que escribes.</p>
+          <div id="buscap"></div>
+          <div id="mispet" hidden></div>
         </div>
         <div class="card" id="pcard"></div>
       </div>
@@ -1406,14 +1430,18 @@ function renderBiblia(body, libro){
 }
 
 /* ---------------- Formulario de petición (solo escribir) ---------------- */
-let lastSent = 0, lastContact = false;
+let lastSent = 0, lastContact = false, ultimoCodigo = "";
 function renderPrayerForm(done){
   const c = $("#pcard"); if (!c) return;
+  escucharMisPeticiones(); renderBuscarPeticion();
   if (done) {
     const [t, r] = CINTA[cintaIdx];
     c.innerHTML = `<div class="done"><div class="ring" aria-hidden="true"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
       <h3>Tu petición fue enviada</h3><p>${lastContact?"Un pastor te contactará pronto. ":""}Estaremos orando por ti. Aquí tienes una palabra para hoy:</p>
       <div class="palabra">“${esc(t)}”<small>${esc(r)}</small></div>
+      ${ultimoCodigo ? `<div class="codigo-box"><small>Tu número de petición</small><b>${esc(fmtCodigo(ultimoCodigo))}</b><span>Guarda este número (anótalo o tómale captura). Con él puedes ver el estado de tu petición y la respuesta de los pastores en <b>«Busca tu petición»</b>.</span><button class="btn small ghost" type="button" data-copy="${esc(ultimoCodigo)}">Copiar número</button></div>`
+        : `<p class="hint">Cuando los pastores la lean o te respondan, lo verás en <b>«Mis peticiones»</b>, aquí en esta página.</p>`}
+      ${("Notification" in window) && Notification.permission === "default" ? `<button class="btn" type="button" data-act="mp-avisos">🔔 Avisarme cuando me respondan</button>` : ""}
       <button class="btn ghost" type="button" data-act="otra">Escribir otra petición</button></div>`;
     return;
   }
@@ -1471,14 +1499,159 @@ function renderPrayerForm(done){
     if (Date.now() - lastSent < 20000) return err("Espera unos segundos antes de enviar otra petición.");
     const b = $("#psend"); b.disabled = true; b.textContent = "Enviando…"; err("");
     try {
-      await addDoc(collection(fb,"peticiones"), { anonimo:anon, nombre:anon?"":nombre, contactar, telefono, medio, destino, tema, texto, fecha:serverTimestamp() });
-      lastSent = Date.now(); lastContact = contactar;
+      const codigo = await reservarCodigo(tema), datos = { anonimo:anon, nombre:anon?"":nombre, contactar, telefono, medio, destino, tema, texto, fecha:serverTimestamp() };
+      let conCodigo = !!codigo;
+      // Si algo falla con el número, la petición se envía igual sin él (nunca se pierde).
+      if (conCodigo) { try { await addDoc(collection(fb,"peticiones"), { ...datos, codigo }); } catch (x) { if (x?.code !== "permission-denied") throw x; conCodigo = false; } }
+      if (!conCodigo) await addDoc(collection(fb,"peticiones"), datos);
+      lastSent = Date.now(); lastContact = contactar; ultimoCodigo = conCodigo ? codigo : "";
+      if (conCodigo) guardarMiPeticion({ c: codigo, t: Date.now(), tema });
       const avisoTxt = `Para: ${DESTINOS[destino] || "Pastores"} · Motivo: ${tema || "Otro"}${contactar ? " · Pide que lo contacten" : ""}`;
       ntfyEnviar("pastores", "🙏 Nueva petición de oración", avisoTxt, ["pray"]);
       if (["matrimonios", "jovenes", "varones", "ninos"].includes(destino)) ntfyEnviar(destino, "🙏 Nueva petición de oración", avisoTxt, ["pray"]);
       await avanzarCinta();
       renderPrayerForm(true);
     } catch (x) { console.error(x); err("No se pudo enviar. Revisa tu conexión e intenta de nuevo."); b.disabled=false; b.textContent="Enviar petición"; }
+  });
+}
+
+/* ---------------- Mis peticiones: respuestas de los pastores (también si es anónima) ----------------
+   Cada petición lleva un código secreto que solo queda guardado en el celular de quien la envió.
+   Con ese código lee la respuesta (colección "respuestas"); nadie más sabe de quién es.
+   En el celular solo se guarda el código, el motivo y la fecha (no el texto de la petición). */
+const MP_KEY = "mis-peticiones", MP_VISTO = "mis-peticiones-vistas", MP_AVISO = "mis-peticiones-avisadas";
+const lsGet = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
+const msF = f => f?.toMillis ? f.toMillis() : 0;
+const fmtCodigo = c => /^\d{6}$/.test(c) ? c.slice(0, 3) + " " + c.slice(3) : c;
+// Aparta un número de 6 dígitos que nadie más tenga (crear nunca sobrescribe uno existente).
+async function reservarCodigo(tema){
+  for (let i = 0; i < 6; i++) {
+    const c = String(100000 + crypto.getRandomValues(new Uint32Array(1))[0] % 900000);
+    try {
+      if ((await getDoc(doc(fb, "respuestas", c))).exists()) continue;
+      await setDoc(doc(fb, "respuestas", c), { estado: "enviada", tema: String(tema || "").slice(0, 40), fecha: serverTimestamp() });
+      return c;
+    } catch (x) { console.warn(x); if (x?.code === "permission-denied" && i >= 1) return ""; }
+  }
+  return "";
+}
+// Estado de una petición, como lo ve la persona que la envió.
+function estadoPeticionHTML(r){
+  if (!r || r.estado === "enviada") return `<span class="est ok">✓ Recibida y guardada</span><span>Los pastores todavía no la han leído</span>`;
+  if (r.estado === "orada") return `<span class="est ok">🙏 Ya oraron por ti</span>`;
+  return `<span class="est ok">👀 Leída por los pastores</span><span>Están orando por ti</span>`;
+}
+const tieneNovedad = r => !!r && r.estado !== "enviada";
+const misResp = {}, misUnsub = {};
+let mpAbierto = false;
+const misPeticiones = () => lsGet(MP_KEY, []).filter(p => p && typeof p.c === "string").slice(0, 15);
+function guardarMiPeticion(p){ lsSet(MP_KEY, [p, ...misPeticiones().filter(x => x.c !== p.c)].slice(0, 15)); mpAbierto = true; escucharMisPeticiones(); }
+
+/* Busca tu petición: con el número de 6 dígitos, desde cualquier celular */
+function renderBuscarPeticion(){
+  const box = $("#buscap"); if (!box || $("#bp", box)) return;
+  box.innerHTML = `<div class="buscap"><h3>🔎 Busca tu petición</h3>
+    <p class="hint">Escribe el número de 6 dígitos que te dimos al enviarla para ver si ya la leyeron y si los pastores te respondieron.</p>
+    <form id="bp" novalidate><input type="text" id="bp-c" inputmode="numeric" autocomplete="off" maxlength="7" placeholder="000 000" aria-label="Número de petición"><button class="btn">Buscar</button></form>
+    <div id="bp-r" aria-live="polite"></div></div>`;
+  const inp = $("#bp-c", box);
+  inp.addEventListener("input", () => { const d = inp.value.replace(/\D/g, "").slice(0, 6); inp.value = d.length > 3 ? d.slice(0, 3) + " " + d.slice(3) : d; });
+  $("#bp", box).addEventListener("submit", async e => {
+    e.preventDefault();
+    const c = inp.value.replace(/\D/g, ""), out = $("#bp-r", box), btn = $("#bp button", box);
+    if (c.length !== 6) { out.innerHTML = `<p class="err">El número tiene 6 dígitos. Revísalo e intenta de nuevo.</p>`; return; }
+    btn.disabled = true; out.innerHTML = `<p class="hint">Buscando…</p>`;
+    try {
+      const s = await getDoc(doc(fb, "respuestas", c));
+      if (!s.exists()) { out.innerHTML = `<p class="err">No encontramos la petición N.º ${fmtCodigo(c)}. Revisa que el número esté bien escrito.</p>`; return; }
+      const r = s.data();
+      out.innerHTML = `<div class="mp"><div class="top">${estadoPeticionHTML(r)}<span>· N.º ${fmtCodigo(c)}${r.tema ? ` · ${esc(r.tema)}` : ""}</span></div>
+        ${r.mensaje ? `<blockquote>${esc(r.mensaje)}<small>— ${esc(r.por || "Los pastores")}</small></blockquote>` : ""}</div>`;
+      if (!misPeticiones().some(x => x.c === c)) guardarMiPeticion({ c, t: msF(r.fecha) || Date.now(), tema: r.tema || "" });
+    } catch (x) { console.error(x); out.innerHTML = `<p class="err">No se pudo buscar. Revisa tu conexión e intenta de nuevo.</p>`; }
+    finally { btn.disabled = false; }
+  });
+}
+function escucharMisPeticiones(){
+  const lista = misPeticiones();
+  for (const p of lista) if (!misUnsub[p.c]) {
+    misUnsub[p.c] = onSnapshot(doc(fb, "respuestas", p.c), s => {
+      const r = s.exists() ? s.data() : null; misResp[p.c] = r;
+      const t = r ? msF(r.fecha) : 0, av = lsGet(MP_AVISO, {});
+      if (tieneNovedad(r) && t > (av[p.c] || 0)) {
+        av[p.c] = t; lsSet(MP_AVISO, av);
+        mostrarNotif("🙏 Tu petición de oración", r.mensaje ? `${r.por || "Los pastores"}: ${r.mensaje}` : r.estado === "orada" ? "Ya oraron por tu petición." : "Los pastores ya leyeron tu petición.");
+      }
+      renderMisPeticiones();
+    }, () => {});
+  }
+  renderMisPeticiones();
+}
+function renderMisPeticiones(){
+  const box = $("#mispet"); if (!box) return;
+  const lista = misPeticiones();
+  if (!lista.length) { box.hidden = true; box.innerHTML = ""; return; }
+  const vistos = lsGet(MP_VISTO, {});
+  const esNuevo = p => { const r = misResp[p.c]; return tieneNovedad(r) && msF(r.fecha) > (vistos[p.c] || 0); };
+  const nuevas = lista.filter(esNuevo).length;
+  const dia = t => new Date(t).toLocaleDateString("es-CR", { day: "numeric", month: "short" });
+  box.hidden = false;
+  box.innerHTML = `<details class="song mispet" ${mpAbierto ? "open" : ""}>
+    <summary><span class="t"><h3>Mis peticiones</h3><small>${nuevas ? (nuevas === 1 ? "Tienes 1 respuesta nueva" : `Tienes ${nuevas} respuestas nuevas`) : "Mira si los pastores ya la leyeron"}</small></span>${nuevas ? `<span class="badge">${nuevas}</span>` : ""}<span class="chev">›</span></summary>
+    <div class="mplist">
+      ${lista.map(p => { const r = misResp[p.c];
+        const est = estadoPeticionHTML(r);
+        return `<div class="mp ${esNuevo(p) ? "nuevo" : ""}"><div class="top">${est}${esNuevo(p) ? `<span class="tag nueva">Nuevo</span>` : ""}<span>· ${esc(p.tema || "Petición")} · ${dia(p.t)}${/^\d{6}$/.test(p.c) ? ` · N.º ${fmtCodigo(p.c)}` : ""}</span></div>
+          ${r?.mensaje ? `<blockquote>${esc(r.mensaje)}<small>— ${esc(r.por || "Los pastores")}</small></blockquote>` : ""}</div>`; }).join("")}
+      ${("Notification" in window) && Notification.permission === "default" ? `<button class="btn small ghost" type="button" data-act="mp-avisos">🔔 Avisarme cuando me respondan</button>` : ""}
+      <p class="hint">Solo se ven en este celular. Los pastores no saben que son tuyas si las enviaste de forma anónima.</p>
+    </div></details>`;
+  const d = $("details", box);
+  d.addEventListener("toggle", () => {
+    mpAbierto = d.open; if (!d.open) return;
+    const v = lsGet(MP_VISTO, {}); lista.forEach(p => { const r = misResp[p.c]; if (tieneNovedad(r)) v[p.c] = msF(r.fecha); }); lsSet(MP_VISTO, v);
+    const b = $("summary .badge", d); if (b) b.remove();
+  });
+}
+
+/* ---------------- Responder una petición (pastores y ministerios) ---------------- */
+const POR_ROL = { pastores: "Los Pastores", matrimonios: "Los Pastores de Matrimonios", jovenes: "Los Pastores de Jóvenes", varones: "El Pastor de Varones", ninos: "Los Pastores de Niños" };
+const FRASES_RESP = [
+  "Recibimos tu petición y ya estamos orando por ti. Dios te bendiga.",
+  "Estamos contigo en oración. Confía en el Señor, Él tiene cuidado de ti.",
+  "Oramos por ti. Si necesitas hablar con un pastor, búscanos el domingo o escríbenos."
+];
+async function guardarRespuesta(r, estado, mensaje, extra){
+  const por = r.resp?.por && mensaje === (r.resp.mensaje || "") ? r.resp.por : (POR_ROL[rol] || "Los Pastores");
+  const b = writeBatch(fb);
+  b.set(doc(fb, "respuestas", r.codigo), { pid: r.id, estado, mensaje, por, tema: String(r.tema || "").slice(0, 40), fecha: serverTimestamp() });
+  b.update(doc(fb, "peticiones", r.id), { ...(extra || {}), resp: { estado, mensaje, por } });
+  await b.commit();
+}
+function responderModal(r){
+  const campo = BUZON[rol]?.campo;
+  const estado = () => (r.resp?.estado === "orada" || (campo && r[campo])) ? "orada" : "recibida";
+  modal(`<div class="avisos-m" style="display:grid;gap:14px">
+    <div class="sheet-head"><h3>💬 Responder</h3><button class="x" data-close aria-label="Cerrar">×</button></div>
+    <p class="hint">${r.anonimo ? "Es anónima: no sabemos quién es, pero esa persona verá su respuesta en la página, buscando con su número de petición." : "La persona verá su respuesta en la página, buscando con su número de petición."}</p>
+    <div class="chips">${FRASES_RESP.map((f, i) => `<button type="button" class="frase" data-frase="${i}">${esc(f)}</button>`).join("")}</div>
+    <div class="field"><label class="label" for="rp-t">Mensaje</label><textarea id="rp-t" maxlength="500" placeholder="Escriba un mensaje de aliento…">${esc(r.resp?.mensaje || "")}</textarea><div class="count"><span id="rp-n">${(r.resp?.mensaje || "").length}</span> / 500</div></div>
+    <p class="err" id="rp-e" hidden></p>
+    <div class="actions">${r.resp?.mensaje ? "" : `<button type="button" class="btn ghost" data-rp="solo">Solo avisar que la recibimos</button>`}<button class="btn" type="button" data-rp="enviar">Enviar respuesta</button></div>
+  </div>`, (m, close) => {
+    const ta = $("#rp-t", m);
+    ta.addEventListener("input", () => $("#rp-n", m).textContent = ta.value.length);
+    m.addEventListener("click", async e => {
+      const f = e.target.closest("[data-frase]"); if (f) { ta.value = FRASES_RESP[+f.dataset.frase]; $("#rp-n", m).textContent = ta.value.length; ta.focus(); return; }
+      const b = e.target.closest("[data-rp]"); if (!b) return;
+      const msg = b.dataset.rp === "solo" ? "" : ta.value.trim();
+      const err = t => { const x = $("#rp-e", m); x.textContent = t; x.hidden = !t; };
+      if (b.dataset.rp === "enviar" && msg.length < 2) return err("Escriba un mensaje, o toque una de las frases de arriba.");
+      m.querySelectorAll("[data-rp]").forEach(x => x.disabled = true); err("");
+      try { await guardarRespuesta(r, estado(), msg); close(); toast(msg ? "Respuesta enviada ✓" : "Le avisamos que la recibieron ✓"); }
+      catch (x) { console.error(x); err("No se pudo enviar. Revise su conexión e intente de nuevo."); m.querySelectorAll("[data-rp]").forEach(x => x.disabled = false); }
+    });
   });
 }
 
@@ -1672,11 +1845,13 @@ function renderPastor(){
     <div class="tabs"><button data-rf="pend" aria-pressed="${rfilter==="pend"}">Por orar${pend?`<span class="badge">${pend}</span>`:""}</button><button data-rf="all" aria-pressed="${rfilter==="all"}">Todas</button></div>
     <div style="display:grid;gap:12px">
     ${rows.length ? rows.map(r => `<article class="req ${isOr(r)?"prayed":""}">
-      <div class="meta"><span class="who">${esc(r.anonimo?"Anónimo":(r.nombre||"Sin nombre"))}</span>${msDe(r) > vistoAntes ? `<span class="tag nueva">Nueva</span>` : ""}<span class="tag">${esc(r.tema||"Otro")}</span><span>${r.fecha?.toDate?esc(r.fecha.toDate().toLocaleString("es-CR",{day:"numeric",month:"short",hour:"numeric",minute:"2-digit"})):""}</span></div>
+      <div class="meta"><span class="who">${esc(r.anonimo?"Anónimo":(r.nombre||"Sin nombre"))}</span>${msDe(r) > vistoAntes ? `<span class="tag nueva">Nueva</span>` : ""}<span class="tag">${esc(r.tema||"Otro")}</span>${/^\d{6}$/.test(r.codigo||"") ? `<span class="tag">N.º ${fmtCodigo(r.codigo)}</span>` : ""}<span>${r.fecha?.toDate?esc(r.fecha.toDate().toLocaleString("es-CR",{day:"numeric",month:"short",hour:"numeric",minute:"2-digit"})):""}</span></div>
       ${r.contactar&&r.telefono?`<div class="kv"><div><span>${r.medio==="whatsapp"?"💬 Quiere que le escriban por WhatsApp":r.medio==="llamada"?"📞 Quiere que lo llamen":"📞 Quiere ser contactado"}</span><b>${esc(r.telefono)}</b></div></div>
         <div class="tools"><a class="btn small" href="https://wa.me/${waNum(r.telefono)}" target="_blank" rel="noopener">WhatsApp</a><a class="btn small ghost" href="tel:${tel8(r.telefono)}">Llamar</a></div>`:""}
       <p>${esc(r.texto)}</p>
+      ${r.codigo ? `<div class="resp-p">${r.resp ? (r.resp.mensaje ? `💬 Respuesta${r.resp.por ? ` (${esc(r.resp.por)})` : ""}: «${esc(r.resp.mensaje)}»` : "✓ Se le avisó que la recibieron") + (r.resp.estado === "orada" ? " · 🙏 Ya sabe que oraron" : "") : "Todavía no se le ha respondido. La persona puede ver en la página si ya la leyeron."}</div>` : ""}
       <div class="tools" style="justify-content:flex-end">
+        ${r.codigo ? `<button class="btn small ghost" data-resp="${esc(r.id)}">💬 ${r.resp?.mensaje ? "Cambiar respuesta" : "Responder"}</button>` : ""}
         <button class="btn small ${isOr(r)?"ghost":""}" data-pray="${esc(r.id)}">${isOr(r)?"✓ Orado":"Marcar como orado"}</button>
         ${rol==="pastores"?`<button class="btn small danger" data-delreq="${esc(r.id)}">Borrar</button>`:""}
       </div></article>`).join("")
@@ -2465,7 +2640,7 @@ function formCancion(cv, t){
 /* ---------------- Clics ---------------- */
 document.addEventListener("keydown", e => { if (e.key === "Escape" && drawerEl && !document.querySelector(".modal,.lb")) closeAll(); });
 document.addEventListener("click", async e => {
-  const el = e.target.closest("[data-act],[data-copy],[data-lb],[data-tab],[data-rf],[data-pray],[data-delreq],[data-panel],[data-goto],[data-rdest],[data-pvista],[data-cal]"); if (!el) return;
+  const el = e.target.closest("[data-act],[data-copy],[data-lb],[data-tab],[data-rf],[data-pray],[data-resp],[data-delreq],[data-panel],[data-goto],[data-rdest],[data-pvista],[data-cal]"); if (!el) return;
   if (el.dataset.panel) { openPanel(el.dataset.panel); return; }
   if (el.dataset.cal) { const ev = D.eventos.find(x => x.id === el.dataset.cal); if (ev) agregarCalendario(ev); return; }
   if (el.dataset.goto) { const id = el.dataset.goto; closeAll(); setTimeout(() => document.getElementById(id)?.scrollIntoView({behavior:"smooth"}), 320); return; }
@@ -2475,7 +2650,16 @@ document.addEventListener("click", async e => {
   if (el.dataset.rf) { rfilter = el.dataset.rf; renderPastor(); return; }
   if (el.dataset.rdest) { rdest = el.dataset.rdest; renderPastor(); return; }
   if (el.dataset.pvista) { pastorVista = el.dataset.pvista; renderPastor(); return; }
-  if (el.dataset.pray) { const r = reqs.find(x=>x.id===el.dataset.pray); if (!r) return; el.disabled = true; const campo = BUZON[rol]?.campo; if (!campo) return; try { await updateDoc(doc(fb,"peticiones",r.id), {[campo]:!r[campo]}); } catch { toast("No se pudo actualizar."); el.disabled = false; } return; }
+  if (el.dataset.pray) { const r = reqs.find(x=>x.id===el.dataset.pray); if (!r) return; el.disabled = true; const campo = BUZON[rol]?.campo; if (!campo) return;
+    try {
+      // Al marcar como orado, la persona ve en «Mis peticiones» que ya oraron por ella.
+      if (!r[campo] && r.codigo) {
+        let ant = r.resp; try { const s = await getDoc(doc(fb, "respuestas", r.codigo)); if (s.exists() && s.data().pid) ant = s.data(); } catch {}
+        await guardarRespuesta({ ...r, resp: ant }, "orada", ant?.mensaje || "", {[campo]: true});
+      }
+      else await updateDoc(doc(fb,"peticiones",r.id), {[campo]:!r[campo]});
+    } catch (x) { console.error(x); toast("No se pudo actualizar."); el.disabled = false; } return; }
+  if (el.dataset.resp) { const r = reqs.find(x=>x.id===el.dataset.resp); if (r) responderModal(r); return; }
   if (el.dataset.delreq) {
     if (el.dataset.sure !== "1") { el.dataset.sure = "1"; el.textContent = "¿Seguro? Toca otra vez"; setTimeout(()=>{ if (el.isConnected){ el.dataset.sure=""; el.textContent="Borrar"; } }, 4000); return; }
     try { await deleteDoc(doc(fb,"peticiones",el.dataset.delreq)); toast("Petición borrada"); } catch { toast("No se pudo borrar."); }
@@ -2488,6 +2672,7 @@ document.addEventListener("click", async e => {
   if (a==="ir-gracias") { if (drawerEl) closeAll(); const g = $("#gracias"); if (g) setTimeout(() => g.scrollIntoView({behavior:"smooth"}), drawerEl ? 300 : 0); else openPanel("gracias"); return; }
   if (a==="ver-sitio") { view = "public"; await loadPublic(); renderPublic(); window.scrollTo(0,0); return; }
   if (a==="otra") return renderPrayerForm(false);
+  if (a==="mp-avisos") { try { const p = await Notification.requestPermission(); if (p === "granted") { mostrarNotif("Avisos activados", "Te avisaremos cuando respondan tu petición."); el.remove(); } } catch {} renderMisPeticiones(); return; }
   if (a==="excel") return descargarExcel();
   if (a==="avisos") return avisosModal();
   if (a==="aviso-ok") { avisoCerrado = true; guardarVisto(Date.now()); renderPastor(); return; }
