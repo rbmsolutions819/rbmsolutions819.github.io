@@ -1278,9 +1278,10 @@ document.addEventListener("change", e => {
 });
 
 /* ===== Arranque ===== */
-const q = encodeURIComponent("Doña Empanada, Ruta 32, Casa del Tanque, Costa Rica");
-$("#maps").href = `https://www.google.com/maps/search/?api=1&query=${q}`;
-$("#waze").href = `https://waze.com/ul?q=${q}&navigate=yes`;
+// Ubicación exacta del food truck (Ruta 32, contiguo a la Casa del Tanque)
+const LAT = 9.993444, LNG = -84.037185;
+$("#maps").href = `https://www.google.com/maps/search/?api=1&query=${LAT},${LNG}`;
+$("#waze").href = `https://waze.com/ul?ll=${LAT},${LNG}&navigate=yes`;
 if (Tarjetas.prueba) { $("#bPrueba").hidden = false; Tarjetas.asegurarEjemplos().catch(() => {}); }
 if (admin) escucharPedidos();
 setInterval(() => { if (tabAdm === "ped" && panelAbierto() && !rcl) { const sc = $("#hoja").scrollTop; pintarAdmin(); $("#hoja").scrollTop = sc; } }, 60000);
