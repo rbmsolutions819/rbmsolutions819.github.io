@@ -263,7 +263,7 @@ html{overflow-x:hidden}
 .cinta{overflow:hidden;background:linear-gradient(90deg,var(--matcha-osc),var(--matcha),var(--matcha-osc));-webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)}
 .cinta-in{display:flex;width:max-content;animation:corre 90s linear infinite}
 .cinta-in span{display:inline-flex;align-items:center;gap:20px;padding:12px 0 12px 20px;font:400 18px var(--f-logo);color:#fff;white-space:nowrap}
-.cinta-in span::after{content:"🍵";font-size:15px}
+.cinta-in span::after{content:"";width:7px;height:7px;background:#f5a524;transform:rotate(45deg);flex:none}
 .cinta:hover .cinta-in{animation-play-state:paused}
 .cats{top:0}
 /* carrusel de la casa */
@@ -480,10 +480,10 @@ main .wrap{gap:48px;padding-block:34px 130px}
   <div class="onda" aria-hidden="true"><svg viewBox="0 0 1440 46" preserveAspectRatio="none"><path d="M0 26 C120 6 240 6 360 26 S600 46 720 26 S960 6 1080 26 S1320 46 1440 26 V46 H0Z" fill="#fffaf4"/></svg></div>
 </header>
 <div class="infobar"><div class="wrap">
-  <div><span class="ib-ic">🕔</span><span><b>Lunes a sábado</b><small>Desde las 5:00 a. m.</small></span></div>
-  <div><span class="ib-ic">📍</span><span><b>Ruta 32</b><small>Contiguo a la Casa del Tanque</small></span></div>
-  <div><span class="ib-ic">💳</span><span><b>Efectivo, tarjeta y SINPE</b><small>Visa y Mastercard</small></span></div>
-  <div><span class="ib-ic">🛵</span><span><b>Uber Eats y DiDi Food</b><small>O pida por WhatsApp</small></span></div>
+  <div><span class="ib-ic"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span><b>Abierto todos los días</b><small>Desde las 5:00 a. m.</small></span></div>
+  <div><span class="ib-ic"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg></span><span><b>Ruta 32</b><small>Contiguo a la Casa del Tanque</small></span></div>
+  <div><span class="ib-ic"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/></svg></span><span><b>Efectivo, tarjeta y SINPE</b><small>Visa y Mastercard</small></span></div>
+  <div><span class="ib-ic"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></svg></span><span><b>Uber Eats y DiDi Food</b><small>O pida por WhatsApp</small></span></div>
 </div></div>
 <div class="cinta" aria-hidden="true"><div class="cinta-in" id="cinta"></div></div>
 
@@ -1137,7 +1137,7 @@ document.addEventListener("click", async e => {
   if (b.id === "carrito") return pintarPedido();
   if (b.dataset.quitar !== undefined) { pedido.splice(+b.dataset.quitar, 1); guardarP(); pintarPedido(); return; }
   if (b.dataset.modo) { modoPed = b.dataset.modo; pintarPedido(); return; }
-  if (b.hasAttribute("data-encargar")) { modoPed = "encargo"; if (pedido.length) pintarPedido(); else { aviso("Primero agregue lo que quiere del menú 👇"); document.getElementById("menu").scrollIntoView({behavior: "smooth"}); } return; }
+  if (b.hasAttribute("data-encargar")) { modoPed = "encargo"; if (pedido.length) pintarPedido(); else { aviso("Primero agregue lo que quiere del menú"); document.getElementById("menu").scrollIntoView({behavior: "smooth"}); } return; }
   if (b.hasAttribute("data-copiar-sinpe")) { const t = String(D.negocio.sinpe || "").replace(/\D/g, ""); try { await navigator.clipboard.writeText(t); aviso("Número copiado"); } catch { aviso(t); } return; }
   if (b.hasAttribute("data-enviar")) {
     const nom = $("#pNom").value.trim(), enc = modoPed === "encargo", err = t => $("#pErr").textContent = t;
