@@ -11,7 +11,7 @@
 <link rel="apple-touch-icon" href="logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Kaushan+Script&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>svg.i{width:1em;height:1em;vertical-align:-.14em;flex:none;display:inline-block}
 /* Diseño: food truck Doña Empanada. Anaranjado de la marca sobre blanco.
    Cada producto se dibuja (empanadas, enyucados, hamburguesas…), así el menú funciona aunque todavía no haya fotos. */
@@ -19,8 +19,8 @@
   --fondo:#fffaf4; --rosa:#ffeedd; --rosa2:#ffd1a3; --fucsia:#f07a12; --fucsia2:#c25a05;
   --matcha:#f5a524; --matcha-osc:#e0640a; --tinta:#3b2414; --suave:#8a6650; --linea:#f6dcc2; --blanco:#ffffff;
   --ok:#2f8a4e; --gl:max(16px,env(safe-area-inset-left,0px)); --gr:max(16px,env(safe-area-inset-right,0px));
-  --f-logo:"Lilita One","Arial Rounded MT Bold",system-ui,sans-serif;
-  --f-txt:"Nunito",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-logo:"Anton","Impact","Arial Narrow Bold",system-ui,sans-serif; --f-script:"Kaushan Script","Brush Script MT",cursive;
+  --f-txt:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
   color-scheme:light;
 }
 *{box-sizing:border-box}
@@ -346,6 +346,119 @@ section h2::before{content:"";width:26px;height:26px;flex:none;background:url("d
 @keyframes hoja{0%,100%{rotate:-8deg}50%{rotate:10deg}}
 @media (min-width:900px){.cf{--w:clamp(230px,19vw,280px)}}
 @media (prefers-reduced-motion:reduce){.js .rv{opacity:1;translate:none}}
+
+/* ===================== DOÑA EMPANADA · ACABADO PROFESIONAL ===================== */
+:root{--fondo:#ffffff;--crema:#fff7ee;--sombra:0 1px 2px rgba(59,36,20,.06),0 10px 28px -14px rgba(59,36,20,.28)}
+body{background:#fff;font-size:15.5px;letter-spacing:-.005em}
+h1,h2,h3{text-wrap:balance}
+.demo{background:#1f140b;font-size:12px;letter-spacing:.02em}
+/* barra de marca fija */
+.marca-bar{position:sticky;top:0;z-index:25;background:rgba(255,255,255,.92);backdrop-filter:saturate(1.4) blur(10px);-webkit-backdrop-filter:saturate(1.4) blur(10px);border-bottom:1px solid #f1e4d6}
+.marca-bar .wrap{display:flex;align-items:center;gap:16px;height:60px}
+.mb-logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--tinta);min-width:0}
+.mb-logo img{width:40px;height:40px;border-radius:50%;box-shadow:0 0 0 2px #fff,0 0 0 3px #f6dcc2}
+.mb-logo b{display:block;font:400 19px/1 var(--f-logo);letter-spacing:.02em;text-transform:uppercase}
+.mb-logo small{display:block;font-size:12px;color:var(--suave);font-weight:600;margin-top:2px}
+.mb-logo small.ab{color:#2f8a4e}
+.mb-nav{display:flex;gap:4px;margin-left:auto}
+.mb-nav a{text-decoration:none;color:var(--tinta);font-weight:600;font-size:14px;padding:8px 12px;border-radius:10px}
+.mb-nav a:hover{background:var(--crema);color:var(--fucsia2)}
+.mb-wa{padding:9px 14px!important;border-radius:12px!important;font-size:14px!important;box-shadow:none!important}
+.mb-wa .i{width:18px;height:18px}
+@media (max-width:760px){.mb-nav{display:none}.mb-wa{margin-left:auto}.mb-wa span{display:none}.mb-wa{padding:10px!important}}
+.cats{top:60px;background:rgba(255,255,255,.95);border-bottom:1px solid #f1e4d6}
+.cats button{border:1px solid #ecdccb;font-weight:600;color:var(--tinta);padding:7px 16px}
+.cats button[aria-pressed="true"]{background:var(--tinta);border-color:var(--tinta);color:#fff}
+/* portada */
+.top{background:#2a1608;color:#fff}
+.top .mancha{display:none}
+.hero-foto{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-3;transform:scale(1.06);animation:kenburns 22s ease-in-out infinite alternate}
+.hero-velo{position:absolute;inset:0;z-index:-2;background:linear-gradient(90deg,rgba(30,14,4,.88) 0%,rgba(30,14,4,.72) 45%,rgba(240,122,18,.35) 100%),linear-gradient(0deg,rgba(30,14,4,.6),transparent 40%)}
+@keyframes kenburns{from{transform:scale(1.06) translate(0,0)}to{transform:scale(1.16) translate(-2%,-1.5%)}}
+.top .wrap{min-height:clamp(560px,86vh,760px);grid-template-columns:auto minmax(0,1fr);justify-items:start;text-align:left;gap:36px;padding-block:48px 72px}
+.top .logo{width:clamp(150px,22vw,230px);border:0;box-shadow:0 0 0 8px rgba(255,255,255,.12),0 30px 60px -20px rgba(0,0,0,.6)}
+.kicker{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:#ffc27a;animation:sube .9s .05s cubic-bezier(.2,.7,.2,1) backwards}
+.kicker::before{content:"";width:28px;height:2px;background:#ffc27a}
+.top h1{font:400 clamp(56px,10vw,112px)/1.04 var(--f-logo);text-transform:uppercase;letter-spacing:.01em;margin-top:4px;padding-top:.08em;background:linear-gradient(100deg,#fff 30%,#ffd29a 45%,#fff 60%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 4px 18px rgba(0,0,0,.35))}
+.top .lema{font:400 clamp(22px,3.6vw,32px)/1.2 var(--f-script);color:#ffb25c;margin-top:8px}
+.top .chips-info{justify-content:flex-start;margin-top:18px}
+.top .chips-info span,.top .chips-info a{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);color:#fff;font-weight:600;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.top .chips-info span.abierto{background:rgba(47,138,78,.9);border-color:transparent;color:#fff!important}
+.top .chips-info span.cerrado{color:#fff}
+.acc-top{justify-content:flex-start;margin-top:22px}
+.acc-top .btn{border-radius:14px;padding:15px 24px;font-weight:700}
+.btn.pri{background:var(--fucsia);border-color:var(--fucsia)}
+.btn.pri:hover{background:#e26c08}
+.btn.vidrio{background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.55);color:#fff}
+.btn.vidrio:hover{background:rgba(255,255,255,.18)}
+.baja{border-color:rgba(255,255,255,.7);bottom:26px}.baja i{background:#fff}
+@media (max-width:700px){.top .wrap{grid-template-columns:1fr;justify-items:center;text-align:center;gap:18px;padding-block:36px 70px}.top .chips-info,.acc-top{justify-content:center}.kicker::before{display:none}
+  .hero-velo{background:linear-gradient(180deg,rgba(30,14,4,.78),rgba(30,14,4,.86) 60%,rgba(30,14,4,.92))}}
+/* franja de información */
+.infobar{background:var(--fucsia);color:#fff}
+.infobar .wrap{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0}
+.infobar .wrap>div{display:flex;gap:12px;align-items:center;padding:16px 14px;border-left:1px solid rgba(255,255,255,.2)}
+.infobar .wrap>div:first-child{border-left:0}
+.ib-ic{font-size:22px;width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,.16);display:grid;place-items:center;flex:none}
+.infobar b{display:block;font-size:14px;font-weight:700}
+.infobar small{display:block;font-size:12.5px;opacity:.85}
+@media (max-width:860px){.infobar .wrap{grid-template-columns:1fr 1fr}.infobar .wrap>div:nth-child(3){border-left:0}.infobar .wrap>div:nth-child(n+3){border-top:1px solid rgba(255,255,255,.2)}}
+@media (max-width:420px){.infobar .wrap>div{padding:12px 8px;gap:8px}.ib-ic{width:34px;height:34px;font-size:18px}.infobar b{font-size:13px}.infobar small{font-size:11.5px}}
+.cinta{background:var(--tinta)}
+.cinta-in span{font:400 17px var(--f-logo);letter-spacing:.06em;text-transform:uppercase;color:#ffd7ad}
+/* títulos de sección */
+section h2,.hoja h2{font:400 clamp(30px,5vw,42px)/1 var(--f-logo);text-transform:uppercase;letter-spacing:.01em;color:var(--tinta)}
+section h2::before{width:6px;height:30px;border-radius:3px;background:var(--fucsia)}
+.casa h2{color:var(--tinta)}
+.casa h2 small{font:500 14px var(--f-txt);text-transform:none;letter-spacing:0}
+main .wrap{gap:48px;padding-block:34px 130px}
+/* tarjetas de producto */
+.grid{gap:16px}
+.prod{border:1px solid #f1e4d6;border-radius:18px;padding:12px;box-shadow:var(--sombra)}
+.prod:hover{border-color:#f3c99a;box-shadow:0 2px 4px rgba(59,36,20,.06),0 22px 40px -18px rgba(194,90,5,.45)}
+.prod .lienzo,.cf-it .lienzo{border-radius:14px;background:radial-gradient(circle at 50% 80%,color-mix(in srgb,var(--c) 22%,#fff),#fff7ee 70%)}
+.prod h3{font-size:16px;font-weight:700;letter-spacing:-.01em}
+.prod p{font-size:13.5px;color:var(--suave)}
+.precio{font-weight:800;color:var(--tinta);font-size:17px}
+.mas{width:38px;height:38px;border-radius:12px;font-weight:600;box-shadow:0 8px 16px -8px rgba(240,122,18,.9)}
+.prod .etq{border-radius:999px;padding:3px 10px;background:var(--tinta)}
+.prod .etq.nuevo{background:var(--fucsia)}
+.cf-it{border:1px solid #f1e4d6;box-shadow:var(--sombra);border-radius:22px}
+.cf-it h3{font:400 24px var(--f-logo);text-transform:uppercase;color:var(--tinta)}
+.promo{border-radius:20px}
+.promo b{font:400 26px var(--f-logo);text-transform:uppercase;letter-spacing:.02em}
+/* pasos */
+.pasos{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;counter-reset:p}
+.pasos>div{background:var(--crema);border:1px solid #f1e4d6;border-radius:18px;padding:20px;display:grid;gap:6px;align-content:start}
+.pn-n{width:40px;height:40px;border-radius:12px;background:var(--fucsia);color:#fff;display:grid;place-items:center;font:400 22px var(--f-logo)}
+.pasos b{font-size:17px}
+.pasos p{color:var(--suave);font-size:14px}
+@media (max-width:640px){.pasos{grid-template-columns:1fr}.pasos>div{grid-template-columns:auto 1fr;column-gap:14px;padding:14px}.pasos .pn-n{grid-row:span 2}}
+/* encargos, sellos, info */
+.encargo{background:linear-gradient(135deg,#2a1608,#4a2810);color:#fff;border:0;border-radius:22px;padding:24px;box-shadow:var(--sombra)}
+.encargo b{color:#ffc27a}
+.encargo .btn:not(.pri){background:transparent;border-color:rgba(255,255,255,.5);color:#fff}
+.tarjeta,.caja{border:1px solid #f1e4d6;box-shadow:var(--sombra);border-radius:20px}
+.tarjeta{border:2px dashed #f3c99a}
+.caja h3{font:400 22px var(--f-logo);text-transform:uppercase;letter-spacing:.02em}
+.fotos figure{border:0;box-shadow:var(--sombra);border-radius:18px}
+.fotos figcaption{font-weight:600}
+/* hoja */
+.hoja{background:#fff}
+.ops button{border:1px solid #ecdccb;font-weight:600}
+.ops button[aria-pressed="true"]{border-color:var(--fucsia);background:#fff1e3;box-shadow:inset 0 0 0 1px var(--fucsia)}
+/* pie */
+.piepag{background:#1f140b;color:#e9dccf;text-align:left;padding:0;margin-top:20px}
+.pie-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:28px;padding-block:40px 28px}
+.pie-marca{display:flex;gap:14px;align-items:flex-start}
+.pie-marca img{width:64px;height:64px;border-radius:50%;flex:none}
+.piepag b{color:#fff}
+.piepag h4{margin:0 0 8px;font:400 18px var(--f-logo);text-transform:uppercase;letter-spacing:.06em;color:#ffb25c}
+.piepag p{font-size:14px;line-height:1.7}
+.pie-fin{border-top:1px solid rgba(255,255,255,.1);text-align:center;font-size:12.5px;padding:16px var(--gr) calc(110px + env(safe-area-inset-bottom,0px)) var(--gl);color:#a8978a}
+.pie-fin button{color:#d8c6b6;font-size:12.5px}
+@media (max-width:760px){.pie-grid{grid-template-columns:1fr;gap:20px}}
+.carrito{border-radius:16px;box-shadow:0 18px 40px -14px rgba(59,36,20,.6)}
 </style>
 </head>
 <body>
@@ -355,12 +468,17 @@ section h2::before{content:"";width:26px;height:26px;flex:none;background:url("d
 <div class="prueba" id="bPrueba" hidden><b>Modo prueba</b> · los clientes y sellos son de ejemplo, no son reales · <a href="./">Salir</a></div>
 
 <div class="progreso" id="progreso" aria-hidden="true"></div>
-<header class="top">
-  <div class="mancha m1" aria-hidden="true"></div><div class="mancha m2" aria-hidden="true"></div><div class="mancha m3" aria-hidden="true"></div>
+<div class="marca-bar"><div class="wrap"><a class="mb-logo" href="#top"><img src="logo.png" alt="" width="40" height="40"><span><b>Doña Empanada</b><small id="estadoMini">Food truck · Ruta 32</small></span></a>
+  <nav class="mb-nav" aria-label="Secciones"><a href="#menu">Menú</a><a href="#encargos">Encargos</a><a href="#lealtad">Sellos</a><a href="#info">Ubicación</a></nav>
+  <a class="btn pri mb-wa" href="https://wa.me/50672924555" target="_blank" rel="noopener"><svg class="i" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3a.4.4 0 0 0 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .1-1.2c0-.1-.2-.2-.4-.3z"/></svg><span>7292-4555</span></a></div></div>
+<header class="top" id="top">
+  <img class="hero-foto" src="fotos/truck.jpg" alt="" aria-hidden="true">
+  <div class="hero-velo" aria-hidden="true"></div>
   <canvas id="petalos" aria-hidden="true"></canvas>
   <div class="wrap">
     <img class="logo" src="logo.png" alt="Doña Empanada" width="120" height="120">
-    <div>
+    <div class="hero-txt">
+      <span class="kicker">Food truck · Ruta 32</span>
       <h1 id="nombre">Doña Empanada</h1>
       <p class="lema" id="lema">Las mejores empanadas · 100% frescas</p>
       <div class="chips-info"><span id="estado">Cargando horario…</span><a href="#lealtad">Mi tarjeta</a><a href="#encargos">Encargos</a><a href="#info">Ruta 32</a><a id="ig" href="https://www.instagram.com/donaempanadacr" target="_blank" rel="noopener">Instagram</a></div>
@@ -368,8 +486,14 @@ section h2::before{content:"";width:26px;height:26px;flex:none;background:url("d
     </div>
   </div>
   <a class="baja" href="#casa" aria-label="Bajar al menú"><i></i></a>
-  <div class="onda" aria-hidden="true"><svg viewBox="0 0 1440 46" preserveAspectRatio="none"><path d="M0 26 C120 6 240 6 360 26 S600 46 720 26 S960 6 1080 26 S1320 46 1440 26 V46 H0Z" fill="#fffaf4"/></svg></div>
+  <div class="onda" hidden aria-hidden="true"><svg viewBox="0 0 1440 46" preserveAspectRatio="none"><path d="M0 26 C120 6 240 6 360 26 S600 46 720 26 S960 6 1080 26 S1320 46 1440 26 V46 H0Z" fill="#fffaf4"/></svg></div>
 </header>
+<div class="infobar"><div class="wrap">
+  <div><span class="ib-ic">🕔</span><span><b>Lunes a sábado</b><small>Desde las 5:00 a. m.</small></span></div>
+  <div><span class="ib-ic">📍</span><span><b>Ruta 32</b><small>Contiguo a la Casa del Tanque</small></span></div>
+  <div><span class="ib-ic">💳</span><span><b>Efectivo, tarjeta y SINPE</b><small>Visa y Mastercard</small></span></div>
+  <div><span class="ib-ic">🛵</span><span><b>Uber Eats y DiDi Food</b><small>O pida por WhatsApp</small></span></div>
+</div></div>
 <div class="cinta" aria-hidden="true"><div class="cinta-in" id="cinta"></div></div>
 
 <nav class="cats" aria-label="Categorías"><div class="wrap" id="cats"></div></nav>
@@ -387,6 +511,15 @@ section h2::before{content:"";width:26px;height:26px;flex:none;background:url("d
     </section>
     <div class="promo" id="promo"></div>
     <div id="menu"></div>
+
+    <section id="pasos" aria-labelledby="h-pasos">
+      <h2 id="h-pasos">Así de fácil</h2>
+      <div class="pasos">
+        <div><span class="pn-n">1</span><b>Escoja</b><p>Sabor, arreglo y salsas. Todo desde el menú.</p></div>
+        <div><span class="pn-n">2</span><b>Envíelo por WhatsApp</b><p>El pedido llega armado y con el total.</p></div>
+        <div><span class="pn-n">3</span><b>Recoja calientito</b><p>Lo tenemos listo a la hora que usted diga.</p></div>
+      </div>
+    </section>
 
     <section id="encargos" aria-labelledby="h-enc">
       <h2 id="h-enc">Encargos para otro día</h2>
@@ -426,7 +559,14 @@ section h2::before{content:"";width:26px;height:26px;flex:none;background:url("d
   </div>
 </main>
 
-<footer>Página de demostración hecha por RBM Solutions · <button type="button" id="abrirAdmin">Administrar menú</button></footer>
+<footer class="piepag">
+  <div class="wrap pie-grid">
+    <div class="pie-marca"><img src="logo.png" alt="" width="64" height="64"><p><b>Doña Empanada</b><br>Las mejores empanadas, 100% frescas. Solas o arregladas con nuestras salsas especiales.</p></div>
+    <div><h4>Horario</h4><p>Lunes a viernes · 5:00 a. m. – 9:30 p. m.<br>Sábado · 6:00 a. m. – 9:30 p. m.<br>Domingo · 7:30 a. m. – 5:00 p. m.</p></div>
+    <div><h4>Contacto</h4><p>WhatsApp 7292-4555<br>Ruta 32, contiguo a la Casa del Tanque<br>@donaempanadacr · Doña Empanada CR</p></div>
+  </div>
+  <div class="pie-fin">Página de demostración hecha por <b>RBM Solutions</b> · <button type="button" id="abrirAdmin">Administrar</button></div>
+</footer>
 
 <button class="carrito" id="carrito" type="button" hidden><span><span class="n" id="carN">0</span>Ver mi pedido</span><span id="carT">₡0</span></button>
 
@@ -557,6 +697,7 @@ function pintarHorario() {
   const e = $("#estado");
   e.textContent = abierto ? `● Abierto · cierra ${h12(aMin(h[2]))}` : h && h[1] && min < aMin(h[1]) ? `Abre hoy ${h12(aMin(h[1]))}` : "Cerrado ahora";
   e.className = abierto ? "abierto" : "cerrado";
+  const em = document.getElementById("estadoMini"); if (em) { em.textContent = abierto ? "● Abierto ahora" : "Food truck · Ruta 32"; em.className = abierto ? "ab" : ""; }
   const hoyI = (n.getUTCDay() + 6) % 7;
   $("#horas").innerHTML = D.negocio.horario.map(([d, a, b], i) => `<div class="${i === hoyI ? "hoy" : ""}"><span>${d}${i === hoyI ? " (hoy)" : ""}</span><span>${a ? `${h12(aMin(a))} – ${h12(aMin(b))}` : "Cerrado"}</span></div>`).join("");
 }
@@ -1240,7 +1381,7 @@ if (FINO && !QUIETO) {
   const nueva = ini => ({ x: Math.random() * W, y: ini ? Math.random() * H : -20, s: Math.random() * 7 + 7, v: Math.random() * .5 + .25, a: Math.random() * 6.3, g: (Math.random() - .5) * .03, t: tipos[Math.floor(Math.random() * tipos.length)] });
   const tam = () => { const r = cv.getBoundingClientRect(), dpr = Math.min(2, devicePixelRatio || 1); W = r.width; H = r.height; cv.width = W * dpr; cv.height = H * dpr; x.setTransform(dpr, 0, 0, dpr, 0, 0);
     ps = Array.from({ length: Math.round(Math.min(30, W / 24)) }, () => nueva(true)); };
-  const dib = p => { x.save(); x.translate(p.x, p.y); x.rotate(p.a); x.globalAlpha = .8; const s = p.s;
+  const dib = p => { x.save(); x.translate(p.x, p.y); x.rotate(p.a); x.globalAlpha = .55; const s = p.s;
     if (p.t === "emp") { x.fillStyle = "#f5a524"; x.beginPath(); x.moveTo(-s, s * .4); x.quadraticCurveTo(0, -s * 1.1, s, s * .4); x.closePath(); x.fill(); x.strokeStyle = "#c9701a"; x.lineWidth = 2; x.setLineDash([1, 3]); x.beginPath(); x.moveTo(-s, s * .4); x.quadraticCurveTo(0, -s * 1.1, s, s * .4); x.stroke(); x.setLineDash([]); }
     else if (p.t === "queso") { x.fillStyle = "#ffd84a"; x.beginPath(); x.moveTo(-s * .8, s * .5); x.lineTo(s * .8, s * .5); x.lineTo(s * .5, -s * .5); x.closePath(); x.fill(); x.fillStyle = "#f0b71a"; x.beginPath(); x.arc(s * .1, s * .15, s * .16, 0, 7); x.fill(); }
     else if (p.t === "chile") { x.fillStyle = "#e2312a"; x.beginPath(); x.ellipse(0, 0, s * .3, s * .9, .3, 0, 7); x.fill(); x.fillStyle = "#4caf50"; x.fillRect(-s * .12, -s * 1.05, s * .24, s * .35); }
