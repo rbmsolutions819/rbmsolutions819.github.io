@@ -583,7 +583,7 @@ const C = {leche:"#f7f2ea", cola:"#3b1f12", natural:"#f39a2b", carne:"#8a4a24", 
 const CATS = [["empanadas","Empanadas"],["combos","Combos"],["enyucados","Enyucados y emplatanados"],["tacos","Tacos y gallos"],["hamburguesas","Hamburguesas"],["desayunos","Desayunos (5 a 11 a. m.)"],["bebidas","Bebidas y extras"]];
 const SABORES = ["Carne","Pollo","Cerdo","Queso","Pizza","Mexicana","Chicharrón","Papa con chorizo","Frijol con queso"];
 const BASE = {
-  negocio: {nombre:"Doña Empanada", lema:"Las mejores empanadas · 100% frescas", whatsapp:"50672924555", sinpe:"7292-4555", sinpeNombre:"Doña Empanada", redes: {instagram: "donaempanadacr", facebook: "", tiktok: ""},
+  negocio: {nombre:"Doña Empanada", lema:"Las mejores empanadas · 100% frescas", whatsapp:"50672924555", sinpe:"7292-4555", sinpeNombre:"Laura Nava Vargas", redes: {instagram: "donaempanadacr", facebook: "", tiktok: ""},
     promo:"Las Tres Doñas: 3 empanadas a elegir por ₡3.400 (excepto queso birria).",
     horario:[["Lunes","5:00","21:30"],["Martes","5:00","21:30"],["Miércoles","5:00","21:30"],["Jueves","5:00","21:30"],["Viernes","5:00","21:30"],["Sábado","6:00","21:30"],["Domingo","7:30","17:00"]]},
   productos: [
@@ -632,6 +632,8 @@ function opsDe(p) {
   return g;
 }
 let D = lsGet("de-datos", null) || JSON.parse(JSON.stringify(BASE));
+// quien ya abrió la demo tenía guardado el nombre anterior del SINPE
+if (D.negocio && (!D.negocio.sinpeNombre || D.negocio.sinpeNombre === "Doña Empanada")) D.negocio.sinpeNombre = BASE.negocio.sinpeNombre;
 let pedido = lsGet("de-pedido", []);
 // Tarjeta de sellos: la dueña registra a cada cliente (nombre y cédula) y se genera su QR.
 // Todo se guarda en Firebase: el cliente ve sus sellos al instante en su tarjeta (tarjeta.html).
