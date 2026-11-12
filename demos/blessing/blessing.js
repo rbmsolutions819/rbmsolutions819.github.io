@@ -137,6 +137,31 @@ window.Blessing = (() => {
     await F.setDoc(F.doc(db, CFG, "barberos"), { lista: limpia });
     return limpia;
   }
+
+  // ----- Clientes de ejemplo para enseñar la demo -----
+  // Se crean solos la primera vez (con sus cortes) si todavía no existen.
+  const EJEMPLOS = [
+    { nombre: "Andrés Mora",    cel: "80000001", ced: "101110111", pin: "1111", barbero: "Josué",  cortes: 2,  atendio: ["Josué"] },
+    { nombre: "Carlos Vargas",  cel: "80000002", ced: "",          pin: "2222", barbero: "Kevin",  cortes: 4,  atendio: ["Kevin", "Josué"] },
+    { nombre: "María Solís",    cel: "80000003", ced: "",          pin: "3333", barbero: "Daniel", cortes: 0,  atendio: ["Daniel"] },
+    { nombre: "Diego Rojas",    cel: "80000004", ced: "",          pin: "4444", barbero: "Josué",  cortes: 6,  atendio: ["Josué", "Daniel"] },
+    { nombre: "Sofía Chaves",   cel: "80000005", ced: "",          pin: "5555", barbero: "Kevin",  cortes: 3,  atendio: ["Kevin"] },
+    { nombre: "José Quesada",   cel: "80000006", ced: "",          pin: "6666", barbero: "Daniel", cortes: 12, atendio: ["Daniel", "Kevin", "Josué"] }
+  ];
+  let sembrando = null;
+  function asegurarEjemplos() {
+    if (!sembrando) sembrando = (async () => {
+      await iniciar();
+      for (const e of EJEMPLOS) {
+        try {
+          if ((await F.getDoc(F.doc(db, IDS, await huellaId(e.cel)))).exists()) continue;
+          const t = await crear({ nombre: e.nombre, celular: e.cel, cedula: e.ced, pin: e.pin, barbero: e.barbero });
+          for (let i = 0; i < e.cortes; i++) await registrarCorte(t, e.atendio[i % e.atendio.length]);
+        } catch (x) { console.warn("Ejemplo no cargado:", e.nombre, x && x.message); }
+      }
+    })();
+    return sembrando;
+  }
   return { META, PRECIO, PRECIO_QUINTO, precioSiguiente, colones, digitos, link, tokenDeTexto, iniciar, crear, ingresar, buscar, obtener,
-    registrarCorte, escuchar, cortesDe, escucharClientes, escucharCortes, barberos, guardarBarberos };
+    registrarCorte, escuchar, cortesDe, escucharClientes, escucharCortes, barberos, guardarBarberos, EJEMPLOS, asegurarEjemplos };
 })();

@@ -61,6 +61,12 @@
       <div><div class="k">Cómo funciona</div><div class="d">Cada corte vale ₡5.000 y suma un sello. Su 5.º corte sale en solo ₡2.000.</div></div>
       <svg width="40" height="40" style="flex:none"><use href="#comb"/></svg>
     </div></div>
+    <div class="panel" style="margin-top:16px;padding:18px">
+      <div class="over">Demo</div>
+      <h2 style="font-size:22px">Clientes de ejemplo</h2>
+      <p>Toque uno para entrar con su celular y PIN.</p>
+      <ul class="list" id="ejemplos" style="margin-top:12px"></ul>
+    </div>
     <p style="text-align:center;color:var(--dim);font-size:13px;margin-top:18px;line-height:1.5">¿Todavía no tiene tarjeta? Pídale a su barbero que lo registre en su próxima visita.</p>
   </section>
 
@@ -208,6 +214,22 @@
       }, () => { toast("Sin conexión. Mostrando lo último guardado."); });
     } catch { ver("vIngreso"); $("errIngreso").textContent = "No hay conexión. Intente de nuevo."; }
   }
+
+  // ---- Clientes de ejemplo (demo)
+  B.asegurarEjemplos().catch(() => {});
+  const fmtCel = c => c.slice(0, 4) + " " + c.slice(4);
+  $("ejemplos").innerHTML = B.EJEMPLOS.map((e, i) => {
+    const s = e.cortes % B.META;
+    return `<li><button class="row" type="button" data-ej="${i}">
+      <span class="tx"><b>${e.nombre}</b><small>Cel. ${fmtCel(e.cel)} · PIN ${e.pin}${e.ced ? " · Céd. " + e.ced : ""}</small></span>
+      <span class="mini">${Array.from({ length: B.META }, (_, k) => `<i class="${k < s ? "f" : k === B.META - 1 ? "p" : ""}"></i>`).join("")}</span></button></li>`;
+  }).join("");
+  $("ejemplos").onclick = e => {
+    const b = e.target.closest("[data-ej]"); if (!b) return;
+    const x = B.EJEMPLOS[+b.dataset.ej];
+    $("inId").value = fmtCel(x.cel); $("inPin").value = x.pin;
+    $("fIngreso").requestSubmit();
+  };
 
   if ("serviceWorker" in navigator) { try { navigator.serviceWorker.register("sw.js").catch(() => {}) } catch {} }
   token ? abrir() : ver("vIngreso");

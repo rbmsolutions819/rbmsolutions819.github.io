@@ -231,6 +231,7 @@
     if (!barberos.includes(actual)) actual = "";
     pintarWho();
     if (!actual) abrirWho();
+    B.asegurarEjemplos().catch(() => {});
     B.escucharClientes(l => { clientes = l; pintarClientes(); pintarBarberos(); }, () => {});
     B.escucharCortes(l => { cortes = l; pintarBarberos(); }, () => {});
     if (tokenInicial) abrirFicha(tokenInicial);
