@@ -146,7 +146,8 @@ window.Blessing = (() => {
     { nombre: "María Solís",    cel: "80000003", ced: "",          pin: "3333", barbero: "Daniel", cortes: 0,  atendio: ["Daniel"] },
     { nombre: "Diego Rojas",    cel: "80000004", ced: "",          pin: "4444", barbero: "Josué",  cortes: 6,  atendio: ["Josué", "Daniel"] },
     { nombre: "Sofía Chaves",   cel: "80000005", ced: "",          pin: "5555", barbero: "Kevin",  cortes: 3,  atendio: ["Kevin"] },
-    { nombre: "José Quesada",   cel: "80000006", ced: "",          pin: "6666", barbero: "Daniel", cortes: 12, atendio: ["Daniel", "Kevin", "Josué"] }
+    { nombre: "José Quesada",   cel: "80000006", ced: "",          pin: "6666", barbero: "Daniel", cortes: 12, atendio: ["Daniel", "Kevin", "Josué"] },
+    { nombre: "Ricardo Brenes", cel: "61572339", ced: "", pin: "7777", barbero: "Josué", cortes: 0, atendio: ["Josué"], oculto: true }
   ];
   let sembrando = null;
   function asegurarEjemplos() {

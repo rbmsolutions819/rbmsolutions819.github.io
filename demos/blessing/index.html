@@ -219,6 +219,7 @@
   B.asegurarEjemplos().catch(() => {});
   const fmtCel = c => c.slice(0, 4) + " " + c.slice(4);
   $("ejemplos").innerHTML = B.EJEMPLOS.map((e, i) => {
+    if (e.oculto) return "";
     const s = e.cortes % B.META;
     return `<li><button class="row" type="button" data-ej="${i}">
       <span class="tx"><b>${e.nombre}</b><small>Cel. ${fmtCel(e.cel)} · PIN ${e.pin}${e.ced ? " · Céd. " + e.ced : ""}</small></span>
