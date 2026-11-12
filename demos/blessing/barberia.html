@@ -14,7 +14,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Bebas+Neue&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="estilo.css?v=7">
+<link rel="stylesheet" href="estilo.css?v=8">
 <style>
   .pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
   .pad button{height:62px;border-radius:18px;border:1px solid var(--line);background:rgba(var(--w),.03);color:var(--text);font-family:"Cormorant Garamond";font-size:28px;font-weight:600;cursor:pointer}
@@ -83,7 +83,7 @@
     </div>
     <div class="panel" style="margin-top:14px;padding:16px 18px">
       <div class="over">Demo</div>
-      <p style="margin:6px 0 0">PIN de prueba: <b style="color:var(--text)">Miguel 1234</b> (dueño) · Josué 1111 · Kevin 2222 · Daniel 3333. Cualquier otro barbero: 0000.</p>
+      <p style="margin:6px 0 0">PIN de prueba: <b style="color:var(--text)">César 1234</b> (administrador) · Miguel 4444 · Josué 1111 · Kevin 2222 · Daniel 3333. Cualquier otro barbero: 0000.</p>
     </div>
   </section>
 
@@ -169,7 +169,7 @@
       </div>
     </div>
 
-    <!-- General (solo dueño) -->
+    <!-- General (solo administrador) -->
     <div data-pane="gen" hidden>
       <div class="sec-title"><h4>Reporte general</h4></div>
       <div class="periodo" id="ctlGen">
@@ -244,9 +244,9 @@
 
 <div class="toast" id="toast"><i></i><span></span></div>
 
-<script src="qrcode.min.js?v=7"></script>
-<script src="jsQR.js?v=7"></script>
-<script src="blessing.js?v=7"></script>
+<script src="qrcode.min.js?v=8"></script>
+<script src="jsQR.js?v=8"></script>
+<script src="blessing.js?v=8"></script>
 <script>
 (() => {
   const $ = id => document.getElementById(id);
@@ -268,15 +268,15 @@
   let elegido = null, entry = "";
   const inicial = n => String(n).trim().charAt(0).toUpperCase();
   async function cargarEquipo() {
-    try { eq = await B.equipo(); } catch { eq = { lista: ["Miguel", "Josué", "Kevin", "Daniel"], pines: {}, dueno: "Miguel" }; toast("Sin conexión con la base de datos."); }
+    try { eq = await B.equipo(); } catch { eq = { lista: ["César", "Miguel", "Josué", "Kevin", "Daniel"], pines: {}, dueno: "César" }; toast("Sin conexión con la base de datos."); }
   }
   function pintarPick() {
-    $("pick").innerHTML = eq.lista.map(n => `<button type="button" data-n="${esc(n)}"><span class="av">${esc(inicial(n))}</span><span>${esc(n)}<small>${n === eq.dueno ? "Dueño" : "Barbero"}</small></span></button>`).join("");
+    $("pick").innerHTML = eq.lista.map(n => `<button type="button" data-n="${esc(n)}"><span class="av">${esc(inicial(n))}</span><span>${esc(n)}<small>${n === eq.dueno ? "Administrador" : "Barbero"}</small></span></button>`).join("");
   }
   $("pick").onclick = e => {
     const b = e.target.closest("[data-n]"); if (!b) return;
     elegido = b.dataset.n; entry = ""; pintarDots();
-    $("pinHola").textContent = "Hola, " + elegido; $("pinRol").textContent = elegido === eq.dueno ? "Dueño" : "Barbero";
+    $("pinHola").textContent = "Hola, " + elegido; $("pinRol").textContent = elegido === eq.dueno ? "Administrador" : "Barbero";
     $("lockPick").hidden = true; $("lockPin").hidden = false;
   };
   $("pinVolver").onclick = () => { $("lockPin").hidden = true; $("lockPick").hidden = false; };
@@ -316,7 +316,7 @@
 
   function entrar() {
     $("vLock").hidden = true; $("vPanel").hidden = false;
-    $("whoName").textContent = yo; $("whoRol").textContent = esDueno() ? "Dueño · sesión" : "Barbero · sesión";
+    $("whoName").textContent = yo; $("whoRol").textContent = esDueno() ? "Administrador · sesión" : "Barbero · sesión";
     $("nQuien").textContent = yo;
     $("tabGen").hidden = !esDueno();
     B.asegurarEjemplos().catch(() => {});
@@ -571,8 +571,8 @@
     $("dGenBox").hidden = est.Gen.modo === "dia";
     if (est.Gen.modo !== "dia") { const fl = porDia(cs, r); $("dGen").innerHTML = tablaDias(est.Gen.modo === "mes" ? fl.filter(f => f.n) : fl) || `<tr><td colspan="5" style="text-align:center;color:var(--dim)">Sin cortes en este periodo</td></tr>`; }
     const nombres = [...new Set([...eq.lista, ...cs.map(c => c.barbero), ...cl.map(c => c.barbero)])];
-    const filas = nombres.map(b => ({ b, nuevos: cl.filter(c => c.barbero === b).length, ...resumen(cs.filter(c => c.barbero === b)) })).sort((a, z) => z.total - a.total || z.nuevos - a.nuevos);
-    $("tGen").innerHTML = filas.map(f => `<tr class="clic ${f.b === indiv ? "on" : ""}" data-b="${esc(f.b)}"><td>${esc(f.b)}${f.b === eq.dueno ? '<span class="tag">Dueño</span>' : ""}</td><td>${f.nuevos}</td><td>${f.n}</td><td>${f.q}</td><td>${B.colones(f.sinpe)}</td><td><b>${B.colones(f.total)}</b></td></tr>`).join("");
+    const filas = nombres.map(b => ({ b, nuevos: cl.filter(c => c.barbero === b).length, ...resumen(cs.filter(c => c.barbero === b)) })).filter(f => f.b !== eq.dueno || f.n || f.nuevos).sort((a, z) => z.total - a.total || z.nuevos - a.nuevos);
+    $("tGen").innerHTML = filas.map(f => `<tr class="clic ${f.b === indiv ? "on" : ""}" data-b="${esc(f.b)}"><td>${esc(f.b)}${f.b === eq.dueno ? '<span class="tag">Admin</span>' : ""}</td><td>${f.nuevos}</td><td>${f.n}</td><td>${f.q}</td><td>${B.colones(f.sinpe)}</td><td><b>${B.colones(f.total)}</b></td></tr>`).join("");
     $("indiv").hidden = !indiv; $("ultGen").hidden = !!indiv;
     const conFecha = est.Gen.modo !== "dia";
     if (indiv) {
@@ -646,12 +646,12 @@
     }
   }
 
-  // ================= Equipo (solo dueño) =================
+  // ================= Equipo (solo administrador) =================
   function pintarEquipo() {
     if (!esDueno()) return;
     $("team").innerHTML = eq.lista.map(n => `<li>
       <span class="ic"><b style="font:700 12px Manrope">${esc(inicial(n))}</b></span>
-      <span class="tx"><b>${esc(n)}${n === eq.dueno ? '<span class="tag">Dueño</span>' : ""}</b><small>${eq.pines[n] ? "PIN personal" : "PIN de la demo"}</small></span>
+      <span class="tx"><b>${esc(n)}${n === eq.dueno ? '<span class="tag">Admin</span>' : ""}</b><small>${eq.pines[n] ? "PIN personal" : "PIN de la demo"}</small></span>
       <span class="act"><button data-pin="${esc(n)}">PIN</button>${n === eq.dueno ? "" : `<button data-del="${esc(n)}">Quitar</button>`}</span></li>`).join("");
   }
   async function guardar(nuevo, msg) {

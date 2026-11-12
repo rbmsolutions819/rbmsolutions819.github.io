@@ -128,16 +128,16 @@ window.Blessing = (() => {
     return F.onSnapshot(F.query(F.collection(db, CORTES), F.where("fecha", ">=", desde), F.orderBy("fecha", "desc"), F.limit(5000)),
       s => alCambiar(s.docs.map(d => ({ id: d.id, ...d.data({ serverTimestamps: "estimate" }) }))), e => alFallar && alFallar(e));
   }
-  // ----- Equipo: cada barbero entra con su propio PIN. El dueño ve los reportes de todos. -----
-  const DUENO = "Miguel";
-  const PINES_DEMO = { Miguel: "1234", "Josué": "1111", Kevin: "2222", Daniel: "3333" };
+  // ----- Equipo: cada barbero entra con su propio PIN. El administrador (César) ve los reportes de todos. -----
+  const DUENO = "César";
+  const PINES_DEMO = { "César": "1234", Miguel: "4444", "Josué": "1111", Kevin: "2222", Daniel: "3333" };
   const huellaPin = (nombre, pin) => sha("blessing-barbero:" + String(nombre).trim().toLowerCase() + ":" + digitos(pin));
   async function equipo() {
     await iniciar();
     const s = await F.getDoc(F.doc(db, CFG, "barberos")), d = s.exists() ? s.data() : {};
     let lista = Array.isArray(d.lista) && d.lista.length ? d.lista.slice() : ["Josué", "Kevin", "Daniel"];
-    const dueno = d.dueno || DUENO;
-    if (!lista.includes(dueno)) lista.unshift(dueno);
+    const dueno = DUENO; // el administrador siempre es César; Miguel y los demás son barberos
+    lista = [dueno, ...lista.filter(n => n !== dueno)];
     return { lista, pines: d.pines || {}, dueno };
   }
   // Revisa el PIN de un barbero. Si todavía no tiene uno guardado, vale el PIN de la demo (o 0000).
@@ -151,8 +151,8 @@ window.Blessing = (() => {
     const limpia = [...new Set(lista.map(x => String(x).trim().slice(0, 40)).filter(Boolean))].slice(0, 20);
     if (!limpia.length) throw new Error("vacia");
     const p = {}; limpia.forEach(n => { if (pines[n]) p[n] = pines[n]; });
-    await F.setDoc(F.doc(db, CFG, "barberos"), { lista: limpia, pines: p, dueno: String(dueno || DUENO).slice(0, 40) });
-    return { lista: limpia, pines: p, dueno };
+    await F.setDoc(F.doc(db, CFG, "barberos"), { lista: limpia, pines: p, dueno: DUENO });
+    return { lista: limpia, pines: p, dueno: DUENO };
   }
 
   // ----- Clientes de ejemplo para enseñar la demo -----
