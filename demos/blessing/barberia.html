@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>The Blessing Barbershop · Panel de la barbería</title>
 <meta name="robots" content="noindex">
-<meta name="theme-color" content="#0a0a0a">
+<meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f7f4ee" media="(prefers-color-scheme: light)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="manifest" href="manifest.json">
@@ -13,10 +14,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Bebas+Neue&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="estilo.css">
+<link rel="stylesheet" href="estilo.css?v=6">
 <style>
   .pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-  .pad button{height:62px;border-radius:18px;border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--text);font-family:"Cormorant Garamond";font-size:28px;font-weight:600;cursor:pointer}
+  .pad button{height:62px;border-radius:18px;border:1px solid var(--line);background:rgba(var(--w),.03);color:var(--text);font-family:"Cormorant Garamond";font-size:28px;font-weight:600;cursor:pointer}
   .pad button:active{background:rgba(217,180,106,.14)}
   .pad .fn{font-family:Manrope;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
   .dots{display:flex;gap:18px;justify-content:center;margin:18px 0 24px}
@@ -34,7 +35,7 @@
   .search{display:flex;gap:8px}
   .search .btn{width:auto;margin:0;padding:0 18px}
   .kpis{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px}
-  .kpi{border:1px solid var(--line);border-radius:16px;padding:14px 12px;background:rgba(255,255,255,.015)}
+  .kpi{border:1px solid var(--line);border-radius:16px;padding:14px 12px;background:rgba(var(--w),.015)}
   .kpi b{display:block;font-family:"Bebas Neue";font-size:26px;font-weight:400;line-height:1}
   .kpi span{display:block;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-top:6px}
 </style>
@@ -76,7 +77,9 @@
       <p>Ingrese su PIN de 4 dígitos.</p>
       <div class="dots" id="dots"><i></i><i></i><i></i><i></i></div>
       <div class="pad" id="pad"></div>
-      <button class="btn ghost" id="pinVolver" style="margin-top:14px">Cambiar de barbero</button>
+      <div class="err" id="pinErr" style="text-align:center"></div>
+      <button class="btn primary" id="pinEntrar" disabled>Entrar</button>
+      <button class="btn ghost" id="pinVolver" style="margin-top:10px">Cambiar de barbero</button>
     </div>
     <div class="panel" style="margin-top:14px;padding:16px 18px">
       <div class="over">Demo</div>
@@ -225,9 +228,9 @@
 
 <div class="toast" id="toast"><i></i><span></span></div>
 
-<script src="qrcode.min.js"></script>
-<script src="jsQR.js"></script>
-<script src="blessing.js"></script>
+<script src="qrcode.min.js?v=6"></script>
+<script src="jsQR.js?v=6"></script>
+<script src="blessing.js?v=6"></script>
 <script>
 (() => {
   const $ = id => document.getElementById(id);
@@ -252,7 +255,7 @@
     try { eq = await B.equipo(); } catch { eq = { lista: ["Miguel", "Josué", "Kevin", "Daniel"], pines: {}, dueno: "Miguel" }; toast("Sin conexión con la base de datos."); }
   }
   function pintarPick() {
-    $("pick").innerHTML = eq.lista.map(n => `<button type="button" data-n="${esc(n)}"><span class="av">${esc(inicial(n))}</span><span>${esc(n)}${n === eq.dueno ? "<small>Dueño</small>" : ""}</span></button>`).join("");
+    $("pick").innerHTML = eq.lista.map(n => `<button type="button" data-n="${esc(n)}"><span class="av">${esc(inicial(n))}</span><span>${esc(n)}<small>${n === eq.dueno ? "Dueño" : "Barbero"}</small></span></button>`).join("");
   }
   $("pick").onclick = e => {
     const b = e.target.closest("[data-n]"); if (!b) return;
@@ -261,18 +264,35 @@
     $("lockPick").hidden = true; $("lockPin").hidden = false;
   };
   $("pinVolver").onclick = () => { $("lockPin").hidden = true; $("lockPick").hidden = false; };
-  function pintarDots() { [...$("dots").children].forEach((d, i) => d.classList.toggle("f", i < entry.length)); }
+  function pintarDots() { [...$("dots").children].forEach((d, i) => d.classList.toggle("f", i < entry.length)); if ($("pinEntrar")) $("pinEntrar").disabled = entry.length !== 4; }
+  let probando = false;
+  async function probarPin() {
+    if (probando || entry.length !== 4) return;
+    probando = true; $("pinEntrar").disabled = true; $("pinEntrar").textContent = "Revisando…";
+    let ok = false;
+    try { ok = await B.revisarPin(eq, elegido, entry); }
+    catch { $("pinErr").textContent = "No se pudo revisar el PIN. Recargue la página e intente de nuevo."; }
+    probando = false; $("pinEntrar").textContent = "Entrar";
+    if (ok) { yo = elegido; ss.set("blessing-yo", yo); entrar(); return; }
+    if (!$("pinErr").textContent) $("pinErr").textContent = "PIN incorrecto.";
+    $("dots").classList.add("err"); buzz(180);
+    setTimeout(() => { $("dots").classList.remove("err"); entry = ""; pintarDots(); }, 450);
+  }
+  $("pinEntrar").onclick = probarPin;
+  document.addEventListener("keydown", e => {
+    if ($("lockPin").hidden) return;
+    if (/^\d$/.test(e.key) && entry.length < 4) { entry += e.key; pintarDots(); $("pinErr").textContent = ""; if (entry.length === 4) probarPin(); }
+    else if (e.key === "Backspace") { entry = entry.slice(0, -1); pintarDots(); }
+    else if (e.key === "Enter") probarPin();
+  });
   ["1","2","3","4","5","6","7","8","9","C","0","B"].forEach(k => {
     const b = document.createElement("button"); b.type = "button";
     if (k === "C") { b.className = "fn"; b.textContent = "Borrar todo" } else if (k === "B") { b.className = "fn"; b.textContent = "Borrar" } else b.textContent = k;
     b.onclick = async () => {
       if (k === "C") entry = ""; else if (k === "B") entry = entry.slice(0, -1); else if (entry.length < 4) entry += k;
       pintarDots();
-      if (entry.length === 4) {
-        const ok = await B.revisarPin(eq, elegido, entry);
-        if (ok) { yo = elegido; ss.set("blessing-yo", yo); setTimeout(entrar, 120); }
-        else { $("dots").classList.add("err"); buzz(180); setTimeout(() => { $("dots").classList.remove("err"); entry = ""; pintarDots(); }, 450); }
-      }
+      $("pinErr").textContent = "";
+      if (entry.length === 4) probarPin();
     };
     $("pad").appendChild(b);
   });
