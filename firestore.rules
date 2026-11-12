@@ -590,6 +590,72 @@ service cloud.firestore {
       allow create, update: if promoOk(request.resource.data);
     }
 
+    // ---- Demo The Blessing Barbershop: tarjeta de 5 cortes (el 5.º con descuento) ----
+    // Cada corte suma 1 sello; al registrar el 5.º la tarjeta vuelve a 0 y suma un ciclo. No se puede restar.
+    match /demo_blessing_clientes/{t} {
+      allow get, list: if true;
+      allow create: if t.size() >= 16 && t.size() <= 40
+        && request.resource.data.keys().hasOnly(['nombre','cel4','barbero','sellos','ciclos','total','creado','actualizado'])
+        && request.resource.data.nombre is string && request.resource.data.nombre.size() >= 2 && request.resource.data.nombre.size() <= 60
+        && request.resource.data.cel4 is string && request.resource.data.cel4.size() == 4
+        && request.resource.data.barbero is string && request.resource.data.barbero.size() >= 1 && request.resource.data.barbero.size() <= 40
+        && request.resource.data.sellos == 0 && request.resource.data.ciclos == 0 && request.resource.data.total == 0
+        && request.resource.data.creado == request.time && request.resource.data.actualizado == request.time;
+      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['sellos','ciclos','total','actualizado','ultimo'])
+        && request.resource.data.actualizado == request.time
+        && request.resource.data.get('ultimo', '') is string && request.resource.data.get('ultimo', '').size() <= 40
+        && request.resource.data.total == resource.data.total + 1
+        && (
+          (request.resource.data.sellos == resource.data.sellos + 1 && request.resource.data.sellos <= 4
+            && request.resource.data.ciclos == resource.data.ciclos)
+          || (resource.data.sellos == 4 && request.resource.data.sellos == 0
+            && request.resource.data.ciclos == resource.data.ciclos + 1)
+        );
+      allow delete: if esAdmin();
+    }
+    // Índice por celular o cédula (huella, nunca el número): evita clientes repetidos.
+    match /demo_blessing_ids/{h} {
+      allow get: if true;
+      allow list, update: if false;
+      allow create: if h.size() == 64
+        && request.resource.data.keys().hasOnly(['t'])
+        && request.resource.data.t is string
+        && existsAfter(/databases/$(database)/documents/demo_blessing_clientes/$(request.resource.data.t));
+      allow delete: if esAdmin();
+    }
+    // Ingreso del cliente: huella de (celular o cédula + PIN de 4 dígitos) que apunta a su tarjeta.
+    match /demo_blessing_acceso/{h} {
+      allow get: if true;
+      allow list, update: if false;
+      allow create: if h.size() == 64
+        && request.resource.data.keys().hasOnly(['t'])
+        && request.resource.data.t is string
+        && existsAfter(/databases/$(database)/documents/demo_blessing_clientes/$(request.resource.data.t));
+      allow delete: if esAdmin();
+    }
+    // Cada corte registrado: quién lo hizo y cuánto se cobró (₡5.000 o ₡2.000 el 5.º).
+    match /demo_blessing_cortes/{id} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasOnly(['t','nombre','barbero','precio','n','fecha'])
+        && request.resource.data.t is string
+        && existsAfter(/databases/$(database)/documents/demo_blessing_clientes/$(request.resource.data.t))
+        && request.resource.data.nombre is string && request.resource.data.nombre.size() <= 60
+        && request.resource.data.barbero is string && request.resource.data.barbero.size() >= 1 && request.resource.data.barbero.size() <= 40
+        && request.resource.data.precio in [5000, 2000]
+        && request.resource.data.n is int && request.resource.data.n >= 1 && request.resource.data.n <= 5
+        && request.resource.data.fecha == request.time;
+      allow update: if false;
+      allow delete: if esAdmin();
+    }
+    // Lista de barberos de la barbería.
+    match /demo_blessing_config/{id} {
+      allow read: if true;
+      allow create, update: if id == 'barberos'
+        && request.resource.data.keys().hasOnly(['lista'])
+        && request.resource.data.lista is list && request.resource.data.lista.size() >= 1 && request.resource.data.lista.size() <= 20;
+      allow delete: if esAdmin();
+    }
+
     match /{path=**} { allow read, write: if false; }
   }
 }

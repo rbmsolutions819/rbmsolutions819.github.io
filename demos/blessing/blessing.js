@@ -1,0 +1,142 @@
+// Tarjeta de sellos de The Blessing Barbershop (demo de RBM Solutions), guardada en Firebase (Firestore).
+// - Cada corte cuesta ₡5.000 y suma un sello. El 5.º corte sale en ₡2.000 y la tarjeta vuelve a empezar.
+// - El barbero que registra a un cliente nuevo queda anotado en la tarjeta, y cada corte guarda quién lo hizo.
+// - El cliente entra con su celular (o cédula) y un PIN de 4 dígitos. Nunca se guarda el número completo ni el PIN:
+//   solo los últimos 4 dígitos del celular y huellas (hash) para poder buscarlo.
+window.Blessing = (() => {
+  const CONFIG = {
+    apiKey: "AIzaSyCdNwaEKRzhLAXf-vG5WJkf7qbrQJ4lkWg",
+    authDomain: "rbm-solutions-2a4ce.firebaseapp.com",
+    projectId: "rbm-solutions-2a4ce",
+    storageBucket: "rbm-solutions-2a4ce.firebasestorage.app",
+    messagingSenderId: "602522235911",
+    appId: "1:602522235911:web:bd4fe58dcecb79edefe6a2"
+  };
+  const PRE = "demo_blessing_";
+  const COL = PRE + "clientes", IDS = PRE + "ids", ACC = PRE + "acceso", CORTES = PRE + "cortes", CFG = PRE + "config";
+  const META = 5, PRECIO = 5000, PRECIO_QUINTO = 2000;
+  const BARBEROS_EJEMPLO = ["Josué", "Kevin", "Daniel"];
+  const BASE = "https://www.gstatic.com/firebasejs/10.12.2/";
+  let listo = null, F = null, db = null;
+
+  function iniciar() {
+    if (!listo) listo = (async () => {
+      const [A, Fs] = await Promise.all([import(BASE + "firebase-app.js"), import(BASE + "firebase-firestore.js")]);
+      F = Fs;
+      const app = A.getApps().find(a => a.name === "blessing") || A.initializeApp(CONFIG, "blessing");
+      db = F.getFirestore(app);
+    })();
+    return listo;
+  }
+  const digitos = s => String(s || "").replace(/\D/g, "");
+  async function sha(txt) {
+    const h = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(txt));
+    return [...new Uint8Array(h)].map(b => b.toString(16).padStart(2, "0")).join("");
+  }
+  const huellaId = id => sha("blessing-id:" + digitos(id));
+  const huellaAcceso = (id, pin) => sha("blessing-acceso:" + digitos(id) + ":" + digitos(pin));
+  function nuevoToken() {
+    const b = new Uint8Array(15); crypto.getRandomValues(b);
+    return [...b].map(x => x.toString(36).padStart(2, "0")).join("").slice(0, 24);
+  }
+  // El QR lleva el link al panel de la barbería con el código de la tarjeta.
+  const link = token => new URL("barberia.html#t=" + token, location.href).href;
+  const tokenDeTexto = txt => {
+    const m = String(txt || "").match(/[#&?]t=([a-z0-9]{16,40})/i) || String(txt || "").match(/^([a-z0-9]{16,40})$/i);
+    return m ? m[1].toLowerCase() : null;
+  };
+  const precioSiguiente = sellos => (sellos >= META - 1 ? PRECIO_QUINTO : PRECIO);
+  const colones = n => "₡" + String(Math.round(Number(n) || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+
+  // Registra un cliente nuevo (lo hace el barbero). Celular obligatorio; cédula opcional.
+  async function crear({ nombre, celular, cedula = "", pin, barbero }) {
+    await iniciar();
+    const cel = digitos(celular), ced = digitos(cedula), p = digitos(pin);
+    if (cel.length !== 8) throw new Error("celular");
+    if (ced && (ced.length < 9 || ced.length > 12)) throw new Error("cedula");
+    if (p.length !== 4) throw new Error("pin");
+    if (!String(barbero || "").trim()) throw new Error("barbero");
+    const hCel = await huellaId(cel), hCed = ced ? await huellaId(ced) : null;
+    const ya = await F.getDoc(F.doc(db, IDS, hCel));
+    if (ya.exists()) throw new Error("ya-existe");
+    if (hCed && (await F.getDoc(F.doc(db, IDS, hCed))).exists()) throw new Error("ya-existe-cedula");
+    const token = nuevoToken(), w = F.writeBatch(db);
+    w.set(F.doc(db, COL, token), {
+      nombre: String(nombre).trim().slice(0, 60), cel4: cel.slice(-4), barbero: String(barbero).trim().slice(0, 40),
+      sellos: 0, ciclos: 0, total: 0, creado: F.serverTimestamp(), actualizado: F.serverTimestamp()
+    });
+    w.set(F.doc(db, IDS, hCel), { t: token });
+    w.set(F.doc(db, ACC, await huellaAcceso(cel, p)), { t: token });
+    if (hCed) {
+      w.set(F.doc(db, IDS, hCed), { t: token });
+      w.set(F.doc(db, ACC, await huellaAcceso(ced, p)), { t: token });
+    }
+    await w.commit();
+    return token;
+  }
+  // Ingreso del cliente: celular (o cédula) + PIN. Devuelve el código de su tarjeta o null.
+  async function ingresar(id, pin) {
+    await iniciar();
+    const s = await F.getDoc(F.doc(db, ACC, await huellaAcceso(id, pin)));
+    return s.exists() ? s.data().t : null;
+  }
+  // El barbero busca a un cliente por celular o cédula.
+  async function buscar(id) {
+    await iniciar();
+    const s = await F.getDoc(F.doc(db, IDS, await huellaId(id)));
+    return s.exists() ? s.data().t : null;
+  }
+  async function obtener(token) {
+    await iniciar();
+    const s = await F.getDoc(F.doc(db, COL, token));
+    return s.exists() ? { token, ...s.data() } : null;
+  }
+  // Registra un corte: suma un sello. Si era el 5.º (₡2.000), la tarjeta vuelve a 0.
+  async function registrarCorte(token, barbero) {
+    await iniciar();
+    const ref = F.doc(db, COL, token), corte = F.doc(F.collection(db, CORTES));
+    return F.runTransaction(db, async tx => {
+      const s = await tx.get(ref); if (!s.exists()) throw new Error("no-existe");
+      const d = s.data(), n = d.sellos + 1, quinto = n >= META, precio = quinto ? PRECIO_QUINTO : PRECIO;
+      const nuevo = { sellos: quinto ? 0 : n, ciclos: d.ciclos + (quinto ? 1 : 0), total: d.total + 1, ultimo: String(barbero).slice(0, 40) };
+      tx.update(ref, { ...nuevo, actualizado: F.serverTimestamp() });
+      tx.set(corte, { t: token, nombre: d.nombre, barbero: String(barbero).slice(0, 40), precio, n, fecha: F.serverTimestamp() });
+      return { ...nuevo, precio, n, quinto, nombre: d.nombre };
+    });
+  }
+  async function escuchar(token, alCambiar, alFallar) {
+    await iniciar();
+    return F.onSnapshot(F.doc(db, COL, token), s => alCambiar(s.exists() ? { token, ...s.data({ serverTimestamps: "estimate" }) } : null), e => alFallar && alFallar(e));
+  }
+  async function cortesDe(token, max = 20) {
+    await iniciar();
+    const s = await F.getDocs(F.query(F.collection(db, CORTES), F.where("t", "==", token), F.limit(60)));
+    return s.docs.map(d => ({ id: d.id, ...d.data({ serverTimestamps: "estimate" }) }))
+      .sort((a, b) => (b.fecha?.toMillis?.() || 0) - (a.fecha?.toMillis?.() || 0)).slice(0, max);
+  }
+  // Para el panel: clientes y cortes en vivo.
+  async function escucharClientes(alCambiar, alFallar) {
+    await iniciar();
+    return F.onSnapshot(F.query(F.collection(db, COL), F.orderBy("creado", "desc"), F.limit(300)),
+      s => alCambiar(s.docs.map(d => ({ token: d.id, ...d.data({ serverTimestamps: "estimate" }) }))), e => alFallar && alFallar(e));
+  }
+  async function escucharCortes(alCambiar, alFallar) {
+    await iniciar();
+    return F.onSnapshot(F.query(F.collection(db, CORTES), F.orderBy("fecha", "desc"), F.limit(500)),
+      s => alCambiar(s.docs.map(d => ({ id: d.id, ...d.data({ serverTimestamps: "estimate" }) }))), e => alFallar && alFallar(e));
+  }
+  async function barberos() {
+    await iniciar();
+    const s = await F.getDoc(F.doc(db, CFG, "barberos"));
+    return s.exists() && Array.isArray(s.data().lista) && s.data().lista.length ? s.data().lista : BARBEROS_EJEMPLO.slice();
+  }
+  async function guardarBarberos(lista) {
+    await iniciar();
+    const limpia = [...new Set(lista.map(x => String(x).trim().slice(0, 40)).filter(Boolean))].slice(0, 20);
+    if (!limpia.length) throw new Error("vacia");
+    await F.setDoc(F.doc(db, CFG, "barberos"), { lista: limpia });
+    return limpia;
+  }
+  return { META, PRECIO, PRECIO_QUINTO, precioSiguiente, colones, digitos, link, tokenDeTexto, iniciar, crear, ingresar, buscar, obtener,
+    registrarCorte, escuchar, cortesDe, escucharClientes, escucharCortes, barberos, guardarBarberos };
+})();

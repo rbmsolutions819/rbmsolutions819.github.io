@@ -16,481 +16,201 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Bebas+Neue&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --bg:#0a0a0a; --ink:#111110; --panel:#141413; --line:rgba(255,255,255,.07);
-    --gold:#d9b46a; --gold-hi:#f4dc9e; --gold-lo:#9c7a36; --gold-deep:#6b5222;
-    --text:#f2ede3; --muted:#8d887d; --dim:#5d5951;
-    --foil:linear-gradient(115deg,#8a6a2c 0%,#e9cd88 22%,#fff1c4 34%,#c9a25a 48%,#8a6a2c 62%,#e2c27c 80%,#a8833d 100%);
-    --r:22px;
-  }
-  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  html,body{margin:0;background:var(--bg);color:var(--text);font-family:Manrope,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
-  body{min-height:100vh;padding:calc(env(safe-area-inset-top) + 22px) 18px calc(env(safe-area-inset-bottom) + 28px);
-    background:
-      radial-gradient(90% 50% at 50% -10%, rgba(217,180,106,.16), transparent 60%),
-      radial-gradient(60% 40% at 100% 100%, rgba(217,180,106,.05), transparent 70%),
-      var(--bg)}
-  body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.35;mix-blend-mode:overlay;
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .5 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
-  .wrap{position:relative;max-width:430px;margin:0 auto}
-  .foil{background:var(--foil);-webkit-background-clip:text;background-clip:text;color:transparent}
-
-  /* ---------- Header ---------- */
-  header{display:flex;align-items:center;justify-content:space-between;margin-bottom:26px}
-  .mark{display:flex;align-items:center;gap:14px}
-  .crest{width:46px;height:46px;border-radius:50%;padding:1.5px;background:var(--foil)}
-  .crest div{width:100%;height:100%;border-radius:50%;background:#0d0d0c;display:grid;place-items:center}
-  .crest svg{width:24px;height:24px}
-  .brand{line-height:1}
-  .brand .t{font-family:Bebas Neue;letter-spacing:.42em;font-size:11px;color:var(--muted);display:block}
-  .brand .n{font-family:"Great Vibes";font-size:34px;display:block;margin:-2px 0 -4px;padding-right:6px}
-  .brand .s{font-family:Bebas Neue;letter-spacing:.5em;font-size:11px;color:var(--gold-lo);display:block}
-  .icon-btn{width:44px;height:44px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.02);
-    color:var(--muted);display:grid;place-items:center;cursor:pointer;transition:.2s}
-  .icon-btn:active{background:rgba(255,255,255,.06)}
-
-  /* ---------- Card ---------- */
-  .card{position:relative;border-radius:var(--r);padding:1.5px;background:linear-gradient(150deg,rgba(244,220,158,.55),rgba(156,122,54,.15) 40%,rgba(156,122,54,.08) 60%,rgba(244,220,158,.4));
-    box-shadow:0 30px 60px -20px rgba(0,0,0,.9),0 0 0 1px rgba(0,0,0,.6)}
-  .card-in{position:relative;border-radius:calc(var(--r) - 1.5px);overflow:hidden;padding:22px 20px 20px;
-    background:
-      radial-gradient(120% 80% at 0% 0%, rgba(217,180,106,.10), transparent 55%),
-      repeating-linear-gradient(90deg, rgba(255,255,255,.012) 0 2px, transparent 2px 4px),
-      linear-gradient(170deg,#171615,#0c0c0b)}
-  .card-in::after{content:"";position:absolute;inset:0;pointer-events:none;
-    background:linear-gradient(115deg,transparent 30%,rgba(255,240,200,.06) 45%,transparent 60%);
-    background-size:250% 100%;animation:sheen 7s ease-in-out infinite}
-  @keyframes sheen{0%,60%{background-position:120% 0}100%{background-position:-60% 0}}
-  .card-head{display:flex;justify-content:space-between;align-items:flex-start}
-  .label{font-size:10px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:var(--muted)}
-  .client{font-family:"Cormorant Garamond";font-weight:600;font-size:25px;margin-top:4px;cursor:pointer;letter-spacing:.01em}
-  .client.placeholder{color:var(--dim);font-style:italic;font-weight:500;font-size:21px}
-  .member{font-family:Bebas Neue;letter-spacing:.2em;font-size:12px;color:var(--gold-lo);margin-top:2px}
-  .count{text-align:right}
-  .count .big{font-family:Bebas Neue;font-size:46px;line-height:.9}
-  .count .of{font-family:Bebas Neue;font-size:20px;color:var(--dim);letter-spacing:.05em}
-
-  .rule{display:flex;align-items:center;gap:10px;margin:18px 0 18px}
-  .rule::before,.rule::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(217,180,106,.35),transparent)}
-  .rule span{font-family:Bebas Neue;letter-spacing:.35em;font-size:11px;color:var(--gold-lo);padding-left:.35em}
-
-  .grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px 10px}
-  .slot{position:relative;aspect-ratio:1;border-radius:50%;display:grid;place-items:center}
-  .slot .num{font-family:Bebas Neue;font-size:15px;color:#3a3833;letter-spacing:.05em}
-  .slot.empty{border:1px solid rgba(255,255,255,.08);background:radial-gradient(circle at 50% 40%,rgba(255,255,255,.025),transparent 70%)}
-  .slot.empty::before{content:"";position:absolute;inset:5px;border-radius:50%;border:1px dashed rgba(255,255,255,.07)}
-  .slot.prize.empty{border-color:rgba(217,180,106,.35)}
-  .slot.prize.empty::before{border-color:rgba(217,180,106,.18)}
-  .slot.prize .num{color:var(--gold-lo)}
-  .slot.on{padding:1.5px;background:var(--foil);box-shadow:0 6px 16px -6px rgba(217,180,106,.55)}
-  .slot.on .seal{width:100%;height:100%;border-radius:50%;display:grid;place-items:center;
-    background:radial-gradient(circle at 35% 28%,#2a2416,#0e0d0a 70%);position:relative;overflow:hidden}
-  .slot.on .seal::before{content:"";position:absolute;inset:3px;border-radius:50%;border:1px solid rgba(217,180,106,.35)}
-  .slot.on svg{width:66%;height:66%;transform:rotate(-38deg);filter:drop-shadow(0 1px 0 rgba(0,0,0,.6))}
-  .slot.prize.on svg{transform:none;width:58%;height:58%}
-  .slot.pop{animation:stamp .55s cubic-bezier(.2,1.5,.35,1)}
-  @keyframes stamp{0%{transform:scale(1.9) rotate(-18deg);opacity:0}60%{opacity:1}100%{transform:none}}
-  .cap{position:absolute;bottom:-14px;left:50%;transform:translateX(-50%);font-size:8px;font-weight:700;letter-spacing:.2em;color:var(--gold-lo);white-space:nowrap}
-
-  .meter{margin-top:28px;display:flex;align-items:center;gap:12px}
-  .track{flex:1;height:3px;border-radius:3px;background:rgba(255,255,255,.07);overflow:hidden}
-  .track i{display:block;height:100%;background:var(--foil);border-radius:3px;transition:width .6s cubic-bezier(.2,.8,.2,1)}
-  .meter small{font-size:12px;color:var(--muted);white-space:nowrap}
-
-  /* ---------- Reward ---------- */
-  .reward{display:none;margin-top:16px;border-radius:18px;padding:1.5px;background:var(--foil)}
-  .reward.show{display:block;animation:rise .5s ease-out}
-  @keyframes rise{from{opacity:0;transform:translateY(8px)}}
-  .reward-in{border-radius:16.5px;padding:18px;display:flex;gap:14px;align-items:center;
-    background:radial-gradient(120% 120% at 0% 0%,#2b2414,#0f0d09)}
-  .reward-in svg{flex:none;width:42px;height:42px}
-  .reward h3{margin:0;font-family:"Cormorant Garamond";font-weight:600;font-size:23px}
-  .reward p{margin:2px 0 0;font-size:13px;color:#bfb49a}
-
-  /* ---------- Buttons ---------- */
-  .btn{position:relative;width:100%;border:0;border-radius:16px;padding:17px 18px;cursor:pointer;margin-top:16px;
-    font-family:Manrope;font-weight:700;font-size:14px;letter-spacing:.18em;text-transform:uppercase;
-    display:flex;align-items:center;justify-content:center;gap:10px;transition:transform .12s}
-  .btn:active{transform:scale(.985)}
-  .btn.primary{color:#1b1406;background:var(--foil);background-size:160% 100%;
-    box-shadow:0 14px 30px -12px rgba(217,180,106,.6),inset 0 1px 0 rgba(255,255,255,.45)}
-  .btn.primary svg{width:18px;height:18px}
-  .btn.ghost{background:rgba(255,255,255,.03);border:1px solid var(--line);color:var(--muted);font-size:12px;padding:14px}
-
-  .install{display:none;margin-top:14px;padding:14px 16px;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.02);
-    font-size:13px;color:var(--muted);align-items:center;gap:12px;line-height:1.4}
-  .install.show{display:flex}
-  .install svg{flex:none;width:20px;height:20px;color:var(--gold)}
-  .install button{margin-left:auto;flex:none;background:transparent;border:1px solid var(--gold-lo);color:var(--gold);
-    border-radius:10px;padding:8px 14px;font:700 11px Manrope;letter-spacing:.14em;text-transform:uppercase;cursor:pointer}
-
-  /* ---------- Sections ---------- */
-  .section{margin-top:30px}
-  .sec-title{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px}
-  .sec-title h4{margin:0;font-family:"Cormorant Garamond";font-weight:600;font-size:21px}
-  .sec-title span{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--dim)}
-  .stats{display:grid;grid-template-columns:1fr 1fr 1fr;border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.015)}
-  .stat{padding:16px 10px;text-align:center}
-  .stat+.stat{border-left:1px solid var(--line)}
-  .stat b{display:block;font-family:Bebas Neue;font-size:32px;line-height:1;font-weight:400}
-  .stat div{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:6px}
-  .hist{list-style:none;margin:0;padding:0;border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.015);overflow:hidden}
-  .hist li{display:flex;align-items:center;gap:12px;padding:14px 16px}
-  .hist li+li{border-top:1px solid var(--line)}
-  .hist .ic{flex:none;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;border:1px solid rgba(217,180,106,.3);color:var(--gold)}
-  .hist .ic svg{width:17px;height:17px}
-  .hist .ic.free{background:var(--foil);border:0;color:#1b1406}
-  .hist .tx{flex:1;min-width:0}
-  .hist .tx b{display:block;font-size:14px;font-weight:600}
-  .hist .tx small{font-size:12px;color:var(--muted)}
-  .hist .empty{justify-content:center;color:var(--dim);font-size:13px;padding:22px}
-  .more{display:block;margin:10px auto 0;background:none;border:0;color:var(--gold-lo);font:600 11px Manrope;letter-spacing:.18em;text-transform:uppercase;cursor:pointer}
-
-  footer{text-align:center;margin-top:34px;color:var(--dim);font-size:10px;letter-spacing:.3em;text-transform:uppercase}
-  footer .sig{display:block;font-family:"Great Vibes";font-size:22px;letter-spacing:0;text-transform:none;margin-bottom:4px}
-
-  /* ---------- Sheets ---------- */
-  .modal{position:fixed;inset:0;z-index:10;display:none;align-items:flex-end;justify-content:center;
-    background:rgba(0,0,0,.72);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
-  .modal.show{display:flex}
-  .sheet{width:100%;max-width:430px;border-radius:28px 28px 0 0;padding:10px 22px calc(env(safe-area-inset-bottom) + 24px);
-    background:linear-gradient(180deg,#191816,#101010);border:1px solid rgba(217,180,106,.18);border-bottom:0;animation:up .3s cubic-bezier(.2,.9,.3,1)}
-  @keyframes up{from{transform:translateY(60px);opacity:0}}
-  .grab{width:38px;height:4px;border-radius:4px;background:rgba(255,255,255,.12);margin:0 auto 18px}
-  .sheet .over{font-size:10px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:var(--gold-lo)}
-  .sheet h3{margin:4px 0 6px;font-family:"Cormorant Garamond";font-weight:600;font-size:27px}
-  .sheet p{margin:0 0 18px;font-size:13px;color:var(--muted);line-height:1.5}
-  .dots{display:flex;gap:18px;justify-content:center;margin:6px 0 24px}
-  .dots i{width:13px;height:13px;border-radius:50%;border:1.5px solid #4a473f;transition:.15s}
-  .dots i.f{background:var(--foil);border-color:transparent;transform:scale(1.1)}
-  .dots.err{animation:shake .4s}
-  .dots.err i{border-color:#a14a3a}
-  @keyframes shake{20%,60%{transform:translateX(-9px)}40%,80%{transform:translateX(9px)}}
-  .pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-  .pad button{height:62px;border-radius:18px;border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--text);
-    font-family:"Cormorant Garamond";font-size:28px;font-weight:600;cursor:pointer;transition:background .12s}
-  .pad button:active{background:rgba(217,180,106,.14)}
-  .pad .fn{font-family:Manrope;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
-  .pad .fn svg{width:22px;height:22px}
-  .field{width:100%;padding:15px 16px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.03);
-    color:var(--text);font:500 16px Manrope;margin-bottom:12px;outline:none;transition:border .2s}
-  .field:focus{border-color:var(--gold-lo)}
-  .row{display:flex;gap:10px}
-  .row .btn{margin-top:4px}
-  .opt{display:flex;gap:8px;margin-bottom:16px}
-  .opt button{flex:1;height:48px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--muted);
-    font-family:Bebas Neue;font-size:22px;cursor:pointer}
-  .opt button.sel{border-color:var(--gold);color:var(--gold);background:rgba(217,180,106,.08)}
-  label.l{display:block;font-size:10px;font-weight:700;color:var(--muted);margin:4px 0 8px;letter-spacing:.2em;text-transform:uppercase}
-
-  .toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 28px);transform:translate(-50%,24px);opacity:0;z-index:30;
-    display:flex;align-items:center;gap:10px;padding:13px 18px;border-radius:14px;white-space:nowrap;
-    background:#191816;border:1px solid rgba(217,180,106,.35);color:var(--text);font-size:13px;font-weight:600;
-    box-shadow:0 18px 40px -10px rgba(0,0,0,.8);transition:.3s cubic-bezier(.2,.9,.3,1)}
-  .toast.show{opacity:1;transform:translate(-50%,0)}
-  .toast i{width:8px;height:8px;border-radius:50%;background:var(--gold)}
-</style>
+<link rel="stylesheet" href="estilo.css">
 </head>
 <body>
-
-<svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#f6e2a8"/><stop offset=".45" stop-color="#d9b46a"/><stop offset="1" stop-color="#9c7a36"/>
-    </linearGradient>
-    <!-- Peine de barbero: lomo + dientes finos y gruesos -->
-    <symbol id="comb" viewBox="0 0 64 64">
-      <path fill="url(#g)" d="M4 20.5c0-1.4 1.1-2.5 2.5-2.5h51c1.4 0 2.5 1.1 2.5 2.5V27H4z"/>
-      <rect x="4" y="22.4" width="56" height="1.1" fill="#0e0d0a" opacity=".35"/>
-      <g fill="url(#g)">
-        <rect x="5"    y="27" width="2.6" height="17" rx="1.2"/>
-        <rect x="9.6"  y="27" width="2.6" height="17" rx="1.2"/>
-        <rect x="14.2" y="27" width="2.6" height="17" rx="1.2"/>
-        <rect x="18.8" y="27" width="2.6" height="17" rx="1.2"/>
-        <rect x="23.4" y="27" width="2.6" height="17" rx="1.2"/>
-        <rect x="28"   y="27" width="2.6" height="17" rx="1.2"/>
-        <rect x="33.5" y="27" width="1.7" height="15" rx=".8"/>
-        <rect x="36.6" y="27" width="1.7" height="15" rx=".8"/>
-        <rect x="39.7" y="27" width="1.7" height="15" rx=".8"/>
-        <rect x="42.8" y="27" width="1.7" height="15" rx=".8"/>
-        <rect x="45.9" y="27" width="1.7" height="15" rx=".8"/>
-        <rect x="49"   y="27" width="1.7" height="15" rx=".8"/>
-        <rect x="52.1" y="27" width="1.7" height="15" rx=".8"/>
-        <rect x="55.2" y="27" width="1.7" height="15" rx=".8"/>
-        <rect x="57.9" y="27" width="1.7" height="15" rx=".8"/>
-      </g>
-    </symbol>
-    <symbol id="crown" viewBox="0 0 64 64">
-      <path fill="url(#g)" d="M9 22l11.5 9.5L32 13l11.5 18.5L55 22l-4.5 24h-37z"/>
-      <circle cx="9" cy="20" r="3.2" fill="url(#g)"/><circle cx="32" cy="11" r="3.2" fill="url(#g)"/><circle cx="55" cy="20" r="3.2" fill="url(#g)"/>
-      <rect x="13" y="49" width="38" height="5" rx="2" fill="url(#g)"/>
-    </symbol>
-    <symbol id="crown-flat" viewBox="0 0 64 64">
-      <path fill="currentColor" d="M9 22l11.5 9.5L32 13l11.5 18.5L55 22l-4.5 24h-37z"/>
-      <circle cx="9" cy="20" r="3.2" fill="currentColor"/><circle cx="32" cy="11" r="3.2" fill="currentColor"/><circle cx="55" cy="20" r="3.2" fill="currentColor"/>
-      <rect x="13" y="49" width="38" height="5" rx="2" fill="currentColor"/>
-    </symbol>
-    <symbol id="comb-flat" viewBox="0 0 64 64">
-      <path fill="currentColor" d="M4 18h56v9H4zM5 27h2.6v17H5zm4.6 0h2.6v17H9.6zm4.6 0h2.6v17h-2.6zm4.6 0h2.6v17h-2.6zm4.6 0H26v17h-2.6zM28 27h2.6v17H28zm5.5 0h1.7v15h-1.7zm3.1 0h1.7v15h-1.7zm3.1 0h1.7v15h-1.7zm3.1 0h1.7v15h-1.7zm3.1 0h1.7v15h-1.7zm3.1 0h1.7v15H49zm3.1 0h1.7v15h-1.7zm3.1 0h1.7v15h-1.7zm2.7 0h1.7v15h-1.7z"/>
-    </symbol>
-  </defs>
-</svg>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f6e2a8"/><stop offset=".45" stop-color="#d9b46a"/><stop offset="1" stop-color="#9c7a36"/></linearGradient>
+  <symbol id="comb" viewBox="0 0 64 64">
+    <path fill="url(#g)" d="M4 20.5c0-1.4 1.1-2.5 2.5-2.5h51c1.4 0 2.5 1.1 2.5 2.5V27H4z"/>
+    <rect x="4" y="22.4" width="56" height="1.1" fill="#0e0d0a" opacity=".35"/>
+    <g fill="url(#g)"><rect x="5" y="27" width="2.6" height="17" rx="1.2"/><rect x="9.6" y="27" width="2.6" height="17" rx="1.2"/><rect x="14.2" y="27" width="2.6" height="17" rx="1.2"/><rect x="18.8" y="27" width="2.6" height="17" rx="1.2"/><rect x="23.4" y="27" width="2.6" height="17" rx="1.2"/><rect x="28" y="27" width="2.6" height="17" rx="1.2"/><rect x="33.5" y="27" width="1.7" height="15" rx=".8"/><rect x="36.6" y="27" width="1.7" height="15" rx=".8"/><rect x="39.7" y="27" width="1.7" height="15" rx=".8"/><rect x="42.8" y="27" width="1.7" height="15" rx=".8"/><rect x="45.9" y="27" width="1.7" height="15" rx=".8"/><rect x="49" y="27" width="1.7" height="15" rx=".8"/><rect x="52.1" y="27" width="1.7" height="15" rx=".8"/><rect x="55.2" y="27" width="1.7" height="15" rx=".8"/><rect x="57.9" y="27" width="1.7" height="15" rx=".8"/></g>
+  </symbol>
+  <symbol id="crown" viewBox="0 0 64 64"><path fill="url(#g)" d="M9 22l11.5 9.5L32 13l11.5 18.5L55 22l-4.5 24h-37z"/><circle cx="9" cy="20" r="3.2" fill="url(#g)"/><circle cx="32" cy="11" r="3.2" fill="url(#g)"/><circle cx="55" cy="20" r="3.2" fill="url(#g)"/><rect x="13" y="49" width="38" height="5" rx="2" fill="url(#g)"/></symbol>
+  <symbol id="comb-flat" viewBox="0 0 64 64"><path fill="currentColor" d="M4 18h56v9H4zM5 27h2.6v17H5zm4.6 0h2.6v17H9.6zm4.6 0h2.6v17h-2.6zm4.6 0h2.6v17h-2.6zm4.6 0H26v17h-2.6zM28 27h2.6v17H28zm5.5 0h1.7v15h-1.7zm3.1 0h1.7v15h-1.7zm3.1 0h1.7v15h-1.7zm3.1 0h1.7v15h-1.7zm3.1 0h1.7v15h-1.7zm3.1 0h1.7v15H49zm3.1 0h1.7v15h-1.7zm3.1 0h1.7v15h-1.7zm2.7 0h1.7v15h-1.7z"/></symbol>
+  <symbol id="crown-flat" viewBox="0 0 64 64"><path fill="currentColor" d="M9 22l11.5 9.5L32 13l11.5 18.5L55 22l-4.5 24h-37z"/><circle cx="9" cy="20" r="3.2" fill="currentColor"/><circle cx="32" cy="11" r="3.2" fill="currentColor"/><circle cx="55" cy="20" r="3.2" fill="currentColor"/><rect x="13" y="49" width="38" height="5" rx="2" fill="currentColor"/></symbol>
+</defs></svg>
 
 <div class="wrap">
   <header>
     <div class="mark">
       <div class="crest"><div><svg><use href="#crown"/></svg></div></div>
-      <div class="brand">
-        <span class="t">The</span>
-        <span class="n foil">Blessing</span>
-        <span class="s">Barbershop</span>
-      </div>
+      <div class="brand"><span class="t">The</span><span class="n foil">Blessing</span><span class="s">Barbershop</span></div>
     </div>
-    <button class="icon-btn" id="btnSettings" aria-label="Ajustes del barbero">
-      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>
+    <button class="icon-btn" id="btnSalir" hidden aria-label="Salir">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 16l-4-4 4-4M6 12h10"/></svg>Salir
     </button>
   </header>
 
-  <div class="card">
-    <div class="card-in">
+  <!-- ===== Ingreso ===== -->
+  <section id="vIngreso" hidden>
+    <div class="panel">
+      <div class="over">Clientes</div>
+      <h2>Ingrese a su tarjeta</h2>
+      <p>Use el celular con el que lo registraron en la barbería y su PIN de 4 dígitos.</p>
+      <form id="fIngreso" autocomplete="on">
+        <label class="l" for="inId">Celular <small>o cédula</small></label>
+        <input class="field" id="inId" inputmode="numeric" autocomplete="tel" placeholder="8888 8888" maxlength="14">
+        <label class="l" for="inPin">PIN</label>
+        <input class="field pin" id="inPin" type="password" inputmode="numeric" maxlength="4" placeholder="••••" autocomplete="current-password">
+        <div class="err" id="errIngreso"></div>
+        <button class="btn primary" id="btnIngresar" type="submit" style="margin-top:6px">Ingresar</button>
+      </form>
+    </div>
+    <div class="next-price" style="margin-top:16px"><div>
+      <div><div class="k">Cómo funciona</div><div class="d">Cada corte vale ₡5.000 y suma un sello. Su 5.º corte sale en solo ₡2.000.</div></div>
+      <svg width="40" height="40" style="flex:none"><use href="#comb"/></svg>
+    </div></div>
+    <p style="text-align:center;color:var(--dim);font-size:13px;margin-top:18px;line-height:1.5">¿Todavía no tiene tarjeta? Pídale a su barbero que lo registre en su próxima visita.</p>
+  </section>
+
+  <!-- ===== Tarjeta ===== -->
+  <section id="vTarjeta" hidden>
+    <div class="card"><div class="card-in">
       <div class="card-head">
         <div>
           <div class="label">Cliente</div>
-          <div class="client" id="clientName"></div>
-          <div class="member" id="member"></div>
+          <div class="client" id="cNombre">—</div>
+          <div class="member" id="cMiembro"></div>
         </div>
-        <div class="count">
-          <span class="big foil" id="cnt">0</span><span class="of">/<span id="tot">10</span></span>
-          <div class="label" style="margin-top:4px">Sellos</div>
-        </div>
+        <div class="count"><span class="big foil" id="cCnt">0</span><span class="of">/5</span><div class="label" style="margin-top:4px">Sellos</div></div>
       </div>
       <div class="rule"><span>Tarjeta de lealtad</span></div>
       <div class="grid" id="grid"></div>
       <div class="meter"><div class="track"><i id="bar" style="width:0"></i></div><small id="hint"></small></div>
-    </div>
-  </div>
+    </div></div>
 
-  <div class="reward" id="reward">
-    <div class="reward-in">
-      <svg><use href="#crown"/></svg>
-      <div>
-        <h3 class="foil">Su próximo corte es gratis</h3>
-        <p>Presente esta tarjeta a su barbero para canjearlo.</p>
+    <div class="next-price" id="np"><div>
+      <div><div class="k">Su próximo corte</div><div class="d" id="npD"></div></div>
+      <div class="v foil" id="npV"></div>
+    </div></div>
+
+    <div class="qr-box">
+      <h4>Su código de cliente</h4>
+      <p>Muéstreselo a su barbero para registrar el corte.</p>
+      <div class="qr-frame"><div id="qr"></div></div>
+      <div class="qr-id" id="qrId"></div>
+    </div>
+
+    <div class="section">
+      <div class="sec-title"><h4>Resumen</h4><span id="since"></span></div>
+      <div class="stats">
+        <div class="stat"><b class="foil" id="sTotal">0</b><div>Cortes</div></div>
+        <div class="stat"><b class="foil" id="sCiclos">0</b><div>Tarjetas</div></div>
+        <div class="stat"><b class="foil" id="sAhorro">₡0</b><div>Ahorro</div></div>
       </div>
     </div>
-  </div>
 
-  <button class="btn primary" id="btnStamp"><svg><use href="#comb-flat"/></svg>Registrar corte</button>
-  <button class="btn primary" id="btnRedeem" style="display:none"><svg><use href="#crown-flat"/></svg>Canjear corte gratis</button>
-
-  <div class="install" id="install">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M12 8v6M9 11.5l3 3 3-3"/></svg>
-    <span id="installTxt">Instale la tarjeta en su teléfono y téngala siempre a mano.</span>
-    <button id="btnInstall">Instalar</button>
-  </div>
-
-  <div class="section">
-    <div class="sec-title"><h4>Resumen</h4><span id="since"></span></div>
-    <div class="stats">
-      <div class="stat"><b class="foil" id="sTotal">0</b><div>Cortes</div></div>
-      <div class="stat"><b class="foil" id="sFree">0</b><div>Gratis</div></div>
-      <div class="stat"><b class="foil" id="sLeft">10</b><div>Faltan</div></div>
+    <div class="section">
+      <div class="sec-title"><h4>Historial</h4><span>Últimos cortes</span></div>
+      <ul class="list" id="hist"><li class="empty">Cargando…</li></ul>
     </div>
-  </div>
 
-  <div class="section">
-    <div class="sec-title"><h4>Historial</h4><span>Últimas visitas</span></div>
-    <ul class="hist" id="hist"></ul>
-    <button class="more" id="more" style="display:none">Ver más</button>
-  </div>
+  </section>
 
-  <footer><span class="sig foil">The Blessing</span>Barbershop · Tarjeta digital<span style="display:block;margin-top:14px;letter-spacing:.12em;text-transform:none;font-size:11px">Demo hecha por <b style="color:var(--muted)">RBM Solutions</b> · PIN de prueba 1234</span></footer>
-</div>
+  <section id="vCarga"><p style="text-align:center;color:var(--dim);margin-top:80px">Cargando…</p></section>
 
-<!-- PIN -->
-<div class="modal" id="mPin">
-  <div class="sheet">
-    <div class="grab"></div>
-    <div class="over" id="pinOver">Confirmación</div>
-    <h3 id="pinTitle">PIN del barbero</h3>
-    <p id="pinSub">Entregue el teléfono a su barbero para que registre el sello.</p>
-    <div class="dots" id="dots"><i></i><i></i><i></i><i></i></div>
-    <div class="pad" id="pad"></div>
-  </div>
-</div>
-
-<!-- Nombre -->
-<div class="modal" id="mName">
-  <div class="sheet">
-    <div class="grab"></div>
-    <div class="over">Su tarjeta</div>
-    <h3>¿A nombre de quién?</h3>
-    <p>Así su barbero lo identifica al registrar cada corte.</p>
-    <input class="field" id="inName" maxlength="28" placeholder="Nombre y apellido" autocomplete="name">
-    <div class="row">
-      <button class="btn ghost" data-close>Cancelar</button>
-      <button class="btn primary" id="saveName" style="font-size:12px;padding:14px">Guardar</button>
-    </div>
-  </div>
-</div>
-
-<!-- Ajustes -->
-<div class="modal" id="mSet">
-  <div class="sheet">
-    <div class="grab"></div>
-    <div class="over">Solo personal</div>
-    <h3>Ajustes del barbero</h3>
-    <p>Configure la tarjeta de este cliente.</p>
-    <label class="l">Sellos para un corte gratis</label>
-    <div class="opt" id="optGoal"><button data-v="6">6</button><button data-v="8">8</button><button data-v="10">10</button></div>
-    <label class="l">Cambiar PIN (4 dígitos)</label>
-    <input class="field" id="inPin" type="password" inputmode="numeric" maxlength="4" placeholder="Dejar en blanco para no cambiarlo">
-    <button class="btn ghost" id="undo" style="margin:0 0 12px">Quitar el último sello</button>
-    <div class="row">
-      <button class="btn ghost" data-close>Cerrar</button>
-      <button class="btn primary" id="saveSet" style="font-size:12px;padding:14px">Guardar</button>
-    </div>
-  </div>
+  <footer>
+    <span class="sig foil">The Blessing</span>Barbershop · Tarjeta digital
+    <span class="cred">Demo hecha por <b style="color:var(--muted)">RBM Solutions</b> · <a href="barberia.html">Acceso barbería</a></span>
+  </footer>
 </div>
 
 <div class="toast" id="toast"><i></i><span></span></div>
 
+<script src="qrcode.min.js"></script>
+<script src="blessing.js"></script>
 <script>
-(function(){
-  const KEY='blessing-sellos-v1';
-  const DEF={name:'',stamps:[],goal:10,pin:'1234',free:0,total:0,log:[],since:Date.now(),id:''};
-  let memo=null;
-  const store={
-    get(){try{return JSON.parse(localStorage.getItem(KEY))}catch(e){return memo}},
-    set(d){memo=d;try{localStorage.setItem(KEY,JSON.stringify(d))}catch(e){}}
-  };
-  let S=Object.assign({},DEF,store.get()||{});
-  if(!S.id){S.id=String(Math.floor(100000+Math.random()*900000));}
-  const save=()=>store.set(S); save();
-  const $=id=>document.getElementById(id);
-  const use=(id)=>`<svg><use href="#${id}"/></svg>`;
-  let showAll=false;
+(() => {
+  const $ = id => document.getElementById(id);
+  const B = window.Blessing, KEY = "blessing-token";
+  const leer = () => { try { return localStorage.getItem(KEY) } catch { return null } };
+  const guardar = v => { try { v ? localStorage.setItem(KEY, v) : localStorage.removeItem(KEY) } catch {} };
+  let token = leer(), quitar = null, previo = null;
 
-  const fDate=ts=>new Date(ts).toLocaleDateString('es-CR',{day:'numeric',month:'long',year:'numeric'});
-  const fTime=ts=>new Date(ts).toLocaleTimeString('es-CR',{hour:'numeric',minute:'2-digit'});
+  function ver(v) { ["vIngreso", "vTarjeta", "vCarga"].forEach(id => $(id).hidden = id !== v); $("btnSalir").hidden = v !== "vTarjeta"; }
+  function toast(msg) { const t = $("toast"); t.querySelector("span").textContent = msg; t.classList.add("show"); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), 2800); }
+  const buzz = p => { try { navigator.vibrate && navigator.vibrate(p) } catch {} };
+  const fecha = f => { const d = f?.toDate ? f.toDate() : null; return d ? d.toLocaleDateString("es-CR", { day: "numeric", month: "long", year: "numeric" }) : ""; };
+  const hora = f => { const d = f?.toDate ? f.toDate() : null; return d ? d.toLocaleTimeString("es-CR", { hour: "numeric", minute: "2-digit" }) : ""; };
 
-  function render(popIdx){
-    const n=S.stamps.length,g=S.goal,left=Math.max(0,g-n);
-    const cn=$('clientName');
-    cn.textContent=S.name||'Toque para agregar su nombre';
-    cn.classList.toggle('placeholder',!S.name);
-    $('member').textContent='Miembro N.º '+S.id;
-    $('cnt').textContent=n; $('tot').textContent=g;
+  // ---- Ingreso
+  $("fIngreso").addEventListener("submit", async e => {
+    e.preventDefault();
+    const id = B.digitos($("inId").value), pin = B.digitos($("inPin").value);
+    $("errIngreso").textContent = "";
+    if (id.length < 8) { $("errIngreso").textContent = "Escriba su número de celular (8 dígitos) o su cédula."; return; }
+    if (pin.length !== 4) { $("errIngreso").textContent = "El PIN tiene 4 números."; return; }
+    $("btnIngresar").disabled = true; $("btnIngresar").textContent = "Ingresando…";
+    try {
+      const t = await B.ingresar(id, pin);
+      if (!t) { $("errIngreso").textContent = "El celular o el PIN no coinciden. Revise e intente de nuevo."; return; }
+      token = t; guardar(t); abrir();
+    } catch { $("errIngreso").textContent = "No hay conexión. Intente de nuevo en un momento."; }
+    finally { $("btnIngresar").disabled = false; $("btnIngresar").textContent = "Ingresar"; }
+  });
+  $("btnSalir").onclick = () => { if (quitar) quitar(); quitar = null; token = null; previo = null; guardar(null); $("inPin").value = ""; ver("vIngreso"); };
 
-    const grid=$('grid'); grid.innerHTML='';
-    for(let i=0;i<g;i++){
-      const prize=i===g-1, on=i<n;
-      const s=document.createElement('div');
-      s.className='slot '+(on?'on':'empty')+(prize?' prize':'')+(i===popIdx?' pop':'');
-      s.innerHTML=on?`<div class="seal">${use(prize?'crown':'comb')}</div>`:`<span class="num">${prize?'':String(i+1).padStart(2,'0')}</span>`;
-      if(prize&&!on) s.innerHTML=`<svg style="width:46%;height:46%;opacity:.45">${'<use href="#crown"/>'}</svg>`;
-      if(prize) s.insertAdjacentHTML('beforeend','<span class="cap">Gratis</span>');
-      grid.appendChild(s);
+  // ---- Tarjeta
+  function pintar(c, animar) {
+    const n = c.sellos, M = B.META;
+    $("cNombre").textContent = c.nombre;
+    $("cMiembro").textContent = "Celular ···· " + c.cel4;
+    $("cCnt").textContent = n;
+    const g = $("grid"); g.innerHTML = "";
+    for (let i = 0; i < M; i++) {
+      const quinto = i === M - 1, on = i < n, s = document.createElement("div");
+      s.className = "slot " + (on ? "on" : "empty") + (quinto ? " prize" : "") + (quinto && n === M - 1 ? " next" : "") + (animar && i === n - 1 ? " pop" : "");
+      s.innerHTML = on ? `<div class="seal"><svg><use href="#comb"/></svg></div>` : `<span class="num">${quinto ? "₡2.000" : String(i + 1).padStart(2, "0")}</span>`;
+      if (quinto) s.insertAdjacentHTML("beforeend", `<span class="cap">5.º corte</span>`);
+      g.appendChild(s);
     }
-    $('bar').style.width=(n/g*100)+'%';
-    $('hint').textContent=left===0?'Tarjeta completa':left===1?'Falta 1 sello':`Faltan ${left} sellos`;
+    $("bar").style.width = (n / (M - 1) * 100) + "%";
+    const faltan = M - 1 - n;
+    $("hint").textContent = faltan <= 0 ? "Siguiente corte con descuento" : faltan === 1 ? "Falta 1 corte para el descuento" : `Faltan ${faltan} cortes para el descuento`;
+    const hot = n >= M - 1;
+    $("np").classList.toggle("hot", hot);
+    $("npV").textContent = B.colones(B.precioSiguiente(n));
+    $("npD").textContent = hot ? "Es su 5.º corte: le sale en ₡2.000." : `Corte regular. El 5.º sale en ${B.colones(B.PRECIO_QUINTO)}.`;
+    $("sTotal").textContent = c.total; $("sCiclos").textContent = c.ciclos;
+    $("sAhorro").textContent = B.colones(c.ciclos * (B.PRECIO - B.PRECIO_QUINTO));
+    $("since").textContent = c.creado?.toDate ? "Desde " + c.creado.toDate().toLocaleDateString("es-CR", { month: "short", year: "numeric" }) : "";
+  }
+  async function historial() {
+    try {
+      const cs = await B.cortesDe(token, 10);
+      $("hist").innerHTML = cs.length ? cs.map(x => `<li>
+        <span class="ic ${x.precio === B.PRECIO_QUINTO ? "hot" : ""}"><svg><use href="#${x.precio === B.PRECIO_QUINTO ? "crown-flat" : "comb-flat"}"/></svg></span>
+        <span class="tx"><b>${x.precio === B.PRECIO_QUINTO ? "5.º corte con descuento" : "Corte · sello " + x.n}</b><small>${fecha(x.fecha)} · ${hora(x.fecha)} · ${esc(x.barbero)}</small></span>
+        <span class="amt">${B.colones(x.precio)}</span></li>`).join("") : `<li class="empty">Aún no tiene cortes registrados.</li>`;
+    } catch { $("hist").innerHTML = `<li class="empty">No se pudo cargar el historial.</li>`; }
+  }
+  const esc = s => String(s || "").replace(/[&<>"]/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[m]));
 
-    const full=n>=g;
-    $('reward').classList.toggle('show',full);
-    $('btnStamp').style.display=full?'none':'flex';
-    $('btnRedeem').style.display=full?'flex':'none';
-
-    $('sTotal').textContent=S.total; $('sFree').textContent=S.free; $('sLeft').textContent=left;
-    $('since').textContent='Desde '+new Date(S.since).toLocaleDateString('es-CR',{month:'short',year:'numeric'});
-
-    const items=S.log.slice().reverse(), shown=showAll?items:items.slice(0,5);
-    $('hist').innerHTML=items.length?shown.map(e=>`
-      <li><span class="ic ${e.t==='free'?'free':''}">${use(e.t==='free'?'crown-flat':'comb-flat')}</span>
-      <span class="tx"><b>${e.t==='free'?'Corte gratis canjeado':'Corte registrado'}</b><small>${fDate(e.at)} · ${fTime(e.at)}</small></span></li>`).join('')
-      :'<li class="empty">Aún no hay visitas registradas.</li>';
-    $('more').style.display=items.length>5?'block':'none';
-    $('more').textContent=showAll?'Ver menos':'Ver más';
+  async function abrir() {
+    ver("vCarga");
+    $("qr").innerHTML = "";
+    try { new QRCode($("qr"), { text: B.link(token), width: 200, height: 200, colorDark: "#0a0a0a", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.M }); } catch {}
+    $("qrId").textContent = token.slice(0, 4).toUpperCase() + " · " + token.slice(4, 8).toUpperCase();
+    try {
+      quitar = await B.escuchar(token, c => {
+        if (!c) { $("btnSalir").click(); toast("No encontramos esa tarjeta. Ingrese de nuevo."); return; }
+        const cambio = previo && c.total > previo.total;
+        pintar(c, cambio && c.sellos > 0);
+        if (cambio) {
+          buzz([30, 40, 70]);
+          toast(c.sellos === 0 ? "Tarjeta completada. Gracias por su preferencia." : c.sellos === B.META - 1 ? "Sello registrado. Su próximo corte sale en ₡2.000." : "Sello registrado. Gracias por su visita.");
+          historial();
+        }
+        if (!previo) historial();
+        previo = c;
+        ver("vTarjeta");
+      }, () => { toast("Sin conexión. Mostrando lo último guardado."); });
+    } catch { ver("vIngreso"); $("errIngreso").textContent = "No hay conexión. Intente de nuevo."; }
   }
 
-  function toast(msg){
-    const t=$('toast'); t.querySelector('span').textContent=msg; t.classList.add('show');
-    clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('show'),2300);
-  }
-  const buzz=p=>{try{navigator.vibrate&&navigator.vibrate(p)}catch(e){}};
-
-  const open=id=>$(id).classList.add('show'), close=id=>$(id).classList.remove('show');
-  document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{
-    if(e.target===m||e.target.hasAttribute('data-close')) m.classList.remove('show');
-  }));
-
-  // PIN pad
-  let entry='',onOk=null;
-  const BACK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 5H9l-6 7 6 7h12a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1zM17 9l-6 6M11 9l6 6"/></svg>';
-  ['1','2','3','4','5','6','7','8','9','C','0','B'].forEach(k=>{
-    const b=document.createElement('button');
-    if(k==='C'){b.className='fn';b.textContent='Cancelar'}
-    else if(k==='B'){b.className='fn';b.innerHTML=BACK;b.setAttribute('aria-label','Borrar')}
-    else b.textContent=k;
-    b.onclick=()=>{
-      if(k==='C'){close('mPin');return}
-      if(k==='B') entry=entry.slice(0,-1); else if(entry.length<4) entry+=k;
-      dots();
-      if(entry.length===4){
-        if(entry===S.pin){const f=onOk;setTimeout(()=>{close('mPin');f&&f()},140)}
-        else{const d=$('dots');d.classList.add('err');buzz(180);setTimeout(()=>{d.classList.remove('err');entry='';dots()},450)}
-      }
-    };
-    $('pad').appendChild(b);
-  });
-  function dots(){[...$('dots').children].forEach((d,i)=>d.classList.toggle('f',i<entry.length))}
-  function askPin(over,title,sub,cb){entry='';dots();onOk=cb;$('pinOver').textContent=over;$('pinTitle').textContent=title;$('pinSub').textContent=sub;open('mPin')}
-
-  $('btnStamp').onclick=()=>askPin('Confirmación','PIN del barbero','Entregue el teléfono a su barbero para que registre el sello.',()=>{
-    const now=Date.now(); S.stamps.push(now); S.total++; S.log.push({t:'stamp',at:now}); save();
-    render(S.stamps.length-1); buzz([30,40,70]);
-    toast(S.stamps.length>=S.goal?'Tarjeta completa. Su próximo corte es gratis.':'Sello registrado. Gracias por su visita.');
-  });
-  $('btnRedeem').onclick=()=>askPin('Canje','Confirmar corte gratis','El barbero confirma el canje con su PIN.',()=>{
-    S.stamps=[]; S.free++; S.log.push({t:'free',at:Date.now()}); save(); render(); buzz([50,50,50]);
-    toast('Corte gratis canjeado. Tarjeta reiniciada.');
-  });
-  $('more').onclick=()=>{showAll=!showAll;render()};
-
-  $('clientName').onclick=()=>{$('inName').value=S.name;open('mName');setTimeout(()=>$('inName').focus(),250)};
-  $('saveName').onclick=()=>{S.name=$('inName').value.trim();save();render();close('mName')};
-
-  let goalSel=S.goal;
-  const paintGoal=()=>[...$('optGoal').children].forEach(b=>b.classList.toggle('sel',+b.dataset.v===goalSel));
-  $('optGoal').onclick=e=>{if(e.target.dataset.v){goalSel=+e.target.dataset.v;paintGoal()}};
-  $('btnSettings').onclick=()=>askPin('Solo personal','Ajustes','Ingrese el PIN del barbero para continuar.',()=>{goalSel=S.goal;paintGoal();$('inPin').value='';open('mSet')});
-  $('undo').onclick=()=>{
-    if(!S.stamps.length){toast('No hay sellos para quitar');return}
-    S.stamps.pop(); S.total=Math.max(0,S.total-1);
-    for(let i=S.log.length-1;i>=0;i--) if(S.log[i].t==='stamp'){S.log.splice(i,1);break}
-    save(); render(); toast('Se quitó el último sello');
-  };
-  $('saveSet').onclick=()=>{
-    const p=$('inPin').value.trim();
-    if(p&&!/^\d{4}$/.test(p)){toast('El PIN debe tener 4 números');return}
-    if(p) S.pin=p;
-    S.goal=goalSel; if(S.stamps.length>S.goal) S.stamps=S.stamps.slice(0,S.goal);
-    save(); render(); close('mSet'); toast('Ajustes guardados');
-  };
-
-  // Instalación como app
-  let deferred=null;
-  const standalone=matchMedia('(display-mode: standalone)').matches||navigator.standalone;
-  const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
-  window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferred=e;if(!standalone)$('install').classList.add('show')});
-  if(isIOS&&!standalone){
-    $('installTxt').textContent='En iPhone: toque Compartir y luego "Agregar a pantalla de inicio".';
-    $('btnInstall').style.display='none'; $('install').classList.add('show');
-  }
-  $('btnInstall').onclick=async()=>{if(!deferred)return;deferred.prompt();try{await deferred.userChoice}catch(e){}deferred=null;$('install').classList.remove('show')};
-  if('serviceWorker' in navigator){try{navigator.serviceWorker.register('sw.js').catch(()=>{})}catch(e){}}
-
-  render();
+  if ("serviceWorker" in navigator) { try { navigator.serviceWorker.register("sw.js").catch(() => {}) } catch {} }
+  token ? abrir() : ver("vIngreso");
 })();
 </script>
 <script src="/visitas.js" defer></script>
