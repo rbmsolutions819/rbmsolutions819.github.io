@@ -102,7 +102,7 @@
       <div class="sec-title"><h4>Resumen</h4><span id="since"></span></div>
       <div class="stats">
         <div class="stat"><b class="foil" id="sTotal">0</b><div>Cortes</div></div>
-        <div class="stat"><b class="foil" id="sCiclos">0</b><div>Tarjetas</div></div>
+        <div class="stat"><b class="foil" id="sCiclos">0</b><div>A ₡2.000</div></div>
         <div class="stat"><b class="foil" id="sAhorro">₡0</b><div>Ahorro</div></div>
       </div>
     </div>
@@ -187,7 +187,7 @@
       const cs = await B.cortesDe(token, 10);
       $("hist").innerHTML = cs.length ? cs.map(x => `<li>
         <span class="ic ${x.precio === B.PRECIO_QUINTO ? "hot" : ""}"><svg><use href="#${x.precio === B.PRECIO_QUINTO ? "crown-flat" : "comb-flat"}"/></svg></span>
-        <span class="tx"><b>${x.precio === B.PRECIO_QUINTO ? "5.º corte con descuento" : "Corte · sello " + x.n}</b><small>${fecha(x.fecha)} · ${hora(x.fecha)} · ${esc(x.barbero)}</small></span>
+        <span class="tx"><b>${x.precio === B.PRECIO_QUINTO ? "5.º corte con descuento" : "Corte · sello " + x.n}</b><small>${fecha(x.fecha)} · ${hora(x.fecha)} · ${esc(x.barbero)} · ${x.pago === "sinpe" ? "SINPE" : "Efectivo"}</small></span>
         <span class="amt">${B.colones(x.precio)}</span></li>`).join("") : `<li class="empty">Aún no tiene cortes registrados.</li>`;
     } catch { $("hist").innerHTML = `<li class="empty">No se pudo cargar el historial.</li>`; }
   }

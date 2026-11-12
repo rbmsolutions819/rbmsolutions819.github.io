@@ -633,10 +633,11 @@ service cloud.firestore {
         && existsAfter(/databases/$(database)/documents/demo_blessing_clientes/$(request.resource.data.t));
       allow delete: if esAdmin();
     }
-    // Cada corte registrado: quién lo hizo y cuánto se cobró (₡5.000 o ₡2.000 el 5.º).
+    // Cada corte registrado: quién lo hizo, cuánto se cobró (₡5.000 o ₡2.000 el 5.º) y cómo pagó (efectivo o SINPE).
     match /demo_blessing_cortes/{id} {
       allow read: if true;
-      allow create: if request.resource.data.keys().hasOnly(['t','nombre','barbero','precio','n','fecha'])
+      allow create: if request.resource.data.keys().hasOnly(['t','nombre','barbero','precio','n','fecha','pago'])
+        && request.resource.data.get('pago', 'efectivo') in ['efectivo', 'sinpe']
         && request.resource.data.t is string
         && existsAfter(/databases/$(database)/documents/demo_blessing_clientes/$(request.resource.data.t))
         && request.resource.data.nombre is string && request.resource.data.nombre.size() <= 60
@@ -647,12 +648,14 @@ service cloud.firestore {
       allow update: if false;
       allow delete: if esAdmin();
     }
-    // Lista de barberos de la barbería.
+    // Equipo: barberos, huella del PIN de cada uno y quién es el dueño (ve los reportes generales).
     match /demo_blessing_config/{id} {
       allow read: if true;
       allow create, update: if id == 'barberos'
-        && request.resource.data.keys().hasOnly(['lista'])
-        && request.resource.data.lista is list && request.resource.data.lista.size() >= 1 && request.resource.data.lista.size() <= 20;
+        && request.resource.data.keys().hasOnly(['lista','pines','dueno'])
+        && request.resource.data.lista is list && request.resource.data.lista.size() >= 1 && request.resource.data.lista.size() <= 20
+        && request.resource.data.get('pines', {}) is map && request.resource.data.get('pines', {}).size() <= 20
+        && request.resource.data.get('dueno', '') is string && request.resource.data.get('dueno', '').size() <= 40;
       allow delete: if esAdmin();
     }
 

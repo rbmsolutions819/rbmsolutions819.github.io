@@ -92,7 +92,8 @@ window.Blessing = (() => {
     return s.exists() ? { token, ...s.data() } : null;
   }
   // Registra un corte: suma un sello. Si era el 5.º (₡2.000), la tarjeta vuelve a 0.
-  async function registrarCorte(token, barbero) {
+  async function registrarCorte(token, barbero, pago = "efectivo") {
+    pago = pago === "sinpe" ? "sinpe" : "efectivo";
     await iniciar();
     const ref = F.doc(db, COL, token), corte = F.doc(F.collection(db, CORTES));
     return F.runTransaction(db, async tx => {
@@ -100,8 +101,8 @@ window.Blessing = (() => {
       const d = s.data(), n = d.sellos + 1, quinto = n >= META, precio = quinto ? PRECIO_QUINTO : PRECIO;
       const nuevo = { sellos: quinto ? 0 : n, ciclos: d.ciclos + (quinto ? 1 : 0), total: d.total + 1, ultimo: String(barbero).slice(0, 40) };
       tx.update(ref, { ...nuevo, actualizado: F.serverTimestamp() });
-      tx.set(corte, { t: token, nombre: d.nombre, barbero: String(barbero).slice(0, 40), precio, n, fecha: F.serverTimestamp() });
-      return { ...nuevo, precio, n, quinto, nombre: d.nombre };
+      tx.set(corte, { t: token, nombre: d.nombre, barbero: String(barbero).slice(0, 40), precio, n, pago, fecha: F.serverTimestamp() });
+      return { ...nuevo, precio, n, quinto, pago, nombre: d.nombre };
     });
   }
   async function escuchar(token, alCambiar, alFallar) {
@@ -125,17 +126,31 @@ window.Blessing = (() => {
     return F.onSnapshot(F.query(F.collection(db, CORTES), F.orderBy("fecha", "desc"), F.limit(500)),
       s => alCambiar(s.docs.map(d => ({ id: d.id, ...d.data({ serverTimestamps: "estimate" }) }))), e => alFallar && alFallar(e));
   }
-  async function barberos() {
+  // ----- Equipo: cada barbero entra con su propio PIN. El dueño ve los reportes de todos. -----
+  const DUENO = "Miguel";
+  const PINES_DEMO = { Miguel: "1234", "Josué": "1111", Kevin: "2222", Daniel: "3333" };
+  const huellaPin = (nombre, pin) => sha("blessing-barbero:" + String(nombre).trim().toLowerCase() + ":" + digitos(pin));
+  async function equipo() {
     await iniciar();
-    const s = await F.getDoc(F.doc(db, CFG, "barberos"));
-    return s.exists() && Array.isArray(s.data().lista) && s.data().lista.length ? s.data().lista : BARBEROS_EJEMPLO.slice();
+    const s = await F.getDoc(F.doc(db, CFG, "barberos")), d = s.exists() ? s.data() : {};
+    let lista = Array.isArray(d.lista) && d.lista.length ? d.lista.slice() : ["Josué", "Kevin", "Daniel"];
+    const dueno = d.dueno || DUENO;
+    if (!lista.includes(dueno)) lista.unshift(dueno);
+    return { lista, pines: d.pines || {}, dueno };
   }
-  async function guardarBarberos(lista) {
+  // Revisa el PIN de un barbero. Si todavía no tiene uno guardado, vale el PIN de la demo (o 0000).
+  async function revisarPin(eq, nombre, pin) {
+    const h = eq.pines[nombre];
+    if (h) return h === await huellaPin(nombre, pin);
+    return digitos(pin) === (PINES_DEMO[nombre] || "0000");
+  }
+  async function guardarEquipo({ lista, pines, dueno }) {
     await iniciar();
     const limpia = [...new Set(lista.map(x => String(x).trim().slice(0, 40)).filter(Boolean))].slice(0, 20);
     if (!limpia.length) throw new Error("vacia");
-    await F.setDoc(F.doc(db, CFG, "barberos"), { lista: limpia });
-    return limpia;
+    const p = {}; limpia.forEach(n => { if (pines[n]) p[n] = pines[n]; });
+    await F.setDoc(F.doc(db, CFG, "barberos"), { lista: limpia, pines: p, dueno: String(dueno || DUENO).slice(0, 40) });
+    return { lista: limpia, pines: p, dueno };
   }
 
   // ----- Clientes de ejemplo para enseñar la demo -----
@@ -157,12 +172,12 @@ window.Blessing = (() => {
         try {
           if ((await F.getDoc(F.doc(db, IDS, await huellaId(e.cel)))).exists()) continue;
           const t = await crear({ nombre: e.nombre, celular: e.cel, cedula: e.ced, pin: e.pin, barbero: e.barbero });
-          for (let i = 0; i < e.cortes; i++) await registrarCorte(t, e.atendio[i % e.atendio.length]);
+          for (let i = 0; i < e.cortes; i++) await registrarCorte(t, e.atendio[i % e.atendio.length], i % 3 === 1 ? "sinpe" : "efectivo");
         } catch (x) { console.warn("Ejemplo no cargado:", e.nombre, x && x.message); }
       }
     })();
     return sembrando;
   }
   return { META, PRECIO, PRECIO_QUINTO, precioSiguiente, colones, digitos, link, tokenDeTexto, iniciar, crear, ingresar, buscar, obtener,
-    registrarCorte, escuchar, cortesDe, escucharClientes, escucharCortes, barberos, guardarBarberos, EJEMPLOS, asegurarEjemplos };
+    registrarCorte, escuchar, cortesDe, escucharClientes, escucharCortes, equipo, revisarPin, guardarEquipo, huellaPin, PINES_DEMO, EJEMPLOS, asegurarEjemplos };
 })();

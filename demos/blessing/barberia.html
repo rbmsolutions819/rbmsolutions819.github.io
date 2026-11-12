@@ -62,29 +62,40 @@
     <a class="icon-btn" href="./">App cliente</a>
   </header>
 
-  <!-- ===== Bloqueo ===== -->
+  <!-- ===== Ingreso del barbero ===== -->
   <section id="vLock" style="max-width:430px;margin:0 auto">
-    <div class="panel">
+    <div class="panel" id="lockPick">
       <div class="over">Solo personal</div>
-      <h2>PIN de la barbería</h2>
-      <p>Ingrese el PIN del personal para registrar cortes y clientes.</p>
+      <h2>¿Quién es usted?</h2>
+      <p>Escoja su nombre y luego ingrese su PIN personal.</p>
+      <div class="pick" id="pick" style="margin-top:16px"><p style="color:var(--dim)">Cargando equipo…</p></div>
+    </div>
+    <div class="panel" id="lockPin" hidden>
+      <div class="over" id="pinRol">Barbero</div>
+      <h2 id="pinHola">Hola</h2>
+      <p>Ingrese su PIN de 4 dígitos.</p>
       <div class="dots" id="dots"><i></i><i></i><i></i><i></i></div>
       <div class="pad" id="pad"></div>
-      <p style="text-align:center;font-size:12px;color:var(--dim);margin-top:16px">Demo: PIN 1234</p>
+      <button class="btn ghost" id="pinVolver" style="margin-top:14px">Cambiar de barbero</button>
+    </div>
+    <div class="panel" style="margin-top:14px;padding:16px 18px">
+      <div class="over">Demo</div>
+      <p style="margin:6px 0 0">PIN de prueba: <b style="color:var(--text)">Miguel 1234</b> (dueño) · Josué 1111 · Kevin 2222 · Daniel 3333. Cualquier otro barbero: 0000.</p>
     </div>
   </section>
 
   <!-- ===== Panel ===== -->
   <section id="vPanel" hidden>
     <div class="who">
-      <div><small>Atendiendo</small><b id="whoName">—</b></div>
-      <button id="btnWho">Cambiar</button>
+      <div><small id="whoRol">Barbero</small><b id="whoName">—</b></div>
+      <button id="btnSalir">Salir</button>
     </div>
     <div class="tabs" id="tabs">
       <button data-tab="esc" class="sel">Corte</button>
       <button data-tab="nuevo">Nuevo</button>
       <button data-tab="cli">Clientes</button>
-      <button data-tab="barb">Barberos</button>
+      <button data-tab="mis">Mis cortes</button>
+      <button data-tab="gen" id="tabGen" hidden>General</button>
     </div>
 
     <!-- Registrar corte -->
@@ -111,7 +122,7 @@
       <div class="panel" id="nuevoForm">
         <div class="over">Registro</div>
         <h2>Nuevo cliente</h2>
-        <p>El cliente entra a su tarjeta con su celular y el PIN que escoja aquí.</p>
+        <p>Queda registrado a nombre de <b style="color:var(--text)" id="nQuien">—</b>. El cliente entra a su tarjeta con su celular y el PIN que escoja aquí.</p>
         <form id="fNuevo" autocomplete="off">
           <label class="l" for="nNombre">Nombre completo</label>
           <input class="field" id="nNombre" maxlength="60" placeholder="Nombre y apellido">
@@ -121,8 +132,6 @@
           <input class="field" id="nCed" inputmode="numeric" maxlength="12" placeholder="1 2345 6789">
           <label class="l" for="nPin">PIN del cliente <small>(4 dígitos, que lo escriba el cliente)</small></label>
           <input class="field pin" id="nPin" type="password" inputmode="numeric" maxlength="4" placeholder="••••">
-          <label class="l">Registrado por</label>
-          <div class="chips" id="nBarb"></div>
           <div class="err" id="errNuevo"></div>
           <button class="btn primary" id="btnNuevo" type="submit" style="margin-top:6px">Registrar cliente</button>
         </form>
@@ -137,32 +146,53 @@
       <ul class="list" id="cliList"><li class="empty">Cargando…</li></ul>
     </div>
 
-    <!-- Barberos -->
-    <div data-pane="barb" hidden>
-      <div class="sec-title"><h4>Control por barbero</h4>
-        <div class="seg" id="periodo"><button data-p="hoy">Hoy</button><button data-p="mes" class="sel">Este mes</button><button data-p="todo">Todo</button></div>
+    <!-- Mis cortes -->
+    <div data-pane="mis" hidden>
+      <div class="sec-title"><h4>Mis cortes</h4>
+        <div class="seg" id="perMis"><button data-p="hoy" class="sel">Hoy</button><button data-p="semana">Semana</button><button data-p="mes">Mes</button></div>
       </div>
-      <div class="kpis">
-        <div class="kpi"><b class="foil" id="kNuevos">0</b><span>Clientes nuevos</span></div>
-        <div class="kpi"><b class="foil" id="kCortes">0</b><span>Cortes</span></div>
-        <div class="kpi"><b class="foil" id="kIngreso">₡0</b><span>Ingresos</span></div>
+      <div class="kpis k4" id="kMis"></div>
+      <div class="section" style="margin-top:20px">
+        <div class="sec-title"><h4>Detalle</h4><span id="misRango"></span></div>
+        <ul class="list" id="misList"></ul>
       </div>
-      <div class="tablebox">
-        <table class="t">
-          <thead><tr><th>Barbero</th><th>Clientes nuevos</th><th>Cortes</th><th>5.º corte</th><th>Ingresos</th></tr></thead>
-          <tbody id="tBarb"></tbody>
-        </table>
+    </div>
+
+    <!-- General (solo dueño) -->
+    <div data-pane="gen" hidden>
+      <div class="sec-title"><h4>Reporte general</h4>
+        <div class="seg" id="perGen"><button data-p="hoy">Hoy</button><button data-p="semana">Semana</button><button data-p="mes" class="sel">Mes</button><button data-p="todo">Todo</button></div>
+      </div>
+      <div class="kpis k4" id="kGen"></div>
+      <div class="facts" id="fGen"></div>
+      <div class="section" style="margin-top:22px">
+        <div class="sec-title"><h4>Por barbero</h4><span>Toque uno para ver su detalle</span></div>
+        <div class="tablebox">
+          <table class="t">
+            <thead><tr><th>Barbero</th><th>Nuevos</th><th>Cortes</th><th>A ₡2.000</th><th>SINPE</th><th>Total</th></tr></thead>
+            <tbody id="tGen"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="section" id="indiv" hidden>
+        <div class="sec-title"><h4 id="indivT">—</h4><button class="more" id="indivCerrar" style="margin:0">Ver todos</button></div>
+        <div class="kpis k4" id="kInd"></div>
+        <ul class="list" id="indList" style="margin-top:12px"></ul>
+      </div>
+      <div class="section" id="ultGen">
+        <div class="sec-title"><h4>Últimos cortes</h4><span>Todo el equipo</span></div>
+        <ul class="list" id="genList"></ul>
       </div>
       <div class="section">
-        <div class="sec-title"><h4>Últimos cortes</h4><span>Quién atendió</span></div>
-        <ul class="list" id="ultCortes"></ul>
-      </div>
-      <div class="section">
-        <div class="sec-title"><h4>Barberos del equipo</h4></div>
-        <div class="chips" id="barbEdit"></div>
-        <form class="search" id="fBarb" style="margin-top:12px">
-          <input class="field" id="inBarb" maxlength="40" placeholder="Agregar barbero">
-          <button class="btn primary" type="submit">Agregar</button>
+        <div class="sec-title"><h4>Equipo</h4><span>PIN de cada barbero</span></div>
+        <ul class="list team" id="team"></ul>
+        <form id="fBarb" style="margin-top:12px">
+          <div class="search">
+            <input class="field" id="inBarb" maxlength="40" placeholder="Nombre del barbero">
+            <input class="field pin" id="inBarbPin" type="password" inputmode="numeric" maxlength="4" placeholder="PIN" style="max-width:110px;font-size:20px">
+          </div>
+          <button class="btn primary" type="submit">Agregar barbero</button>
+          <div class="err" id="errBarb"></div>
         </form>
       </div>
     </div>
@@ -171,13 +201,15 @@
   <footer><span class="sig foil">The Blessing</span>Barbershop · Panel de la barbería<span class="cred">Demo hecha por <b style="color:var(--muted)">RBM Solutions</b></span></footer>
 </div>
 
-<!-- Quién atiende -->
-<div class="modal" id="mWho"><div class="sheet">
+<!-- Cambiar PIN -->
+<div class="modal" id="mPin"><div class="sheet">
   <div class="grab"></div>
-  <div class="over">Turno</div>
-  <h3>¿Quién está atendiendo?</h3>
-  <p>Los cortes y clientes nuevos quedan a nombre de este barbero.</p>
-  <div class="chips" id="whoChips"></div>
+  <div class="over">Equipo</div>
+  <h3 id="mPinT">Nuevo PIN</h3>
+  <p>Escriba el PIN nuevo de 4 dígitos para este barbero.</p>
+  <input class="field pin" id="mPinIn" type="password" inputmode="numeric" maxlength="4" placeholder="••••">
+  <div class="err" id="mPinErr"></div>
+  <div class="row2"><button class="btn ghost" data-cerrar>Cancelar</button><button class="btn primary" id="mPinOk">Guardar</button></div>
 </div></div>
 
 <!-- Cámara -->
@@ -199,71 +231,83 @@
 <script>
 (() => {
   const $ = id => document.getElementById(id);
-  const B = window.Blessing, PIN = "1234";
-  const ls = { get: k => { try { return localStorage.getItem(k) } catch { return null } }, set: (k, v) => { try { localStorage.setItem(k, v) } catch {} } };
+  const B = window.Blessing;
+  const ss = { get: k => { try { return sessionStorage.getItem(k) } catch { return null } }, set: (k, v) => { try { v == null ? sessionStorage.removeItem(k) : sessionStorage.setItem(k, v) } catch {} } };
   const esc = s => String(s || "").replace(/[&<>"]/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[m]));
   const toast = msg => { const t = $("toast"); t.querySelector("span").textContent = msg; t.classList.add("show"); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), 2800); };
   const buzz = p => { try { navigator.vibrate && navigator.vibrate(p) } catch {} };
   const ms = f => f?.toMillis ? f.toMillis() : 0;
-  const fechaCorta = f => f?.toDate ? f.toDate().toLocaleDateString("es-CR", { day: "numeric", month: "short" }) + " · " + f.toDate().toLocaleTimeString("es-CR", { hour: "numeric", minute: "2-digit" }) : "";
-  let barberos = [], actual = ls.get("blessing-barbero") || "", clientes = [], cortes = [], periodo = "mes", fichaToken = null, quitarFicha = null;
+  const cuando = f => f?.toDate ? f.toDate().toLocaleDateString("es-CR", { weekday: "short", day: "numeric", month: "short" }) + " · " + f.toDate().toLocaleTimeString("es-CR", { hour: "numeric", minute: "2-digit" }) : "";
+  const pagoDe = c => c.pago === "sinpe" ? "sinpe" : "efectivo";
+  const Q = B.PRECIO_QUINTO;
+  let eq = null, yo = null, clientes = [], cortes = [], escuchando = false;
+  let perMis = "hoy", perGen = "mes", indiv = null, fichaToken = null, quitarFicha = null, ultimaFicha = null, pago = "efectivo";
   const tokenInicial = B.tokenDeTexto(location.hash);
+  const esDueno = () => eq && yo === eq.dueno;
 
-  // ---- Bloqueo con PIN
-  let entry = "";
+  // ================= Ingreso: barbero + PIN =================
+  let elegido = null, entry = "";
+  const inicial = n => String(n).trim().charAt(0).toUpperCase();
+  async function cargarEquipo() {
+    try { eq = await B.equipo(); } catch { eq = { lista: ["Miguel", "Josué", "Kevin", "Daniel"], pines: {}, dueno: "Miguel" }; toast("Sin conexión con la base de datos."); }
+  }
+  function pintarPick() {
+    $("pick").innerHTML = eq.lista.map(n => `<button type="button" data-n="${esc(n)}"><span class="av">${esc(inicial(n))}</span><span>${esc(n)}${n === eq.dueno ? "<small>Dueño</small>" : ""}</span></button>`).join("");
+  }
+  $("pick").onclick = e => {
+    const b = e.target.closest("[data-n]"); if (!b) return;
+    elegido = b.dataset.n; entry = ""; pintarDots();
+    $("pinHola").textContent = "Hola, " + elegido; $("pinRol").textContent = elegido === eq.dueno ? "Dueño" : "Barbero";
+    $("lockPick").hidden = true; $("lockPin").hidden = false;
+  };
+  $("pinVolver").onclick = () => { $("lockPin").hidden = true; $("lockPick").hidden = false; };
+  function pintarDots() { [...$("dots").children].forEach((d, i) => d.classList.toggle("f", i < entry.length)); }
   ["1","2","3","4","5","6","7","8","9","C","0","B"].forEach(k => {
     const b = document.createElement("button"); b.type = "button";
     if (k === "C") { b.className = "fn"; b.textContent = "Borrar todo" } else if (k === "B") { b.className = "fn"; b.textContent = "Borrar" } else b.textContent = k;
-    b.onclick = () => {
+    b.onclick = async () => {
       if (k === "C") entry = ""; else if (k === "B") entry = entry.slice(0, -1); else if (entry.length < 4) entry += k;
-      [...$("dots").children].forEach((d, i) => d.classList.toggle("f", i < entry.length));
+      pintarDots();
       if (entry.length === 4) {
-        if (entry === PIN) { try { sessionStorage.setItem("blessing-staff", "1") } catch {} setTimeout(entrar, 120); }
-        else { $("dots").classList.add("err"); buzz(180); setTimeout(() => { $("dots").classList.remove("err"); entry = ""; [...$("dots").children].forEach(d => d.classList.remove("f")); }, 450); }
+        const ok = await B.revisarPin(eq, elegido, entry);
+        if (ok) { yo = elegido; ss.set("blessing-yo", yo); setTimeout(entrar, 120); }
+        else { $("dots").classList.add("err"); buzz(180); setTimeout(() => { $("dots").classList.remove("err"); entry = ""; pintarDots(); }, 450); }
       }
     };
     $("pad").appendChild(b);
   });
+  $("btnSalir").onclick = () => { ss.set("blessing-yo", null); location.hash = ""; location.reload(); };
 
-  async function entrar() {
+  function entrar() {
     $("vLock").hidden = true; $("vPanel").hidden = false;
-    try { barberos = await B.barberos(); } catch { barberos = ["Josué", "Kevin", "Daniel"]; toast("Sin conexión con la base de datos."); }
-    if (!barberos.includes(actual)) actual = "";
-    pintarWho();
-    if (!actual) abrirWho();
+    $("whoName").textContent = yo; $("whoRol").textContent = esDueno() ? "Dueño · sesión" : "Barbero · sesión";
+    $("nQuien").textContent = yo;
+    $("tabGen").hidden = !esDueno();
     B.asegurarEjemplos().catch(() => {});
-    B.escucharClientes(l => { clientes = l; pintarClientes(); pintarBarberos(); }, () => {});
-    B.escucharCortes(l => { cortes = l; pintarBarberos(); }, () => {});
+    if (!escuchando) {
+      escuchando = true;
+      B.escucharClientes(l => { clientes = l; pintarClientes(); pintarReportes(); }, () => {});
+      B.escucharCortes(l => { cortes = l; pintarReportes(); }, () => {});
+    }
+    pintarEquipo();
     if (tokenInicial) abrirFicha(tokenInicial);
   }
 
-  // ---- Barbero que atiende
-  function pintarWho() {
-    $("whoName").textContent = actual || "Escoja un barbero";
-    $("whoChips").innerHTML = barberos.map(b => `<button data-b="${esc(b)}" class="${b === actual ? "sel" : ""}">${esc(b)}</button>`).join("");
-    $("nBarb").innerHTML = barberos.map(b => `<button type="button" data-b="${esc(b)}" class="${b === actual ? "sel" : ""}">${esc(b)}</button>`).join("");
-    $("barbEdit").innerHTML = barberos.map(b => `<button type="button" data-del="${esc(b)}">${esc(b)}<span class="x">×</span></button>`).join("");
-  }
-  function abrirWho() { $("mWho").classList.add("show"); }
-  $("btnWho").onclick = abrirWho;
-  $("whoChips").onclick = e => { const b = e.target.closest("[data-b]"); if (!b) return; actual = b.dataset.b; ls.set("blessing-barbero", actual); pintarWho(); $("mWho").classList.remove("show"); if (fichaToken) pintarFichaUltima(); };
-  let barbNuevo = null;
-  $("nBarb").onclick = e => { const b = e.target.closest("[data-b]"); if (!b) return; barbNuevo = b.dataset.b; [...$("nBarb").children].forEach(x => x.classList.toggle("sel", x === b)); };
-  document.querySelectorAll(".modal").forEach(m => m.addEventListener("click", e => { if (e.target === m && m.id !== "mWho") { m.classList.remove("show"); if (m.id === "mCam") cerrarCamara(); } if (e.target === m && m.id === "mWho" && actual) m.classList.remove("show"); }));
-
-  // ---- Pestañas
+  // ================= Pestañas =================
   $("tabs").onclick = e => { const b = e.target.closest("[data-tab]"); if (b) tab(b.dataset.tab); };
   function tab(t) {
+    if (t === "gen" && !esDueno()) return;
     [...$("tabs").children].forEach(b => b.classList.toggle("sel", b.dataset.tab === t));
     document.querySelectorAll("[data-pane]").forEach(p => p.hidden = p.dataset.pane !== t);
-    if (t === "nuevo") { barbNuevo = actual; pintarWho(); }
   }
+  document.querySelectorAll(".modal").forEach(m => m.addEventListener("click", e => {
+    if (e.target === m || e.target.hasAttribute("data-cerrar")) { m.classList.remove("show"); if (m.id === "mCam") cerrarCamara(); }
+  }));
 
-  // ---- Ficha del cliente (registrar corte)
-  let ultimaFicha = null;
-  function cerrarFicha() { if (quitarFicha) quitarFicha(); quitarFicha = null; fichaToken = null; $("ficha").hidden = true; $("escInicio").hidden = false; history.replaceState(null, "", location.pathname); }
+  // ================= Ficha: registrar corte =================
+  function cerrarFicha() { if (quitarFicha) quitarFicha(); quitarFicha = null; fichaToken = null; ultimaFicha = null; $("ficha").hidden = true; $("escInicio").hidden = false; history.replaceState(null, "", location.pathname); }
   async function abrirFicha(token) {
-    tab("esc"); fichaToken = token; $("escInicio").hidden = true; $("ficha").hidden = false;
+    tab("esc"); fichaToken = token; pago = "efectivo"; $("escInicio").hidden = true; $("ficha").hidden = false;
     $("ficha").innerHTML = `<div class="panel"><p style="text-align:center">Buscando la tarjeta…</p></div>`;
     if (quitarFicha) quitarFicha();
     try {
@@ -273,9 +317,8 @@
       });
     } catch { $("ficha").innerHTML = `<div class="panel"><h2>Sin conexión</h2><p>No se pudo abrir la tarjeta.</p><button class="btn ghost" data-volver>Volver</button></div>`; }
   }
-  const pintarFichaUltima = () => ultimaFicha && pintarFicha(ultimaFicha);
   function pintarFicha(c, pop) {
-    const M = B.META, n = c.sellos, precio = B.precioSiguiente(n), quinto = precio === B.PRECIO_QUINTO;
+    const M = B.META, n = c.sellos, precio = B.precioSiguiente(n), quinto = precio === Q;
     let slots = "";
     for (let i = 0; i < M; i++) {
       const q = i === M - 1, on = i < n;
@@ -288,39 +331,47 @@
             <div class="member">Celular ···· ${esc(c.cel4)} · Registró ${esc(c.barbero)}</div></div>
           <div class="count"><span class="big foil">${n}</span><span class="of">/5</span><div class="label" style="margin-top:4px">Sellos</div></div>
         </div>
-        <div class="rule"><span>${c.total} cortes en total</span></div>
+        <div class="rule"><span>Tarjeta de lealtad</span></div>
         <div class="grid">${slots}</div>
+        <div class="facts" style="margin-top:28px">
+          <div><b>${c.total}</b><span>Cortes en total</span></div>
+          <div><b>${c.ciclos}</b><span>Pagados a ₡2.000</span></div>
+        </div>
       </div></div>
       <div class="next-price ${quinto ? "hot" : ""}"><div>
         <div><div class="k">Cobrar este corte</div><div class="d">${quinto ? "Es el 5.º corte: precio con descuento." : "Corte regular, suma el sello " + (n + 1) + "."}</div></div>
         <div class="v foil">${B.colones(precio)}</div></div></div>
-      <button class="btn primary" data-registrar ${actual ? "" : "disabled"}><svg><use href="#comb-flat"/></svg>${actual ? "Registrar corte · " + esc(actual) : "Escoja quién atiende"}</button>
+      <div class="pay" id="pay">
+        <button type="button" data-pago="efectivo" class="${pago === "efectivo" ? "sel" : ""}">Efectivo<small>Pagó en la barbería</small></button>
+        <button type="button" data-pago="sinpe" class="${pago === "sinpe" ? "sel" : ""}">SINPE Móvil<small>Transferencia</small></button>
+      </div>
+      <button class="btn primary" data-registrar><svg><use href="#comb-flat"/></svg>Registrar corte · ${esc(yo)}</button>
       <button class="btn ghost" data-volver>Atender a otro cliente</button>`;
   }
   $("ficha").onclick = async e => {
     if (e.target.closest("[data-volver]")) { cerrarFicha(); return; }
+    const p = e.target.closest("[data-pago]");
+    if (p) { pago = p.dataset.pago; [...$("pay").children].forEach(x => x.classList.toggle("sel", x === p)); return; }
     const b = e.target.closest("[data-registrar]"); if (!b || !fichaToken) return;
-    if (!actual) { abrirWho(); return; }
     b.disabled = true; b.lastChild.textContent = "Registrando…";
     try {
-      const r = await B.registrarCorte(fichaToken, actual);
+      const r = await B.registrarCorte(fichaToken, yo, pago);
       buzz([30, 40, 70]);
-      if (r.quinto) toast(`5.º corte registrado (${B.colones(r.precio)}). La tarjeta vuelve a empezar.`);
-      else toast(`Corte registrado (${B.colones(r.precio)}). Lleva ${r.sellos} de 5.`);
+      const como = r.pago === "sinpe" ? "por SINPE" : "en efectivo";
+      toast(r.quinto ? `5.º corte (${B.colones(r.precio)}) ${como}. La tarjeta vuelve a empezar.` : `Corte de ${B.colones(r.precio)} ${como}. Lleva ${r.sellos} de 5.`);
+      pago = "efectivo";
       pintarFicha({ ...ultimaFicha, ...r }, !r.quinto);
     } catch { toast("No se pudo registrar. Revise la conexión."); b.disabled = false; }
   };
 
-  // ---- Búsqueda
+  // ================= Búsqueda y cámara =================
   $("fBuscar").addEventListener("submit", async e => {
     e.preventDefault(); $("errBuscar").textContent = "";
     const id = B.digitos($("inBuscar").value);
     if (id.length < 8) { $("errBuscar").textContent = "Escriba el celular (8 dígitos) o la cédula."; return; }
-    try { const t = await B.buscar(id); t ? abrirFicha(t) : ($("errBuscar").textContent = "No hay ningún cliente con ese número. Puede registrarlo en Nuevo cliente."); }
+    try { const t = await B.buscar(id); t ? abrirFicha(t) : ($("errBuscar").textContent = "No hay ningún cliente con ese número. Puede registrarlo en Nuevo."); }
     catch { $("errBuscar").textContent = "Sin conexión."; }
   });
-
-  // ---- Cámara
   let stream = null, loop = 0;
   function cerrarCamara() { cancelAnimationFrame(loop); if (stream) stream.getTracks().forEach(t => t.stop()); stream = null; $("mCam").classList.remove("show"); }
   $("camCerrar").onclick = cerrarCamara;
@@ -347,20 +398,19 @@
     } catch { $("camErr").textContent = "No se pudo abrir la cámara. Dé permiso al navegador o busque al cliente por su celular."; }
   };
 
-  // ---- Nuevo cliente
+  // ================= Nuevo cliente =================
   $("fNuevo").addEventListener("submit", async e => {
     e.preventDefault(); const err = $("errNuevo"); err.textContent = "";
-    const nombre = $("nNombre").value.trim(), cel = B.digitos($("nCel").value), ced = B.digitos($("nCed").value), pin = B.digitos($("nPin").value), barbero = barbNuevo || actual;
+    const nombre = $("nNombre").value.trim(), cel = B.digitos($("nCel").value), ced = B.digitos($("nCed").value), pin = B.digitos($("nPin").value);
     if (nombre.length < 2) return err.textContent = "Escriba el nombre del cliente.";
     if (cel.length !== 8) return err.textContent = "El celular debe tener 8 dígitos.";
     if (ced && (ced.length < 9 || ced.length > 12)) return err.textContent = "Revise la cédula (9 a 12 dígitos) o déjela en blanco.";
     if (pin.length !== 4) return err.textContent = "El PIN debe tener 4 números.";
-    if (!barbero) return err.textContent = "Escoja el barbero que registra al cliente.";
     $("btnNuevo").disabled = true; $("btnNuevo").textContent = "Registrando…";
     try {
-      const t = await B.crear({ nombre, celular: cel, cedula: ced, pin, barbero });
+      const t = await B.crear({ nombre, celular: cel, cedula: ced, pin, barbero: yo });
       $("nuevoForm").hidden = true; $("nuevoOk").hidden = false;
-      $("nuevoOk").innerHTML = `<div class="ok-badge">Cliente registrado por ${esc(barbero)}</div>
+      $("nuevoOk").innerHTML = `<div class="ok-badge">Cliente registrado por ${esc(yo)}</div>
         <h2 style="margin-top:14px">${esc(nombre)}</h2>
         <p>Ya puede entrar a su tarjeta con el celular <b style="color:var(--text)">${cel.slice(0, 4)} ${cel.slice(4)}</b> y su PIN.</p>
         <div class="qr-frame" style="margin-top:8px"><div id="qrNuevo"></div></div>
@@ -368,7 +418,7 @@
         <button class="btn ghost" data-otro>Registrar otro cliente</button>`;
       try { new QRCode($("qrNuevo"), { text: B.link(t), width: 170, height: 170, colorDark: "#0a0a0a", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.M }); } catch {}
     } catch (x) {
-      err.textContent = x.message === "ya-existe" ? "Ese celular ya tiene una tarjeta. Búsquelo en Registrar corte."
+      err.textContent = x.message === "ya-existe" ? "Ese celular ya tiene una tarjeta. Búsquelo en Corte."
         : x.message === "ya-existe-cedula" ? "Esa cédula ya tiene una tarjeta." : "No se pudo registrar. Revise la conexión.";
     } finally { $("btnNuevo").disabled = false; $("btnNuevo").textContent = "Registrar cliente"; }
   });
@@ -376,56 +426,113 @@
     const c = e.target.closest("[data-corte]"); if (c) { abrirFicha(c.dataset.corte); return; }
     if (e.target.closest("[data-otro]")) { $("fNuevo").reset(); $("nuevoOk").hidden = true; $("nuevoForm").hidden = false; }
   };
-  ["nCel", "nCed", "nPin", "inBuscar"].forEach(id => $(id).addEventListener("input", e => e.target.value = e.target.value.replace(/[^\d ]/g, "")));
+  ["nCel", "nCed", "nPin", "inBuscar", "inBarbPin", "mPinIn"].forEach(id => $(id).addEventListener("input", e => e.target.value = e.target.value.replace(/[^\d ]/g, "")));
 
-  // ---- Lista de clientes
+  // ================= Clientes =================
   function mini(n) { let h = ""; for (let i = 0; i < B.META; i++) h += `<i class="${i < n ? "f" : i === B.META - 1 ? "p" : ""}"></i>`; return `<span class="mini">${h}</span>`; }
   function pintarClientes() {
     const q = $("cliBuscar").value.trim().toLowerCase();
     const l = clientes.filter(c => !q || c.nombre.toLowerCase().includes(q) || (c.barbero || "").toLowerCase().includes(q));
     $("cliCount").textContent = clientes.length + (clientes.length === 1 ? " cliente" : " clientes");
     $("cliList").innerHTML = l.length ? l.map(c => `<li><button class="row" data-t="${c.token}">
-      <span class="tx"><b>${esc(c.nombre)}</b><small>···· ${esc(c.cel4)} · Registró ${esc(c.barbero)} · ${c.creado?.toDate ? c.creado.toDate().toLocaleDateString("es-CR", { day: "numeric", month: "short" }) : ""}</small></span>
+      <span class="tx"><b>${esc(c.nombre)}</b><small>···· ${esc(c.cel4)} · Registró ${esc(c.barbero)} · ${c.total} cortes · ${c.ciclos} a ₡2.000</small></span>
       ${mini(c.sellos)}</button></li>`).join("") : `<li class="empty">${clientes.length ? "Ningún cliente coincide." : "Todavía no hay clientes registrados."}</li>`;
   }
   $("cliBuscar").addEventListener("input", pintarClientes);
   $("cliList").onclick = e => { const b = e.target.closest("[data-t]"); if (b) abrirFicha(b.dataset.t); };
 
-  // ---- Control por barbero
-  function desde() {
-    const d = new Date();
-    if (periodo === "hoy") return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
-    if (periodo === "mes") return new Date(d.getFullYear(), d.getMonth(), 1).getTime();
+  // ================= Reportes =================
+  function desde(p) {
+    const d = new Date(), hoy = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    if (p === "hoy") return hoy.getTime();
+    if (p === "semana") { const dia = (hoy.getDay() + 6) % 7; return hoy.getTime() - dia * 864e5; } // desde el lunes
+    if (p === "mes") return new Date(d.getFullYear(), d.getMonth(), 1).getTime();
     return 0;
   }
-  function pintarBarberos() {
-    const t0 = desde();
-    const cs = cortes.filter(c => ms(c.fecha) >= t0), cl = clientes.filter(c => ms(c.creado) >= t0);
-    const nombres = [...new Set([...barberos, ...cs.map(c => c.barbero), ...cl.map(c => c.barbero)])];
-    const filas = nombres.map(b => {
-      const mios = cs.filter(c => c.barbero === b);
-      return { b, nuevos: cl.filter(c => c.barbero === b).length, cortes: mios.length, quinto: mios.filter(c => c.precio === B.PRECIO_QUINTO).length, ingreso: mios.reduce((s, c) => s + c.precio, 0) };
-    }).sort((a, z) => z.nuevos - a.nuevos || z.cortes - a.cortes);
-    $("kNuevos").textContent = cl.length; $("kCortes").textContent = cs.length;
-    $("kIngreso").textContent = B.colones(cs.reduce((s, c) => s + c.precio, 0));
-    $("tBarb").innerHTML = filas.map(f => `<tr><td>${esc(f.b)}</td><td><b>${f.nuevos}</b></td><td>${f.cortes}</td><td>${f.quinto}</td><td>${B.colones(f.ingreso)}</td></tr>`).join("");
-    $("ultCortes").innerHTML = cs.length ? cs.slice(0, 12).map(c => `<li>
-      <span class="ic ${c.precio === B.PRECIO_QUINTO ? "hot" : ""}"><svg><use href="#${c.precio === B.PRECIO_QUINTO ? "crown-flat" : "comb-flat"}"/></svg></span>
-      <span class="tx"><b>${esc(c.nombre)}</b><small>${esc(c.barbero)} · ${fechaCorta(c.fecha)}</small></span>
-      <span class="amt">${B.colones(c.precio)}</span></li>`).join("") : `<li class="empty">No hay cortes en este periodo.</li>`;
+  const RANGO = { hoy: "Hoy", semana: "Desde el lunes", mes: "Este mes", todo: "Desde el inicio" };
+  function resumen(cs) {
+    const r = { n: cs.length, total: 0, q: 0, sinpe: 0, sinpeN: 0, efectivo: 0 };
+    cs.forEach(c => { r.total += c.precio; if (c.precio === Q) r.q++; if (pagoDe(c) === "sinpe") { r.sinpe += c.precio; r.sinpeN++; } else r.efectivo += c.precio; });
+    return r;
   }
-  $("periodo").onclick = e => { const b = e.target.closest("[data-p]"); if (!b) return; periodo = b.dataset.p; [...$("periodo").children].forEach(x => x.classList.toggle("sel", x === b)); pintarBarberos(); };
+  const kpi = (v, t) => `<div class="kpi"><b class="foil">${v}</b><span>${t}</span></div>`;
+  const filaCorte = (c, conBarbero) => `<li>
+    <span class="ic ${c.precio === Q ? "hot" : ""}"><svg><use href="#${c.precio === Q ? "crown-flat" : "comb-flat"}"/></svg></span>
+    <span class="tx"><b>${esc(c.nombre)}<span class="tag ${pagoDe(c)}">${pagoDe(c) === "sinpe" ? "SINPE" : "Efectivo"}</span></b><small>${conBarbero ? esc(c.barbero) + " · " : ""}${cuando(c.fecha)}</small></span>
+    <span class="amt">${B.colones(c.precio)}</span></li>`;
+  const vacio = t => `<li class="empty">${t}</li>`;
 
-  // ---- Editar barberos
-  async function guardarLista(l) {
-    try { barberos = await B.guardarBarberos(l); if (!barberos.includes(actual)) { actual = ""; } pintarWho(); pintarBarberos(); toast("Equipo actualizado"); }
-    catch { toast("No se pudo guardar la lista."); }
+  function pintarReportes() { if (!yo) return; pintarMis(); if (esDueno()) pintarGen(); }
+  function pintarMis() {
+    const t0 = desde(perMis), cs = cortes.filter(c => c.barbero === yo && ms(c.fecha) >= t0), r = resumen(cs);
+    $("kMis").innerHTML = kpi(r.n, "Cortes") + kpi(B.colones(r.total), "Ganado") + kpi(r.q, "Cortes a ₡2.000") + kpi(B.colones(r.sinpe), `Por SINPE (${r.sinpeN})`);
+    $("misRango").textContent = RANGO[perMis];
+    $("misList").innerHTML = cs.length ? cs.slice(0, 60).map(c => filaCorte(c, false)).join("") : vacio("No tiene cortes registrados en este periodo.");
   }
-  $("fBarb").addEventListener("submit", e => { e.preventDefault(); const v = $("inBarb").value.trim(); if (!v) return; $("inBarb").value = ""; guardarLista([...barberos, v]); });
-  $("barbEdit").onclick = e => { const b = e.target.closest("[data-del]"); if (!b) return; if (barberos.length <= 1) { toast("Debe quedar al menos un barbero."); return; } guardarLista(barberos.filter(x => x !== b.dataset.del)); };
+  function pintarGen() {
+    const t0 = desde(perGen), cs = cortes.filter(c => ms(c.fecha) >= t0), cl = clientes.filter(c => ms(c.creado) >= t0), r = resumen(cs);
+    $("kGen").innerHTML = kpi(r.n, "Cortes") + kpi(B.colones(r.total), "Ingresos") + kpi(B.colones(r.efectivo), "Efectivo") + kpi(B.colones(r.sinpe), "SINPE");
+    $("fGen").innerHTML = `<div><b>${cl.length}</b><span>Clientes nuevos</span></div><div><b>${r.q}</b><span>Cortes a ₡2.000</span></div><div><b>${r.n - r.q}</b><span>Cortes a ₡5.000</span></div>`;
+    const nombres = [...new Set([...eq.lista, ...cs.map(c => c.barbero), ...cl.map(c => c.barbero)])];
+    const filas = nombres.map(b => { const x = resumen(cs.filter(c => c.barbero === b)); return { b, nuevos: cl.filter(c => c.barbero === b).length, ...x }; })
+      .sort((a, z) => z.total - a.total || z.nuevos - a.nuevos);
+    $("tGen").innerHTML = filas.map(f => `<tr class="clic ${f.b === indiv ? "on" : ""}" data-b="${esc(f.b)}"><td>${esc(f.b)}${f.b === eq.dueno ? '<span class="tag">Dueño</span>' : ""}</td><td><b>${f.nuevos}</b></td><td>${f.n}</td><td>${f.q}</td><td>${B.colones(f.sinpe)}</td><td>${B.colones(f.total)}</td></tr>`).join("");
+    $("indiv").hidden = !indiv; $("ultGen").hidden = !!indiv;
+    if (indiv) {
+      const mios = cs.filter(c => c.barbero === indiv), x = resumen(mios);
+      $("indivT").textContent = indiv + " · " + RANGO[perGen].toLowerCase();
+      $("kInd").innerHTML = kpi(x.n, "Cortes") + kpi(B.colones(x.total), "Generó") + kpi(x.q, "Cortes a ₡2.000") + kpi(cl.filter(c => c.barbero === indiv).length, "Clientes nuevos");
+      $("indList").innerHTML = mios.length ? mios.slice(0, 60).map(c => filaCorte(c, false)).join("") : vacio("Sin cortes en este periodo.");
+    } else {
+      $("genList").innerHTML = cs.length ? cs.slice(0, 15).map(c => filaCorte(c, true)).join("") : vacio("No hay cortes en este periodo.");
+    }
+  }
+  const seg = (id, set) => $(id).onclick = e => { const b = e.target.closest("[data-p]"); if (!b) return; [...$(id).children].forEach(x => x.classList.toggle("sel", x === b)); set(b.dataset.p); pintarReportes(); };
+  seg("perMis", p => perMis = p); seg("perGen", p => perGen = p);
+  $("tGen").onclick = e => { const r = e.target.closest("[data-b]"); if (!r) return; indiv = indiv === r.dataset.b ? null : r.dataset.b; pintarGen(); if (indiv) $("indiv").scrollIntoView({ behavior: "smooth", block: "start" }); };
+  $("indivCerrar").onclick = () => { indiv = null; pintarGen(); };
 
-  let ok = false; try { ok = sessionStorage.getItem("blessing-staff") === "1" } catch {}
-  if (ok) entrar();
+  // ================= Equipo (solo dueño) =================
+  function pintarEquipo() {
+    if (!esDueno()) return;
+    $("team").innerHTML = eq.lista.map(n => `<li>
+      <span class="ic"><b style="font:700 12px Manrope">${esc(inicial(n))}</b></span>
+      <span class="tx"><b>${esc(n)}${n === eq.dueno ? '<span class="tag">Dueño</span>' : ""}</b><small>${eq.pines[n] ? "PIN personal" : "PIN de la demo"}</small></span>
+      <span class="act"><button data-pin="${esc(n)}">PIN</button>${n === eq.dueno ? "" : `<button data-del="${esc(n)}">Quitar</button>`}</span></li>`).join("");
+  }
+  async function guardar(nuevo, msg) {
+    try { eq = await B.guardarEquipo(nuevo); pintarEquipo(); pintarReportes(); toast(msg); return true; }
+    catch { toast("No se pudo guardar. Revise la conexión."); return false; }
+  }
+  let pinDe = null;
+  $("team").onclick = e => {
+    const d = e.target.closest("[data-del]");
+    if (d) { const n = d.dataset.del; guardar({ ...eq, lista: eq.lista.filter(x => x !== n) }, n + " ya no está en el equipo"); return; }
+    const p = e.target.closest("[data-pin]");
+    if (p) { pinDe = p.dataset.pin; $("mPinT").textContent = "Nuevo PIN de " + pinDe; $("mPinIn").value = ""; $("mPinErr").textContent = ""; $("mPin").classList.add("show"); setTimeout(() => $("mPinIn").focus(), 200); }
+  };
+  $("mPinOk").onclick = async () => {
+    const pin = B.digitos($("mPinIn").value);
+    if (pin.length !== 4) { $("mPinErr").textContent = "El PIN debe tener 4 números."; return; }
+    const pines = { ...eq.pines, [pinDe]: await B.huellaPin(pinDe, pin) };
+    if (await guardar({ ...eq, pines }, "PIN de " + pinDe + " actualizado")) $("mPin").classList.remove("show");
+  };
+  $("fBarb").addEventListener("submit", async e => {
+    e.preventDefault(); $("errBarb").textContent = "";
+    const n = $("inBarb").value.trim(), pin = B.digitos($("inBarbPin").value);
+    if (n.length < 2) return $("errBarb").textContent = "Escriba el nombre del barbero.";
+    if (eq.lista.some(x => x.toLowerCase() === n.toLowerCase())) return $("errBarb").textContent = "Ese barbero ya está en el equipo.";
+    if (pin.length !== 4) return $("errBarb").textContent = "Asígnele un PIN de 4 números.";
+    const pines = { ...eq.pines, [n]: await B.huellaPin(n, pin) };
+    if (await guardar({ ...eq, lista: [...eq.lista, n], pines }, n + " agregado al equipo")) { $("inBarb").value = ""; $("inBarbPin").value = ""; }
+  });
+
+  // ================= Arranque =================
+  (async () => {
+    await cargarEquipo(); pintarPick();
+    const guardado = ss.get("blessing-yo");
+    if (guardado && eq.lista.includes(guardado)) { yo = guardado; entrar(); }
+  })();
 })();
 </script>
 <script src="/visitas.js" defer></script>
