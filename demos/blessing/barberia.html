@@ -14,7 +14,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Bebas+Neue&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="estilo.css?v=6">
+<link rel="stylesheet" href="estilo.css?v=7">
 <style>
   .pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
   .pad button{height:62px;border-radius:18px;border:1px solid var(--line);background:rgba(var(--w),.03);color:var(--text);font-family:"Cormorant Garamond";font-size:28px;font-weight:600;cursor:pointer}
@@ -151,24 +151,40 @@
 
     <!-- Mis cortes -->
     <div data-pane="mis" hidden>
-      <div class="sec-title"><h4>Mis cortes</h4>
-        <div class="seg" id="perMis"><button data-p="hoy" class="sel">Hoy</button><button data-p="semana">Semana</button><button data-p="mes">Mes</button></div>
+      <div class="sec-title"><h4>Mis cortes</h4></div>
+      <div class="periodo" id="ctlMis">
+        <div class="seg"><button data-m="dia" class="sel">Día</button><button data-m="semana">Semana</button><button data-m="mes">Mes</button></div>
+        <input type="date" class="field fecha" data-fecha>
+        <button class="dl" type="button" data-dl><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Descargar</button>
       </div>
-      <div class="kpis k4" id="kMis"></div>
-      <div class="section" style="margin-top:20px">
-        <div class="sec-title"><h4>Detalle</h4><span id="misRango"></span></div>
+      <div class="rango" data-rango></div>
+      <div class="money" id="kMis"></div>
+      <div class="section" id="dMisBox">
+        <div class="sec-title"><h4>Por día</h4><span>Toque un día para verlo</span></div>
+        <div class="tablebox"><table class="t dias"><thead><tr><th>Día</th><th>Cortes</th><th>Efectivo</th><th>SINPE</th><th>Total</th></tr></thead><tbody id="dMis"></tbody></table></div>
+      </div>
+      <div class="section">
+        <div class="sec-title"><h4>Detalle</h4><span id="misCuenta"></span></div>
         <ul class="list" id="misList"></ul>
       </div>
     </div>
 
     <!-- General (solo dueño) -->
     <div data-pane="gen" hidden>
-      <div class="sec-title"><h4>Reporte general</h4>
-        <div class="seg" id="perGen"><button data-p="hoy">Hoy</button><button data-p="semana">Semana</button><button data-p="mes" class="sel">Mes</button><button data-p="todo">Todo</button></div>
+      <div class="sec-title"><h4>Reporte general</h4></div>
+      <div class="periodo" id="ctlGen">
+        <div class="seg"><button data-m="dia" class="sel">Día</button><button data-m="semana">Semana</button><button data-m="mes">Mes</button></div>
+        <input type="date" class="field fecha" data-fecha>
+        <button class="dl" type="button" data-dl><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Descargar</button>
       </div>
-      <div class="kpis k4" id="kGen"></div>
+      <div class="rango" data-rango></div>
+      <div class="money" id="kGen"></div>
       <div class="facts" id="fGen"></div>
-      <div class="section" style="margin-top:22px">
+      <div class="section" id="dGenBox">
+        <div class="sec-title"><h4>Por día</h4><span>Toque un día para verlo</span></div>
+        <div class="tablebox"><table class="t dias"><thead><tr><th>Día</th><th>Cortes</th><th>Efectivo</th><th>SINPE</th><th>Total</th></tr></thead><tbody id="dGen"></tbody></table></div>
+      </div>
+      <div class="section">
         <div class="sec-title"><h4>Por barbero</h4><span>Toque uno para ver su detalle</span></div>
         <div class="tablebox">
           <table class="t">
@@ -179,11 +195,11 @@
       </div>
       <div class="section" id="indiv" hidden>
         <div class="sec-title"><h4 id="indivT">—</h4><button class="more" id="indivCerrar" style="margin:0">Ver todos</button></div>
-        <div class="kpis k4" id="kInd"></div>
+        <div class="money" id="kInd"></div>
         <ul class="list" id="indList" style="margin-top:12px"></ul>
       </div>
       <div class="section" id="ultGen">
-        <div class="sec-title"><h4>Últimos cortes</h4><span>Todo el equipo</span></div>
+        <div class="sec-title"><h4>Cortes del periodo</h4><span id="genCuenta"></span></div>
         <ul class="list" id="genList"></ul>
       </div>
       <div class="section">
@@ -228,9 +244,9 @@
 
 <div class="toast" id="toast"><i></i><span></span></div>
 
-<script src="qrcode.min.js?v=6"></script>
-<script src="jsQR.js?v=6"></script>
-<script src="blessing.js?v=6"></script>
+<script src="qrcode.min.js?v=7"></script>
+<script src="jsQR.js?v=7"></script>
+<script src="blessing.js?v=7"></script>
 <script>
 (() => {
   const $ = id => document.getElementById(id);
@@ -244,7 +260,7 @@
   const pagoDe = c => c.pago === "sinpe" ? "sinpe" : "efectivo";
   const Q = B.PRECIO_QUINTO;
   let eq = null, yo = null, clientes = [], cortes = [], escuchando = false;
-  let perMis = "hoy", perGen = "mes", indiv = null, fichaToken = null, quitarFicha = null, ultimaFicha = null, pago = "efectivo";
+  let indiv = null, fichaToken = null, quitarFicha = null, ultimaFicha = null, pago = "efectivo";
   const tokenInicial = B.tokenDeTexto(location.hash);
   const esDueno = () => eq && yo === eq.dueno;
 
@@ -477,55 +493,158 @@
   $("cliList").onclick = e => { const b = e.target.closest("[data-t]"); if (b) abrirFicha(b.dataset.t); };
 
   // ================= Reportes =================
-  function desde(p) {
-    const d = new Date(), hoy = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-    if (p === "hoy") return hoy.getTime();
-    if (p === "semana") { const dia = (hoy.getDay() + 6) % 7; return hoy.getTime() - dia * 864e5; } // desde el lunes
-    if (p === "mes") return new Date(d.getFullYear(), d.getMonth(), 1).getTime();
-    return 0;
+  // Día (cualquier día del último mes), Semana (7 días hasta ese día) o Mes (30 días hasta ese día).
+  const DIA = 864e5, MAX_ATRAS = 31;
+  const iso = d => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  const deIso = s => { const [y, m, d] = s.split("-").map(Number); return new Date(y, m - 1, d); };
+  const hoy0 = () => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), d.getDate()); };
+  const minimo = () => new Date(hoy0().getTime() - MAX_ATRAS * DIA);
+  const sumarDias = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+  const est = { Mis: { modo: "dia", fecha: iso(hoy0()) }, Gen: { modo: "dia", fecha: iso(hoy0()) } };
+  function rango(st) {
+    const fin = sumarDias(deIso(st.fecha), 1);
+    let ini = st.modo === "dia" ? deIso(st.fecha) : sumarDias(fin, st.modo === "semana" ? -7 : -30);
+    if (ini < minimo()) ini = minimo();
+    return { ini, fin, a: ini.getTime(), b: fin.getTime() };
   }
-  const RANGO = { hoy: "Hoy", semana: "Desde el lunes", mes: "Este mes", todo: "Desde el inicio" };
+  const may = t => t.charAt(0).toUpperCase() + t.slice(1);
+  const fLarga = d => may(d.toLocaleDateString("es-CR", { weekday: "long", day: "numeric", month: "long" }));
+  const fCorta = d => may(d.toLocaleDateString("es-CR", { weekday: "short", day: "numeric", month: "short" }));
+  function textoRango(st) {
+    const r = rango(st), ult = sumarDias(r.fin, -1);
+    if (st.modo === "dia") return iso(r.ini) === iso(hoy0()) ? "Hoy, " + fLarga(r.ini).toLowerCase() : fLarga(r.ini);
+    return fCorta(r.ini) + " – " + fCorta(ult) + (st.modo === "semana" ? " · 7 días" : " · 30 días");
+  }
+  const enRango = (f, r) => { const t = ms(f); return t >= r.a && t < r.b; };
+  const hora = f => f?.toDate ? f.toDate().toLocaleTimeString("es-CR", { hour: "numeric", minute: "2-digit" }) : "";
   function resumen(cs) {
-    const r = { n: cs.length, total: 0, q: 0, sinpe: 0, sinpeN: 0, efectivo: 0 };
-    cs.forEach(c => { r.total += c.precio; if (c.precio === Q) r.q++; if (pagoDe(c) === "sinpe") { r.sinpe += c.precio; r.sinpeN++; } else r.efectivo += c.precio; });
+    const r = { n: cs.length, total: 0, q: 0, sinpe: 0, sinpeN: 0, efectivo: 0, efectivoN: 0 };
+    cs.forEach(c => { r.total += c.precio; if (c.precio === Q) r.q++; if (pagoDe(c) === "sinpe") { r.sinpe += c.precio; r.sinpeN++; } else { r.efectivo += c.precio; r.efectivoN++; } });
     return r;
   }
-  const kpi = (v, t) => `<div class="kpi"><b class="foil">${v}</b><span>${t}</span></div>`;
-  const filaCorte = (c, conBarbero) => `<li>
+  // Tarjetas de montos: total grande y, debajo, efectivo, SINPE y cortes.
+  const montos = (r, tTotal) => `
+    <div class="m-total"><span>${tTotal}</span><b class="foil">${B.colones(r.total)}</b><small>${r.n} ${r.n === 1 ? "corte" : "cortes"} · ${r.q} a ₡2.000 · ${r.n - r.q} a ₡5.000</small></div>
+    <div class="m-row">
+      <div><span>Efectivo</span><b>${B.colones(r.efectivo)}</b><small>${r.efectivoN} ${r.efectivoN === 1 ? "corte" : "cortes"}</small></div>
+      <div><span>SINPE</span><b>${B.colones(r.sinpe)}</b><small>${r.sinpeN} ${r.sinpeN === 1 ? "corte" : "cortes"}</small></div>
+    </div>`;
+  const filaCorte = (c, conBarbero, conFecha) => `<li>
     <span class="ic ${c.precio === Q ? "hot" : ""}"><svg><use href="#${c.precio === Q ? "crown-flat" : "comb-flat"}"/></svg></span>
-    <span class="tx"><b>${esc(c.nombre)}<span class="tag ${pagoDe(c)}">${pagoDe(c) === "sinpe" ? "SINPE" : "Efectivo"}</span></b><small>${conBarbero ? esc(c.barbero) + " · " : ""}${cuando(c.fecha)}</small></span>
+    <span class="tx"><b>${esc(c.nombre)}<span class="tag ${pagoDe(c)}">${pagoDe(c) === "sinpe" ? "SINPE" : "Efectivo"}</span></b><small>${conBarbero ? esc(c.barbero) + " · " : ""}${conFecha ? cuando(c.fecha) : hora(c.fecha)}</small></span>
     <span class="amt">${B.colones(c.precio)}</span></li>`;
   const vacio = t => `<li class="empty">${t}</li>`;
+  function porDia(cs, r) {
+    const filas = [];
+    for (let d = sumarDias(r.fin, -1); d >= r.ini; d = sumarDias(d, -1)) {
+      const a = d.getTime(), b = sumarDias(d, 1).getTime(), x = resumen(cs.filter(c => ms(c.fecha) >= a && ms(c.fecha) < b));
+      filas.push({ d, ...x });
+    }
+    return filas;
+  }
+  const tablaDias = filas => filas.map(f => `<tr class="clic ${f.n ? "" : "cero"}" data-dia="${iso(f.d)}"><td>${esc(fCorta(f.d))}</td><td>${f.n}</td><td>${B.colones(f.efectivo)}</td><td>${B.colones(f.sinpe)}</td><td><b>${B.colones(f.total)}</b></td></tr>`).join("")
+    + (filas.length ? (() => { const t = filas.reduce((s, f) => ({ n: s.n + f.n, e: s.e + f.efectivo, si: s.si + f.sinpe, t: s.t + f.total }), { n: 0, e: 0, si: 0, t: 0 }); return `<tr class="tot"><td>Total</td><td>${t.n}</td><td>${B.colones(t.e)}</td><td>${B.colones(t.si)}</td><td><b>${B.colones(t.t)}</b></td></tr>`; })() : "");
 
   function pintarReportes() { if (!yo) return; pintarMis(); if (esDueno()) pintarGen(); }
+  function pintarControles(k) {
+    const box = $("ctl" + k), st = est[k];
+    [...box.querySelectorAll("[data-m]")].forEach(b => b.classList.toggle("sel", b.dataset.m === st.modo));
+    const f = box.querySelector("[data-fecha]"); f.value = st.fecha; f.min = iso(minimo()); f.max = iso(hoy0());
+    box.nextElementSibling.textContent = textoRango(st);
+  }
+  function datosMis() { const r = rango(est.Mis); return { r, cs: cortes.filter(c => c.barbero === yo && enRango(c.fecha, r)) }; }
+  function datosGen() { const r = rango(est.Gen); return { r, cs: cortes.filter(c => enRango(c.fecha, r)), cl: clientes.filter(c => enRango(c.creado, r)) }; }
   function pintarMis() {
-    const t0 = desde(perMis), cs = cortes.filter(c => c.barbero === yo && ms(c.fecha) >= t0), r = resumen(cs);
-    $("kMis").innerHTML = kpi(r.n, "Cortes") + kpi(B.colones(r.total), "Ganado") + kpi(r.q, "Cortes a ₡2.000") + kpi(B.colones(r.sinpe), `Por SINPE (${r.sinpeN})`);
-    $("misRango").textContent = RANGO[perMis];
-    $("misList").innerHTML = cs.length ? cs.slice(0, 60).map(c => filaCorte(c, false)).join("") : vacio("No tiene cortes registrados en este periodo.");
+    pintarControles("Mis");
+    const { r, cs } = datosMis(), x = resumen(cs);
+    $("kMis").innerHTML = montos(x, "Ganado");
+    $("dMisBox").hidden = est.Mis.modo === "dia";
+    if (est.Mis.modo !== "dia") { const fl = porDia(cs, r); $("dMis").innerHTML = tablaDias(est.Mis.modo === "mes" ? fl.filter(f => f.n) : fl) || `<tr><td colspan="5" style="text-align:center;color:var(--dim)">Sin cortes en este periodo</td></tr>`; }
+    $("misCuenta").textContent = cs.length ? cs.length + (cs.length === 1 ? " corte" : " cortes") : "";
+    $("misList").innerHTML = cs.length ? cs.slice(0, 200).map(c => filaCorte(c, false, est.Mis.modo !== "dia")).join("") : vacio("No tiene cortes en este periodo.");
   }
   function pintarGen() {
-    const t0 = desde(perGen), cs = cortes.filter(c => ms(c.fecha) >= t0), cl = clientes.filter(c => ms(c.creado) >= t0), r = resumen(cs);
-    $("kGen").innerHTML = kpi(r.n, "Cortes") + kpi(B.colones(r.total), "Ingresos") + kpi(B.colones(r.efectivo), "Efectivo") + kpi(B.colones(r.sinpe), "SINPE");
-    $("fGen").innerHTML = `<div><b>${cl.length}</b><span>Clientes nuevos</span></div><div><b>${r.q}</b><span>Cortes a ₡2.000</span></div><div><b>${r.n - r.q}</b><span>Cortes a ₡5.000</span></div>`;
+    pintarControles("Gen");
+    const { r, cs, cl } = datosGen(), x = resumen(cs);
+    $("kGen").innerHTML = montos(x, "Ingresos de la barbería");
+    $("fGen").innerHTML = `<div><b>${cl.length}</b><span>Clientes nuevos</span></div><div><b>${x.q}</b><span>Cortes a ₡2.000</span></div><div><b>${x.n - x.q}</b><span>Cortes a ₡5.000</span></div>`;
+    $("dGenBox").hidden = est.Gen.modo === "dia";
+    if (est.Gen.modo !== "dia") { const fl = porDia(cs, r); $("dGen").innerHTML = tablaDias(est.Gen.modo === "mes" ? fl.filter(f => f.n) : fl) || `<tr><td colspan="5" style="text-align:center;color:var(--dim)">Sin cortes en este periodo</td></tr>`; }
     const nombres = [...new Set([...eq.lista, ...cs.map(c => c.barbero), ...cl.map(c => c.barbero)])];
-    const filas = nombres.map(b => { const x = resumen(cs.filter(c => c.barbero === b)); return { b, nuevos: cl.filter(c => c.barbero === b).length, ...x }; })
-      .sort((a, z) => z.total - a.total || z.nuevos - a.nuevos);
-    $("tGen").innerHTML = filas.map(f => `<tr class="clic ${f.b === indiv ? "on" : ""}" data-b="${esc(f.b)}"><td>${esc(f.b)}${f.b === eq.dueno ? '<span class="tag">Dueño</span>' : ""}</td><td><b>${f.nuevos}</b></td><td>${f.n}</td><td>${f.q}</td><td>${B.colones(f.sinpe)}</td><td>${B.colones(f.total)}</td></tr>`).join("");
+    const filas = nombres.map(b => ({ b, nuevos: cl.filter(c => c.barbero === b).length, ...resumen(cs.filter(c => c.barbero === b)) })).sort((a, z) => z.total - a.total || z.nuevos - a.nuevos);
+    $("tGen").innerHTML = filas.map(f => `<tr class="clic ${f.b === indiv ? "on" : ""}" data-b="${esc(f.b)}"><td>${esc(f.b)}${f.b === eq.dueno ? '<span class="tag">Dueño</span>' : ""}</td><td>${f.nuevos}</td><td>${f.n}</td><td>${f.q}</td><td>${B.colones(f.sinpe)}</td><td><b>${B.colones(f.total)}</b></td></tr>`).join("");
     $("indiv").hidden = !indiv; $("ultGen").hidden = !!indiv;
+    const conFecha = est.Gen.modo !== "dia";
     if (indiv) {
-      const mios = cs.filter(c => c.barbero === indiv), x = resumen(mios);
-      $("indivT").textContent = indiv + " · " + RANGO[perGen].toLowerCase();
-      $("kInd").innerHTML = kpi(x.n, "Cortes") + kpi(B.colones(x.total), "Generó") + kpi(x.q, "Cortes a ₡2.000") + kpi(cl.filter(c => c.barbero === indiv).length, "Clientes nuevos");
-      $("indList").innerHTML = mios.length ? mios.slice(0, 60).map(c => filaCorte(c, false)).join("") : vacio("Sin cortes en este periodo.");
+      const mios = cs.filter(c => c.barbero === indiv), y = resumen(mios);
+      $("indivT").textContent = indiv;
+      $("kInd").innerHTML = montos(y, "Generó · " + cl.filter(c => c.barbero === indiv).length + " clientes nuevos");
+      $("indList").innerHTML = mios.length ? mios.slice(0, 200).map(c => filaCorte(c, false, conFecha)).join("") : vacio("Sin cortes en este periodo.");
     } else {
-      $("genList").innerHTML = cs.length ? cs.slice(0, 15).map(c => filaCorte(c, true)).join("") : vacio("No hay cortes en este periodo.");
+      $("genCuenta").textContent = cs.length ? cs.length + (cs.length === 1 ? " corte" : " cortes") : "";
+      $("genList").innerHTML = cs.length ? cs.slice(0, 200).map(c => filaCorte(c, true, conFecha)).join("") : vacio("No hay cortes en este periodo.");
     }
   }
-  const seg = (id, set) => $(id).onclick = e => { const b = e.target.closest("[data-p]"); if (!b) return; [...$(id).children].forEach(x => x.classList.toggle("sel", x === b)); set(b.dataset.p); pintarReportes(); };
-  seg("perMis", p => perMis = p); seg("perGen", p => perGen = p);
+  ["Mis", "Gen"].forEach(k => {
+    const box = $("ctl" + k);
+    box.addEventListener("click", e => {
+      const m = e.target.closest("[data-m]"); if (m) { est[k].modo = m.dataset.m; pintarReportes(); return; }
+      if (e.target.closest("[data-dl]")) descargar(k);
+    });
+    box.querySelector("[data-fecha]").addEventListener("change", e => {
+      let v = e.target.value; if (!v) return;
+      if (deIso(v) < minimo()) { v = iso(minimo()); toast("Se puede consultar hasta un mes atrás."); }
+      if (deIso(v) > hoy0()) v = iso(hoy0());
+      est[k].fecha = v; pintarReportes();
+    });
+  });
+  // Tocar un día de la tabla abre ese día.
+  ["dMis", "dGen"].forEach(id => $(id).onclick = e => { const t = e.target.closest("[data-dia]"); if (!t) return; const k = id.slice(1); est[k] = { modo: "dia", fecha: t.dataset.dia }; pintarReportes(); $("ctl" + k).scrollIntoView({ behavior: "smooth", block: "start" }); });
   $("tGen").onclick = e => { const r = e.target.closest("[data-b]"); if (!r) return; indiv = indiv === r.dataset.b ? null : r.dataset.b; pintarGen(); if (indiv) $("indiv").scrollIntoView({ behavior: "smooth", block: "start" }); };
   $("indivCerrar").onclick = () => { indiv = null; pintarGen(); };
+
+  // ----- Descargar el reporte en Excel (con respaldo en CSV) -----
+  let libXLSX = null;
+  function cargarXLSX() {
+    if (window.XLSX) return Promise.resolve(window.XLSX);
+    if (!libXLSX) libXLSX = new Promise((ok, no) => { const sc = document.createElement("script"); sc.src = "https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"; sc.onload = () => ok(window.XLSX); sc.onerror = no; document.head.appendChild(sc); });
+    return libXLSX;
+  }
+  function hojas(k) {
+    const st = est[k], gen = k === "Gen", d = gen ? datosGen() : datosMis(), x = resumen(d.cs);
+    const titulo = gen ? "Reporte general" : "Cortes de " + yo;
+    const res = [["The Blessing Barbershop"], [titulo], ["Periodo", textoRango(st)], [],
+      ["Total", x.total], ["Efectivo", x.efectivo], ["SINPE", x.sinpe], ["Cortes", x.n], ["Cortes a ₡2.000", x.q], ["Cortes a ₡5.000", x.n - x.q]];
+    if (gen) res.push(["Clientes nuevos", d.cl.length]);
+    const out = [["Resumen", res]];
+    if (st.modo !== "dia") out.push(["Por día", [["Fecha", "Cortes", "Efectivo", "SINPE", "Total"], ...porDia(d.cs, d.r).reverse().map(f => [iso(f.d), f.n, f.efectivo, f.sinpe, f.total])]]);
+    if (gen) {
+      const nombres = [...new Set([...eq.lista, ...d.cs.map(c => c.barbero)])];
+      out.push(["Por barbero", [["Barbero", "Clientes nuevos", "Cortes", "A ₡2.000", "Efectivo", "SINPE", "Total"],
+        ...nombres.map(b => { const y = resumen(d.cs.filter(c => c.barbero === b)); return [b, d.cl.filter(c => c.barbero === b).length, y.n, y.q, y.efectivo, y.sinpe, y.total]; })]]);
+    }
+    out.push(["Detalle", [["Fecha", "Hora", "Cliente", "Barbero", "Monto", "Pago", "Sello"],
+      ...d.cs.slice().reverse().map(c => [c.fecha?.toDate ? iso(c.fecha.toDate()) : "", hora(c.fecha), c.nombre, c.barbero, c.precio, pagoDe(c) === "sinpe" ? "SINPE" : "Efectivo", c.n === 5 ? "5.º (₡2.000)" : c.n])]]);
+    const nombre = "blessing-" + (gen ? "general" : yo.toLowerCase()) + "-" + st.modo + "-" + st.fecha;
+    return { out, nombre: nombre.normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9-]/gi, "") };
+  }
+  function bajar(blob, nombre) {
+    const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = nombre;
+    document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+  }
+  async function descargar(k) {
+    const { out, nombre } = hojas(k);
+    try {
+      const X = await cargarXLSX(), wb = X.utils.book_new();
+      out.forEach(([n, filas]) => { const ws = X.utils.aoa_to_sheet(filas); ws["!cols"] = filas[0].map((_, i) => ({ wch: i === 0 ? 18 : 14 })); X.utils.book_append_sheet(wb, ws, n); });
+      X.writeFile(wb, nombre + ".xlsx");
+      toast("Reporte descargado");
+    } catch {
+      const csv = out.map(([n, filas]) => [n, ...filas.map(f => f.map(v => /[;"\n]/.test(String(v)) ? '"' + String(v).replace(/"/g, '""') + '"' : v).join(";"))].join("\n")).join("\n\n");
+      bajar(new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8" }), nombre + ".csv");
+      toast("Reporte descargado (CSV)");
+    }
+  }
 
   // ================= Equipo (solo dueño) =================
   function pintarEquipo() {

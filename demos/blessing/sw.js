@@ -1,5 +1,5 @@
 // The Blessing: guarda la app para abrirla rápido. Las páginas siempre se buscan primero en internet.
-const CACHE = 'blessing-demo-v6';
+const CACHE = 'blessing-demo-v7';
 const FILES = ['./', './index.html', './barberia.html', './manifest.json', './icon-192.png', './icon-512.png'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES))); self.skipWaiting(); });
 self.addEventListener('activate', e => {

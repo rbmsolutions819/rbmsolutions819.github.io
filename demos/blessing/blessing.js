@@ -123,7 +123,9 @@ window.Blessing = (() => {
   }
   async function escucharCortes(alCambiar, alFallar) {
     await iniciar();
-    return F.onSnapshot(F.query(F.collection(db, CORTES), F.orderBy("fecha", "desc"), F.limit(500)),
+    // Solo el último mes (y un poco más), que es lo que se puede consultar en los reportes.
+    const desde = F.Timestamp.fromMillis(Date.now() - 33 * 864e5);
+    return F.onSnapshot(F.query(F.collection(db, CORTES), F.where("fecha", ">=", desde), F.orderBy("fecha", "desc"), F.limit(5000)),
       s => alCambiar(s.docs.map(d => ({ id: d.id, ...d.data({ serverTimestamps: "estimate" }) }))), e => alFallar && alFallar(e));
   }
   // ----- Equipo: cada barbero entra con su propio PIN. El dueño ve los reportes de todos. -----

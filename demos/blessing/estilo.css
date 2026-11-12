@@ -255,3 +255,24 @@ table.t tr.on td{background:rgba(217,180,106,.07)}
 .pick button{min-height:72px}
 .pick button>span:last-child{display:flex;flex-direction:column;line-height:1.05}
 .pick button .av{width:40px;height:40px;font-size:15px}
+
+/* Reportes: periodo, montos y tabla por día */
+.periodo{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.periodo .seg button{padding:10px 14px;font-size:11px}
+.periodo .fecha{flex:1;min-width:150px;width:auto;padding:9px 12px;font-size:14px;border-radius:12px;color-scheme:inherit}
+.periodo .dl{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--gold-lo);background:transparent;color:var(--gold);border-radius:12px;padding:10px 14px;cursor:pointer;font:700 11px Manrope;letter-spacing:.12em;text-transform:uppercase}
+.periodo .dl svg{width:16px;height:16px}
+.rango{margin:12px 0 14px;font-family:"Cormorant Garamond";font-size:20px;font-weight:600;color:var(--text)}
+.money{display:grid;gap:10px}
+.m-total{border-radius:20px;padding:20px 20px 18px;border:1px solid rgba(217,180,106,.35);background:radial-gradient(120% 140% at 0% 0%,rgba(217,180,106,.14),transparent 60%),rgba(var(--w),.02)}
+.m-total span,.m-row span{display:block;font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+.m-total b{display:block;font-family:"Bebas Neue";font-weight:400;font-size:54px;line-height:1;margin:8px 0 6px;letter-spacing:.01em}
+.m-total small,.m-row small{font-size:12px;color:var(--muted)}
+.m-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.m-row>div{border:1px solid var(--line);border-radius:18px;padding:14px 16px;background:rgba(var(--w),.02)}
+.m-row b{display:block;font-family:"Bebas Neue";font-weight:400;font-size:32px;line-height:1;margin:6px 0 4px;color:var(--text)}
+table.t td b{font-family:"Bebas Neue";font-weight:400;font-size:19px;color:var(--gold)}
+table.dias tr.cero td{color:var(--dim)}
+table.dias tr.cero td b{color:var(--dim)}
+table.dias tr.tot td{border-top:1px solid var(--line2);font-weight:700}
+@media (prefers-color-scheme: light){ .m-total{background:radial-gradient(120% 140% at 0% 0%,rgba(201,162,90,.18),transparent 60%),#fff} .m-row>div{background:#fff} }
