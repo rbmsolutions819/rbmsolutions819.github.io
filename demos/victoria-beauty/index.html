@@ -832,6 +832,12 @@ html{overflow-x:hidden}
 .top-c{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid #f4e8ec}.top-c:first-of-type{border-top:0}
 .top-c>div{flex:1;display:grid;min-width:0}.top-c b{font-weight:500}.top-c span{font-size:12.5px;color:#7a646b}
 .top-c strong{font-family:var(--serif);font-size:17px;color:var(--oro3);white-space:nowrap}
+.hist-ir{margin:-2px 0 10px}.hist-ir label{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13.5px;color:#7a646b}
+.hist-ir input{border:1px solid #e1d1d7;border-radius:10px;padding:8px 10px;font:400 14px var(--sans);color:var(--tinta);background:#fff}
+.hist-m{display:grid;grid-template-columns:1fr auto;grid-template-areas:"t e" "i i" "s s";gap:3px 10px;width:100%;text-align:left;background:none;border:0;border-top:1px solid #f4e8ec;padding:10px 4px;font:inherit;color:inherit;cursor:pointer}
+.hist-m:first-of-type{border-top:0}.hist-m span{grid-area:t;font-weight:500}.hist-m em{grid-area:e;font-style:normal;font-family:var(--serif);font-size:17px;font-weight:600;color:var(--oro3)}
+.hist-m i{grid-area:i;height:7px;background:#f6ecef;border-radius:9px;overflow:hidden}.hist-m i b{display:block;height:100%;background:linear-gradient(90deg,var(--oro3),var(--oro2));border-radius:9px}
+.hist-m small{grid-area:s;font-size:12px;color:#8a7279}.hist-m.si{background:#fdf0f4;border-radius:12px}
 </style>
 </head>
 <body>
@@ -1195,7 +1201,7 @@ const ReservasPrueba = (() => {
   const leer = () => { try { return JSON.parse(localStorage.getItem(KEY) || "[]"); } catch { return mem; } };
   const guardar = l => { mem = l; try { localStorage.setItem(KEY, JSON.stringify(l)); } catch {} };
   // Algunas citas de ejemplo para que se vean espacios "Reservado"
-  // Datos de ejemplo: 2 meses atendidos (mes 1: 5 clientas por día; mes 2: se alterna 5 y 7 por día) y algunas citas próximas
+  // Datos de ejemplo: 2 meses atendidos (alrededor de ₡500.000 por mes, 1 o 2 clientas por día) y algunas citas próximas
   const CLIENTAS_EJ = [["María Fernández",12,"8811 1111"],["Daniela Rojas",10,"8822 2222"],["Sofía Vargas",9,"8833 3333"],["Andrea Mora",8,"8844 4444"],["Valeria Castro",7],["Fernanda Solís",6],["Camila Jiménez",5],["Natalia Quesada",5],["Gabriela Chaves",4],["Paola Arias",4],["Melissa Ramírez",3],["Karla Navarro",3],["Tatiana Alfaro",3],["Jimena Vega",2],["Raquel Brenes",2],["Laura Méndez",2],["Ana Lucía Soto",2],["Mariana Herrera",2],["Priscilla Mora",1],["Hellen Cordero",1]];
   const SERV_EJ = [["clasicas",5],["rimel",6],["volumen",4],["retoque",7],["lifting",4],["cejas",5],["maquillaje",2]];
   const telEj = n => "88" + String(10 + (n.charCodeAt(0) * 7 + n.length * 13) % 89).padStart(2, "0") + " " + String(1000 + (n.charCodeAt(1) * 53 + n.length * 7) % 8999);
@@ -1209,7 +1215,7 @@ const ReservasPrueba = (() => {
     const servEj = id => servDe(id) || SERVICIOS[0];
     for (let i = -60; i < 0; i++) {
       const f = iso(masDias(hoy, i)); const tt = turnosDe(f); if (!tt.length) continue;
-      const meta = i < -30 ? 5 : (i % 2 === 0 ? 7 : 5);
+      const meta = [1, 2, 1, 1, 1, 2, 1][((i % 7) + 7) % 7];
       let [cur, fin] = tt[0];
       for (let k = 0; k < meta; k++) {
         let sv = servEj(pesar(SERV_EJ, azar(sem++))[0]);
@@ -2011,6 +2017,10 @@ function pintarIngresos(){
     ${nIng.vista === "dia" ? "" : `<div class="ing-box"><h4>Por día</h4>
       <div class="ing-dias id-${nIng.vista}">${porDia.map(([f, m]) => { const d = deIso(f); return `<div class="ing-dia${f === hoy ? " hoy" : ""}" title="${fechaLarga(f)}: ${colones(m)}">
         <span class="v">${m && nIng.vista === "semana" ? colones(m).replace("₡", "") : ""}</span><i style="height:${Math.round(m / maxD * 100)}%"></i><small>${nIng.vista === "semana" ? DIAS_C[d.getUTCDay()] : (d.getUTCDate() % 5 === 1 || d.getUTCDate() === 1 ? d.getUTCDate() : "")}</small></div>`; }).join("")}</div></div>`}
+    <div class="ing-box"><h4>Historial por mes</h4>
+      <div class="hist-ir"><label>Ir a un mes<input type="month" id="ing-mes" value="${nIng.ref.slice(0, 7)}" max="${hoy.slice(0, 7)}"></label></div>
+      ${(() => { const h = historialMeses(), mx = Math.max(1, ...h.map(x => x.m)); return h.length ? h.map(x => `<button class="hist-m${nIng.vista === "mes" && nIng.ref.slice(0, 7) === x.k ? " si" : ""}" data-hist="${x.k}"><span>${x.t}</span><i><b style="width:${Math.round(x.m / mx * 100)}%"></b></i><em>${colones(x.m)}</em><small>${x.n} citas</small></button>`).join("") : `<p class="ing-vacio">Aún no hay meses con citas.</p>`; })()}
+    </div>
     <div class="ing-box"><h4>Servicios más pedidos</h4>
       ${masPedidos.length ? masPedidos.map(([n, v], i) => `<div class="ing-fila"><div class="t"><span><em class="pos">${i + 1}</em>${esc(n)} <em>· ${v.n} cita${v.n === 1 ? "" : "s"}</em></span><b>${colones(v.m)}</b></div><div class="bar"><i style="width:${Math.round(v.n / maxN * 100)}%"></i></div></div>`).join("") : `<p class="ing-vacio">No hay citas en este periodo.</p>`}</div>
     <div class="ing-box"><h4>Top 5 clientas frecuentes</h4>
@@ -2241,7 +2251,13 @@ $("#nicole").addEventListener("keydown", e => { if (e.key === "Enter" && e.targe
 
 
 
-// ===== Reportes: resumen rápido, clientas frecuentes y PDF =====
+// ===== Reportes: resumen rápido, historial, clientas frecuentes y PDF =====
+function historialMeses(){
+  const g = {}; for (const c of Reservas.todas()) { const k = c.fecha.slice(0, 7); (g[k] = g[k] || { k, n: 0, m: 0 }).n++; g[k].m += montoCita(c); }
+  return Object.values(g).sort((a, b) => b.k.localeCompare(a.k)).map(x => ({ ...x, t: MESES_L[+x.k.slice(5) - 1] + " " + x.k.slice(0, 4) }));
+}
+document.addEventListener("click", e => { const b = e.target.closest("#nicole [data-hist]"); if (!b) return; nIng.vista = "mes"; nIng.ref = b.dataset.hist + "-01"; pintarNicole(); $("#nicole .ing-total")?.scrollIntoView({ behavior: "smooth", block: "center" }); });
+document.addEventListener("change", e => { if (e.target.id !== "ing-mes" || !e.target.value) return; nIng.vista = "mes"; nIng.ref = e.target.value + "-01"; pintarNicole(); });
 let ultimoReporte = null;
 function resumenRapido(){
   const hoy = iso(crAhora()), d = deIso(hoy), l = iso(masDias(d, -((d.getUTCDay() + 6) % 7))), dom = iso(masDias(deIso(l), 6));
