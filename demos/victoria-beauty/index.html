@@ -820,6 +820,18 @@ html{overflow-x:hidden}
 .comp-falta{display:grid;gap:4px;background:#fdf5f3;border:1px dashed #e3c3bd;border-radius:14px;padding:12px 14px;margin-bottom:10px}
 .comp-falta b{color:#a3443a;font-weight:500}.comp-falta span{font-size:13px;color:#7a646b}
 .comp-falta .btn{margin-top:6px;color:var(--tinta);border-color:#e1d1d7;font-size:12px;padding:10px}
+.ing-rap{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:10px}
+.ing-rap div{background:linear-gradient(150deg,#2a1a21,#1a1115);color:#fbf6f7;border-radius:16px;padding:12px;display:grid;gap:1px;min-width:0}
+.ing-rap small{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--oro2)}
+.ing-rap b{font-family:var(--serif);font-size:20px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ing-rap span{font-size:12px;color:#dccbd0}
+.ing-pdf{width:100%;margin-bottom:14px;gap:8px}.ing-pdf svg{width:18px;height:18px}
+.ing .pos{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:#f6ecef;color:var(--oro3);font-style:normal;font-size:12px;font-weight:600;margin-right:8px}
+.ing .pos.oro{background:var(--oro3);color:#fff}
+.ing-sub{font-size:13px;color:#7a646b;margin:-2px 0 10px}
+.top-c{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid #f4e8ec}.top-c:first-of-type{border-top:0}
+.top-c>div{flex:1;display:grid;min-width:0}.top-c b{font-weight:500}.top-c span{font-size:12.5px;color:#7a646b}
+.top-c strong{font-family:var(--serif);font-size:17px;color:var(--oro3);white-space:nowrap}
 </style>
 </head>
 <body>
@@ -1184,14 +1196,15 @@ const ReservasPrueba = (() => {
   const guardar = l => { mem = l; try { localStorage.setItem(KEY, JSON.stringify(l)); } catch {} };
   // Algunas citas de ejemplo para que se vean espacios "Reservado"
   function ejemplos(){
-    const hoy = deIso(iso(crAhora())); const out = []; const nombres = ["María","Andrea","Fernanda","Daniela","Sofía","Valeria"]; let k = 0;
-    for (let i = 0; i < 21; i++) {
+    const hoy = deIso(iso(crAhora())); const out = []; const nombres = ["María","Andrea","Fernanda","Daniela","Sofía","Valeria","María","Daniela","Andrea","María"]; let k = 0;
+    const telEj = n => "88" + String(10 + (n.charCodeAt(0) * 7 + n.length * 13) % 89).padStart(2, "0") + " " + String(1000 + (n.charCodeAt(1) * 53) % 8999);
+    for (let i = -60; i < 21; i++) {
       const f = iso(masDias(hoy, i)); const tt = turnosDe(f); if (!tt.length) continue;
-      const [a, b] = tt[0]; const sem = (i * 7 + 3) % 5;
+      const [a, b] = tt[0]; const sem = ((i * 7 + 3) % 5 + 5) % 5;
       const ini = a + 30 * (sem % Math.max(1, (b - a) / 30 - 3));
-      out.push({ id:"ej" + i, fecha:f, ini, dur: sem % 2 ? 120 : 90, servicio: SERVICIOS[(i * 3) % SERVICIOS.length].nombre, lugar: "estudio", deposito: i % 3 !== 0, nombre: nombres[k++ % nombres.length] + " (ejemplo)", tel:"8888 0000", nota:"", ejemplo:true });
-      if (tt[1] && i % 2 === 0) out.push({ id:"ejb" + i, fecha:f, ini: tt[1][0], dur:60, servicio:"Lifting de pestañas", lugar:"estudio", deposito:true, nombre: nombres[k++ % nombres.length] + " (ejemplo)", tel:"8888 0000", nota:"", ejemplo:true });
-      if (!tt[1] && i % 3 === 1 && b - a >= 300) out.push({ id:"ejc" + i, fecha:f, ini: b - 120, dur:60, servicio:"Cejas y laminado", lugar:"estudio", deposito:false, nombre: nombres[k++ % nombres.length] + " (ejemplo)", tel:"8888 0000", nota:"", ejemplo:true });
+      out.push({ id:"ej" + i, fecha:f, ini, dur: sem % 2 ? 120 : 90, servicio: SERVICIOS[((i * 3) % SERVICIOS.length + SERVICIOS.length) % SERVICIOS.length].nombre, lugar: "estudio", deposito: i < 0 || i % 3 !== 0, nombre: nombres[k % nombres.length] + " (ejemplo)", tel: telEj(nombres[k++ % nombres.length]), nota:"", ejemplo:true });
+      if (tt[1] && i % 2 === 0) out.push({ id:"ejb" + i, fecha:f, ini: tt[1][0], dur:60, servicio:"Lifting de pestañas", lugar:"estudio", deposito:true, nombre: nombres[k % nombres.length] + " (ejemplo)", tel: telEj(nombres[k++ % nombres.length]), nota:"", ejemplo:true });
+      if (!tt[1] && i % 3 === 1 && b - a >= 300) out.push({ id:"ejc" + i, fecha:f, ini: b - 120, dur:60, servicio:"Cejas y laminado", lugar:"estudio", deposito:false, nombre: nombres[k % nombres.length] + " (ejemplo)", tel: telEj(nombres[k++ % nombres.length]), nota:"", ejemplo:true });
     }
     return out;
   }
@@ -1886,7 +1899,7 @@ function verCita(id){
       <p>${fechaLarga(c.fecha).replace(/^./, x => x.toUpperCase())} · ${h12m(c.ini)} – ${h12m(c.ini + c.dur)}</p></div></div>
     <ul class="ev-lista"><li><span>Servicio</span>${esc(c.servicio)} · ${durTxt(c.dur)} · <b>${colones(montoCita(c))}</b></li><li><span>Celular</span>${esc(c.tel)}</li>${c.nota ? `<li><span>Nota</span>“${esc(c.nota)}”</li>` : ""}</ul>
     ${c.comprobante ? `<button class="comp-adm" id="ev-comp" type="button"><img src="${c.comprobante}" alt=""><span><b>Comprobante de SINPE subido</b><small>Toque para verlo en grande y revise que el monto esté en su cuenta</small></span></button>`
-      : !c.deposito ? `<div class="comp-falta"><b>Sin comprobante de SINPE</b><span>La clienta no subió el comprobante del depósito.</span><a class="btn btn-linea" href="https://wa.me/${t506}?text=${encodeURIComponent(`Hola ${c.nombre.split(" ")[0]}, le saluda Victoria Beauty. No tengo el comprobante del SINPE de ${DEPOSITO} de su reserva ${ordenDe(c)} (${c.servicio}, ${fechaLarga(c.fecha)} a las ${h12m(c.ini)}). ¿Me lo puede pasar, por favor? Sin el depósito no puedo confirmar el espacio.`)}" target="_blank" rel="noopener"><svg><use href="#wa"/></svg>Pedir comprobante por WhatsApp</a></div>` : ""}
+      : !c.deposito ? `<div class="comp-falta"><b>Sin comprobante de SINPE</b><span>La clienta no subió el comprobante del depósito.</span><a class="btn btn-linea" href="https://wa.me/${t506}?text=${encodeURIComponent(`Hola ${c.nombre.split(" ")[0]}, le saluda Victoria Beauty. No tengo el comprobante del SINPE de ${DEPOSITO} de su reserva ${ordenDe(c)} (${c.servicio}, ${fechaLarga(c.fecha)} a las ${h12m(c.ini)}). ¿Me lo puede pasar, por favor?`)}" target="_blank" rel="noopener"><svg><use href="#wa"/></svg>Pedir comprobante por WhatsApp</a></div>` : ""}
     <div class="dep-adm ${c.deposito ? "si" : ""}"><div><b>${c.deposito ? "Depósito recibido" : "Depósito pendiente"}</b><span>${DEPOSITO} por SINPE ${c.deposito ? "· cita confirmada" : c.comprobante ? "· la clienta subió el comprobante" : "· aún sin comprobante"}</span></div><button class="btn ${c.deposito ? "btn-linea" : "btn-oro"}" id="ev-dep">${c.deposito ? "Marcar pendiente" : "Marcar recibido"}</button></div>
     <div class="apuntes"><label for="ev-apuntes">Mis anotaciones <small>(solo tú las ves)</small></label>
       <textarea id="ev-apuntes" rows="3" maxlength="1000" placeholder="Ej.: curvatura C, 11 mm, prefiere look natural…">${esc(c.apuntes || "")}</textarea>
@@ -1932,12 +1945,13 @@ let nIng = { vista: "mes", ref: null };
 const colones = n => "₡" + Math.round(n).toLocaleString("es-CR").replace(/\s/g, ".");
 const precioNum = s => +String(s?.precio || "").replace(/[^\d]/g, "") || 0;
 // Estimado: precio del servicio proporcional a la duración reservada (ej.: 2 h de un servicio de 1 h = doble).
-function montoCita(c){ const s = SERVICIOS.find(x => x.nombre === c.servicio); if (!s) return 0; return precioNum(s) * (c.dur / (s.dur || 60)); }
+function montoCita(c){ const s = SERVICIOS.find(x => x.nombre === c.servicio); if (!s) return 0; return precioNum(s); }
 function pintarIngresos(){
   const hoy = iso(crAhora()); if (!nIng.ref) nIng.ref = hoy;
   const r = deIso(nIng.ref);
   let ini, fin, titulo;
-  if (nIng.vista === "semana") { const l = masDias(r, -((r.getUTCDay() + 6) % 7)); ini = iso(l); fin = iso(masDias(l, 6));
+  if (nIng.vista === "dia") { ini = fin = nIng.ref; titulo = fechaLarga(nIng.ref).replace(/^./, x => x.toUpperCase()); }
+  else if (nIng.vista === "semana") { const l = masDias(r, -((r.getUTCDay() + 6) % 7)); ini = iso(l); fin = iso(masDias(l, 6));
     const d = masDias(l, 6); titulo = `${l.getUTCDate()} ${MES_C[l.getUTCMonth()]} – ${d.getUTCDate()} ${MES_C[d.getUTCMonth()]}`; }
   else { const a = new Date(Date.UTC(r.getUTCFullYear(), r.getUTCMonth(), 1)), b = new Date(Date.UTC(r.getUTCFullYear(), r.getUTCMonth() + 1, 0));
     ini = iso(a); fin = iso(b); titulo = `${MESES_L[r.getUTCMonth()]} ${r.getUTCFullYear()}`; }
@@ -1955,9 +1969,14 @@ function pintarIngresos(){
   const porDia = dias.map(f => [f, lista.filter(c => c.fecha === f).reduce((t, c) => t + montoCita(c), 0)]);
   const maxD = Math.max(1, ...porDia.map(x => x[1]));
   const sinPrecio = lista.filter(c => !montoCita(c)).length;
+  const rap = resumenRapido(), top = topClientas(), frec = top.lista.filter(x => x.n >= 3).length;
+  const masPedidos = Object.entries(porServ).sort((a, b) => b[1].n - a[1].n || b[1].m - a[1].m), maxN = Math.max(1, ...masPedidos.map(x => x[1].n));
+  ultimoReporte = { titulo, lista, total, real, porServ: masPedidos, top: top.lista.slice(0, 5), rap };
   return `<div class="ing">
+    <div class="ing-rap">${rap.map(([t, m, n]) => `<div><small>${t}</small><b>${colones(m)}</b><span>${n} cita${n === 1 ? "" : "s"}</span></div>`).join("")}</div>
+    <button class="btn btn-osc ing-pdf" id="ing-pdf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 12v6M9 15l3 3 3-3"/></svg>Exportar reporte en PDF</button>
     <div class="cal-bar">
-      <div class="cal-vistas" style="grid-template-columns:1fr 1fr">${[["semana", "Semana"], ["mes", "Mes"]].map(([k, t]) => `<button class="${nIng.vista === k ? "si" : ""}" data-iv="${k}">${t}</button>`).join("")}</div>
+      <div class="cal-vistas" style="grid-template-columns:1fr 1fr 1fr">${[["dia", "Día"], ["semana", "Semana"], ["mes", "Mes"]].map(([k, t]) => `<button class="${nIng.vista === k ? "si" : ""}" data-iv="${k}">${t}</button>`).join("")}</div>
       <div class="cal-nav"><button data-inav="0" class="hoy">Hoy</button><button data-inav="-1" aria-label="Anterior">‹</button><button data-inav="1" aria-label="Siguiente">›</button><b>${titulo}</b></div>
     </div>
     <div class="ing-total"><small>Total estimado</small><b>${colones(total)}</b>
@@ -1967,13 +1986,17 @@ function pintarIngresos(){
       <div><small>Por atender</small><b>${colones(total - real)}</b></div>
       <div><small>Promedio por cita</small><b>${colones(lista.length ? total / lista.length : 0)}</b></div>
     </div>
-    <div class="ing-box"><h4>Por día</h4>
+    ${nIng.vista === "dia" ? "" : `<div class="ing-box"><h4>Por día</h4>
       <div class="ing-dias id-${nIng.vista}">${porDia.map(([f, m]) => { const d = deIso(f); return `<div class="ing-dia${f === hoy ? " hoy" : ""}" title="${fechaLarga(f)}: ${colones(m)}">
-        <span class="v">${m && nIng.vista === "semana" ? colones(m).replace("₡", "") : ""}</span><i style="height:${Math.round(m / maxD * 100)}%"></i><small>${nIng.vista === "semana" ? DIAS_C[d.getUTCDay()] : (d.getUTCDate() % 5 === 1 || d.getUTCDate() === 1 ? d.getUTCDate() : "")}</small></div>`; }).join("")}</div></div>
-    <div class="ing-box"><h4>Por servicio</h4>
-      ${servs.length ? servs.map(([n, v]) => `<div class="ing-fila"><div class="t"><span>${esc(n)} <em>× ${v.n}</em></span><b>${colones(v.m)}</b></div><div class="bar"><i style="width:${Math.round(v.m / maxS * 100)}%"></i></div></div>`).join("") : `<p class="ing-vacio">No hay citas en este periodo.</p>`}</div>
+        <span class="v">${m && nIng.vista === "semana" ? colones(m).replace("₡", "") : ""}</span><i style="height:${Math.round(m / maxD * 100)}%"></i><small>${nIng.vista === "semana" ? DIAS_C[d.getUTCDay()] : (d.getUTCDate() % 5 === 1 || d.getUTCDate() === 1 ? d.getUTCDate() : "")}</small></div>`; }).join("")}</div></div>`}
+    <div class="ing-box"><h4>Servicios más pedidos</h4>
+      ${masPedidos.length ? masPedidos.map(([n, v], i) => `<div class="ing-fila"><div class="t"><span><em class="pos">${i + 1}</em>${esc(n)} <em>· ${v.n} cita${v.n === 1 ? "" : "s"}</em></span><b>${colones(v.m)}</b></div><div class="bar"><i style="width:${Math.round(v.n / maxN * 100)}%"></i></div></div>`).join("") : `<p class="ing-vacio">No hay citas en este periodo.</p>`}</div>
+    <div class="ing-box"><h4>Top 5 clientas frecuentes</h4>
+      <p class="ing-sub">${top.lista.length} clientas en total · ${frec} frecuente${frec === 1 ? "" : "s"} (3 visitas o más) · ${top.vuelven}% vuelve a reservar</p>
+      ${top.lista.slice(0, 5).map((x, i) => `<div class="top-c"><em class="pos${i === 0 ? " oro" : ""}">${i + 1}</em><div><b>${esc(x.nombre)}</b><span>${x.n} visita${x.n === 1 ? "" : "s"} · última: ${fechaCorta(x.ult)}${x.fav ? ` · suele pedir ${esc(x.fav)}` : ""}</span></div><strong>${colones(x.m)}</strong></div>`).join("") || `<p class="ing-vacio">Aún no hay clientas atendidas.</p>`}
+    </div>
     <div class="ing-box" hidden><h4>Por lugar</h4><div class="ing-lug">${porLug.map(([k, m]) => `<div class="${colorLugar(k)}"><small>${LUGARES[k].nombre}</small><b>${colones(m)}</b></div>`).join("")}</div></div>
-    <p class="prueba">Montos estimados con los precios de la página, proporcionales a la duración reservada. No incluyen descuentos, propinas ni cancelaciones de último momento.${sinPrecio ? ` ${sinPrecio} cita${sinPrecio === 1 ? "" : "s"} sin precio conocido.` : ""}</p>
+    <p class="prueba">Montos estimados con los precios de cada servicio. No incluyen descuentos, propinas ni cancelaciones de último momento.${sinPrecio ? ` ${sinPrecio} cita${sinPrecio === 1 ? "" : "s"} sin precio conocido.` : ""}</p>
   </div>`;
 }
 // ===== Configuración (solo Nicole) =====
@@ -2027,7 +2050,7 @@ function pintarNicole(){
   const pest = `<div class="n-fila"><span>Hola, Victoria</span><button class="chip${nVista === "conf" ? " si" : ""}" data-nv="conf">Configuración</button><button class="chip" id="n-salir">Salir</button></div>`
     + (sinAvisos && nVista !== "conf" ? `<button class="aviso-mini" data-nv="conf">Activa las notificaciones de citas nuevas ›</button>` : "")
     + `<form class="orden-b" id="n-orden-f"><input id="n-orden" placeholder="Buscar número de orden (ej.: VB-1A2B)" autocomplete="off" autocapitalize="characters"><button class="btn btn-oro" type="submit">Buscar</button></form>`
-    + `<div class="seg2 n-tabs"><button class="chip${nVista === "citas" ? " si" : ""}" data-nv="citas">Citas</button><button class="chip${nVista === "sel" ? " si" : ""}" data-nv="sel">Sellos</button><button class="chip${nVista === "serv" ? " si" : ""}" data-nv="serv">Servicios y precios</button><button class="chip${nVista === "ing" ? " si" : ""}" data-nv="ing">Ingresos</button><button class="chip${nVista === "sug" ? " si" : ""}" data-nv="sug">Opiniones${sugs.length + Reservas.encuestas().length ? ` (${sugs.length + Reservas.encuestas().length})` : ""}</button><button class="chip${nVista === "gal" ? " si" : ""}" data-nv="gal">Galería</button><button class="chip${nVista === "env" ? " si" : ""}" data-nv="env">Enviar encuesta${pendEnc() ? ` (${pendEnc()})` : ""}</button></div>`;
+    + `<div class="seg2 n-tabs"><button class="chip${nVista === "citas" ? " si" : ""}" data-nv="citas">Citas</button><button class="chip${nVista === "sel" ? " si" : ""}" data-nv="sel">Sellos</button><button class="chip${nVista === "serv" ? " si" : ""}" data-nv="serv">Servicios y precios</button><button class="chip${nVista === "ing" ? " si" : ""}" data-nv="ing">Ganancias</button><button class="chip${nVista === "sug" ? " si" : ""}" data-nv="sug">Opiniones${sugs.length + Reservas.encuestas().length ? ` (${sugs.length + Reservas.encuestas().length})` : ""}</button><button class="chip${nVista === "gal" ? " si" : ""}" data-nv="gal">Galería</button><button class="chip${nVista === "env" ? " si" : ""}" data-nv="env">Enviar encuesta${pendEnc() ? ` (${pendEnc()})` : ""}</button></div>`;
   if (nVista === "conf") { box.innerHTML = pest + pintarConfig(); return; }
   if (nVista === "env") { box.innerHTML = pest + pintarEnvioEncuestas(); return; }
   if (nVista === "ing") { box.innerHTML = pest + `` + pintarIngresos(); return; }
@@ -2139,7 +2162,7 @@ $("#nicole").addEventListener("click", async e => {
   if (b.dataset.cieBorrar) { if (!confirm("¿Quitar este cierre? Esos días vuelven a estar disponibles.")) return; try { await Reservas.borrarCierre(b.dataset.cieBorrar); toast("Cierre quitado"); } catch { toast("No se pudo quitar."); } pintarNicole(); return; }
   if (b.dataset.iv) { nIng.vista = b.dataset.iv; pintarNicole(); return; }
   if (b.dataset.inav !== undefined) { const n = +b.dataset.inav, r = deIso(nIng.ref);
-    nIng.ref = n === 0 ? iso(crAhora()) : nIng.vista === "mes" ? iso(new Date(Date.UTC(r.getUTCFullYear(), r.getUTCMonth() + n, 1))) : iso(masDias(r, n * 7));
+    nIng.ref = n === 0 ? iso(crAhora()) : nIng.vista === "dia" ? iso(masDias(r, n)) : nIng.vista === "mes" ? iso(new Date(Date.UTC(r.getUTCFullYear(), r.getUTCMonth() + n, 1))) : iso(masDias(r, n * 7));
     pintarNicole(); return; }
   if (b.dataset.cnav !== undefined) { const n = +b.dataset.cnav, r = deIso(nCal.ref);
     if (n === 0) nCal.ref = iso(crAhora());
@@ -2194,6 +2217,60 @@ $("#nicole").addEventListener("input", e => {
 $("#nicole").addEventListener("keydown", e => { if (e.key === "Enter" && e.target.id === "n-clave") $("#n-ok").click(); });
 
 
+
+
+// ===== Reportes: resumen rápido, clientas frecuentes y PDF =====
+let ultimoReporte = null;
+function resumenRapido(){
+  const hoy = iso(crAhora()), d = deIso(hoy), l = iso(masDias(d, -((d.getUTCDay() + 6) % 7))), dom = iso(masDias(deIso(l), 6));
+  const m0 = hoy.slice(0, 8) + "01", m1 = iso(new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 0)));
+  const sum = (a, b) => { const x = Reservas.todas().filter(c => c.fecha >= a && c.fecha <= b); return [x.reduce((t, c) => t + montoCita(c), 0), x.length]; };
+  return [["Hoy", ...sum(hoy, hoy)], ["Esta semana", ...sum(l, dom)], ["Este mes", ...sum(m0, m1)]];
+}
+function topClientas(){
+  const hoy = iso(crAhora()), g = {};
+  for (const c of Reservas.todas().filter(c => c.fecha <= hoy)) {
+    const k = String(c.tel).replace(/\D/g, "").slice(-8) || c.nombre;
+    const x = g[k] = g[k] || { nombre: c.nombre.replace(/ \(ejemplo\)$/, ""), tel: c.tel, n: 0, m: 0, ult: c.fecha, serv: {} };
+    x.n++; x.m += montoCita(c); if (c.fecha > x.ult) x.ult = c.fecha; x.serv[c.servicio] = (x.serv[c.servicio] || 0) + 1;
+  }
+  const lista = Object.values(g).map(x => ({ ...x, fav: Object.entries(x.serv).sort((a, b) => b[1] - a[1])[0]?.[0] || "" })).sort((a, b) => b.n - a.n || b.m - a.m);
+  const vuelven = lista.length ? Math.round(lista.filter(x => x.n > 1).length / lista.length * 100) : 0;
+  return { lista, vuelven };
+}
+function exportarPDF(){
+  const r = ultimoReporte; if (!r) return;
+  const logo = new URL("img/logo.png", location.href).href;
+  const filas = r.lista.slice().sort((a, b) => (a.fecha + hhmm(a.ini)).localeCompare(b.fecha + hhmm(b.ini)));
+  const css = `@page{size:A4;margin:16mm}*{box-sizing:border-box}body{font-family:Georgia,"Times New Roman",serif;color:#251a1f;margin:0}
+  .cab{display:flex;align-items:center;gap:16px;border-bottom:2px solid #a3405f;padding-bottom:12px;margin-bottom:18px}.cab img{width:64px;height:64px;border-radius:50%}
+  h1{font-size:22px;margin:0}.sub{font:12px Arial,sans-serif;color:#7a646b;letter-spacing:.08em;text-transform:uppercase}
+  h2{font-size:15px;color:#a3405f;margin:22px 0 8px;border-bottom:1px solid #f1e3e8;padding-bottom:4px}
+  .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.kpis div{border:1px solid #ead9de;border-radius:10px;padding:10px}
+  .kpis small{display:block;font:11px Arial,sans-serif;color:#7a646b;text-transform:uppercase;letter-spacing:.06em}.kpis b{font-size:19px}
+  table{width:100%;border-collapse:collapse;font:12.5px Arial,sans-serif}th{text-align:left;background:#fbf1f4;color:#6b2340;padding:7px 8px}td{padding:6px 8px;border-bottom:1px solid #f4e8ec}
+  td.n,th.n{text-align:right}.pie{margin-top:24px;font:10.5px Arial,sans-serif;color:#9a858c}`;
+  const cuerpo = `<div class="cab"><img src="${logo}" alt=""><div><h1>Reporte de ganancias · ${esc(r.titulo)}</h1><div class="sub">Victoria Beauty · generado el ${fechaLarga(iso(crAhora()))}</div></div></div>
+  <div class="kpis"><div><small>Total del periodo</small><b>${colones(r.total)}</b></div><div><small>Ya atendidas</small><b>${colones(r.real)}</b></div><div><small>Citas</small><b>${r.lista.length}</b></div></div>
+  <h2>Resumen rápido</h2><div class="kpis">${r.rap.map(([t, m, n]) => `<div><small>${t}</small><b>${colones(m)}</b> <span style="font:12px Arial">${n} cita${n === 1 ? "" : "s"}</span></div>`).join("")}</div>
+  <h2>Servicios más pedidos</h2><table><tr><th>#</th><th>Servicio</th><th class="n">Citas</th><th class="n">Monto</th></tr>${r.porServ.map(([n, v], i) => `<tr><td>${i + 1}</td><td>${esc(n)}</td><td class="n">${v.n}</td><td class="n">${colones(v.m)}</td></tr>`).join("") || `<tr><td colspan="4">Sin citas</td></tr>`}</table>
+  <h2>Top 5 clientas frecuentes</h2><table><tr><th>#</th><th>Clienta</th><th>Celular</th><th class="n">Visitas</th><th class="n">Total</th><th>Última visita</th></tr>${r.top.map((x, i) => `<tr><td>${i + 1}</td><td>${esc(x.nombre)}</td><td>${esc(x.tel)}</td><td class="n">${x.n}</td><td class="n">${colones(x.m)}</td><td>${fechaCorta(x.ult)}</td></tr>`).join("") || `<tr><td colspan="6">Sin datos</td></tr>`}</table>
+  <h2>Detalle de citas</h2><table><tr><th>Fecha</th><th>Hora</th><th>Orden</th><th>Clienta</th><th>Servicio</th><th>Depósito</th><th class="n">Monto</th></tr>${filas.map(c => `<tr><td>${fechaCorta(c.fecha)}</td><td>${h12m(c.ini)}</td><td>${ordenDe(c)}</td><td>${esc(c.nombre)}</td><td>${esc(c.servicio)}</td><td>${c.deposito ? "Recibido" : "Pendiente"}</td><td class="n">${colones(montoCita(c))}</td></tr>`).join("") || `<tr><td colspan="7">Sin citas en este periodo</td></tr>`}</table>
+  <p class="pie">Montos estimados con los precios de la página. Reporte generado por el sistema de reservas de Victoria Beauty · RBM Solutions.</p>`;
+  const titulo = `Reporte Victoria Beauty - ${r.titulo}`;
+  const w = window.open("", "_blank");
+  const doc = w ? w.document : null;
+  if (doc) {
+    doc.title = titulo; const st = doc.createElement("style"); st.textContent = css; doc.head.appendChild(st); doc.body.innerHTML = cuerpo;
+    const img = doc.querySelector("img"); const imp = () => setTimeout(() => w.print(), 250);
+    if (img && !img.complete) { img.onload = imp; img.onerror = imp; } else imp();
+    return;
+  }
+  const f = document.createElement("iframe"); f.style.cssText = "position:fixed;width:0;height:0;border:0"; document.body.appendChild(f);
+  const d = f.contentDocument; d.title = titulo; const st = d.createElement("style"); st.textContent = css; d.head.appendChild(st); d.body.innerHTML = cuerpo;
+  setTimeout(() => { f.contentWindow.print(); setTimeout(() => f.remove(), 3000); }, 600);
+}
+document.addEventListener("click", e => { if (e.target.closest("#ing-pdf")) exportarPDF(); });
 
 // ================== SERVICIOS Y PRECIOS (panel) ==================
 let svEdit = null;   // id del servicio abierto, o "nuevo"
