@@ -823,7 +823,7 @@ html{overflow-x:hidden}
 .ing-rap{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:10px}
 .ing-rap div{background:linear-gradient(150deg,#2a1a21,#1a1115);color:#fbf6f7;border-radius:16px;padding:12px;display:grid;gap:1px;min-width:0}
 .ing-rap small{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--oro2)}
-.ing-rap b{font-family:var(--serif);font-size:20px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ing-rap b{font-family:var(--serif);font-size:clamp(15px,4.6vw,20px);font-weight:600;white-space:nowrap;letter-spacing:-.01em}
 .ing-rap span{font-size:12px;color:#dccbd0}
 .ing-pdf{width:100%;margin-bottom:14px;gap:8px}.ing-pdf svg{width:18px;height:18px}
 .ing .pos{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:#f6ecef;color:var(--oro3);font-style:normal;font-size:12px;font-weight:600;margin-right:8px}
@@ -1195,18 +1195,40 @@ const ReservasPrueba = (() => {
   const leer = () => { try { return JSON.parse(localStorage.getItem(KEY) || "[]"); } catch { return mem; } };
   const guardar = l => { mem = l; try { localStorage.setItem(KEY, JSON.stringify(l)); } catch {} };
   // Algunas citas de ejemplo para que se vean espacios "Reservado"
+  // Datos de ejemplo: 2 meses atendidos (mes 1: 5 clientas por día; mes 2: se alterna 5 y 7 por día) y algunas citas próximas
+  const CLIENTAS_EJ = [["María Fernández",12,"8811 1111"],["Daniela Rojas",10,"8822 2222"],["Sofía Vargas",9,"8833 3333"],["Andrea Mora",8,"8844 4444"],["Valeria Castro",7],["Fernanda Solís",6],["Camila Jiménez",5],["Natalia Quesada",5],["Gabriela Chaves",4],["Paola Arias",4],["Melissa Ramírez",3],["Karla Navarro",3],["Tatiana Alfaro",3],["Jimena Vega",2],["Raquel Brenes",2],["Laura Méndez",2],["Ana Lucía Soto",2],["Mariana Herrera",2],["Priscilla Mora",1],["Hellen Cordero",1]];
+  const SERV_EJ = [["clasicas",5],["rimel",6],["volumen",4],["retoque",7],["lifting",4],["cejas",5],["maquillaje",2]];
+  const telEj = n => "88" + String(10 + (n.charCodeAt(0) * 7 + n.length * 13) % 89).padStart(2, "0") + " " + String(1000 + (n.charCodeAt(1) * 53 + n.length * 7) % 8999);
+  const azar = x => { const v = Math.sin(x * 9301 + 49297) * 233280; return v - Math.floor(v); };
+  const pesar = (lista, r) => { const t = lista.reduce((s, x) => s + x[1], 0); let u = r * t; for (const x of lista) { if ((u -= x[1]) < 0) return x; } return lista[lista.length - 1]; };
+  let memoEj = null, llaveEj = "";
   function ejemplos(){
-    const hoy = deIso(iso(crAhora())); const out = []; const nombres = ["María","Andrea","Fernanda","Daniela","Sofía","Valeria","María","Daniela","Andrea","María"]; let k = 0;
-    const telEj = n => "88" + String(10 + (n.charCodeAt(0) * 7 + n.length * 13) % 89).padStart(2, "0") + " " + String(1000 + (n.charCodeAt(1) * 53) % 8999);
-    for (let i = -60; i < 21; i++) {
+    const hoyS = iso(crAhora()), llave = hoyS + "|" + JSON.stringify(CIERRES) + "|" + SERVICIOS.map(x => x.id + x.precio).join();
+    if (memoEj && llave === llaveEj) return memoEj;
+    const hoy = deIso(hoyS); const out = []; let sem = 1;
+    const servEj = id => servDe(id) || SERVICIOS[0];
+    for (let i = -60; i < 0; i++) {
       const f = iso(masDias(hoy, i)); const tt = turnosDe(f); if (!tt.length) continue;
-      const [a, b] = tt[0]; const sem = ((i * 7 + 3) % 5 + 5) % 5;
-      const ini = a + 30 * (sem % Math.max(1, (b - a) / 30 - 3));
-      out.push({ id:"ej" + i, fecha:f, ini, dur: sem % 2 ? 120 : 90, servicio: SERVICIOS[((i * 3) % SERVICIOS.length + SERVICIOS.length) % SERVICIOS.length].nombre, lugar: "estudio", deposito: i < 0 || i % 3 !== 0, nombre: nombres[k % nombres.length] + " (ejemplo)", tel: telEj(nombres[k++ % nombres.length]), nota:"", ejemplo:true });
-      if (tt[1] && i % 2 === 0) out.push({ id:"ejb" + i, fecha:f, ini: tt[1][0], dur:60, servicio:"Lifting de pestañas", lugar:"estudio", deposito:true, nombre: nombres[k % nombres.length] + " (ejemplo)", tel: telEj(nombres[k++ % nombres.length]), nota:"", ejemplo:true });
-      if (!tt[1] && i % 3 === 1 && b - a >= 300) out.push({ id:"ejc" + i, fecha:f, ini: b - 120, dur:60, servicio:"Cejas y laminado", lugar:"estudio", deposito:false, nombre: nombres[k % nombres.length] + " (ejemplo)", tel: telEj(nombres[k++ % nombres.length]), nota:"", ejemplo:true });
+      const meta = i < -30 ? 5 : (i % 2 === 0 ? 7 : 5);
+      let [cur, fin] = tt[0];
+      for (let k = 0; k < meta; k++) {
+        let sv = servEj(pesar(SERV_EJ, azar(sem++))[0]);
+        if (cur + sv.dur > fin) { const cabe = SERVICIOS.filter(x => !x.oculto && cur + x.dur <= fin).sort((x, y) => x.dur - y.dur)[0]; if (!cabe) break; sv = cabe; }
+        const cl = pesar(CLIENTAS_EJ, azar(sem++ * 1.7));
+        out.push({ id:`ej${i}_${k}`, orden:`VB-E${String(i + 61).padStart(2, "0")}${k}`, fecha:f, ini:cur, dur:sv.dur, servicio:sv.nombre, lugar:"estudio", deposito:true, nombre: cl[0], tel: cl[2] || telEj(cl[0]), nota:"", ejemplo:true });
+        cur += sv.dur;
+      }
     }
-    return out;
+    for (let i = 0; i < 21; i++) {
+      const f = iso(masDias(hoy, i)); const tt = turnosDe(f); if (!tt.length) continue;
+      const [a, b] = tt[0]; const s2 = (i * 7 + 3) % 5;
+      const ini = a + 30 * (s2 % Math.max(1, (b - a) / 30 - 3));
+      const sv = servEj(SERV_EJ[(i * 3) % SERV_EJ.length][0]), cl = CLIENTAS_EJ[(i * 5) % CLIENTAS_EJ.length];
+      out.push({ id:"ej" + i, fecha:f, ini, dur: sv.dur, servicio: sv.nombre, lugar:"estudio", deposito: i % 3 !== 0, nombre: cl[0], tel: cl[2] || telEj(cl[0]), nota:"", ejemplo:true });
+      if (i % 2 === 0 && ini + sv.dur + 60 <= b) { const c2 = CLIENTAS_EJ[(i * 3 + 1) % CLIENTAS_EJ.length], s3 = servEj("lifting");
+        out.push({ id:"ejb" + i, fecha:f, ini: Math.min(b - s3.dur, ini + sv.dur + 60), dur:s3.dur, servicio:s3.nombre, lugar:"estudio", deposito:true, nombre: c2[0], tel: c2[2] || telEj(c2[0]), nota:"", ejemplo:true }); }
+    }
+    llaveEj = llave; memoEj = out; return out;
   }
   let borradosEj = new Set(); try { borradosEj = new Set(JSON.parse(localStorage.getItem(KEY + "_ej") || "[]")); } catch {}
   const todas = () => [...ejemplos().filter(c => !borradosEj.has(c.id)), ...leer()];
