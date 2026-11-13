@@ -1,14 +1,14 @@
 {
  "id": "./",
- "name": "Nombre del Estudio",
- "short_name": "Nombre del Estudio",
+ "name": "Calixto Studio",
+ "short_name": "Calixto Studio",
  "description": "Pestañas, cejas y maquillaje. Reserva tu cita en línea.",
  "start_url": "./",
  "scope": "./",
  "display": "standalone",
  "orientation": "portrait",
- "background_color": "#1a1115",
- "theme_color": "#1a1115",
+ "background_color": "#0d0b08",
+ "theme_color": "#0d0b08",
  "lang": "es",
  "icons": [
   {"src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
