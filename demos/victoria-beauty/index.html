@@ -801,6 +801,16 @@ html{overflow-x:hidden}
 .sv-acc .rojo{color:#a3443a!important}
 .sv-2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .sv-form select{width:100%;border:1px solid #e1d1d7;border-radius:12px;padding:12px;font:400 16px var(--sans);background:#fff;color:var(--tinta)}
+
+.comp-subir{display:flex;align-items:center;justify-content:center;gap:10px;border:1.5px dashed var(--oro);border-radius:14px;padding:16px;color:var(--oro3);font-weight:500;cursor:pointer;background:#fff}
+.comp-subir svg{width:22px;height:22px}
+.comp-ver{display:flex;gap:12px;align-items:center;background:#fff;border:1px solid rgba(201,106,139,.4);border-radius:14px;padding:10px}
+.comp-ver img{width:56px;height:76px;object-fit:cover;border-radius:8px}
+.comp-ver div{display:grid}.comp-ver b{font-size:15px}
+.comp-cambiar{color:var(--oro3);font-size:13.5px;text-decoration:underline;cursor:pointer}
+.comp-adm{display:flex;gap:12px;align-items:center;width:100%;text-align:left;background:#fff;border:1px solid rgba(201,106,139,.4);border-radius:14px;padding:10px;margin-bottom:10px;cursor:pointer;font:inherit;color:inherit}
+.comp-adm img{width:48px;height:64px;object-fit:cover;border-radius:8px}
+.comp-adm span{display:grid}.comp-adm small{color:#7a646b;font-size:12.5px}
 </style>
 </head>
 <body>
@@ -1200,6 +1210,7 @@ const ReservasPrueba = (() => {
     async agregarCierre(x){ const l = [...this.cierres(), { ...x, id: "k" + Date.now().toString(36) }]; try { localStorage.setItem(KEY + "_cie", JSON.stringify(l)); } catch {} CIERRES = l; cierresCambiaron(); },
     async borrarCierre(id){ const l = this.cierres().filter(x => x.id !== id); try { localStorage.setItem(KEY + "_cie", JSON.stringify(l)); } catch {} CIERRES = l; cierresCambiaron(); },
     async moverGal(a, b){ const l = this.galeria() || []; const A = l.find(x => x.id === a), B = l.find(x => x.id === b); [A.orden, B.orden] = [B.orden, A.orden]; await this.guardarGal(l); },
+    async guardarComprobante(id, data){ const l = leer(); const c = l.find(x => x.id === id); if (!c) throw new Error("ejemplo"); c.comprobante = data; c.compFecha = Date.now(); guardar(l); },
     async marcarDeposito(id, v){ const l = leer(); const c = l.find(x => x.id === id); if (c) { c.deposito = v; guardar(l); } else throw new Error("ejemplo"); },
     async guardarApuntes(id, txt){ const l = leer(); const c = l.find(x => x.id === id); if (c) { c.apuntes = txt; guardar(l); } else { const e = ejemplos().find(x => x.id === id); if (e) throw new Error("ejemplo"); } },
     encuestas(){ try { return JSON.parse(localStorage.getItem(KEY + "_enc") || "[]"); } catch { return []; } },
@@ -1257,6 +1268,7 @@ async function crearReservasFirebase(){
     async enviarEncuesta(id, x){ try { await F.setDoc(F.doc(db, "encuestas", id), { ...x, fecha: F.serverTimestamp() }); } catch (e) { console.warn(e); throw new Error("repetida"); } },
     async enviarSug(x){ await F.addDoc(F.collection(db, "sugerencias"), { texto:x.texto, nombre:x.nombre, fecha:F.serverTimestamp() }); },
     async borrarSug(id){ await F.deleteDoc(F.doc(db, "sugerencias", id)); },
+    async guardarComprobante(id, data){ await F.updateDoc(F.doc(db, "citas", id), { comprobante: data, compFecha: Date.now() }); },
     async marcarDeposito(id, v){ await F.updateDoc(F.doc(db, "citas", id), { deposito: v }); const c = citas.find(x => x.id === id); if (c) c.deposito = v; },
     async guardarApuntes(id, txt){ await F.updateDoc(F.doc(db, "citas", id), { apuntes: txt }); const c = citas.find(x => x.id === id); if (c) c.apuntes = txt; },
     async entrar(clave){ await A.signInWithEmailAndPassword(auth, NICOLE_EMAIL, clave); },
@@ -1412,10 +1424,12 @@ function abrir(id){
   const el = document.getElementById(id); if (!el || pila.includes(id)) return;
   if (id !== "cajon" && pila[pila.length - 1] === "cajon") { cerrarCapa(); history.replaceState({ capa:id }, ""); }
   else history.pushState({ capa:id }, "");
-  pila.push(id); el.classList.add("on"); actualizarVelo();
+  pila.push(id); arriba(el); el.classList.add("on"); actualizarVelo();
   if (id === "p-agenda") pintarAgenda();
   if (id === "p-nicole") pintarNicole();
 }
+function arriba(el){ if (!el.classList.contains("panel")) return; document.querySelectorAll(".panel").forEach(p => p.style.zIndex = ""); el.style.zIndex = 59; }
+const datosSesion = () => { try { const c = Sellos.yo(); return c ? { v_nom: c.nombre, v_tel: telFmt(c.tel) } : {}; } catch { return {}; } };
 function cerrarCapa(){
   const id = pila.pop(); if (!id) return;
   document.getElementById(id).classList.remove("on"); actualizarVelo();
@@ -1491,12 +1505,12 @@ function pedirForma(id){
   abrir("hoja");
 }
 $("#op-cal").addEventListener("click", () => {
-  ag = { serv: servElegido, dur: servDe(servElegido)?.dur || 60, semana: 0, fecha: null, ini: null, hecho: null, paso: servDe(servElegido) ? 4 : 1, lugar: "estudio" };
+  ag = { serv: servElegido, dur: servDe(servElegido)?.dur || 60, semana: 0, fecha: null, ini: null, hecho: null, paso: servDe(servElegido) ? 4 : 1, lugar: "estudio", ...datosSesion() };
   // cerrar la ventana y abrir el calendario en su lugar
-  cerrarCapa(); history.replaceState({ capa:"p-agenda" }, ""); pila.push("p-agenda"); $("#p-agenda").classList.add("on"); actualizarVelo(); pintarAgenda();
+  cerrarCapa(); history.replaceState({ capa:"p-agenda" }, ""); pila.push("p-agenda"); arriba($("#p-agenda")); $("#p-agenda").classList.add("on"); actualizarVelo(); pintarAgenda();
   $("#p-agenda .cuerpo").scrollTop = 0;
 });
-$("#op-wa").addEventListener("click", () => setTimeout(atras, 300));
+$("#op-wa").addEventListener("click", e => { e.preventDefault(); const url = $("#op-wa").href; atras(); setTimeout(() => { const w = window.open(url, "_blank", "noopener"); if (!w) location.href = url; }, 120); });
 
 // ================== CALENDARIO ==================
 let ag = { serv:"", dur:60, semana:0, fecha:null, ini:null, hecho:null };
@@ -1583,7 +1597,7 @@ function pintarAgenda(){
             return `<button class="hora${cls}" data-a-ini="${x.ini}" ${x.estado !== "libre" ? "disabled" : ""}>${h12m(x.ini)}<small>${sub}</small></button>`; }).join("")}</div>`; }).join("")}
       <div class="leyenda"><span><i></i>Libre</span><span><i class="r"></i>Reservado</span><span><i class="s"></i>Tu elección</span></div>`;
   } else if (p === 5) {
-    cuerpo = `<h2 class="pp-h">Tus datos</h2><p class="pp-sub">Te escribimos a este número para confirmar tu cita.</p>
+    cuerpo = `<h2 class="pp-h">Tus datos</h2><p class="pp-sub">${(() => { try { const c = Sellos.yo(); return c ? `Reservando como <b>${esc(c.nombre)}</b>, con tu tarjeta de sellos.` : "Te escribimos a este número para confirmar tu cita."; } catch { return "Te escribimos a este número para confirmar tu cita."; } })()}</p>
       <div class="campo"><label for="a-nom">Nombre</label><input id="a-nom" maxlength="50" autocomplete="name" placeholder="Tu nombre"></div>
       <div class="campo"><label for="a-tel">Celular / WhatsApp</label><input id="a-tel" inputmode="tel" maxlength="20" autocomplete="tel" placeholder="Ej.: 8888 7777"></div>
       <div class="campo"><label for="a-nota">¿Alergias o algo que debamos saber? (opcional)</label><textarea id="a-nota" rows="3" maxlength="300" placeholder="Ej.: sensibilidad en los ojos, primera vez con extensiones"></textarea></div>
@@ -1691,21 +1705,48 @@ function descargarIcs(lista, nombre){
   setTimeout(() => { if (pila.includes("p-nicole")) pintarNicole(); }, 400);
 }
 
+function msgReserva(c){
+  return `Hola Victoria, acabo de reservar en la página.\n\n*Clienta:* ${c.nombre}\n*Celular:* ${c.tel}\n*Servicio:* ${c.servicio}\n*Día:* ${fechaLarga(c.fecha).replace(/^./, x => x.toUpperCase())}\n*Hora:* ${h12m(c.ini)} a ${h12m(c.ini + c.dur)}${c.nota ? `\n*Nota:* ${c.nota}` : ""}\n\n*Depósito:* ${DEPOSITO} por SINPE al ${SINPE}. ${c.comprobante ? "Le adjunté el comprobante en la página; también lo ve en su panel." : "Le envío el comprobante en un momento."}`;
+}
+async function compartirComprobante(c){
+  try {
+    const blob = await (await fetch(c.comprobante)).blob();
+    const f = new File([blob], `comprobante-${c.nombre.split(" ")[0].toLowerCase()}.jpg`, { type: "image/jpeg" });
+    if (navigator.canShare && navigator.canShare({ files: [f] })) { await navigator.share({ files: [f], text: msgReserva(c) }); return; }
+  } catch (ex) { if (ex.name === "AbortError") return; }
+  toast("Este celular no permite compartir la imagen. Adjúntela en el chat de WhatsApp.");
+}
 function pintarListo(box, c){
-  const msg = `Hola, acabo de reservar en la página:\n- ${c.servicio}\n- ${fechaLarga(c.fecha)}\n- ${h12m(c.ini)} a ${h12m(c.ini + c.dur)}\nA nombre de ${c.nombre}.\nAdjunto el comprobante del SINPE de ${DEPOSITO}.`;
   box.innerHTML = `<div class="listo">
-    <div class="ok">✓</div><h2>Tu espacio quedó apartado</h2><p>Para confirmar la cita, envía el depósito y el comprobante por WhatsApp.</p>
+    <div class="ok">✓</div><h2>Tu espacio quedó apartado</h2><p>Para confirmar la cita, paga el depósito, sube el comprobante y envíalo.</p>
     <div class="resumen" style="text-align:left"><small>Tu cita</small><b>${esc(c.servicio)}<br>${fechaLarga(c.fecha).replace(/^./, x => x.toUpperCase())}<br>${h12m(c.ini)} a ${h12m(c.ini + c.dur)}</b></div>
     <div class="dep dep-pasos">
       <div class="dep-p"><i>1</i><div><b>Envía ${DEPOSITO} por SINPE Móvil</b><span>Al número ${SINPE}</span></div><button class="pago-copiar" data-copiar="${SINPE.replace(/\D/g, "")}" type="button">Copiar</button></div>
-      <div class="dep-p"><i>2</i><div><b>Manda el comprobante por WhatsApp</b><span>Con eso tu cita queda confirmada.</span></div></div>
+      <div class="dep-p"><i>2</i><div><b>Sube el comprobante</b><span>Un pantallazo o foto del SINPE.</span></div></div>
+      ${c.comprobante ? `<div class="comp-ver"><img src="${c.comprobante}" alt="Comprobante"><div><b>Comprobante listo</b><label for="a-comp" class="comp-cambiar">Cambiar imagen</label></div></div>`
+        : `<label for="a-comp" class="comp-subir"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>Subir pantallazo del SINPE</label>`}
+      <input type="file" id="a-comp" accept="image/*" hidden>
+      <div class="dep-p"><i>3</i><div><b>Envía todo a Victoria</b><span>Le llega a su WhatsApp con tu reserva${c.comprobante ? " y el comprobante queda en su panel" : ""}.</span></div></div>
     </div>
     <div class="bloque">
-      <a class="btn btn-oro" href="${waLink(msg)}" target="_blank" rel="noopener"><svg><use href="#wa"/></svg>Enviar comprobante por WhatsApp</a>
+      <a class="btn btn-oro" id="a-enviar" href="${waLink(msgReserva(c))}" target="_blank" rel="noopener"><svg><use href="#wa"/></svg>Enviar reserva a Victoria</a>
+      ${c.comprobante ? `<button class="btn btn-linea" style="color:var(--tinta);border-color:var(--oro)" id="a-comp-share">Enviar también la imagen</button>` : ""}
       <button class="btn btn-osc" id="a-otra">Hacer otra reserva</button>
     </div>
     <p class="prueba">Si necesitas cambiar o cancelar, escríbenos por WhatsApp con anticipación.</p></div>`;
 }
+document.addEventListener("change", async e => {
+  if (e.target.id !== "a-comp" || !e.target.files[0] || !ag.hecho) return;
+  try {
+    const data = await reducir(e.target.files[0], 1100, 0.75);
+    try { await Reservas.guardarComprobante(ag.hecho.id, data); } catch {}
+    ag.hecho.comprobante = data; pintarListo($("#agenda"), ag.hecho); toast("Comprobante cargado");
+  } catch { toast("No se pudo leer la imagen. Intente con otra."); }
+});
+document.addEventListener("click", e => {
+  if (e.target.closest("#a-comp-share")) return compartirComprobante(ag.hecho);
+  if (e.target.closest("#a-enviar") && !ag.hecho?.comprobante && !confirm("Todavía no ha subido el comprobante. ¿Enviar la reserva de todas formas?")) e.preventDefault();
+});
 
 // ================== ACCESO DE NICOLE ==================
 // ===== Cierres (vacaciones, feriados, días libres) =====
@@ -1822,7 +1863,8 @@ function verCita(id){
     <div class="ev-det"><span class="ev-punto ${colorCita(c)}"></span><div><h3>${esc(c.nombre)}</h3>
       <p>${fechaLarga(c.fecha).replace(/^./, x => x.toUpperCase())} · ${h12m(c.ini)} – ${h12m(c.ini + c.dur)}</p></div></div>
     <ul class="ev-lista"><li><span>Servicio</span>${esc(c.servicio)} · ${durTxt(c.dur)} · <b>${colones(montoCita(c))}</b></li><li><span>Celular</span>${esc(c.tel)}</li>${c.nota ? `<li><span>Nota</span>“${esc(c.nota)}”</li>` : ""}</ul>
-    <div class="dep-adm ${c.deposito ? "si" : ""}"><div><b>${c.deposito ? "Depósito recibido" : "Depósito pendiente"}</b><span>${DEPOSITO} por SINPE ${c.deposito ? "· cita confirmada" : "· revisa el comprobante en WhatsApp"}</span></div><button class="btn ${c.deposito ? "btn-linea" : "btn-oro"}" id="ev-dep">${c.deposito ? "Marcar pendiente" : "Marcar recibido"}</button></div>
+    ${c.comprobante ? `<button class="comp-adm" id="ev-comp" type="button"><img src="${c.comprobante}" alt=""><span><b>Comprobante de SINPE</b><small>Toque para verlo en grande</small></span></button>` : ""}
+    <div class="dep-adm ${c.deposito ? "si" : ""}"><div><b>${c.deposito ? "Depósito recibido" : "Depósito pendiente"}</b><span>${DEPOSITO} por SINPE ${c.deposito ? "· cita confirmada" : c.comprobante ? "· la clienta subió el comprobante" : "· aún sin comprobante"}</span></div><button class="btn ${c.deposito ? "btn-linea" : "btn-oro"}" id="ev-dep">${c.deposito ? "Marcar pendiente" : "Marcar recibido"}</button></div>
     <div class="apuntes"><label for="ev-apuntes">Mis anotaciones <small>(solo tú las ves)</small></label>
       <textarea id="ev-apuntes" rows="3" maxlength="1000" placeholder="Ej.: curvatura C, 11 mm, prefiere look natural…">${esc(c.apuntes || "")}</textarea>
       <div class="ap-pie"><span id="ev-ap-est"></span><button class="btn btn-osc" id="ev-ap-ok">Guardar anotación</button></div></div>
@@ -1841,6 +1883,7 @@ function verCita(id){
     if (b.hasAttribute("data-cerrar-ev")) return cerrar();
     if (b.dataset.copiarEnc) { const url = linkEncuesta(c);
       try { await navigator.clipboard.writeText(url); toast("Link copiado. Pégalo en WhatsApp."); } catch { prompt("Copia este link:", url); } return; }
+    if (b.id === "ev-comp") { $("#lb-vid").hidden = true; $("#lb img").hidden = false; $("#lb img").src = c.comprobante; $("#lb").classList.add("on"); $("#lb").style.zIndex = 90; return; }
     if (b.id === "ev-dep") {
       b.disabled = true;
       try { await Reservas.marcarDeposito(c.id, !c.deposito); c.deposito = !c.deposito; toast(c.deposito ? "Depósito marcado como recibido" : "Depósito marcado como pendiente"); cerrar(); pintarNicole(); verCita(c.id); }
@@ -2019,7 +2062,7 @@ function pintarNicole(){
     if (c.fecha !== dia) { dia = c.fecha; html += `<div class="dia-t">${c.fecha === hoy ? "Hoy · " : ""}${fechaLarga(c.fecha)}</div>`; }
     const tel = String(c.tel).replace(/\D/g, ""); const t506 = tel.length === 8 ? "506" + tel : tel;
     html += `<div class="cita-a"><div class="h"><b>${esc(c.nombre)}</b><span>${h12m(c.ini)} – ${h12m(c.ini + c.dur)}</span></div>
-      <p><b style="color:${c.deposito ? "var(--oro3)" : "#8a7279"};font-weight:500">${c.deposito ? "Depósito recibido" : "Depósito pendiente"}</b><br>${esc(c.servicio)} · ${durTxt(c.dur)}${c.nota ? `<br><i>“${esc(c.nota)}”</i>` : ""}${c.apuntes ? `<br><span class="ap-mini">${esc(c.apuntes)}</span>` : ""}</p>
+      <p><b style="color:${c.deposito ? "var(--oro3)" : "#8a7279"};font-weight:500">${c.deposito ? "Depósito recibido" : c.comprobante ? "Comprobante por revisar" : "Depósito pendiente"}</b><br>${esc(c.servicio)} · ${durTxt(c.dur)}${c.nota ? `<br><i>“${esc(c.nota)}”</i>` : ""}${c.apuntes ? `<br><span class="ap-mini">${esc(c.apuntes)}</span>` : ""}</p>
       <div class="acc">${c.deposito ? "" : `<button data-dep="${c.id}" style="color:#fff;background:var(--oro3);border-color:var(--oro3)">Depósito recibido</button>`}<a href="https://wa.me/${t506}" target="_blank" rel="noopener">WhatsApp</a><a href="tel:${tel}">Llamar</a>${enCalendario(c) ? `<button data-cal="${c.id}" style="color:#4f8a5f;border-color:#bfd9c6">✓ En mi calendario</button>` : `<button data-cal="${c.id}">A mi calendario</button>`}<button class="rojo" data-cancel="${c.id}">Cancelar cita</button></div></div>`;
   }
   box.innerHTML = html;
@@ -2230,7 +2273,7 @@ function pintarSellos(){
     box.innerHTML = tarjetaHTML(c) + `
       ${c.hist.length ? `<div class="tsel-hist"><h4>Sellos recibidos</h4>${c.hist.slice().reverse().map((h, i) => `<div><span>Sello ${c.hist.length - i}</span><span>${fechaHist(h)}</span></div>`).join("")}</div>` : ""}
       ${c.canjes ? `<p class="prueba">Premios canjeados: ${c.canjes}</p>` : ""}
-      <div class="bloque" style="margin-top:16px"><button class="btn btn-oro" data-reservar>Agendar mi próxima cita</button><button class="btn btn-linea" style="color:var(--tinta);border-color:var(--oro)" id="sel-salir">Cerrar sesión</button></div>`;
+      <div class="bloque" style="margin-top:16px"><button class="btn btn-oro" id="sel-agendar">Agendar mi próxima cita</button><button class="btn btn-linea" style="color:var(--tinta);border-color:var(--oro)" id="sel-salir">Cerrar sesión</button></div>`;
     return;
   }
   const crear = selModo === "crear";
@@ -2248,6 +2291,7 @@ function pintarSellos(){
 $("#sellos").addEventListener("click", e => {
   const b = e.target.closest("button"); if (!b) return;
   if (b.dataset.selModo) { selModo = b.dataset.selModo; pintarSellos(); }
+  if (b.id === "sel-agendar") { ag = { serv:"", dur:60, semana:0, fecha:null, ini:null, hecho:null, paso:1, lugar:"estudio", ...datosSesion() }; abrir("p-agenda"); $("#p-agenda .cuerpo").scrollTop = 0; return; }
   if (b.id === "sel-salir") { Sellos.salir(); selModo = "entrar"; pintarSellos(); toast("Sesión cerrada"); }
 });
 $("#sellos").addEventListener("submit", e => {
