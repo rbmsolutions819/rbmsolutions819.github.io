@@ -48,23 +48,23 @@ a{color:inherit;text-decoration:none}
 .btn.chico{padding:9px 16px;font-size:12px}
 .btn svg{width:18px;height:18px;flex:none}
 
-/* portada */
-.hero{position:relative;min-height:100svh;display:grid;place-items:center;text-align:center;padding:90px 20px 70px;overflow:hidden;isolation:isolate}
-.hero::before{content:"";position:absolute;inset:-40px;background:url(img/marmol.jpg) center/cover;filter:blur(6px) saturate(.4) brightness(.22);z-index:-2;transform:scale(1.1)}
-.hero::after{content:"";position:absolute;inset:0;background:radial-gradient(60% 45% at 50% 38%,rgba(193,96,58,.18),transparent 70%),linear-gradient(180deg,rgba(43,24,16,.35),var(--negro) 96%);z-index:-1}
-.aro{position:absolute;width:min(560px,130vw);aspect-ratio:1;border-radius:50%;border:1px solid rgba(193,96,58,.25);top:50%;left:50%;transform:translate(-50%,-62%);z-index:-1}
-.aro.b{width:min(640px,150vw);border-color:rgba(193,96,58,.12);transform:translate(-50%,-60%) rotate(20deg)}
-.hero-logo{width:min(220px,56vw);margin:0 auto 26px;border-radius:50%;box-shadow:0 0 0 1px rgba(193,96,58,.6),0 0 0 9px rgba(193,96,58,.08),0 30px 60px -20px rgba(0,0,0,.8);animation:aparece 1.1s ease both}
+/* portada: foto editorial a sangre, texto alineado abajo-izquierda */
+.hero{position:relative;min-height:100svh;display:flex;flex-direction:column;justify-content:flex-end;padding:0;overflow:hidden;isolation:isolate}
+.hero-foto{position:absolute;inset:0;z-index:-2}
+.hero-foto img{width:100%;height:100%;object-fit:cover;object-position:top center;filter:saturate(.85) contrast(1.05)}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(36,17,6,.12) 0%,rgba(36,17,6,.58) 52%,var(--negro) 92%);z-index:-1}
+.hero-caja{position:relative;z-index:1;padding:40px 22px 86px;max-width:560px}
 .kicker{font-size:12px;letter-spacing:.42em;text-transform:uppercase;color:var(--oro2);margin-bottom:10px}
-.hero h1{font-family:var(--serif);font-weight:500;font-size:clamp(38px,10vw,68px);line-height:1.05;letter-spacing:.02em}
-.hero h1 em{font-family:var(--script);font-style:italic;font-weight:400;font-size:.8em;display:block;margin-top:8px}
-.hero p.lema{max-width:430px;margin:16px auto 0;color:#e6ddd8;font-size:17px}
-.hero .acciones{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:28px}
-.estado{display:inline-flex;align-items:center;gap:8px;margin-top:24px;font-size:13px;letter-spacing:.06em;color:#dcd1cb;border:1px solid rgba(255,255,255,.12);border-radius:999px;padding:7px 14px;background:rgba(0,0,0,.25)}
+.hero h1{font-family:var(--serif);font-weight:500;font-size:clamp(36px,9.5vw,62px);line-height:1.05;letter-spacing:.02em}
+.hero h1 em{font-family:var(--script);font-style:italic;font-weight:400;font-size:.76em;display:block;margin-top:6px}
+.hero p.lema{max-width:430px;margin:14px 0 0;color:#e6ddd8;font-size:16.5px}
+.logros{display:flex;flex-wrap:wrap;gap:8px;margin:20px 0 2px}
+.logros span{font-size:11px;letter-spacing:.03em;padding:7px 13px;border:1px solid rgba(227,166,126,.55);border-radius:999px;color:var(--oro2);background:rgba(36,17,6,.4);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);white-space:nowrap}
+.hero .acciones{display:flex;flex-wrap:wrap;gap:12px;margin-top:26px}
+.estado{display:inline-flex;align-items:center;gap:8px;margin-top:22px;font-size:13px;letter-spacing:.06em;color:#dcd1cb;border:1px solid rgba(255,255,255,.12);border-radius:999px;padding:7px 14px;background:rgba(0,0,0,.25)}
 .estado i{width:8px;height:8px;border-radius:50%;background:#7c6e67;flex:none}
 .estado.abierto i{background:#6fcf8f;box-shadow:0 0 0 4px rgba(111,207,143,.18)}
-.bajar{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);color:var(--oro);opacity:.7;animation:flota 2.4s ease-in-out infinite}
-@keyframes aparece{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:none}}
+.bajar{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);color:var(--oro);opacity:.7;animation:flota 2.4s ease-in-out infinite;z-index:1}
 @keyframes flota{50%{transform:translate(-50%,6px)}}
 
 /* separador */
@@ -77,23 +77,23 @@ a{color:inherit;text-decoration:none}
 .titulo p{color:var(--gris);margin-top:8px}
 section{padding:78px 0}
 
-/* bienvenida (marfil) */
+/* sobre mí: cita editorial + pilares, sin foto repetida */
 .claro{background:var(--marfil);color:var(--tinta)}
 .claro .titulo p{color:#7a6b64}
-.bienv{display:grid;gap:34px;align-items:center}
-.bienv .foto{position:relative;max-width:420px;margin:0 auto;width:100%}
-.bienv .foto img{width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:200px 200px 18px 18px}
-.bienv .foto::after{content:"";position:absolute;inset:-12px;border:1px solid var(--oro);border-radius:212px 212px 26px 26px;pointer-events:none}
-.bienv .texto{text-align:center}
-.bienv .texto p{font-size:18px;color:#3e332e}
-.bienv .texto p+p{margin-top:12px}
-.pilares{display:grid;gap:12px;margin:26px 0 0}
-.pilares div{display:flex;align-items:center;justify-content:center;gap:12px;font-family:var(--serif);font-size:23px;font-weight:600;color:var(--tinta)}
-.pilares svg{width:20px;height:20px;color:var(--oro3);flex:none}
-.firma{margin-top:22px;font-family:var(--script);font-style:italic;font-size:34px;color:var(--oro3)}
-.cita{display:inline-block;margin-top:6px;font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:#7a6b64}
+.sobre-mi{max-width:680px;margin:0 auto;text-align:center}
+.sobre-mi .sobre{font-size:12px;letter-spacing:.32em;text-transform:uppercase;color:var(--oro3);display:block;margin-bottom:18px}
+.sobre-mi blockquote{font-family:var(--serif);font-weight:500;font-size:clamp(26px,5.6vw,38px);line-height:1.3;color:var(--tinta);margin:0}
+.sobre-mi blockquote::before{content:"“"}.sobre-mi blockquote::after{content:"”"}
+.firma{margin-top:26px;font-family:var(--script);font-style:italic;font-size:30px;color:var(--oro3)}
+.cita{display:inline-block;margin-top:4px;font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:#7a6b64}
+.pilares-grid{display:grid;gap:20px;margin-top:56px;text-align:left}
+@media (min-width:700px){.pilares-grid{grid-template-columns:repeat(3,1fr)}}
+.pilares-grid>div{border-top:1px solid #e1d6d1;padding-top:18px}
+.pilares-grid svg{width:24px;height:24px;color:var(--oro3)}
+.pilares-grid b{display:block;font-family:var(--serif);font-size:20px;font-weight:600;margin:12px 0 6px}
+.pilares-grid p{font-size:14.5px;color:#7a6b64;line-height:1.5}
 
-/* servicios */
+/* servicios: lista editorial numerada */
 .servicios{background:linear-gradient(180deg,var(--negro),var(--negro2))}
 .servicios .titulo p{color:#b3a49c}
 .lista{display:grid;gap:16px}
@@ -176,14 +176,17 @@ html{scroll-padding-top:64px}
 .nav .ag{border:1px solid rgba(193,96,58,.6);color:var(--oro2)}
 .hero{min-height:calc(100svh - 58px);padding-top:50px}
 
-/* tarjetas de servicio compactas */
-.mini{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.mini button{position:relative;text-align:left;border:0;cursor:pointer;background:var(--marfil);color:var(--tinta);border-radius:16px;padding:18px 16px 16px;font:inherit;display:flex;flex-direction:column;gap:6px;min-height:132px;overflow:hidden}
-.mini button::before{content:"";position:absolute;inset:0 auto 0 0;width:3px;background:linear-gradient(var(--oro2),var(--oro3))}
-.mini svg{width:22px;height:22px;color:var(--oro3)}
-.mini b{font-family:var(--serif);font-size:20px;line-height:1.1;font-weight:600}
-.mini span{font-size:12.5px;color:#7a6b64;margin-top:auto;letter-spacing:.06em}
-.mini span::after{content:" ›";color:var(--oro3)}
+/* lista editorial de servicios (filas numeradas, no tarjetas) */
+.mini{display:flex;flex-direction:column;border-top:1px solid rgba(227,166,126,.22)}
+.mini button{position:relative;text-align:left;border:0;border-bottom:1px solid rgba(227,166,126,.22);cursor:pointer;background:transparent;color:var(--marfil);padding:20px 4px;font:inherit;display:grid;grid-template-columns:auto 1fr auto auto;align-items:center;gap:16px;width:100%;transition:background .2s}
+.mini button:hover{background:rgba(227,166,126,.06)}
+.mini .num{font-family:var(--serif);font-size:15px;color:var(--oro);opacity:.75;letter-spacing:.04em}
+.mini .info{display:flex;flex-direction:column;gap:3px;min-width:0}
+.mini b{font-family:var(--serif);font-size:19px;line-height:1.15;font-weight:600;overflow-wrap:anywhere}
+.mini .info span{font-size:12px;color:#b3a49c;letter-spacing:.03em}
+.mini .precio{font-family:var(--serif);font-size:17px;font-weight:600;color:var(--oro2);white-space:nowrap;text-align:right}
+.mini .flecha{width:16px;height:16px;color:var(--oro3);flex:none;transition:transform .2s}
+.mini button:hover .flecha{transform:translateX(3px)}
 
 /* capa oscura, menú lateral y paneles */
 .velo{position:fixed;inset:0;z-index:50;background:rgba(12,7,5,.6);opacity:0;pointer-events:none;transition:opacity .25s}
@@ -310,8 +313,7 @@ section.panel{padding:0}
 .dia-t{font:500 12px var(--sans);letter-spacing:.18em;text-transform:uppercase;color:#7a6b64;margin:20px 0 8px}
 .toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%) translateY(20px);z-index:80;background:var(--tinta);color:var(--marfil);border:1px solid rgba(193,96,58,.5);padding:11px 18px;border-radius:999px;font-size:14px;opacity:0;pointer-events:none;transition:.25s;max-width:90vw;text-align:center}
 .toast.on{opacity:1;transform:translateX(-50%)}
-@media (min-width:760px){.mini{grid-template-columns:repeat(4,1fr)}.gal{grid-template-columns:repeat(3,1fr)}.gal button.ancha{grid-column:span 3;aspect-ratio:21/9}}
-.mini b{font-size:19px;hyphens:auto;-webkit-hyphens:auto;overflow-wrap:anywhere}
+@media (min-width:760px){.gal{grid-template-columns:repeat(3,1fr)}.gal button.ancha{grid-column:span 3;aspect-ratio:21/9}}
 #lug-ir{grid-template-columns:1fr 1fr}#lug-ir .contacto{padding:12px}
 .dia{grid-template-columns:auto minmax(0,1fr) auto}.dia b{overflow-wrap:anywhere}
 .desp{border:1px solid #e6dad4;background:#fff;border-radius:14px;overflow:hidden}
@@ -603,15 +605,8 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 html{overflow-x:hidden}
 .progreso{position:fixed;top:0;left:0;right:0;height:3px;z-index:90;background:linear-gradient(90deg,var(--oro3),var(--oro2),var(--oro));transform:scaleX(0);transform-origin:0 50%;pointer-events:none;box-shadow:0 0 12px rgba(227,166,126,.7)}
 /* portada */
-.hero::before{animation:kb2 26s ease-in-out infinite alternate}
+.hero-foto{animation:kb2 26s ease-in-out infinite alternate}
 #polvo{position:absolute;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none}
-.aro{animation:giraAro 60s linear infinite}
-.aro.b{animation:giraAroB 90s linear infinite reverse}
-.aro::after{content:"";position:absolute;top:-4px;left:50%;width:8px;height:8px;margin-left:-4px;border-radius:50%;background:var(--oro2);box-shadow:0 0 14px 3px rgba(227,166,126,.8)}
-.ondas{position:absolute;left:50%;top:var(--oy,30%);width:0;height:0;z-index:-1;pointer-events:none}
-.ondas i{position:absolute;left:-150px;top:-150px;width:300px;height:300px;border-radius:50%;border:1px solid rgba(227,166,126,.5);opacity:0;animation:onda 6s ease-out infinite}
-.ondas i:nth-child(2){animation-delay:2s}.ondas i:nth-child(3){animation-delay:4s}
-.hero-logo{animation:aparece 1.1s ease both,respira 6s ease-in-out 1.2s infinite}
 .hero .kicker{animation:sube2 1s .25s ease both}
 .hero h1 span{display:inline-block;animation:sube2 1s .4s ease both}
 .hero h1 em{animation:sube2 1.1s .65s ease both}
@@ -644,14 +639,8 @@ html{overflow-x:hidden}
 .firma{background:linear-gradient(100deg,var(--oro3) 20%,var(--oro2) 40%,#fdf4f0 50%,var(--oro2) 60%,var(--oro3) 80%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:brillo2 8s linear infinite}
 /* servicios: aparecen uno por uno, brillan y se inclinan */
 .js2 .mini.revela{opacity:1;transform:none}
-.js2 .mini button{opacity:0;translate:0 26px;transition:opacity .7s ease var(--d,0s),translate .7s cubic-bezier(.2,.7,.2,1) var(--d,0s),transform .25s ease,box-shadow .3s}
+.js2 .mini button{opacity:0;translate:0 18px;transition:opacity .6s ease var(--d,0s),translate .6s cubic-bezier(.2,.7,.2,1) var(--d,0s)}
 .js2 .mini.si button{opacity:1;translate:0 0}
-.mini button{overflow:hidden;isolation:isolate;transform-style:preserve-3d}
-.mini button::after{content:"";position:absolute;top:0;bottom:0;left:-80%;width:50%;z-index:-1;background:linear-gradient(100deg,transparent,rgba(227,166,126,.35),transparent);transform:skewX(-20deg);transition:left .8s ease}
-.mini button:hover::after{left:130%}
-.mini button:hover{box-shadow:0 22px 40px -22px rgba(193,96,58,.9)}
-.mini button svg{transition:transform .5s}
-.mini button:hover svg{transform:rotate(45deg) scale(1.15)}
 /* horario */
 .js2 .horario.revela{opacity:1;transform:none}
 .js2 .horario>*{opacity:0;translate:-18px 0;transition:opacity .6s ease var(--d,0s),translate .6s cubic-bezier(.2,.7,.2,1) var(--d,0s)}
@@ -676,7 +665,7 @@ html{overflow-x:hidden}
 @keyframes destello{0%,100%{opacity:.6;transform:scale(.9)}50%{opacity:1;transform:scale(1.15)}}
 @keyframes latido2{0%,100%{box-shadow:0 10px 26px -12px rgba(193,96,58,.7)}50%{box-shadow:0 10px 40px -6px rgba(227,166,126,1)}}
 @keyframes respiraLuz{0%,100%{transform:scale(1);opacity:.8}50%{transform:scale(1.15);opacity:1}}
-@media (prefers-reduced-motion:reduce){.hero::before,.aro,.aro.b,.ondas i,.cinta2-in{animation:none!important}.js2 .mini button,.js2 .horario>*{opacity:1;translate:none}}
+@media (prefers-reduced-motion:reduce){.hero-foto,.cinta2-in{animation:none!important}.js2 .mini button,.js2 .horario>*{opacity:1;translate:none}}
 
 /* ===== Hillary Figueroa Studio ===== */
 .marmol{background:linear-gradient(rgba(255,255,255,.45),rgba(255,255,255,.45)),url(img/marmol.jpg) center/cover}
@@ -720,7 +709,6 @@ html{overflow-x:hidden}
 .dep-adm>div{display:grid}.dep-adm span{font-size:13px;color:#7a6b64}
 .dep-adm{flex-wrap:wrap}.dep-adm .btn{width:100%;padding:11px 14px;font-size:13px}
 .ev-lista li span{display:inline-block;min-width:70px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#8a7a72}
-.hero-logo{background:transparent}
 
 /* calendario del mes */
 .cal-mes{background:#fff;border:1px solid #eadfd9;border-radius:18px;padding:14px 12px 12px;margin-top:14px}
@@ -818,13 +806,17 @@ html{overflow-x:hidden}
 </nav>
   <section class="hero" id="inicio">
     <canvas id="polvo" aria-hidden="true"></canvas>
-    <div class="ondas" aria-hidden="true"><i></i><i></i><i></i></div>
-    <div class="aro"></div><div class="aro b"></div>
-    <div>
-      <img class="hero-logo" src="img/logo.png" alt="Logo de Hillary Figueroa Studio">
+    <div class="hero-foto"><img src="img/foto.jpg" alt="Hillary Figueroa"></div>
+    <div class="hero-caja">
       <div class="kicker">Hillary Figueroa Studio · Artista PMU</div>
       <h1><span class="oro-txt">Micropigmentación</span><em class="oro-txt">que realza tu rostro</em></h1>
-      <p class="lema">Cejas, labios y pestañas con técnica de precisión. 3 veces campeona de micropigmentación y educadora. Reserva tu espacio en línea en menos de un minuto.</p>
+      <p class="lema">Cejas, labios y pestañas con técnica de precisión. Reserva tu espacio en línea en menos de un minuto.</p>
+      <div class="logros">
+        <span>3× Campeona de micropigmentación</span>
+        <span>Top #1 LATAM</span>
+        <span>Finalista mundial · Wulop Turquía</span>
+        <span>Embajadora Etalon Mix</span>
+      </div>
       <div class="acciones">
         <button class="btn btn-oro" data-reservar><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Agendar cita</button>
         <a class="btn btn-linea" href="#servicios">Ver servicios</a>
@@ -836,20 +828,15 @@ html{overflow-x:hidden}
   <div class="cinta2" aria-hidden="true"><div class="cinta2-in" id="cinta2"></div></div>
 
   <section class="claro" id="nosotros">
-    <div class="wrap bienv">
-      <div class="foto revela"><img src="img/foto.jpg" alt="Foto del estudio"></div>
-      <div class="texto revela">
-        <div class="flor"><svg><use href="#loto"/></svg></div>
-        <div class="titulo" style="margin-bottom:18px"><h2>Precisión que se nota</h2></div>
-        <p>Cada diseño se piensa según la forma de tu rostro: cejas, labios o pestañas con un resultado natural y duradero.</p>
-        <p>Top #1 LATAM, finalista mundial Wulop Turquía y embajadora Etalon Mix: formación constante para un trabajo de nivel internacional.</p>
-        <div class="pilares">
-          <div><svg><use href="#brillo"/></svg>Diseño personalizado</div>
-          <div><svg><use href="#brillo"/></svg>Técnica de competencia</div>
-          <div><svg><use href="#brillo"/></svg>Higiene y cuidado</div>
-        </div>
-        <div class="firma">Hillary Figueroa</div>
-        <span class="cita">Artista PMU &amp; educadora</span>
+    <div class="wrap sobre-mi revela">
+      <span class="sobre">Sobre mí</span>
+      <blockquote>Cada rostro tiene su propia proporción. Mi trabajo es encontrarla y hacerla permanente.</blockquote>
+      <div class="firma">Hillary Figueroa</div>
+      <span class="cita">Artista PMU &amp; educadora</span>
+      <div class="pilares-grid">
+        <div><svg><use href="#brillo"/></svg><b>Diseño personalizado</b><p>Cada mapeo se piensa según la forma de tu rostro y lo que quieres resaltar.</p></div>
+        <div><svg><use href="#brillo"/></svg><b>Técnica de competencia</b><p>Formación internacional constante, con nivel de concurso en cada trazo.</p></div>
+        <div><svg><use href="#brillo"/></svg><b>Higiene y cuidado</b><p>Protocolos estrictos de bioseguridad en cada sesión.</p></div>
       </div>
     </div>
   </section>
@@ -1460,7 +1447,7 @@ const servDe = id => SERVICIOS.find(s => s.id === id);
 const nuevaOrden = () => "RE-" + (Date.now() % 1e6).toString(36).toUpperCase().padStart(4, "0");
 const ordenDe = c => c.orden || ("RE-" + String(c.id).replace(/^ej[bc]?/, "E").toUpperCase().slice(-5));
 function pintarServicios(){
-$("#mini").innerHTML = servVis().map(s => `<button data-serv="${s.id}"><svg><use href="#loto"/></svg><b>${esc(s.nombre)}</b><em style="font-style:normal;font-family:var(--serif);font-size:18px;font-weight:600;color:var(--oro3)">${precioHTML(s)}</em><span>${esc(s.corto)}</span></button>`).join("");
+$("#mini").innerHTML = servVis().map((s, i) => `<button data-serv="${s.id}"><span class="num">${String(i + 1).padStart(2, "0")}</span><span class="info"><b>${esc(s.nombre)}</b><span>${esc(s.corto)}</span></span><span class="precio">${precioHTML(s)}</span><svg class="flecha" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></button>`).join("");
 $("#menu-serv").innerHTML = servVis().map(s => `<button class="it" data-serv="${s.id}"><svg><use href="#loto"/></svg>${esc(s.nombre)}</button>`).join("");
 }
 pintarServicios();
@@ -2518,15 +2505,6 @@ window.__dbg = { get ag(){ return ag; }, get pila(){ return pila; }, pintarAgend
   // servicios y horario aparecen uno por uno
   $("#mini")?.querySelectorAll("button").forEach((b, i) => b.style.setProperty("--d", (i % 6) * 90 + "ms"));
   $("#tabla-horario") && [...$("#tabla-horario").children].forEach((r, i) => r.style.setProperty("--d", i * 70 + "ms"));
-  // ondas centradas en el logo
-  const ajustarOndas = () => { const h = $(".hero"), l = $(".hero-logo"), o = $(".ondas"); if (!h || !l || !o) return; const a = h.getBoundingClientRect(), b = l.getBoundingClientRect(); o.style.setProperty("--oy", (b.top - a.top + b.height / 2) + "px"); };
-  ajustarOndas(); addEventListener("resize", ajustarOndas); addEventListener("load", ajustarOndas);
-  // tarjetas que se inclinan con el mouse (solo computadora)
-  if (FINO && !QUIETO) {
-    document.addEventListener("pointermove", e => { const t = e.target.closest?.(".mini button"); if (!t) return; const r = t.getBoundingClientRect();
-      const x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5; t.style.transform = `perspective(700px) rotateX(${-y * 8}deg) rotateY(${x * 10}deg) translateY(-4px)`; }, { passive: true });
-    document.addEventListener("pointerout", e => { const t = e.target.closest?.(".mini button"); if (t && !t.contains(e.relatedTarget)) t.style.transform = ""; });
-  }
   // polvo dorado y luces suaves que flotan en la portada
   if (QUIETO) return;
   const cv = $("#polvo"); if (!cv) return; const x = cv.getContext("2d"); let W, H, ps = [], on = true;
