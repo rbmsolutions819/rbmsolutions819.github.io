@@ -1760,12 +1760,12 @@ function descargarIcs(lista, nombre){
 function msgReserva(c){
   return `Hola Victoria, acabo de reservar en la página.\n\n*Orden:* ${ordenDe(c)}\n*Clienta:* ${c.nombre}\n*Celular:* ${c.tel}\n*Servicio:* ${c.servicio}\n*Día:* ${fechaLarga(c.fecha).replace(/^./, x => x.toUpperCase())}\n*Hora:* ${h12m(c.ini)} a ${h12m(c.ini + c.dur)}${c.nota ? `\n*Nota:* ${c.nota}` : ""}\n\n*Depósito:* ${DEPOSITO} por SINPE al ${SINPE}${c.comprobante ? " (comprobante subido)" : " (comprobante pendiente)"}.`;
 }
+async function archivoComp(c){ const blob = await (await fetch(c.comprobante)).blob(); return new File([blob], `comprobante-${ordenDe(c)}.jpg`, { type: "image/jpeg" }); }
 async function compartirComprobante(c){
   const texto = msgReserva(c);
-  try { await navigator.clipboard.writeText(texto); } catch {}
+  try { navigator.clipboard.writeText(texto).catch(() => {}); } catch {}
   try {
-    const blob = await (await fetch(c.comprobante)).blob();
-    const f = new File([blob], `comprobante-sinpe-${c.nombre.split(" ")[0].toLowerCase()}.jpg`, { type: "image/jpeg" });
+    const f = ag.compFile || await archivoComp(c);
     if (navigator.canShare && navigator.canShare({ files: [f], text: texto })) { await navigator.share({ files: [f], text: texto }); return; }
   } catch (ex) { if (ex.name === "AbortError") return; }
   // Respaldo (computadora o celular sin esa función): abre el chat de Victoria con el texto y se descarga la imagen para adjuntarla
@@ -1783,10 +1783,13 @@ function pintarListo(box, c){
       ${c.comprobante ? `<div class="comp-ver"><img src="${c.comprobante}" alt="Comprobante"><div><b>Comprobante listo</b><label for="a-comp" class="comp-cambiar">Cambiar imagen</label></div></div>`
         : `<label for="a-comp" class="comp-subir"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>Subir pantallazo del SINPE</label>`}
       <input type="file" id="a-comp" accept="image/*" hidden>
-      <div class="dep-p"><i>3</i><div><b>Envía la reserva a Victoria</b><span>Le llega a su WhatsApp con tu número de orden; ella ve el comprobante en su sistema.</span></div></div>
+      <div class="dep-p"><i>3</i><div><b>Envía todo a Victoria</b><span>La foto del comprobante y tu reserva van en un mismo mensaje, y el comprobante también queda guardado en su sistema.</span></div></div>
     </div>
     <div class="bloque">
-      <a class="btn btn-oro" id="a-enviar" href="${waLink(msgReserva(c))}" target="_blank" rel="noopener"><svg><use href="#wa"/></svg>Enviar reserva a Victoria</a>
+      ${c.comprobante ? `<button class="btn btn-oro" id="a-comp-share" type="button"><svg><use href="#wa"/></svg>Enviar comprobante y reserva por WhatsApp</button>
+      <p class="comp-ayuda">Se abre WhatsApp con la foto y todos los datos de la reserva juntos. Escoja el chat de <b>Victoria Beauty (8401 9766)</b> y toque enviar.</p>
+      <a class="pp-wa" id="a-enviar" href="${waLink(msgReserva(c))}" target="_blank" rel="noopener">Enviar solo los datos, sin la foto</a>`
+        : `<a class="btn btn-oro" id="a-enviar" href="${waLink(msgReserva(c))}" target="_blank" rel="noopener"><svg><use href="#wa"/></svg>Enviar reserva a Victoria</a>`}
       <button class="btn btn-osc" id="a-otra">Hacer otra reserva</button>
     </div>
     <p class="prueba">Si necesitas cambiar o cancelar, escríbenos por WhatsApp con anticipación.</p></div>`;
@@ -1796,7 +1799,7 @@ document.addEventListener("change", async e => {
   try {
     const data = await reducir(e.target.files[0], 1100, 0.75);
     try { await Reservas.guardarComprobante(ag.hecho.id, data); } catch {}
-    ag.hecho.comprobante = data; pintarListo($("#agenda"), ag.hecho); toast("Comprobante cargado");
+    ag.hecho.comprobante = data; try { ag.compFile = await archivoComp(ag.hecho); } catch {} pintarListo($("#agenda"), ag.hecho); toast("Comprobante cargado");
   } catch { toast("No se pudo leer la imagen. Intente con otra."); }
 });
 document.addEventListener("submit", e => {
