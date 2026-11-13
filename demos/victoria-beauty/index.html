@@ -838,6 +838,7 @@ html{overflow-x:hidden}
 .hist-m:first-of-type{border-top:0}.hist-m span{grid-area:t;font-weight:500}.hist-m em{grid-area:e;font-style:normal;font-family:var(--serif);font-size:17px;font-weight:600;color:var(--oro3)}
 .hist-m i{grid-area:i;height:7px;background:#f6ecef;border-radius:9px;overflow:hidden}.hist-m i b{display:block;height:100%;background:linear-gradient(90deg,var(--oro3),var(--oro2));border-radius:9px}
 .hist-m small{grid-area:s;font-size:12px;color:#8a7279}.hist-m.si{background:#fdf0f4;border-radius:12px}
+.dep-adm .btn-linea{color:var(--tinta);border-color:#e1d1d7}
 </style>
 </head>
 <body>
@@ -1783,13 +1784,10 @@ function pintarListo(box, c){
       ${c.comprobante ? `<div class="comp-ver"><img src="${c.comprobante}" alt="Comprobante"><div><b>Comprobante listo</b><label for="a-comp" class="comp-cambiar">Cambiar imagen</label></div></div>`
         : `<label for="a-comp" class="comp-subir"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>Subir pantallazo del SINPE</label>`}
       <input type="file" id="a-comp" accept="image/*" hidden>
-      <div class="dep-p"><i>3</i><div><b>Envía todo a Victoria</b><span>La foto del comprobante y tu reserva van en un mismo mensaje, y el comprobante también queda guardado en su sistema.</span></div></div>
+      <div class="dep-p"><i>3</i><div><b>Envía tu reserva a Victoria</b><span>Le llega a su WhatsApp con tu número de orden. El comprobante ya queda guardado en su sistema; ella te confirma por WhatsApp.</span></div></div>
     </div>
     <div class="bloque">
-      ${c.comprobante ? `<button class="btn btn-oro" id="a-comp-share" type="button"><svg><use href="#wa"/></svg>Enviar comprobante y reserva por WhatsApp</button>
-      <p class="comp-ayuda">Se abre WhatsApp con la foto y todos los datos de la reserva juntos. Escoja el chat de <b>Victoria Beauty (8401 9766)</b> y toque enviar.</p>
-      <a class="pp-wa" id="a-enviar" href="${waLink(msgReserva(c))}" target="_blank" rel="noopener">Enviar solo los datos, sin la foto</a>`
-        : `<a class="btn btn-oro" id="a-enviar" href="${waLink(msgReserva(c))}" target="_blank" rel="noopener"><svg><use href="#wa"/></svg>Enviar reserva a Victoria</a>`}
+      <a class="btn btn-oro" id="a-enviar" href="${waLink(msgReserva(c))}" target="_blank" rel="noopener"><svg><use href="#wa"/></svg>Enviar reserva a Victoria</a>
       <button class="btn btn-osc" id="a-otra">Hacer otra reserva</button>
     </div>
     <p class="prueba">Si necesitas cambiar o cancelar, escríbenos por WhatsApp con anticipación.</p></div>`;
@@ -1931,7 +1929,7 @@ function verCita(id){
     <ul class="ev-lista"><li><span>Servicio</span>${esc(c.servicio)} · ${durTxt(c.dur)} · <b>${colones(montoCita(c))}</b></li><li><span>Celular</span>${esc(c.tel)}</li>${c.nota ? `<li><span>Nota</span>“${esc(c.nota)}”</li>` : ""}</ul>
     ${c.comprobante ? `<button class="comp-adm" id="ev-comp" type="button"><img src="${c.comprobante}" alt=""><span><b>Comprobante de SINPE subido</b><small>Toque para verlo en grande y revise que el monto esté en su cuenta</small></span></button>`
       : !c.deposito ? `<div class="comp-falta"><b>Sin comprobante de SINPE</b><span>La clienta no subió el comprobante del depósito.</span><a class="btn btn-linea" href="https://wa.me/${t506}?text=${encodeURIComponent(`Hola ${c.nombre.split(" ")[0]}, le saluda Victoria Beauty. No tengo el comprobante del SINPE de ${DEPOSITO} de su reserva ${ordenDe(c)} (${c.servicio}, ${fechaLarga(c.fecha)} a las ${h12m(c.ini)}). ¿Me lo puede pasar, por favor?`)}" target="_blank" rel="noopener"><svg><use href="#wa"/></svg>Pedir comprobante por WhatsApp</a></div>` : ""}
-    <div class="dep-adm ${c.deposito ? "si" : ""}"><div><b>${c.deposito ? "Depósito recibido" : "Depósito pendiente"}</b><span>${DEPOSITO} por SINPE ${c.deposito ? "· cita confirmada" : c.comprobante ? "· la clienta subió el comprobante" : "· aún sin comprobante"}</span></div><button class="btn ${c.deposito ? "btn-linea" : "btn-oro"}" id="ev-dep">${c.deposito ? "Marcar pendiente" : "Marcar recibido"}</button></div>
+    <div class="dep-adm ${c.deposito ? "si" : ""}"><div><b>${c.deposito ? "Depósito recibido" : "Depósito pendiente"}</b><span>${DEPOSITO} por SINPE ${c.deposito ? "· cita confirmada" : c.comprobante ? "· la clienta subió el comprobante" : "· aún sin comprobante"}</span></div>${c.deposito ? `<a class="btn btn-oro" href="${linkConfirmar(c)}" target="_blank" rel="noopener"><svg><use href="#wa"/></svg>Enviar confirmación a la clienta</a>` : ""}<button class="btn ${c.deposito ? "btn-linea" : "btn-oro"}" id="ev-dep">${c.deposito ? "Marcar pendiente" : "Confirmar depósito recibido"}</button></div>
     <div class="apuntes"><label for="ev-apuntes">Mis anotaciones <small>(solo tú las ves)</small></label>
       <textarea id="ev-apuntes" rows="3" maxlength="1000" placeholder="Ej.: curvatura C, 11 mm, prefiere look natural…">${esc(c.apuntes || "")}</textarea>
       <div class="ap-pie"><span id="ev-ap-est"></span><button class="btn btn-osc" id="ev-ap-ok">Guardar anotación</button></div></div>
@@ -1953,7 +1951,7 @@ function verCita(id){
     if (b.id === "ev-comp") { $("#lb-vid").hidden = true; $("#lb img").hidden = false; $("#lb img").src = c.comprobante; $("#lb").classList.add("on"); $("#lb").style.zIndex = 90; return; }
     if (b.id === "ev-dep") {
       b.disabled = true;
-      try { await Reservas.marcarDeposito(c.id, !c.deposito); c.deposito = !c.deposito; toast(c.deposito ? "Depósito marcado como recibido" : "Depósito marcado como pendiente"); cerrar(); pintarNicole(); verCita(c.id); }
+      try { await Reservas.marcarDeposito(c.id, !c.deposito); c.deposito = !c.deposito; toast(c.deposito ? "Depósito confirmado. Ya puede enviarle la confirmación a la clienta." : "Depósito marcado como pendiente"); cerrar(); pintarNicole(); verCita(c.id); }
       catch (ex) { b.disabled = false; toast(ex.message === "ejemplo" ? "Las citas de ejemplo no se pueden editar." : "No se pudo guardar. Revisa tu conexión."); }
       return;
     }
@@ -2145,13 +2143,13 @@ function pintarNicole(){
     const tel = String(c.tel).replace(/\D/g, ""); const t506 = tel.length === 8 ? "506" + tel : tel;
     html += `<div class="cita-a"><small class="ev-orden">Orden ${ordenDe(c)}</small><div class="h"><b>${esc(c.nombre)}</b><span>${h12m(c.ini)} – ${h12m(c.ini + c.dur)}</span></div>
       <p><b style="color:${c.deposito ? "var(--oro3)" : "#8a7279"};font-weight:500">${c.deposito ? "Depósito recibido" : c.comprobante ? "Comprobante por revisar" : "Depósito pendiente"}</b><br>${esc(c.servicio)} · ${durTxt(c.dur)}${c.nota ? `<br><i>“${esc(c.nota)}”</i>` : ""}${c.apuntes ? `<br><span class="ap-mini">${esc(c.apuntes)}</span>` : ""}</p>
-      <div class="acc">${c.deposito ? "" : `<button data-dep="${c.id}" style="color:#fff;background:var(--oro3);border-color:var(--oro3)">Depósito recibido</button>`}<a href="https://wa.me/${t506}" target="_blank" rel="noopener">WhatsApp</a><a href="tel:${tel}">Llamar</a>${enCalendario(c) ? `<button data-cal="${c.id}" style="color:#4f8a5f;border-color:#bfd9c6">✓ En mi calendario</button>` : `<button data-cal="${c.id}">A mi calendario</button>`}<button class="rojo" data-cancel="${c.id}">Cancelar cita</button></div></div>`;
+      <div class="acc">${c.deposito ? `<a href="${linkConfirmar(c)}" target="_blank" rel="noopener" style="color:var(--oro3);border-color:var(--oro)">Enviar confirmación</a>` : `<button data-dep="${c.id}" style="color:#fff;background:var(--oro3);border-color:var(--oro3)">Confirmar depósito</button>`}<a href="https://wa.me/${t506}" target="_blank" rel="noopener">WhatsApp</a><a href="tel:${tel}">Llamar</a>${enCalendario(c) ? `<button data-cal="${c.id}" style="color:#4f8a5f;border-color:#bfd9c6">✓ En mi calendario</button>` : `<button data-cal="${c.id}">A mi calendario</button>`}<button class="rojo" data-cancel="${c.id}">Cancelar cita</button></div></div>`;
   }
   box.innerHTML = html;
 }
 $("#nicole").addEventListener("click", async e => {
   const b = e.target.closest("button"); if (!b) return;
-  if (b.dataset.dep) { b.disabled = true; try { await Reservas.marcarDeposito(b.dataset.dep, true); toast("Depósito marcado como recibido"); pintarNicole(); } catch (ex) { b.disabled = false; toast(ex.message === "ejemplo" ? "Las citas de ejemplo no se pueden editar." : "No se pudo guardar. Revisa tu conexión."); } return; }
+  if (b.dataset.dep) { b.disabled = true; try { await Reservas.marcarDeposito(b.dataset.dep, true); toast("Depósito confirmado. Ya puede enviarle la confirmación a la clienta."); pintarNicole(); } catch (ex) { b.disabled = false; toast(ex.message === "ejemplo" ? "Las citas de ejemplo no se pueden editar." : "No se pudo guardar. Revisa tu conexión."); } return; }
   if (b.id === "n-ok") {
     b.disabled = true;
     try { await Reservas.entrar($("#n-clave").value); pintarNicole(); }
@@ -2254,6 +2252,8 @@ $("#nicole").addEventListener("keydown", e => { if (e.key === "Enter" && e.targe
 
 
 
+const linkConfirmar = c => { const tel = String(c.tel).replace(/\D/g, ""), t = tel.length === 8 ? "506" + tel : tel;
+  return `https://wa.me/${t}?text=${encodeURIComponent(`Hola ${c.nombre.split(" ")[0]}, le saluda Victoria Beauty. Su cita quedó confirmada.\n\n*Orden:* ${ordenDe(c)}\n*Servicio:* ${c.servicio}\n*Día:* ${fechaLarga(c.fecha).replace(/^./, x => x.toUpperCase())}\n*Hora:* ${h12m(c.ini)}\n\nRecibí su depósito de ${DEPOSITO}, que se descuenta del precio del servicio. Recuerde llegar sin maquillaje en los ojos y con puntualidad. ¡La espero!`)}`; };
 // ===== Reportes: resumen rápido, historial, clientas frecuentes y PDF =====
 function historialMeses(){
   const g = {}; for (const c of Reservas.todas()) { const k = c.fecha.slice(0, 7); (g[k] = g[k] || { k, n: 0, m: 0 }).n++; g[k].m += montoCita(c); }
