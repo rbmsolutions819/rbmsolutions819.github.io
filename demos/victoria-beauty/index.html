@@ -791,6 +791,16 @@ html{overflow-x:hidden}
 .sa-acc .btn{padding:10px 6px;font-size:12px;color:var(--tinta);border-color:#e1d1d7}
 .sa-acc .btn-oro{color:var(--tinta)}
 .sa-acc .btn:disabled{opacity:.4}
+
+.sv-it{background:#fff;border:1px solid #ead9de;border-radius:16px;padding:14px;margin-bottom:10px}
+.sv-it.oculto{opacity:.6;border-style:dashed}
+.sv-h{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:10px}
+.sv-h>div{display:grid}.sv-h b{font-size:16px;font-weight:500}.sv-h span{font-size:13px;color:#7a646b}
+.sv-h em{font-style:normal;font-family:var(--serif);font-size:20px;font-weight:600;color:var(--oro3);white-space:nowrap}
+.sv-acc{display:flex;gap:6px}.sv-acc .btn{flex:1;padding:10px 6px;font-size:12px;color:var(--tinta);border-color:#e1d1d7}
+.sv-acc .rojo{color:#a3443a!important}
+.sv-2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sv-form select{width:100%;border:1px solid #e1d1d7;border-radius:12px;padding:12px;font:400 16px var(--sans);background:#fff;color:var(--tinta)}
 </style>
 </head>
 <body>
@@ -1097,6 +1107,10 @@ const HORARIO = [
 const SEMANAS_ADELANTE = 6;   // cuántas semanas se pueden reservar
 const ANTICIPACION_MIN = 120; // minutos mínimos de anticipación
 const DEPOSITO = "₡5.000", SINPE = "8401 9766";
+// Servicios editados desde el panel (demostración: se guardan en este navegador)
+const SERV_KEY = "vb_servicios_v1";
+try { const g = JSON.parse(localStorage.getItem(SERV_KEY) || "null"); if (Array.isArray(g) && g.length) SERVICIOS.splice(0, SERVICIOS.length, ...g); } catch {}
+const servVis = () => SERVICIOS.filter(s => !s.oculto);
 const CLAVE_NICOLE = "demo1234";  // clave de la versión de demostración (sin Firebase)
 
 // ===== CONEXIÓN =====
@@ -1441,8 +1455,11 @@ enlazarWa();
 
 // ================== SERVICIOS ==================
 const servDe = id => SERVICIOS.find(s => s.id === id);
-$("#mini").innerHTML = SERVICIOS.map(s => `<button data-serv="${s.id}"><svg><use href="#loto"/></svg><b>${esc(s.nombre)}</b><em style="font-style:normal;font-family:var(--serif);font-size:18px;font-weight:600;color:var(--oro3)">${precioHTML(s)}</em><span>${esc(s.corto)}</span></button>`).join("");
-$("#menu-serv").innerHTML = SERVICIOS.map(s => `<button class="it" data-serv="${s.id}"><svg><use href="#loto"/></svg>${esc(s.nombre)}</button>`).join("");
+function pintarServicios(){
+$("#mini").innerHTML = servVis().map(s => `<button data-serv="${s.id}"><svg><use href="#loto"/></svg><b>${esc(s.nombre)}</b><em style="font-style:normal;font-family:var(--serif);font-size:18px;font-weight:600;color:var(--oro3)">${precioHTML(s)}</em><span>${esc(s.corto)}</span></button>`).join("");
+$("#menu-serv").innerHTML = servVis().map(s => `<button class="it" data-serv="${s.id}"><svg><use href="#loto"/></svg>${esc(s.nombre)}</button>`).join("");
+}
+pintarServicios();
 
 function verServicio(id){
   const s = servDe(id); if (!s) return;
@@ -1535,7 +1552,7 @@ function pintarAgenda(){
   let cuerpo = "";
   if (p === 1) {
     cuerpo = `<h2 class="pp-h">¿Qué servicio quieres?</h2>
-      <div class="desp on" style="box-shadow:none"><div class="desp-lista" style="display:block;max-height:none;border-top:0">${SERVICIOS.map(x => ({ id:x.id, n: nombreCorto(x), p: x.precio })).map(x =>
+      <div class="desp on" style="box-shadow:none"><div class="desp-lista" style="display:block;max-height:none;border-top:0">${servVis().map(x => ({ id:x.id, n: nombreCorto(x), p: x.precio })).map(x =>
         `<button class="desp-op${x.id === ag.serv ? " si" : ""}" data-a-serv="${x.id}"><span>${esc(x.n)}</span><small>${esc(x.p)} · ${durTxt(servDe(x.id).dur)}</small></button>`).join("")}</div></div>`;
   } else if (p === 2) {
     cuerpo = `<h2 class="pp-h">¿Dónde quieres tu cita?</h2><div class="lug-ops">${Object.entries(LUGARES).map(([k, l]) =>
@@ -1943,11 +1960,12 @@ function pintarNicole(){
   const sinAvisos = soportaAvisos && Notification.permission === "default" || (esIOS && !soportaAvisos);
   const pest = `<div class="n-fila"><span>Hola, Victoria</span><button class="chip${nVista === "conf" ? " si" : ""}" data-nv="conf">Configuración</button><button class="chip" id="n-salir">Salir</button></div>`
     + (sinAvisos && nVista !== "conf" ? `<button class="aviso-mini" data-nv="conf">Activa las notificaciones de citas nuevas ›</button>` : "")
-    + `<div class="seg2 n-tabs"><button class="chip${nVista === "citas" ? " si" : ""}" data-nv="citas">Citas</button><button class="chip${nVista === "sel" ? " si" : ""}" data-nv="sel">Sellos</button><button class="chip${nVista === "ing" ? " si" : ""}" data-nv="ing">Ingresos</button><button class="chip${nVista === "sug" ? " si" : ""}" data-nv="sug">Opiniones${sugs.length + Reservas.encuestas().length ? ` (${sugs.length + Reservas.encuestas().length})` : ""}</button><button class="chip${nVista === "gal" ? " si" : ""}" data-nv="gal">Galería</button><button class="chip${nVista === "env" ? " si" : ""}" data-nv="env">Enviar encuesta${pendEnc() ? ` (${pendEnc()})` : ""}</button></div>`;
+    + `<div class="seg2 n-tabs"><button class="chip${nVista === "citas" ? " si" : ""}" data-nv="citas">Citas</button><button class="chip${nVista === "sel" ? " si" : ""}" data-nv="sel">Sellos</button><button class="chip${nVista === "serv" ? " si" : ""}" data-nv="serv">Servicios y precios</button><button class="chip${nVista === "ing" ? " si" : ""}" data-nv="ing">Ingresos</button><button class="chip${nVista === "sug" ? " si" : ""}" data-nv="sug">Opiniones${sugs.length + Reservas.encuestas().length ? ` (${sugs.length + Reservas.encuestas().length})` : ""}</button><button class="chip${nVista === "gal" ? " si" : ""}" data-nv="gal">Galería</button><button class="chip${nVista === "env" ? " si" : ""}" data-nv="env">Enviar encuesta${pendEnc() ? ` (${pendEnc()})` : ""}</button></div>`;
   if (nVista === "conf") { box.innerHTML = pest + pintarConfig(); return; }
   if (nVista === "env") { box.innerHTML = pest + pintarEnvioEncuestas(); return; }
   if (nVista === "ing") { box.innerHTML = pest + `` + pintarIngresos(); return; }
   if (nVista === "sel") { box.innerHTML = pest + pintarSellosAdmin(); return; }
+  if (nVista === "serv") { box.innerHTML = pest + pintarServAdmin(); return; }
   if (nVista === "gal") {
     const l = Reservas.galeria() || [];
     box.innerHTML = pest + `
@@ -2108,6 +2126,54 @@ $("#nicole").addEventListener("input", e => {
   if (e.target.id === "cie-desde") { nCie.desde = e.target.value; const h = $("#cie-hasta"); if (h && h.value < e.target.value) h.value = e.target.value; nCie.hasta = h?.value; } if (e.target.id === "cie-hasta") nCie.hasta = e.target.value; if (e.target.id === "cie-motivo") nCie.motivo = e.target.value; if (e.target.id === "cie-hini") nCie.hini = e.target.value; if (e.target.id === "cie-hfin") nCie.hfin = e.target.value; });
 $("#nicole").addEventListener("keydown", e => { if (e.key === "Enter" && e.target.id === "n-clave") $("#n-ok").click(); });
 
+
+
+// ================== SERVICIOS Y PRECIOS (panel) ==================
+let svEdit = null;   // id del servicio abierto, o "nuevo"
+const numCol = t => +String(t || "").replace(/[^\d]/g, "") || 0;
+const fmtCol = n => n ? "₡" + n.toLocaleString("es-CR").replace(/\s|,/g, ".") : "";
+function guardarServicios(){ try { localStorage.setItem(SERV_KEY, JSON.stringify(SERVICIOS)); } catch {} pintarServicios(); const c = document.querySelector("#cinta2"); if (c) { c.innerHTML = servVis().map(x => `<span>${esc(x.nombre)}</span>`).join(""); c.innerHTML += c.innerHTML; } }
+function formServicio(x){
+  const durs = [30, 45, 60, 90, 120, 150, 180, 210, 240];
+  return `<div class="sv-form">
+    <div class="campo"><label>Nombre</label><input id="sv-nom" maxlength="40" value="${esc(x.nombre || "")}"></div>
+    <div class="sv-2"><div class="campo"><label>Precio (₡)</label><input id="sv-precio" inputmode="numeric" value="${numCol(x.precio) || ""}" placeholder="Ej.: 15000"></div>
+      <div class="campo"><label>Antes (oferta, opcional)</label><input id="sv-antes" inputmode="numeric" value="${numCol(x.antes) || ""}" placeholder="Precio tachado"></div></div>
+    <div class="campo"><label>Duración</label><select id="sv-dur">${durs.map(d => `<option value="${d}"${(x.dur || 60) === d ? " selected" : ""}>${durTxt(d)}</option>`).join("")}</select></div>
+    <div class="campo"><label>Frase corta (en la tarjeta)</label><input id="sv-corto" maxlength="40" value="${esc(x.corto || "")}"></div>
+    <div class="campo"><label>Descripción</label><textarea id="sv-texto" rows="3" maxlength="400">${esc(x.texto || "")}</textarea></div>
+    <div class="campo"><label>Qué incluye (uno por línea)</label><textarea id="sv-incl" rows="3" maxlength="400">${esc((x.incluye || []).join("\n"))}</textarea></div>
+    <p class="error" id="sv-err"></p>
+    <div class="sv-acc"><button class="btn btn-oro" data-sv-guardar="${x.id || "nuevo"}">Guardar</button><button class="btn btn-linea" data-sv-cerrar>Cancelar</button></div>
+  </div>`;
+}
+function pintarServAdmin(){
+  return `<p class="conf-nota" style="margin-bottom:12px">Cambie precios, duración o textos y toque <b>Guardar</b>: la página se actualiza de inmediato. Si un servicio no se ofrece por un tiempo, ocúltelo.</p>
+    ${SERVICIOS.map(x => `<div class="sv-it${x.oculto ? " oculto" : ""}">
+      <div class="sv-h"><div><b>${esc(x.nombre)}</b><span>${durTxt(x.dur)}${x.oculto ? " · Oculto" : ""}</span></div><em>${precioHTML(x)}</em></div>
+      ${svEdit === x.id ? formServicio(x) : `<div class="sv-acc"><button class="btn btn-oro" data-sv-editar="${x.id}">Editar</button><button class="btn btn-linea" data-sv-ocultar="${x.id}">${x.oculto ? "Mostrar" : "Ocultar"}</button>${x.nuevo ? `<button class="btn btn-linea rojo" data-sv-borrar="${x.id}">Borrar</button>` : ""}</div>`}
+    </div>`).join("")}
+    ${svEdit === "nuevo" ? `<div class="sv-it"><div class="sv-h"><div><b>Servicio nuevo</b></div></div>${formServicio({})}</div>` : `<button class="btn btn-osc" style="width:100%;margin-top:4px" data-sv-nuevo>+ Agregar servicio</button>`}`;
+}
+document.addEventListener("click", e => {
+  const b = e.target.closest("#nicole [data-sv-editar], #nicole [data-sv-cerrar], #nicole [data-sv-guardar], #nicole [data-sv-ocultar], #nicole [data-sv-nuevo], #nicole [data-sv-borrar]"); if (!b) return;
+  if (b.dataset.svEditar) { svEdit = b.dataset.svEditar; return pintarNicole(); }
+  if (b.hasAttribute("data-sv-cerrar")) { svEdit = null; return pintarNicole(); }
+  if (b.hasAttribute("data-sv-nuevo")) { svEdit = "nuevo"; return pintarNicole(); }
+  if (b.dataset.svOcultar) { const x = servDe(b.dataset.svOcultar); x.oculto = !x.oculto; guardarServicios(); toast(x.oculto ? `${x.nombre} ya no se muestra` : `${x.nombre} se muestra de nuevo`); return pintarNicole(); }
+  if (b.dataset.svBorrar) { const i = SERVICIOS.findIndex(x => x.id === b.dataset.svBorrar); if (i >= 0 && confirm("¿Borrar este servicio?")) { SERVICIOS.splice(i, 1); guardarServicios(); toast("Servicio borrado"); } return pintarNicole(); }
+  if (b.dataset.svGuardar) {
+    const v = id => $("#" + id).value.trim(), err = t => $("#sv-err").textContent = t;
+    const nombre = v("sv-nom"), precio = numCol(v("sv-precio")), antes = numCol(v("sv-antes"));
+    if (nombre.length < 3) return err("Escriba el nombre del servicio.");
+    if (!precio) return err("Escriba el precio.");
+    if (antes && antes <= precio) return err("El precio de antes debe ser mayor que el actual.");
+    const datos = { nombre, precio: fmtCol(precio), antes: antes ? fmtCol(antes) : "", dur: +v("sv-dur"), corto: v("sv-corto"), texto: v("sv-texto"), incluye: v("sv-incl").split("\n").map(t => t.trim()).filter(Boolean) };
+    if (b.dataset.svGuardar === "nuevo") SERVICIOS.push({ id: "s" + Date.now().toString(36), foto: 7, nuevo: true, ...datos });
+    else Object.assign(servDe(b.dataset.svGuardar), datos);
+    svEdit = null; guardarServicios(); toast("Guardado. La página ya muestra el cambio."); pintarNicole();
+  }
+});
 
 // ================== TARJETA DE SELLOS ==================
 // Versión de demostración: las clientas y sus sellos se guardan en este navegador.
@@ -2450,7 +2516,7 @@ window.__dbg = { get ag(){ return ag; }, get pila(){ return pila; }, pintarAgend
   addEventListener("scroll", () => { if (pend) return; pend = true; requestAnimationFrame(() => { pend = false; const h = document.documentElement, m = h.scrollHeight - h.clientHeight; barra.style.transform = `scaleX(${m > 0 ? h.scrollTop / m : 0})`; }); }, { passive: true });
   // cinta con los servicios
   const c = $("#cinta2");
-  if (c) { c.innerHTML = SERVICIOS.map(s => `<span>${esc(s.nombre)}</span>`).join(""); c.innerHTML += c.innerHTML;
+  if (c) { c.innerHTML = servVis().map(s => `<span>${esc(s.nombre)}</span>`).join(""); c.innerHTML += c.innerHTML;
     const vel = () => c.style.animationDuration = (c.scrollWidth / 2 / 32).toFixed(1) + "s"; vel(); addEventListener("load", vel); }
   // servicios y horario aparecen uno por uno
   $("#mini")?.querySelectorAll("button").forEach((b, i) => b.style.setProperty("--d", (i % 6) * 90 + "ms"));
