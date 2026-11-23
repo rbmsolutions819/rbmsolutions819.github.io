@@ -1143,19 +1143,19 @@ html{overflow-x:hidden}
 const WHATSAPP = "50671185004";
 // precio: ej. "₡20.000" ("" muestra "Consultar"). foto: número de la foto de la galería (0 a 5).
 const SERVICIOS = [
-  { id:"clasicas", cat:"Pestañas pelo a pelo · full set", nombre:"Clásicas", precio:"₡18.000", dur:120, foto:0, corto:"Look natural y elegante", fotos:[],
+  { id:"clasicas", cat:"Pestañas pelo a pelo · full set", nombre:"Clásicas", precio:"₡18.000", dur:120, foto:0, corto:"Look natural y elegante", fotos:["img/trabajos/clasicas-1.jpg"],
     texto:"Una extensión sobre cada pestaña natural. Alarga y define tu mirada con un acabado natural, ideal para el día a día.",
     incluye:["Set completo (full set)","Diseño según la forma de tus ojos","Recomendaciones de cuidado"] },
-  { id:"2d", cat:"Pestañas pelo a pelo · full set", nombre:"Pestañas 2D", precio:"₡18.000", dur:120, foto:1, corto:"Un poquito más de densidad", fotos:[],
+  { id:"2d", cat:"Pestañas pelo a pelo · full set", nombre:"Pestañas 2D", precio:"₡18.000", dur:120, foto:1, corto:"Un poquito más de densidad", fotos:["img/trabajos/2d-1.jpg"],
     texto:"Dos extensiones ultrafinas sobre cada pestaña natural para una mirada con más cuerpo, sin perder naturalidad.",
     incluye:["Set completo (full set)","Abanicos de 2 extensiones","Acabado ligero"] },
-  { id:"rimel", cat:"Pestañas pelo a pelo · full set", nombre:"Efecto rímel", precio:"₡18.000", dur:120, foto:1, corto:"Como recién maquillada", fotos:[],
+  { id:"rimel", cat:"Pestañas pelo a pelo · full set", nombre:"Efecto rímel", precio:"₡18.000", dur:120, foto:1, corto:"Como recién maquillada", fotos:["img/trabajos/rimel-1.jpg"],
     texto:"Da el efecto de pestañas con rímel, sin tener que maquillarte.",
     incluye:["Set completo (full set)","Efecto rímel de larga duración","Diseño personalizado"] },
-  { id:"3d", cat:"Pestañas pelo a pelo · full set", nombre:"Fibras tecnológicas 3D", precio:"₡18.000", dur:120, foto:2, corto:"Volumen ligero y parejo", fotos:[],
+  { id:"3d", cat:"Pestañas pelo a pelo · full set", nombre:"Fibras tecnológicas 3D", precio:"₡18.000", dur:120, foto:2, corto:"Volumen ligero y parejo", fotos:["img/trabajos/3d-1.jpg"],
     texto:"Fibras tecnológicas prehechas de 3 puntas que dan volumen uniforme y ligero.",
     incluye:["Set completo (full set)","Fibras tecnológicas 3D","Acabado uniforme"] },
-  { id:"5d", cat:"Pestañas pelo a pelo · full set", nombre:"Fibras tecnológicas 5D", precio:"₡20.000", dur:150, foto:2, corto:"Más volumen", fotos:[],
+  { id:"5d", cat:"Pestañas pelo a pelo · full set", nombre:"Fibras tecnológicas 5D", precio:"₡20.000", dur:150, foto:2, corto:"Más volumen", fotos:["img/trabajos/5d-1.jpg","img/trabajos/5d-2.jpg","img/trabajos/5d-3.jpg"],
     texto:"Fibras tecnológicas de 5 puntas para una mirada más poblada y definida.",
     incluye:["Set completo (full set)","Fibras tecnológicas 5D","Más densidad"] },
   { id:"7d", cat:"Pestañas pelo a pelo · full set", nombre:"Fibras tecnológicas 7D", precio:"₡22.000", dur:150, foto:2, corto:"Máxima densidad", fotos:[],
@@ -1193,7 +1193,7 @@ const ANTICIPACION_MIN = 120; // minutos mínimos de anticipación
 const DEPOSITO = "₡5.000", SINPE = "7118 5004";
 // Servicios editados desde el panel (demostración: se guardan en este navegador)
 const SERV_KEY = "cx6_servicios_v1";
-try { const g = JSON.parse(localStorage.getItem(SERV_KEY) || "null"); if (Array.isArray(g) && g.length) { g.forEach(x => { if (x.id === "2d" && x.nombre === "2D") x.nombre = "Pestañas 2D"; }); SERVICIOS.splice(0, SERVICIOS.length, ...g); } } catch {}
+try { const g = JSON.parse(localStorage.getItem(SERV_KEY) || "null"); if (Array.isArray(g) && g.length) { g.forEach(x => { if (x.id === "2d" && x.nombre === "2D") x.nombre = "Pestañas 2D"; const d0 = SERVICIOS.find(s => s.id === x.id); if (d0 && d0.fotos.length && !(x.fotos || []).length) x.fotos = d0.fotos.slice(); }); SERVICIOS.splice(0, SERVICIOS.length, ...g); } } catch {}
 const servVis = () => SERVICIOS.filter(s => !s.oculto);
 const CLAVE_NICOLE = "demo1234";  // clave de la versión de demostración (sin Firebase)
 
@@ -1202,6 +1202,7 @@ const CLAVE_NICOLE = "demo1234";  // clave de la versión de demostración (sin 
 const FIREBASE = null;   // demostración: todo se guarda en este navegador
 const NICOLE_EMAIL = "admin@calixtostudio.com";        // usuario de administración en Firebase → Authentication
 const NTFY_TEMA = "";  // avisos por la app ntfy desactivados: solo notificaciones del navegador      // canal privado de avisos en la app ntfy ("" = sin avisos)
+const TRABAJOS = ["img/trabajos/5d-3.jpg","img/trabajos/2d-1.jpg","img/trabajos/clasicas-1.jpg","img/trabajos/rimel-1.jpg","img/trabajos/3d-1.jpg","img/trabajos/5d-1.jpg","img/trabajos/5d-2.jpg"];
 const FOTOS = ["img/servicio-1.jpg","img/servicio-2.jpg","img/servicio-3.jpg","img/servicio-4.jpg","img/servicio-5.jpg","img/servicio-6.jpg","img/servicio-7.jpg","img/marca.jpg"];
 
 // ================== UTILIDADES ==================
@@ -2623,7 +2624,7 @@ function miniVideo(x){
 let itemsGal = [];
 function pintarGaleria(){
   const l = Reservas.galeria();
-  itemsGal = l && l.length ? l : FOTOS.map(f => ({ tipo:"foto", data:f }));
+  itemsGal = l && l.length ? l : TRABAJOS.map(f => ({ tipo:"foto", data:f }));
   $("#gal").innerHTML = itemsGal.map((x, i) => x.tipo === "foto"
     ? `<button data-i="${i}" class="${i === 0 ? "ancha" : ""}" aria-label="Ver foto ${i + 1}"><img src="${x.data}" alt="" loading="lazy"></button>`
     : `<button data-i="${i}" class="vid${i === 0 ? " ancha" : ""}" aria-label="Ver video ${esc(x.titulo || "")}">${miniVideo(x)}</button>`).join("");
