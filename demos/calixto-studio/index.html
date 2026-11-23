@@ -1028,7 +1028,7 @@ html{overflow-x:hidden}
 
 <!-- Galería -->
 <section class="panel oscuro" id="p-galeria" aria-label="Galería">
-  <div class="cab"><button data-atras aria-label="Volver">‹</button><h3>Galería</h3></div>
+  <div class="cab"><button data-atras aria-label="Volver">‹</button><h3>Trabajos anteriores</h3></div>
   <div class="cuerpo"><div class="in"><p style="color:#a89985;margin-bottom:16px">Algunos de nuestros trabajos. Toca una foto o un video para verlo en grande.</p><div class="gal" id="gal"></div></div></div>
 </section>
 
@@ -1156,6 +1156,8 @@ const CLAVE_NICOLE = "demo1234";  // clave de la versión de demostración (sin 
 const FIREBASE = null;  // demostración: las reservas se guardan en el navegador
 const NICOLE_EMAIL = "admin@calixtostudio.app";        // usuario de Nicole en Firebase → Authentication
 const NTFY_TEMA = "";  // avisos por la app ntfy desactivados: solo notificaciones del navegador      // canal privado de avisos en la app ntfy ("" = sin avisos)
+const TRABAJOS = ["img/trabajos/5d-3.jpg","img/trabajos/2d-1.jpg","img/trabajos/clasicas-1.jpg","img/trabajos/rimel-1.jpg","img/trabajos/3d-1.jpg","img/trabajos/5d-1.jpg","img/trabajos/5d-2.jpg"];
+const FOTO_REAL = { clasicas:"img/trabajos/clasicas-1.jpg", rimel:"img/trabajos/rimel-1.jpg" };
 const FOTOS = ["img/servicio-1.jpg","img/servicio-2.jpg","img/servicio-3.jpg","img/servicio-4.jpg","img/servicio-5.jpg","img/servicio-6.jpg","img/servicio-7.jpg","img/marca.jpg"];
 
 // ================== UTILIDADES ==================
@@ -1532,7 +1534,7 @@ function verServicio(id){
   const s = servDe(id); if (!s) return;
   $("#ps-titulo").textContent = s.nombre;
   $("#ps-cuerpo").innerHTML = `
-    <img class="det-foto" src="${FOTOS[s.foto]}" alt="">
+    <img class="det-foto" src="${FOTO_REAL[s.id] || FOTOS[s.foto]}" alt="">
     ${s.destacado ? '<span class="etiqueta" style="margin-top:16px">El más pedido</span>' : ""}
     <h2>${esc(s.nombre)}</h2>
     <p>${esc(s.texto)}</p>
@@ -2106,7 +2108,7 @@ function pintarNicole(){
             ${x.tipo === "foto" ? `<img src="${x.data}" alt="">` : `<div class="g-vid">${miniVideo(x)}</div>`}
             <div class="g-acc"><button data-gal-mover="${x.id}:-1" ${i === 0 ? "disabled" : ""} aria-label="Mover antes">‹</button><button data-gal-mover="${x.id}:1" ${i === l.length - 1 ? "disabled" : ""} aria-label="Mover después">›</button><button class="rojo" data-gal-borrar="${x.id}" aria-label="Quitar"></button></div></div>`).join("")}</div>
           <button class="chip" style="margin-top:12px" id="g-restaurar">Volver a las fotos originales</button>`
-        : `<div class="vacio">Ahora se muestran las ${FOTOS.length} fotos originales. Cuando subas la primera foto o video, la galería mostrará solo lo tuyo.</div>`}</div>`;
+        : `<div class="vacio">Ahora se muestran las ${TRABAJOS.length} fotos originales. Cuando subas la primera foto o video, la galería mostrará solo lo tuyo.</div>`}</div>`;
     $("#g-fotos").addEventListener("change", subirFotos);
     return;
   }
@@ -2522,7 +2524,7 @@ function miniVideo(x){
 let itemsGal = [];
 function pintarGaleria(){
   const l = Reservas.galeria();
-  itemsGal = l && l.length ? l : FOTOS.map(f => ({ tipo:"foto", data:f }));
+  itemsGal = l && l.length ? l : TRABAJOS.map(f => ({ tipo:"foto", data:f }));
   $("#gal").innerHTML = itemsGal.map((x, i) => x.tipo === "foto"
     ? `<button data-i="${i}" class="${i === 0 ? "ancha" : ""}" aria-label="Ver foto ${i + 1}"><img src="${x.data}" alt="" loading="lazy"></button>`
     : `<button data-i="${i}" class="vid${i === 0 ? " ancha" : ""}" aria-label="Ver video ${esc(x.titulo || "")}">${miniVideo(x)}</button>`).join("");
