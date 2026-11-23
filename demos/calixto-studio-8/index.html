@@ -966,16 +966,25 @@ body>footer{border-top-color:#e8dfc9;color:#8a7d66}body>footer .n{color:var(--ti
 .v7-ph{display:grid;place-items:center;width:100%;height:100%;background:radial-gradient(70% 60% at 50% 35%,rgba(201,162,74,.35),transparent 70%),linear-gradient(160deg,#2a2218,#0d0b08);color:var(--oro2)}
 .v7-ph svg{width:46%;height:46%;max-width:90px;margin-bottom:30%}
 div.det-foto.v7-ph{aspect-ratio:16/9;border-radius:16px}div.det-foto.v7-ph svg{margin:0;width:70px;height:70px}
-.v8-banner{height:auto;padding:28px 0 26px}
-.v8-banner img{width:150px;height:150px}
-.v8-perfil{text-align:center;padding-top:34px}
-.v8-foto{position:relative;max-width:420px;margin:0 auto 26px;width:calc(100% - 24px)}
-.v8-foto img{width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:200px 200px 18px 18px;box-shadow:0 24px 50px -30px rgba(60,45,20,.7)}
-.v8-foto::after{content:"";position:absolute;inset:-12px;border:1px solid var(--oro);border-radius:212px 212px 26px 26px;pointer-events:none}
-.v8-perfil h1{font-family:var(--serif);font-weight:600;font-size:38px;line-height:1.05;color:var(--tinta)}
-.v8-perfil .v7-ubi{justify-content:center}
-.v8-perfil .v7-redes{justify-content:center;margin-top:14px}
-@media (min-width:700px){.v8-banner{height:auto}.v8-banner img{width:180px;height:180px}.v8-perfil h1{font-size:44px}}
+.v8-hero{position:relative;isolation:isolate;overflow:hidden;text-align:center;padding:26px 20px 34px;background:radial-gradient(70% 45% at 50% 42%,rgba(201,162,74,.20),transparent 70%),linear-gradient(180deg,#0d0b08,#17130d 70%,#0d0b08);color:#f3ead7;border-bottom:1px solid rgba(201,162,74,.55)}
+.v8-hero::before{content:"";position:absolute;inset:0;background:url(img/marmol.jpg) center/cover;opacity:.05;z-index:-1}
+.v8-logo{width:78px;height:78px;border-radius:50%;margin:0 auto 26px}
+.v8-foto{position:relative;width:min(270px,68vw);margin:0 auto 26px}
+.v8-foto img{width:100%;aspect-ratio:4/5;object-fit:cover;object-position:50% 25%;border-radius:50% 50% 14px 14px / 40% 40% 14px 14px;box-shadow:0 30px 60px -28px rgba(0,0,0,.9)}
+.v8-foto::after{content:"";position:absolute;inset:-9px;border:1px solid rgba(201,162,74,.75);border-radius:50% 50% 20px 20px / 40% 40% 20px 20px;pointer-events:none}
+.v8-hero h1{font-family:var(--serif);font-weight:500;font-size:40px;line-height:1;letter-spacing:.04em;background:linear-gradient(100deg,var(--oro3),var(--oro2) 45%,var(--oro) 70%,var(--oro3));-webkit-background-clip:text;background-clip:text;color:transparent}
+.v8-sub{margin-top:10px;font-size:11.5px;letter-spacing:.32em;text-transform:uppercase;color:#cfc2a6}
+.v8-linea{display:flex;align-items:center;justify-content:center;gap:12px;margin:16px auto 12px;color:var(--oro)}
+.v8-linea i{width:54px;height:1px;background:linear-gradient(90deg,transparent,var(--oro))}.v8-linea i:last-child{transform:scaleX(-1)}
+.v8-linea svg{width:22px;height:22px}
+.v8-est{font-size:13.5px;color:#d9cdb3;letter-spacing:.04em}.v8-est span{color:var(--oro);letter-spacing:2px}.v8-est b{color:#fff;font-weight:500}
+.v8-est a{text-decoration:underline;text-underline-offset:3px;color:#d9cdb3}
+.v8-info{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding-top:20px}
+.v8-datos{display:grid;gap:2px;min-width:0}
+.v8-info .v7-ubi{margin:0}.v8-info .estado{margin-top:6px;justify-self:start}
+.v8-info .v7-redes{grid-column:auto}
+.v8-info .v7-redes a{width:40px;height:40px}.v8-info .v7-redes svg{width:19px;height:19px}
+@media (min-width:700px){.v8-hero{padding:34px 20px 42px}.v8-logo{width:90px;height:90px}.v8-foto{width:300px}.v8-hero h1{font-size:50px}}
 </style>
 </head>
 <body>
@@ -997,18 +1006,21 @@ div.det-foto.v7-ph{aspect-ratio:16/9;border-radius:16px}div.det-foto.v7-ph svg{m
 
 <div class="progreso" id="progreso" aria-hidden="true"></div>
 <main class="v7">
-  <header class="v7-banner v8-banner">
-    <img src="img/logo.png" alt="Calixto Studio">
+  <header class="v8-hero">
+    <img class="v8-logo" src="img/logo.png" alt="Calixto Studio">
+    <div class="v8-foto"><img src="img/foto.jpg" alt="Foto de la artista de Calixto Studio"></div>
+    <h1>Calixto Studio</h1>
+    <p class="v8-sub">Lash artist · Pestañas y cejas</p>
+    <div class="v8-linea" aria-hidden="true"><i></i><svg><use href="#loto"/></svg><i></i></div>
+    <p class="v8-est"><span aria-hidden="true">★★★★★</span> <b>5.0</b> · <a href="#resenas">3 reseñas</a></p>
   </header>
 
   <div class="v7-col">
-    <section class="v8-perfil">
-      <div class="v8-foto"><img src="img/foto.jpg" alt="Foto de la artista de Calixto Studio"></div>
-      <h1>Calixto Studio</h1>
-      <p class="v7-sub">Lash artist · Pestañas y cejas</p>
-      <p class="v7-estrellas"><span aria-hidden="true">★★★★★</span> <b>5.0</b> · <a href="#resenas">3 reseñas</a></p>
-      <p class="v7-ubi"><svg><use href="#pin"/></svg>Moravia, San Vicente · <a data-wa="Hola, ¿me puedes enviar la ubicación del estudio?" href="#">Cómo llegar</a></p>
-      <div class="estado" id="estado"><i></i><span>Solo con cita</span></div>
+    <section class="v8-info">
+      <div class="v8-datos">
+        <p class="v7-ubi"><svg><use href="#pin"/></svg>Moravia, San Vicente · <a data-wa="Hola, ¿me puedes enviar la ubicación del estudio?" href="#">Cómo llegar</a></p>
+        <div class="estado" id="estado"><i></i><span>Solo con cita</span></div>
+      </div>
       <div class="v7-redes">
         <a href="https://instagram.com/calixto_studio" target="_blank" rel="noopener" aria-label="Instagram"><svg><use href="#ig"/></svg></a>
         <a href="https://www.tiktok.com/" target="_blank" rel="noopener" aria-label="TikTok"><svg><use href="#tk"/></svg></a>
