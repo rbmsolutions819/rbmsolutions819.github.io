@@ -1238,9 +1238,9 @@ const SERVICIOS = [
   { id:"terapeutico", cat:"Masajes", nombre:"Masaje terapéutico", precio:"₡25.000", dur:60, foto:0, destacado:true, corto:"Relajante, descontracturante, deportivo o de descarga", fotos:["img/fotos/ban3.jpg","img/fotos/piedras.jpg"],
     texto:"Libera tensiones, alivia la carga muscular y recupera la sensación de bienestar. Escoja la modalidad que mejor se adapte a usted: relajante, descontracturante, deportivo o de descarga muscular.",
     incluye:["60 minutos","Terapia con piedras calientes","Manta térmica","Exfoliación de espalda"] },
-  { id:"cuatromanos", cat:"Masajes", nombre:"Masaje a 4 manos", precio:"₡40.000", dur:60, foto:0, corto:"Relajación, bienestar y armonía", fotos:["img/fotos/piedras.jpg"],
-    texto:"Dos terapeutas trabajando al mismo tiempo para una relajación profunda y envolvente.",
-    incluye:["60 minutos","Dos terapeutas","Relajación profunda"] },
+  { id:"piedras", cat:"Masajes", nombre:"Masaje con piedras calientes", precio:"₡40.000", dur:60, foto:0, corto:"Calor que relaja cada músculo", fotos:["img/fotos/piedras.jpg"],
+    texto:"Masaje relajante con piedras volcánicas calientes que sueltan la tensión muscular, mejoran la circulación y dan una sensación profunda de calma.",
+    incluye:["60 minutos","Piedras volcánicas calientes","Relajación profunda"] },
   { id:"pareja", cat:"Masajes", nombre:"Masaje relajante en pareja", precio:"₡30.000", dur:60, foto:0, corto:"Un momento especial para desconectarse juntos", fotos:[],
     texto:"Un momento especial para desconectarse juntos. Precio por pareja.",
     incluye:["Manta térmica","Terapia con piedras calientes","Exfoliación de espalda","Limpieza facial hidratante","2 copas de sangría"] },
@@ -1338,7 +1338,7 @@ const ReservasPrueba = (() => {
   // Algunas citas de ejemplo para que se vean espacios "Reservado"
   // Datos de ejemplo: 2 meses atendidos (alrededor de ₡500.000 por mes, 1 o 2 clientas por día) y algunas citas próximas
   const CLIENTAS_EJ = [["María Fernández",12,"8811 1111"],["Daniela Rojas",10,"8822 2222"],["Sofía Vargas",9,"8833 3333"],["Andrea Mora",8,"8844 4444"],["Valeria Castro",7],["Fernanda Solís",6],["Camila Jiménez",5],["Natalia Quesada",5],["Gabriela Chaves",4],["Paola Arias",4],["Melissa Ramírez",3],["Karla Navarro",3],["Tatiana Alfaro",3],["Jimena Vega",2],["Raquel Brenes",2],["Laura Méndez",2],["Ana Lucía Soto",2],["Mariana Herrera",2],["Priscilla Mora",1],["Hellen Cordero",1]];
-  const SERV_EJ = [["terapeutico",8],["cuatromanos",3],["pareja",3],["dermapen",6],["facialcombo",4],["extensiones",5],["brasilenas",3],["reductivo",3]];
+  const SERV_EJ = [["terapeutico",8],["piedras",3],["pareja",3],["dermapen",6],["facialcombo",4],["extensiones",5],["brasilenas",3],["reductivo",3]];
   const telEj = n => "88" + String(10 + (n.charCodeAt(0) * 7 + n.length * 13) % 89).padStart(2, "0") + " " + String(1000 + (n.charCodeAt(1) * 53 + n.length * 7) % 8999);
   const azar = x => { const v = Math.sin(x * 9301 + 49297) * 233280; return v - Math.floor(v); };
   const pesar = (lista, r) => { const t = lista.reduce((s, x) => s + x[1], 0); let u = r * t; for (const x of lista) { if ((u -= x[1]) < 0) return x; } return lista[lista.length - 1]; };
