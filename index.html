@@ -197,6 +197,10 @@ section{padding-block:64px}
 .trab .tipo{font:500 12px var(--f-mono);color:var(--celeste)}
 .trab h3{font-size:20px;font-weight:600}
 .trab p{color:var(--texto2);font-size:15px}
+.trab .ver-l{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.trab .ver-l a{border:1px solid var(--borde);background:var(--sup2);color:var(--blanco);border-radius:999px;padding:7px 13px;font:600 13px var(--f-txt)}
+.trab .ver-l a:hover{border-color:var(--azul)}
+.demo-vers{margin-top:12px}
 .trab .url{font:500 13px var(--f-mono);color:var(--gris);overflow-wrap:anywhere}
 
 /* horario */
@@ -2910,7 +2914,8 @@ $("#admin").addEventListener("click", async e => {
   if (b.dataset.visrec !== undefined) { nVis.datos = {}; pintarAdmin(); return; }
   if (b.dataset.nocontar !== undefined) { const ya = localStorage.getItem("rbm-no-contar") === "1"; try { ya ? localStorage.removeItem("rbm-no-contar") : localStorage.setItem("rbm-no-contar", "1"); } catch {}
     toast(ya ? "Este aparato vuelve a contar como visita" : "Listo: tus visitas desde este aparato no se cuentan"); pintarAdmin(); return; }
-  if (b.dataset.demoGrupo) { demoGrupo = b.dataset.demoGrupo; pintarAdmin(); return; }
+  if (b.dataset.demoFam) { demoFam = b.dataset.demoFam; pintarAdmin(); return; }
+  if (b.dataset.demoVer) { const [f, id] = b.dataset.demoVer.split(":"); demoVer[f] = id; pintarAdmin(); return; }
   if (b.dataset.demoTab) { const [id, n] = b.dataset.demoTab.split(":"); demoTab[id] = +n; pintarAdmin(); return; }
   if (b.dataset.copiarDemo) { await copiar(b.dataset.copiarDemo, "Link copiado. Mandáselo al cliente."); return; }
   if (b.id === "n-ok") {
@@ -3148,40 +3153,56 @@ const DEMOS = [
 ];
 // Las que se ven si todavía no se ha guardado nada desde el administrador
 const DEMOS_INICIALES = ["spa", "candelas", "service-desk", "mesa-compras", "compras"];
+// Familias: todas las versiones de una misma demo juntas (Demo 1, Demo 2, ...)
+const FAM_NOM = { "calixto-studio":"Calixto Studio", "resurge-spa":"Resurge Spa", spa:"Spa", candelas:"Aurora Candelas", "service-desk":"Service Desk", "mesa-compras":"Mesa de Compras", compras:"Compras con Sai", "dona-empanada":"Doña Empanada", blessing:"The Blessing Barbershop", matcha:"Matcha Mía", koktela:"Koktela", alick:"Alick", chemas:"Chemas Collector", cosmo:"Cosmo Scrubs Medical", "doctor-outlet":"Doctor Outlet", genki:"Genki Sushi & Ramen", condominio:"Condominio", cma:"Iglesia CMA", lucitours:"Lucitours", "estudio-belleza":"Estudio de pestañas", "victoria-beauty":"Victoria Beauty" };
+const famDe = d => d.id.replace(/-(v1|pro|\d+)$/, "");
+const ordVer = d => /-v1$/.test(d.id) ? 0 : /-pro$/.test(d.id) ? 99 : +((d.id.match(/-(\d+)$/) || [0, 1])[1]);
+function familias(lista){
+  const m = new Map(); lista.forEach(d => { const f = famDe(d); if (!m.has(f)) m.set(f, []); m.get(f).push(d); });
+  return [...m].map(([f, l]) => { l.sort((a, b) => ordVer(a) - ordVer(b)); let n = 0;
+    const vers = l.map(d => ({ d, et: /-pro$/.test(d.id) ? "Presentación" : "Demo " + (++n) }));
+    const ult = [...vers].reverse().find(v => !/-pro$/.test(v.d.id)) || vers[vers.length - 1];
+    return { id:f, nombre:"Demo " + (FAM_NOM[f] || l[0].nombre), vers, ult }; }).sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
+}
 function pintarDemos(){
   const pub = Reservas.demosPub();
   const l = pub ? DEMOS.filter(d => pub.includes(d.id)) : [];
+  const fams = familias(l);
   $("#demos").hidden = !l.length; $("#menu-demos").hidden = !l.length;
-  $("#demos-lista").innerHTML = l.map(d => `<a class="trab" href="${d.url}" target="_blank" rel="noopener">
-      <span class="tipo">${esc(d.tipo)}</span><h3>${esc(d.nombre)}</h3><p>${esc(d.desc)}</p><span class="url">Ver demo ↗</span></a>`).join("");
-  $("#menu-demos-l").innerHTML = l.map(d => `<a class="it" href="${d.url}" target="_blank" rel="noopener"><svg><use href="#i-${d.ic}"/></svg>${esc(d.menu)}</a>`).join("");
+  $("#demos-lista").innerHTML = fams.map(f => { const d = f.ult.d; return `<div class="trab">
+      <span class="tipo">${esc(d.tipo)}</span><h3>${esc(f.nombre)}</h3><p>${esc(d.desc)}</p>
+      <div class="ver-l">${f.vers.map(v => `<a href="${v.d.url}" target="_blank" rel="noopener">${esc(v.et)} ↗</a>`).join("")}</div></div>`; }).join("");
+  $("#menu-demos-l").innerHTML = fams.map(f => `<a class="it" href="${f.ult.d.url}" target="_blank" rel="noopener"><svg><use href="#i-${f.ult.d.ic}"/></svg>${esc(f.nombre)}</a>`).join("");
   const nav = document.querySelector('.nav a[href="#demos"]'); if (nav) nav.hidden = !l.length;
 }
 pintarDemos();
 const demoTab = {};
-// Grupos del administrador: 3.0, 2.0 (animadas) y básicas
-let demoGrupo = "3";
-const DEMOS_2_PRINCIPAL = ["cma", "lucitours", "koktela", "matcha"];   // su versión principal ya es la animada 2.0
-const DEMOS_3_PRINCIPAL = ["resurge-spa", "calixto-studio-7", "calixto-studio-8"];   // las más nuevas, aunque no terminen en -3
-const grupoDemo = d => (/-(3|pro)$/.test(d.id) || DEMOS_3_PRINCIPAL.includes(d.id)) ? "3" : (/-2$/.test(d.id) || DEMOS_2_PRINCIPAL.includes(d.id)) ? "2" : "1";
-const GRUPOS_DEMO = [["3", "Demos 3.0", "Las más nuevas: entrada con la marca, ambiente animado y efectos al tocar."], ["2", "Demos 2.0", "Versiones animadas: portadas con movimiento, carruseles y cintas."], ["1", "Básicas", "Las versiones originales, más sencillas y sin tantas animaciones."]];
+// Administrador: se escoge la demo (familia) y abajo salen sus versiones Demo 1, Demo 2, ...
+let demoFam = null; const demoVer = {};
 function pintarDemosAdmin(){
   const pub = Reservas.demosPub();
   if (!pub) return `<div class="vacio">Cargando…</div>`;
   const base = (location.origin + location.pathname).replace(/index\.html$/, "");
-  return `<p class="conf-p" style="margin-bottom:12px">Aquí están todas tus demos. Solo las <b>publicadas</b> salen en el menú y en la sección Demos de la página. Las ocultas las podés abrir vos desde aquí, o mandarle el link solo al cliente que querás.</p>`
-    + `<div class="demo-tabs demo-grupos" role="tablist">${GRUPOS_DEMO.map(([k, t]) => `<button role="tab" class="${demoGrupo === k ? "si" : ""}" aria-selected="${demoGrupo === k}" data-demo-grupo="${k}">${t} · ${DEMOS.filter(d => grupoDemo(d) === k).length}</button>`).join("")}</div>
-      <p class="conf-p" style="margin:10px 0 12px">${GRUPOS_DEMO.find(g => g[0] === demoGrupo)[2]}</p>`
-    + DEMOS.filter(d => grupoDemo(d) === demoGrupo).sort((a, b) => a.nombre.localeCompare(b.nombre, "es")).map(d => { const on = pub.includes(d.id); return `<div class="cita-a">
-      <div class="h"><b>${esc(d.nombre)}</b><span style="color:${on ? "var(--ok)" : "var(--gris)"}">${on ? "● Publicada" : "○ Oculta"}</span></div>
+  const fams = familias(DEMOS);
+  if (!fams.some(f => f.id === demoFam)) demoFam = fams[0].id;
+  const f = fams.find(x => x.id === demoFam);
+  const sel = f.vers.find(v => v.d.id === demoVer[f.id]) || f.ult, d = sel.d, on = pub.includes(d.id);
+  const pubs = x => x.vers.filter(v => pub.includes(v.d.id)).length;
+  return `<p class="conf-p" style="margin-bottom:12px">Escogé una demo y abajo salen todas sus versiones. Solo las <b>publicadas</b> salen en el menú y en la sección Demos de la página. Las ocultas las podés abrir vos desde aquí, o mandarle el link solo al cliente que querás.</p>
+    <div class="demo-tabs demo-fams" role="tablist">${fams.map(x => `<button role="tab" class="${x.id === demoFam ? "si" : ""}" aria-selected="${x.id === demoFam}" data-demo-fam="${x.id}">${esc(x.nombre)}${x.vers.length > 1 ? ` · ${x.vers.length}` : ""}${pubs(x) ? " ●" : ""}</button>`).join("")}</div>
+    <div class="cita-a" style="margin-top:14px">
+      <div class="h"><b>${esc(f.nombre)}</b><span style="color:var(--gris)">${f.vers.length} versi${f.vers.length === 1 ? "ón" : "ones"}</span></div>
+      ${f.vers.length > 1 ? `<div class="demo-tabs demo-vers" role="tablist">${f.vers.map(v => `<button role="tab" class="${v.d.id === d.id ? "si" : ""}" aria-selected="${v.d.id === d.id}" data-demo-ver="${f.id}:${v.d.id}">${esc(v.et)}${pub.includes(v.d.id) ? " ●" : ""}</button>`).join("")}</div>` : ""}
+      <div class="h" style="margin-top:12px"><b>${esc(sel.et)} · ${esc(d.nombre)}</b><span style="color:${on ? "var(--ok)" : "var(--gris)"}">${on ? "● Publicada" : "○ Oculta"}</span></div>
       <p>${esc(d.tipo)}</p>
       ${d.links ? `<div class="demo-tabs" role="tablist">${d.links.map((l, i) => `<button role="tab" class="${(demoTab[d.id] || 0) === i ? "si" : ""}" aria-selected="${(demoTab[d.id] || 0) === i}" data-demo-tab="${d.id}:${i}">${esc(l.t)}</button>`).join("")}</div>
-        ${(() => { const l = d.links[demoTab[d.id] || 0]; return `<p class="demo-url"><span class="mono">${esc(base + l.url)}</span>${l.nota ? ` · ${esc(l.nota)} · clave demo1234` : ""}</p>
+        ${(() => { const l = d.links[demoTab[d.id] || 0]; return `<p class="demo-url"><span class="mono">${esc(base + l.url)}</span>${l.nota ? ` · ${esc(l.nota)}` : ""}</p>
         <div class="acc"><a href="${l.url}" target="_blank" rel="noopener">Abrir ↗</a><button data-copiar-demo="${base + l.url}">Copiar link</button>
-        <button class="${on ? "rojo" : "ya"}" data-demo-pub="${d.id}">${on ? "Ocultar de la página" : "Publicar en la página"}</button></div>`; })()}</div>`
+        <button class="${on ? "rojo" : "ya"}" data-demo-pub="${d.id}">${on ? "Ocultar de la página" : "Publicar en la página"}</button></div>`; })()}`
       : `<div class="acc"><a href="${d.url}" target="_blank" rel="noopener">Abrir ↗</a>
         <button data-copiar-demo="${base + d.url}">Copiar link</button>
-        <button class="${on ? "rojo" : "ya"}" data-demo-pub="${d.id}">${on ? "Ocultar de la página" : "Publicar en la página"}</button></div></div>`}`; }).join("");
+        <button class="${on ? "rojo" : "ya"}" data-demo-pub="${d.id}">${on ? "Ocultar de la página" : "Publicar en la página"}</button></div>`}
+    </div>`;
 }
 // ================== VISITAS ==================
 // Cuántas veces entran a la página principal y a cada demo (las cuenta /visitas.js). Solo lo ve el administrador.
@@ -3432,13 +3453,15 @@ ifr.addEventListener("load", () => carga.classList.add("no"));
 function pintarProbador() {
   const pub = (Reservas.demosPub && Reservas.demosPub()) || [], l = DEMOS.filter(d => pub.includes(d.id));
   $("#probador").hidden = !l.length; if (!l.length) return;
-  if (!probSel || !l.some(d => d.id === probSel)) probSel = l[0].id;
-  const d = l.find(x => x.id === probSel);
-  $("#prob-lista").innerHTML = l.map(x => `<button type="button" data-prob="${x.id}" aria-pressed="${x.id === probSel}">${esc(x.menu)}</button>`).join("");
-  $("#prob-info").innerHTML = `<p class="etq3">${esc(d.tipo)}</p><h3>${esc(d.nombre)}</h3><p>${esc(d.desc)}</p><div><a class="btn btn-linea" href="${d.url}" target="_blank" rel="noopener">Abrirla en grande ↗</a></div>`;
+  const fams = familias(l);
+  if (!probSel || !l.some(d => d.id === probSel)) probSel = fams[0].ult.d.id;
+  const d = l.find(x => x.id === probSel), fam = fams.find(f => f.vers.some(v => v.d.id === probSel));
+  $("#prob-lista").innerHTML = fams.map(f => `<button type="button" data-prob="${f.ult.d.id}" aria-pressed="${f === fam}">${esc(f.nombre)}</button>`).join("");
+  $("#prob-info").innerHTML = `<p class="etq3">${esc(d.tipo)}</p><h3>${esc(fam.nombre)}</h3>${fam.vers.length > 1 ? `<div class="demo-tabs">${fam.vers.map(v => `<button type="button" data-prob="${v.d.id}" class="${v.d.id === probSel ? "si" : ""}">${esc(v.et)}</button>`).join("")}</div>` : ""}<p>${esc(d.desc)}</p><div><a class="btn btn-linea" href="${d.url}" target="_blank" rel="noopener">Abrirla en grande ↗</a></div>`;
   if (probVisto && !ifr.src.includes(d.url)) cargar(d);
 }
 $("#prob-lista").addEventListener("click", e => { const b = e.target.closest("[data-prob]"); if (!b) return; probSel = b.dataset.prob; pintarProbador(); });
+$("#prob-info").addEventListener("click", e => { const b = e.target.closest("[data-prob]"); if (!b) return; probSel = b.dataset.prob; pintarProbador(); });
 if ("IntersectionObserver" in window) new IntersectionObserver(([e], o) => { if (e.isIntersecting) { probVisto = true; escala(); cargar(DEMOS.find(d => d.id === probSel)); o.disconnect(); } }, { rootMargin: "200px" }).observe(cel);
 addEventListener("resize", escala);
 const _pintarDemos3 = pintarDemos;
