@@ -968,6 +968,7 @@ body>footer{border-top-color:#e6dedd;color:#8a7d66}body>footer .n{color:var(--ti
 div.det-foto.v7-ph{aspect-ratio:16/9;border-radius:16px}div.det-foto.v7-ph svg{margin:0;width:70px;height:70px}
 .va-banner{display:grid;grid-template-columns:repeat(5,1fr);gap:0;padding:0;overflow:hidden;background:#2b2626}
 .va-banner img{width:100%;height:100%;object-fit:cover;border-radius:0}
+[data-nv="sel"]{display:none!important}
 </style>
 </head>
 <body>
@@ -1038,10 +1039,6 @@ div.det-foto.v7-ph{aspect-ratio:16/9;border-radius:16px}div.det-foto.v7-ph svg{m
         <span class="v7-ic"><svg><use href="#loto"/></svg></span>
         <span class="v7-ct"><b>Ver servicios y precios</b><small>Maquillaje, cabello, pestañas, uñas y estética</small></span><i>›</i>
       </button>
-      <button class="v7-card" data-abrir="p-sellos">
-        <span class="v7-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><circle cx="8" cy="12" r="1.8"/><circle cx="13" cy="12" r="1.8"/><circle cx="18" cy="12" r="1.8"/></svg></span>
-        <span class="v7-ct"><b>Mi tarjeta de cliente frecuente</b><small>Premio a los 5 y a los 10 sellos</small></span><i>›</i>
-      </button>
       <button class="v7-card" data-abrir="p-galeria">
         <span class="v7-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg></span>
         <span class="v7-ct"><b>Ver trabajos anteriores</b><small>Maquillajes, balayage, uñas y pestañas</small></span><i>›</i>
@@ -1058,15 +1055,6 @@ div.det-foto.v7-ph{aspect-ratio:16/9;border-radius:16px}div.det-foto.v7-ph svg{m
       <div class="mini" id="mini"></div>
     </section>
 
-    <section id="fidelidad" class="v7-fid">
-      <h2 class="v7-h">Cliente frecuente</h2>
-      <div class="v7-fid-in">
-        <p>Por cada cita atendida recibe un sello.</p>
-        <div class="v7-niv"><span>5</span><div><b>A los 5 sellos</b><small>₡2.000 de descuento</small></div></div>
-        <div class="v7-niv"><span>10</span><div><b>A los 10 sellos</b><small>Un premio mayor: descuento especial</small></div></div>
-        <button class="btn btn-oro" data-abrir="p-sellos">Ver mi tarjeta</button>
-      </div>
-    </section>
 
     <section id="resenas">
       <h2 class="v7-h">Reseñas</h2>
@@ -1116,7 +1104,6 @@ div.det-foto.v7-ph{aspect-ratio:16/9;border-radius:16px}div.det-foto.v7-ph svg{m
   <button class="it" data-reservar style="margin-top:8px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Agendar cita</button>
   <div id="menu-serv" hidden></div>
   <h4>Más</h4>
-  <button class="it" data-abrir="p-sellos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><circle cx="8" cy="12" r="1.8"/><circle cx="13" cy="12" r="1.8"/><circle cx="18" cy="12" r="1.8"/></svg>Cliente frecuente</button>
   <button class="it" data-abrir="p-sug"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3Z"/></svg>Sugerencias</button>
   <button class="it" data-abrir="p-galeria"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>Galería</button>
   <button class="it" data-ir="#horario"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Horario</button>
