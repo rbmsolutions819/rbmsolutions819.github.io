@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0B5E36">
+<meta name="robots" content="noindex, nofollow">
+<title>DEMO · Planogramas AI · Auto Mercado</title>
+<script src="demo.js"></script>
+<style>
+  :root {
+    --am-verde:#00A651;      /* verde de marca */
+    --bosque:#0B5E36;        /* barra superior, títulos */
+    --hoja:#E7F4EC;          /* fondos suaves de marca */
+    --am-rojo:#E30613;       /* rojo de marca: cumplimiento bajo y acción de cámara */
+    --ambar:#B7791F;         /* cumplimiento medio */
+    --tinta:#17221C; --gris:#5F6B64; --linea:#DCE3DE; --papel:#F6F8F7; --blanco:#FFFFFF;
+    --r-sm:8px; --r-md:12px; --r-lg:18px;
+    --sombra:0 1px 2px rgba(11,94,54,.06), 0 4px 14px rgba(11,94,54,.06);
+    --nav:64px;
+    font-family:"Segoe UI Variable Text","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body { margin:0; background:var(--papel); color:var(--tinta); }
+  body { font-size:15px; line-height:1.45; padding-bottom:calc(var(--nav) + env(safe-area-inset-bottom)); }
+  .num { font-variant-numeric:tabular-nums; }
+  button { font:inherit; cursor:pointer; }
+  :focus-visible { outline:3px solid var(--am-verde); outline-offset:2px; }
+  @media (prefers-reduced-motion: reduce) { * { animation:none !important; transition:none !important; } }
+
+  /* ---------- Barra superior ---------- */
+  .barra { position:sticky; top:0; z-index:20; background:var(--bosque); color:#fff; padding:calc(8px + env(safe-area-inset-top)) 14px 8px; display:flex; align-items:center; gap:12px; }
+  .barra .atras { width:38px; height:38px; border-radius:50%; border:0; background:rgba(255,255,255,.14); color:#fff; display:grid; place-items:center; }
+  .barra .atras[hidden] { display:none; }
+  .logo { background:#fff; border-radius:var(--r-sm); height:42px; padding:4px 9px; display:flex; align-items:center; }
+  .logo img { height:34px; display:block; }
+  .logo .txt { font-weight:800; font-size:17px; line-height:.9; letter-spacing:-.4px; color:var(--am-rojo); }
+  .logo .txt small { display:block; color:var(--am-verde); font-size:8px; letter-spacing:2.2px; font-weight:700; }
+  .barra .t { flex:1; min-width:0; line-height:1.15; }
+  .barra .t b { display:block; font-size:16px; font-weight:650; }
+  .barra .t span { font-size:12px; opacity:.8; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block; }
+
+  .franja { background:var(--hoja); color:var(--bosque); font-size:13px; font-weight:600; padding:8px 16px; display:flex; align-items:center; gap:8px; border-bottom:1px solid #d2e9da; }
+  .franja button { margin-left:auto; border:0; background:transparent; color:var(--bosque); text-decoration:underline; font-size:13px; padding:0; }
+
+  main { max-width:760px; margin:0 auto; padding:16px 14px 24px; }
+  h1 { font-size:22px; line-height:1.2; margin:0 0 4px; color:var(--bosque); font-weight:700; letter-spacing:-.2px; }
+  h2 { font-size:15px; margin:22px 0 10px; color:var(--tinta); font-weight:650; }
+  .sub { color:var(--gris); font-size:13px; margin:0; }
+
+  .bloque { background:var(--blanco); border:1px solid var(--linea); border-radius:var(--r-lg); padding:16px; }
+  .lista-b { background:var(--blanco); border:1px solid var(--linea); border-radius:var(--r-lg); overflow:hidden; }
+  .fila { display:flex; align-items:center; gap:12px; padding:13px 14px; border:0; border-bottom:1px solid var(--linea); background:transparent; width:100%; text-align:left; color:inherit; }
+  .fila:last-child { border-bottom:0; }
+  .fila:active { background:#f1f5f2; }
+  .fila .cuerpo { flex:1; min-width:0; }
+  .fila .cuerpo b { display:block; font-weight:600; font-size:15px; }
+  .fila .cuerpo span { color:var(--gris); font-size:13px; }
+  .chev { color:#9aa69f; flex-shrink:0; }
+
+  /* ---------- Indicador de cumplimiento (elemento distintivo) ---------- */
+  .aro { --p:0; --c:var(--gris); width:var(--d,52px); height:var(--d,52px); border-radius:50%; flex-shrink:0;
+         background:conic-gradient(var(--c) calc(var(--p)*1%), #e6ebe8 0); display:grid; place-items:center; }
+  .aro::before { content:""; grid-area:1/1; width:calc(100% - var(--g,8px)); height:calc(100% - var(--g,8px)); border-radius:50%; background:#fff; }
+  .aro span { grid-area:1/1; position:relative; font-weight:750; font-size:var(--fs,13px); color:var(--c); font-variant-numeric:tabular-nums; }
+  .aro.vacio span { color:#a3ada7; font-weight:500; }
+  .aro.xl { --d:132px; --g:16px; --fs:34px; }
+  .bien { --c:var(--am-verde); } .regular { --c:var(--ambar); } .bajo { --c:var(--am-rojo); }
+
+  /* ---------- Accesos de Inicio ---------- */
+  .accesos { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px; }
+  .acceso { background:#fff; border:1px solid var(--linea); border-radius:var(--r-md); padding:14px; text-align:left; color:inherit; display:flex; flex-direction:column; gap:8px; }
+  .acceso:active { border-color:var(--am-verde); }
+  .acceso .ico { width:38px; height:38px; border-radius:10px; background:var(--hoja); color:var(--bosque); display:grid; place-items:center; }
+  .acceso .ico svg { width:22px; height:22px; }
+  .acceso b { font-size:16px; font-weight:650; }
+  .acceso span { color:var(--gris); font-size:13px; line-height:1.3; }
+
+  /* ---------- Pasillos ---------- */
+  .buscar { display:flex; align-items:center; gap:8px; background:#fff; border:1px solid var(--linea); border-radius:var(--r-md); padding:0 12px; }
+  .buscar input { border:0; outline:0; flex:1; padding:12px 0; font:inherit; background:transparent; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(155px,1fr)); gap:10px; }
+  .pasillo { background:#fff; border:1px solid var(--linea); border-radius:var(--r-md); padding:14px; text-align:left; color:inherit; display:flex; flex-direction:column; gap:10px; min-height:112px; }
+  .pasillo:active { border-color:var(--am-verde); }
+  .pasillo .cab { display:flex; justify-content:space-between; align-items:flex-start; gap:8px; }
+  .pasillo b { font-size:17px; font-weight:650; line-height:1.2; }
+  .pasillo .n { color:var(--gris); font-size:13px; margin-top:auto; }
+  .barrita { height:5px; border-radius:3px; background:#e6ebe8; overflow:hidden; }
+  .barrita i { display:block; height:100%; background:var(--c, var(--am-verde)); }
+
+  /* ---------- Detalle de planograma ---------- */
+  .hero { display:flex; align-items:center; gap:18px; }
+  .hero .estado { font-size:14px; font-weight:650; color:var(--c); }
+  .visor { position:relative; margin-top:14px; background:#eef2ef; border-radius:var(--r-md); min-height:180px; display:grid; place-items:center; overflow:hidden; border:0; padding:0; width:100%; }
+  .visor img { width:100%; display:block; max-height:340px; object-fit:contain; background:#fff; }
+  .visor .ver { position:absolute; right:10px; bottom:10px; background:rgba(23,34,28,.78); color:#fff; font-size:12px; padding:6px 10px; border-radius:20px; }
+  .acciones { display:grid; gap:10px; margin-top:14px; }
+  .btn { border:0; border-radius:var(--r-md); padding:15px; font-weight:650; font-size:16px; display:flex; align-items:center; justify-content:center; gap:10px; }
+  .btn.prim { background:var(--am-verde); color:#fff; }
+  .btn.sec { background:#fff; color:var(--bosque); border:1px solid var(--linea); }
+  .btn.rojo { background:var(--am-rojo); color:#fff; }
+  .dos { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .dos .btn { padding:14px 8px; font-size:15px; }
+  .btn:disabled { opacity:.45; cursor:default; }
+
+  /* ---------- Captura ---------- */
+  .comparar { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .marco { aspect-ratio:3/4; background:#eef2ef; border-radius:var(--r-md); display:grid; place-items:center; overflow:hidden; text-align:center; color:var(--gris); font-size:13px; padding:10px; border:1.5px dashed #c8d3cc; }
+  .marco.lleno { padding:0; border-style:solid; border-color:var(--linea); background:#fff; }
+  .marco img { width:100%; height:100%; object-fit:contain; }
+  .rotulo { font-size:13px; font-weight:600; color:var(--gris); margin:0 0 6px; }
+  textarea { width:100%; min-height:84px; border:1px solid var(--linea); border-radius:var(--r-md); padding:12px; font:inherit; resize:vertical; }
+  input[type=file] { display:none; }
+
+  /* ---------- Resultado ---------- */
+  .est { display:flex; gap:10px; align-items:flex-start; padding:11px 0; border-bottom:1px solid var(--linea); }
+  .est:last-child { border-bottom:0; }
+  .est .nro { width:28px; height:28px; border-radius:50%; background:var(--hoja); color:var(--bosque); font-weight:700; font-size:13px; display:grid; place-items:center; flex-shrink:0; }
+  .est.dif .nro { background:#fde7e8; color:var(--am-rojo); }
+  .est.nv .nro { background:#eef0ef; color:var(--gris); }
+  .hallazgos { display:grid; gap:10px; }
+  .hallazgo h3 { margin:0 0 4px; font-size:14px; }
+  .hallazgo ul { margin:0; padding-left:18px; color:var(--tinta); }
+  .aviso { background:#fff6e6; border:1px solid #f1d9a8; color:#7a5310; border-radius:var(--r-md); padding:12px; font-size:14px; }
+  .error { background:#fdeceb; border:1px solid #f5c2c0; color:#9b1c14; border-radius:var(--r-md); padding:12px; font-size:14px; }
+  .vacio { text-align:center; color:var(--gris); padding:28px 16px; }
+
+  /* ---------- Informes ---------- */
+  .kpis { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+  .kpi { background:#fff; border:1px solid var(--linea); border-radius:var(--r-md); padding:12px; }
+  .kpi b { display:block; font-size:24px; color:var(--bosque); font-variant-numeric:tabular-nums; line-height:1.1; }
+  .kpi span { color:var(--gris); font-size:12px; }
+  .barra-h { display:grid; grid-template-columns:96px 1fr 44px; align-items:center; gap:10px; padding:7px 0; font-size:14px; }
+  .barra-h .pista { height:10px; background:#e6ebe8; border-radius:6px; overflow:hidden; }
+  .barra-h .pista i { display:block; height:100%; background:var(--c); border-radius:6px; }
+  .segmento { display:inline-flex; background:#e9eeea; border-radius:10px; padding:3px; }
+  .segmento button { border:0; background:transparent; padding:7px 14px; border-radius:8px; font-size:13px; color:var(--gris); }
+  .segmento button[aria-pressed=true] { background:#fff; color:var(--bosque); font-weight:650; box-shadow:0 1px 2px rgba(0,0,0,.08); }
+
+  /* ---------- Navegación inferior ---------- */
+  nav.inf { position:fixed; left:0; right:0; bottom:0; z-index:20; background:#fff; border-top:1px solid var(--linea);
+            display:grid; grid-template-columns:repeat(2,1fr); height:calc(var(--nav) + env(safe-area-inset-bottom)); padding-bottom:env(safe-area-inset-bottom); }
+  nav.inf button { border:0; background:transparent; color:var(--gris); font-size:11.5px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; position:relative; }
+  nav.inf button svg { width:24px; height:24px; }
+  nav.inf button[aria-current=page] { color:var(--bosque); font-weight:650; }
+  nav.inf button[aria-current=page]::before { content:""; position:absolute; top:0; left:36%; right:36%; height:3px; border-radius:0 0 3px 3px; background:var(--am-verde); }
+  nav.inf[hidden] { display:none; }
+
+  .girando { display:inline-block; width:18px; height:18px; border:2.5px solid currentColor; border-right-color:transparent; border-radius:50%; animation:g .8s linear infinite; }
+  @keyframes g { to { transform:rotate(360deg); } }
+  .centrado { display:grid; place-items:center; gap:10px; padding:40px 0; color:var(--gris); }
+  select { width:100%; padding:12px; border-radius:var(--r-md); border:1px solid var(--linea); font:inherit; background:#fff; }
+  .dato { display:flex; justify-content:space-between; gap:12px; padding:12px 0; border-bottom:1px solid var(--linea); font-size:14px; }
+  .dato:last-child { border-bottom:0; } .dato span:first-child { color:var(--gris); }
+
+  /* ---------- Cámara a pantalla completa ---------- */
+  .cam { position:fixed; inset:0; z-index:100; background:#000; display:flex; flex-direction:column; color:#fff; }
+  .cam video, .cam .congelada { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+  .cam .congelada { object-fit:contain; background:#000; }
+  .cam .guia { position:absolute; inset:0; pointer-events:none;
+    background:linear-gradient(to right, transparent calc(33.33% - .5px), rgba(255,255,255,.28) 33.33%, transparent calc(33.33% + .5px), transparent calc(66.66% - .5px), rgba(255,255,255,.28) 66.66%, transparent calc(66.66% + .5px)),
+               linear-gradient(to bottom, transparent calc(33.33% - .5px), rgba(255,255,255,.28) 33.33%, transparent calc(33.33% + .5px), transparent calc(66.66% - .5px), rgba(255,255,255,.28) 66.66%, transparent calc(66.66% + .5px)); }
+  .cam .arriba { position:relative; display:flex; align-items:center; gap:12px; padding:calc(12px + env(safe-area-inset-top)) 14px 22px; background:linear-gradient(rgba(0,0,0,.6), transparent); }
+  .cam .arriba p { margin:0; font-size:14px; line-height:1.3; text-shadow:0 1px 2px rgba(0,0,0,.6); }
+  .cam .redondo { width:44px; height:44px; border-radius:50%; border:0; background:rgba(0,0,0,.45); color:#fff; display:grid; place-items:center; flex-shrink:0; }
+  .cam .redondo svg { width:22px; height:22px; }
+  .cam .abajo { position:relative; margin-top:auto; display:grid; grid-template-columns:1fr auto 1fr; align-items:center; padding:24px 26px calc(26px + env(safe-area-inset-bottom)); background:linear-gradient(transparent, rgba(0,0,0,.65)); }
+  .cam .disparo { width:76px; height:76px; border-radius:50%; border:4px solid #fff; background:transparent; padding:5px; }
+  .cam .disparo i { display:block; width:100%; height:100%; border-radius:50%; background:#fff; transition:transform .12s; }
+  .cam .disparo:active i { transform:scale(.88); background:var(--am-rojo); }
+  .cam .abajo .izq { justify-self:start; } .cam .abajo .der { justify-self:end; }
+  .cam .lado { border:0; background:transparent; color:#fff; font-size:13px; display:flex; flex-direction:column; align-items:center; gap:4px; }
+  .cam .decidir { position:relative; margin-top:auto; display:grid; grid-template-columns:1fr 1fr; gap:12px; padding:20px 16px calc(20px + env(safe-area-inset-bottom)); background:linear-gradient(transparent, rgba(0,0,0,.75)); }
+  .cam .decidir .btn.sec { background:rgba(255,255,255,.14); color:#fff; border-color:rgba(255,255,255,.35); }
+  .cam .flash { position:absolute; inset:0; background:#fff; opacity:0; pointer-events:none; transition:opacity .18s; }
+  .demo-aviso { background:#FFF4DC; color:#6B4A0C; font-size:12.5px; line-height:1.35; padding:7px 16px; border-bottom:1px solid #F0DDB0; text-align:center; }
+</style>
+</head>
+<body>
+<header class="barra">
+  <button class="atras" id="btnAtras" hidden aria-label="Volver">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+  </button>
+  <div class="logo"><img src="logo-am.webp" alt="Auto Mercado"
+    onerror="this.parentElement.innerHTML='<span class=&quot;txt&quot;>auto<small>MERCADO</small></span>'"></div>
+  <div class="t"><b>Planogramas AI</b><span id="subtitulo">Validación de góndolas</span></div>
+</header>
+<div class="demo-aviso" role="note">Demostración con datos de prueba. No está conectada a Auto Mercado ni a Microsoft.</div>
+<div class="franja" id="franja" hidden></div>
+<main id="main"><div class="centrado"><span class="girando"></span></div></main>
+
+<nav class="inf" id="nav" hidden aria-label="Navegación principal">
+  <button data-vista="inicio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5V21h-6v-6H9v6H3z"/></svg>Inicio</button>
+  <button data-vista="config"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Configuración</button>
+</nav>
+
+<script>
+if (typeof msal === "undefined") {
+  document.getElementById("main").innerHTML = '<div class="error">No se cargó demo.js.</div>';
+  throw new Error("msal no cargó");
+}
+
+const CLIENT_ID = "1dfb0b32-de54-4dd6-aef4-aebc06ce8424";
+const TENANT_ID = "dbe28bd2-4e2d-40c7-88c3-cfd8d151c41c";
+const SCOPE = `api://${CLIENT_ID}/access_as_user`;
+const VERSION = "0.9";
+
+const app = new msal.PublicClientApplication({
+  auth: { clientId: CLIENT_ID, authority: `https://login.microsoftonline.com/${TENANT_ID}`, redirectUri: window.location.origin },
+  cache: { cacheLocation: "sessionStorage" },
+});
+
+// ---------- Utilidades ----------
+const $ = id => document.getElementById(id);
+const $main = $("main");
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const nivel = p => p == null ? "" : p >= 90 ? "bien" : p >= 70 ? "regular" : "bajo";
+const textoNivel = p => p >= 90 ? "Cumple" : p >= 70 ? "Cumplimiento parcial" : "Cumplimiento bajo";
+const aro = (p, cls = "") => p == null
+  ? `<div class="aro vacio ${cls}"><span>—</span></div>`
+  : `<div class="aro ${nivel(p)} ${cls}" style="--p:${p}"><span>${p}%</span></div>`;
+const fecha = iso => new Date(iso).toLocaleString("es-CR", { day:"numeric", month:"short", hour:"numeric", minute:"2-digit" });
+const nombrePasillo = p => !p ? "Sin pasillo" : (/^\d+$/.test(p) ? `Pasillo ${p}` : p);
+const chev = `<svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg>`;
+const cargando = (t = "Cargando") => `<div class="centrado"><span class="girando"></span>${esc(t)}</div>`;
+
+async function token() {
+  const cuenta = app.getActiveAccount();
+  try { return (await app.acquireTokenSilent({ scopes: [SCOPE], account: cuenta })).accessToken; }
+  catch { await app.acquireTokenRedirect({ scopes: [SCOPE], account: cuenta }); }
+}
+async function api(ruta, { blob = false, body } = {}) {
+  const opts = { headers: { Authorization: `Bearer ${await token()}` } };
+  if (body) { opts.method = "POST"; opts.headers["Content-Type"] = "application/json"; opts.body = JSON.stringify(body); }
+  const r = await fetch(ruta, opts);
+  if (!r.ok) { let m = `Error ${r.status}`; try { m = (await r.json()).error || m; } catch {} throw new Error(m); }
+  return blob ? r.blob() : r.json();
+}
+
+// ---------- Imágenes ----------
+let pdfjs = null;
+const cachePlano = new Map();
+async function imagenPlano(id) {
+  if (cachePlano.has(id)) return cachePlano.get(id);
+  if (!pdfjs) { pdfjs = await import("./pdf.min.mjs"); pdfjs.GlobalWorkerOptions.workerSrc = "./pdf.worker.min.mjs"; }
+  const blob = await api(`/api/planogramas/${id}/pdf`, { blob: true });
+  const doc = await pdfjs.getDocument({ data: await blob.arrayBuffer() }).promise;
+  const pag = await doc.getPage(1);
+  const v1 = pag.getViewport({ scale: 1 });
+  const vp = pag.getViewport({ scale: Math.min(3, 1800 / v1.width) });
+  const c = document.createElement("canvas"); c.width = vp.width; c.height = vp.height;
+  const ctx = c.getContext("2d"); ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, c.width, c.height);
+  await pag.render({ canvasContext: ctx, viewport: vp }).promise;
+  const res = { img: c.toDataURL("image/jpeg", 0.85), blob };
+  cachePlano.set(id, res);
+  return res;
+}
+function reducirFoto(file, max = 1600) {
+  return new Promise((ok, mal) => {
+    const img = new Image();
+    img.onload = () => {
+      const f = Math.min(1, max / Math.max(img.width, img.height));
+      const c = document.createElement("canvas"); c.width = Math.round(img.width * f); c.height = Math.round(img.height * f);
+      c.getContext("2d").drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(img.src);
+      ok(c.toDataURL("image/jpeg", 0.85));
+    };
+    img.onerror = () => mal(new Error("No se pudo leer la foto. Intente tomarla de nuevo."));
+    img.src = URL.createObjectURL(file);
+  });
+}
+
+
+// ---------- Cámara a pantalla completa ----------
+// Devuelve un Blob con la foto, o null si el usuario cierra. Lanza error si el navegador no permite la cámara.
+function camaraCompleta(galeria) {
+  return new Promise(async (resolver, rechazar) => {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return rechazar(new Error("sin-camara"));
+    let flujo;
+    try {
+      flujo = await navigator.mediaDevices.getUserMedia({ audio:false, video:{ facingMode:{ ideal:"environment" }, width:{ ideal:2560 }, height:{ ideal:1440 } } });
+    } catch (e) { return rechazar(e); }
+
+    const x = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>`;
+    const gal = `<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-9 9"/></svg>`;
+    const cam = document.createElement("div");
+    cam.className = "cam"; cam.setAttribute("role", "dialog"); cam.setAttribute("aria-label", "Cámara");
+    cam.innerHTML = `
+      <video playsinline autoplay muted></video><div class="guia"></div>
+      <div class="arriba"><button class="redondo" data-c="cerrar" aria-label="Cerrar cámara">${x}</button>
+        <p>Ponga la góndola completa dentro de la pantalla, de frente y sin inclinar el teléfono.</p></div>
+      <div class="abajo">
+        <button class="lado izq" data-c="galeria">${gal}Galería</button>
+        <button class="disparo" data-c="disparar" aria-label="Tomar foto"><i></i></button>
+        <span class="der"></span>
+      </div>
+      <div class="flash"></div>`;
+    document.body.appendChild(cam);
+    document.body.style.overflow = "hidden";
+    const video = cam.querySelector("video");
+    video.srcObject = flujo;
+    try { if (document.documentElement.requestFullscreen) await document.documentElement.requestFullscreen({ navigationUI:"hide" }); } catch {}
+
+    const terminar = (valor) => {
+      flujo.getTracks().forEach(t => t.stop());
+      cam.remove(); document.body.style.overflow = "";
+      if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(() => {});
+      window.removeEventListener("popstate", alVolver);
+      resolver(valor);
+    };
+    const alVolver = () => terminar(null);
+    history.pushState({ camara:true }, ""); window.addEventListener("popstate", alVolver);
+    const cerrar = (valor) => { window.removeEventListener("popstate", alVolver); if (history.state && history.state.camara) history.back(); terminar(valor); };
+
+    cam.querySelector('[data-c=cerrar]').onclick = () => cerrar(null);
+    cam.querySelector('[data-c=galeria]').onclick = () => { if (galeria) galeria.click(); cerrar(null); };
+    cam.querySelector('[data-c=disparar]').onclick = () => {
+      if (!video.videoWidth) return;
+      const c = document.createElement("canvas"); c.width = video.videoWidth; c.height = video.videoHeight;
+      c.getContext("2d").drawImage(video, 0, 0);
+      const fl = cam.querySelector(".flash"); fl.style.opacity = ".8"; setTimeout(() => fl.style.opacity = "0", 120);
+      c.toBlob(blob => {
+        video.pause();
+        const url = URL.createObjectURL(blob);
+        const img = document.createElement("img"); img.className = "congelada"; img.src = url; img.alt = "Foto tomada";
+        cam.querySelector(".guia").remove(); video.after(img);
+        cam.querySelector(".abajo").outerHTML = `<div class="decidir">
+          <button class="btn sec" data-c="repetir">Repetir</button>
+          <button class="btn prim" data-c="usar">Usar foto</button></div>`;
+        cam.querySelector('[data-c=repetir]').onclick = () => {
+          URL.revokeObjectURL(url); img.remove();
+          cam.querySelector(".decidir").outerHTML = `<div class="abajo">
+            <button class="lado izq" data-c="galeria">${gal}Galería</button>
+            <button class="disparo" data-c="disparar" aria-label="Tomar foto"><i></i></button><span class="der"></span></div>`;
+          video.insertAdjacentHTML("afterend", '<div class="guia"></div>');
+          video.play();
+          cam.querySelector('[data-c=galeria]').onclick = () => { if (galeria) galeria.click(); cerrar(null); };
+          cam.querySelector('[data-c=disparar]').onclick = disparar;
+        };
+        cam.querySelector('[data-c=usar]').onclick = () => { URL.revokeObjectURL(url); cerrar(blob); };
+      }, "image/jpeg", 0.92);
+    };
+    const disparar = cam.querySelector('[data-c=disparar]').onclick;
+  });
+}
+
+// ---------- Estado y navegación ----------
+const E = { yo:null, tiendas:[], tienda:null, planos:[], resultados:[], pila:[] };
+
+function marcarNav(vista) {
+  document.querySelectorAll("nav.inf button").forEach(b => b.setAttribute("aria-current", b.dataset.vista === vista ? "page" : "false"));
+}
+function encabezado({ sub = "Validación de góndolas", atras = null } = {}) {
+  $("subtitulo").textContent = sub;
+  const b = $("btnAtras"); b.hidden = !atras; b.onclick = atras;
+}
+function franja() {
+  const f = $("franja");
+  if (!E.tienda) { f.hidden = true; return; }
+  f.hidden = false;
+  f.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l1.5-5h15L21 9M4 9v11h16V9M3 9h18"/></svg>
+    ${esc(E.tienda.nombre)}${E.tiendas.length > 1 ? `<button id="btnCambiar">Cambiar tienda</button>` : ""}`;
+  if (E.tiendas.length > 1) $("btnCambiar").onclick = () => vistaElegirTienda();
+}
+async function recargarResultados() {
+  if (!E.tienda) return;
+  try { E.resultados = await api(`/api/resultados?tienda=${E.tienda.storeId}`); } catch { E.resultados = []; }
+}
+const ultimoDe = id => E.resultados.find(r => r.planogramaId === id) || null;
+
+async function elegirTienda(t) {
+  E.tienda = t; E.planos = []; E.resultados = []; cachePlano.clear();
+  try { sessionStorage.setItem("tienda", t.storeId); } catch {}
+  franja();
+  $main.innerHTML = cargando(`Cargando ${t.nombre}`);
+  try {
+    [E.planos] = await Promise.all([api(`/api/tiendas/${t.storeId}/planogramas`), recargarResultados()]);
+  } catch (e) { $main.innerHTML = `<div class="error">${esc(e.message)}</div>`; return; }
+  vistaInicio();
+}
+
+// ---------- Vistas ----------
+function vistaElegirTienda() {
+  marcarNav(""); encabezado({ sub: "Escoja la tienda" }); $("franja").hidden = true;
+  $main.innerHTML = `<h1>¿Qué tienda va a revisar?</h1>
+    <p class="sub" style="margin-bottom:14px">Su usuario tiene acceso a ${E.tiendas.length} tiendas.</p>
+    <div class="lista-b">${E.tiendas.map(t => `<button class="fila" data-id="${esc(t.storeId)}">
+      <div class="cuerpo"><b>${esc(t.nombre)}</b><span>PDX ${esc(t.storeId)}</span></div>${chev}</button>`).join("")}</div>`;
+  $main.querySelectorAll("[data-id]").forEach(b => b.onclick = () => elegirTienda(E.tiendas.find(t => t.storeId === b.dataset.id)));
+}
+
+function vistaInicio() {
+  marcarNav("inicio"); encabezado(); franja();
+  const hoy = new Date().toDateString();
+  const deHoy = E.resultados.filter(r => new Date(r.fecha).toDateString() === hoy);
+  const prom = xs => xs.length ? Math.round(xs.reduce((a, r) => a + r.cumplimiento, 0) / xs.length) : null;
+  const validados = new Set(E.resultados.map(r => r.planogramaId)).size;
+  const nombre = (E.yo.nombre || "").split(" ")[0];
+
+  $main.innerHTML = `
+    <h1>Hola${nombre ? ", " + esc(nombre) : ""}</h1>
+    <p class="sub">${esc(new Date().toLocaleDateString("es-CR", { weekday:"long", day:"numeric", month:"long" }))}</p>
+    <div class="bloque hero" style="margin-top:16px">
+      ${aro(prom(deHoy), "xl")}
+      <div>
+        <div class="estado ${nivel(prom(deHoy))}" style="color:var(--c, var(--gris))">${deHoy.length ? textoNivel(prom(deHoy)) : "Sin validaciones hoy"}</div>
+        <p class="sub" style="margin-top:4px">Promedio de cumplimiento de hoy en ${deHoy.length} ${deHoy.length === 1 ? "validación" : "validaciones"}.</p>
+        <p class="sub num">${validados} de ${E.planos.length} planogramas validados alguna vez.</p>
+      </div>
+    </div>
+    <div class="acciones"><button class="btn prim" id="irValidar">${iconoCamara} Validar una góndola</button></div>
+    <div class="accesos">
+      <button class="acceso" id="irPlanos"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="1.5"/><path d="M4 9h16M4 15h16"/></svg></div><b>Planogramas</b><span>Pasillos y planos de la tienda</span></button>
+      <button class="acceso" id="irInformes"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M5 20V11M12 20V4M19 20v-6"/></svg></div><b>Informes</b><span>Cumplimiento por día y pasillo</span></button>
+    </div>
+    <h2>Últimas validaciones</h2>
+    ${listaResultados(E.resultados.slice(0, 6), "Todavía no hay validaciones en esta tienda. Toque Validar una góndola para empezar.")}`;
+  $("irValidar").onclick = () => vistaPasillos();
+  $("irPlanos").onclick = () => vistaPasillos();
+  $("irInformes").onclick = () => vistaInformes();
+  enlazarResultados();
+}
+
+const iconoGaleria = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-9 9"/></svg>`;
+const iconoCamara = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>`;
+
+function listaResultados(xs, vacio) {
+  if (!xs.length) return `<div class="bloque vacio">${esc(vacio)}</div>`;
+  return `<div class="lista-b">${xs.map(r => `<button class="fila" data-res="${esc(r.id)}">
+    ${aro(r.cumplimiento)}<div class="cuerpo"><b>${esc(r.categoria)}</b>
+    <span>${esc(nombrePasillo(r.pasillo))} · ${esc(fecha(r.fecha))}${r.nombre ? " · " + esc(r.nombre.split(" ")[0]) : ""}</span></div>${chev}</button>`).join("")}</div>`;
+}
+function enlazarResultados(volver) {
+  $main.querySelectorAll("[data-res]").forEach(b => b.onclick = () => {
+    const r = E.resultados.find(x => x.id === b.dataset.res);
+    vistaResultado(r, volver || (() => vistaInicio()));
+  });
+}
+
+function vistaPasillos(filtro = "") {
+  marcarNav("inicio"); encabezado({ sub: "Pasillos", atras: () => vistaInicio() }); franja();
+  const grupos = {};
+  for (const p of E.planos) (grupos[nombrePasillo(p.pasillo)] ||= []).push(p);
+  const orden = Object.keys(grupos).sort((a, b) => {
+    const na = parseInt(a.replace(/\D/g, "")), nb = parseInt(b.replace(/\D/g, ""));
+    if (!isNaN(na) && !isNaN(nb)) return na - nb; if (!isNaN(na)) return -1; if (!isNaN(nb)) return 1;
+    return a.localeCompare(b);
+  });
+
+  $main.innerHTML = `
+    <div class="buscar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5F6B64" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+      <input id="q" type="search" placeholder="Buscar categoría o código" value="${esc(filtro)}" aria-label="Buscar planograma"></div>
+    <div id="cont" style="margin-top:14px"></div>`;
+  const $q = $("q"), $c = $("cont");
+
+  const pintar = () => {
+    const q = $q.value.trim().toLowerCase();
+    if (q) {
+      const xs = E.planos.filter(p => (p.categoria || "").toLowerCase().includes(q) || String(p.codigo).includes(q));
+      $c.innerHTML = xs.length ? filasPlanos(xs, true) : `<div class="bloque vacio">No hay planogramas que coincidan con “${esc($q.value)}”.</div>`;
+      enlazarPlanos($c, () => vistaPasillos($q.value));
+      return;
+    }
+    if (!E.planos.length) { $c.innerHTML = `<div class="bloque vacio">Esta tienda no tiene planogramas cargados.</div>`; return; }
+    $c.innerHTML = `<p class="sub" style="margin:0 0 10px">${orden.length} pasillos · ${E.planos.length} planogramas</p><div class="grid">${orden.map(g => {
+      const ps = grupos[g];
+      const vals = ps.map(p => ultimoDe(p.id)).filter(Boolean).map(r => r.cumplimiento);
+      const prom = vals.length ? Math.round(vals.reduce((a, b) => a + b, 0) / vals.length) : null;
+      return `<button class="pasillo" data-g="${esc(g)}">
+        <div class="cab"><b>${esc(g)}</b>${prom != null ? `<span class="num ${nivel(prom)}" style="color:var(--c);font-weight:700;font-size:14px">${prom}%</span>` : ""}</div>
+        <div class="barrita ${nivel(prom)}"><i style="width:${vals.length / ps.length * 100}%"></i></div>
+        <span class="n">${vals.length} de ${ps.length} validados</span></button>`;
+    }).join("")}</div>`;
+    $c.querySelectorAll("[data-g]").forEach(b => b.onclick = () => vistaPasillo(b.dataset.g, grupos[b.dataset.g]));
+  };
+  $q.oninput = pintar; pintar();
+}
+
+function filasPlanos(xs, conPasillo) {
+  return `<div class="lista-b">${xs.map(p => { const u = ultimoDe(p.id); return `<button class="fila" data-p="${esc(p.id)}">
+    ${aro(u ? u.cumplimiento : null)}<div class="cuerpo"><b>${esc(p.categoria)}</b>
+    <span>${conPasillo ? esc(nombrePasillo(p.pasillo)) + " · " : ""}${esc(p.codigo)}${u ? " · " + esc(fecha(u.fecha)) : " · Sin validar"}</span></div>${chev}</button>`; }).join("")}</div>`;
+}
+function enlazarPlanos($c, volver) {
+  $c.querySelectorAll("[data-p]").forEach(b => b.onclick = () => vistaPlano(E.planos.find(p => p.id === b.dataset.p), volver));
+}
+
+function vistaPasillo(nombre, ps) {
+  marcarNav("inicio"); encabezado({ sub: nombre, atras: () => vistaPasillos() }); franja();
+  $main.innerHTML = `<h1>${esc(nombre)}</h1><p class="sub" style="margin-bottom:14px">${ps.length} planogramas</p>${filasPlanos(ps, false)}`;
+  enlazarPlanos($main, () => vistaPasillo(nombre, ps));
+}
+
+async function vistaPlano(p, volver) {
+  marcarNav("inicio"); encabezado({ sub: nombrePasillo(p.pasillo), atras: volver }); franja();
+  window.scrollTo(0, 0);
+  const hist = E.resultados.filter(r => r.planogramaId === p.id);
+  const u = hist[0];
+  $main.innerHTML = `
+    <div class="bloque">
+      <h1>${esc(p.categoria)}</h1>
+      <p class="sub">${esc(nombrePasillo(p.pasillo))} · Código ${esc(p.codigo)}</p>
+      <div class="hero" style="margin-top:14px">
+        ${aro(u ? u.cumplimiento : null)}
+        <div>${u ? `<div class="estado ${nivel(u.cumplimiento)}">${textoNivel(u.cumplimiento)}</div><p class="sub">Última validación: ${esc(fecha(u.fecha))}</p>`
+                 : `<div class="estado" style="color:var(--gris)">Sin validar</div><p class="sub">Tome la primera foto de esta góndola.</p>`}</div>
+      </div>
+      <button class="visor" id="visor" aria-label="Abrir planograma en PDF"><span class="centrado"><span class="girando"></span>Cargando planograma</span></button>
+    </div>
+    <div class="acciones">
+      <button class="btn prim" id="btnNuevo">${iconoCamara} Nuevo análisis</button>
+      <button class="btn sec" id="btnNotas"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg> Análisis con notas</button>
+    </div>
+    <h2>Historial</h2>
+    ${listaResultados(hist, "Este planograma todavía no tiene validaciones.")}`;
+  enlazarResultados(() => vistaPlano(p, volver));
+  $("btnNuevo").onclick = () => vistaCaptura(p, false, () => vistaPlano(p, volver));
+  $("btnNotas").onclick = () => vistaCaptura(p, true, () => vistaPlano(p, volver));
+  try {
+    const { img, blob } = await imagenPlano(p.id);
+    const v = $("visor"); if (!v) return;
+    v.innerHTML = `<img src="${img}" alt="Planograma de ${esc(p.categoria)}"><span class="ver">Ver PDF</span>`;
+    v.onclick = () => window.open(URL.createObjectURL(blob), "_blank");
+  } catch (e) { const v = $("visor"); if (v) v.outerHTML = `<div class="error" style="margin-top:14px">No se pudo cargar el planograma: ${esc(e.message)}</div>`; }
+}
+
+async function vistaCaptura(p, conNotas, volver) {
+  marcarNav("inicio"); encabezado({ sub: conNotas ? "Análisis con notas" : "Nuevo análisis", atras: volver }); franja();
+  window.scrollTo(0, 0);
+  let plano = null, foto = null;
+  $main.innerHTML = `
+    <h1>${esc(p.categoria)}</h1>
+    <p class="sub" style="margin-bottom:14px">Tome la foto de frente, con la góndola completa y buena luz.</p>
+    <div class="comparar">
+      <div><p class="rotulo">Planograma</p><div class="marco" id="mPlano"><span class="girando"></span></div></div>
+      <div><p class="rotulo">Su foto</p><div class="marco" id="mFoto">Todavía no hay foto</div></div>
+    </div>
+    ${conNotas ? `<p class="rotulo" style="margin-top:14px">Notas para el análisis</p>
+      <textarea id="notas" placeholder="Ejemplo: el estante 3 está en remodelación; falta producto por desabasto del proveedor."></textarea>` : ""}
+    <input type="file" id="inFoto" accept="image/*" capture="environment">
+    <input type="file" id="inGaleria" accept="image/*">
+    <div class="acciones">
+      <div class="dos">
+        <button class="btn rojo" id="btnFoto">${iconoCamara} Tomar foto</button>
+        <button class="btn sec" id="btnGaleria">${iconoGaleria} Subir de galería</button>
+      </div>
+      <button class="btn prim" id="btnAnalizar" disabled>Analizar</button>
+    </div>
+    <div id="res" style="margin-top:12px"></div>`;
+  const $in = $("inFoto"), $a = $("btnAnalizar"), $f = $("btnFoto");
+  const listo = () => { $a.disabled = !(plano && foto); };
+  const usarArchivo = async (archivo) => {
+    if (!archivo) return;
+    try {
+      foto = await reducirFoto(archivo);
+      $("mFoto").className = "marco lleno"; $("mFoto").innerHTML = `<img src="${foto}" alt="Foto de la góndola">`;
+      $f.className = "btn sec"; $f.innerHTML = `${iconoCamara} Tomar otra`;
+      $("btnGaleria").innerHTML = `${iconoGaleria} Cambiar foto`;
+    } catch (e) { $("res").innerHTML = `<div class="error">${esc(e.message)}</div>`; }
+    listo();
+  };
+  $in.onchange = () => { usarArchivo($in.files[0]); $in.value = ""; };
+  $("btnGaleria").onclick = () => { $("inGaleria").value = ""; $("inGaleria").click(); };
+  $("inGaleria").onchange = () => usarArchivo($("inGaleria").files[0]);
+  $f.onclick = async () => {
+    try {
+      const r = await camaraCompleta($("inGaleria"));
+      if (r) usarArchivo(r);
+    } catch {
+      $in.click();   // si el navegador no deja usar la cámara aquí, se usa la cámara del teléfono
+    }
+  };
+  try { plano = (await imagenPlano(p.id)).img; $("mPlano").className = "marco lleno"; $("mPlano").innerHTML = `<img src="${plano}" alt="Planograma">`; }
+  catch (e) { $("mPlano").innerHTML = `No se pudo cargar el planograma.`; $("res").innerHTML = `<div class="error">${esc(e.message)}</div>`; }
+  listo();
+
+  $a.onclick = async () => {
+    $a.disabled = true; $f.disabled = true; $("btnGaleria").disabled = true; $a.innerHTML = `<span class="girando"></span> Analizando la góndola`;
+    try {
+      const r = await api(`/api/planogramas/${p.id}/analizar`, { body: { plano, foto, notas: conNotas ? $("notas").value.trim() : "" } });
+      await recargarResultados();
+      vistaResultado(r, () => vistaPlano(p, volver), foto);
+    } catch (e) {
+      $("res").innerHTML = `<div class="error">${esc(e.message)}</div>`;
+      $a.textContent = "Analizar"; $f.disabled = false; $("btnGaleria").disabled = false; listo();
+    }
+  };
+}
+
+function vistaResultado(r, volver, foto) {
+  encabezado({ sub: "Resultado", atras: volver }); franja();
+  window.scrollTo(0, 0);
+  const d = r.detalle || r;
+  const est = d.estantes || [];
+  const lista = (t, xs) => xs && xs.length ? `<div class="hallazgo"><h3>${t} (${xs.length})</h3><ul>${xs.map(x => `<li>${esc(x)}</li>`).join("")}</ul></div>` : "";
+  const hall = lista("Faltantes", d.faltantes) + lista("Mal ubicados", d.mal_ubicados) + lista("Sobrantes", d.sobrantes);
+  $main.innerHTML = `
+    <div class="bloque">
+      <h1>${esc(r.categoria)}</h1>
+      <p class="sub">${esc(nombrePasillo(r.pasillo))} · ${esc(fecha(r.fecha))}${r.nombre ? " · " + esc(r.nombre) : ""}</p>
+      <div class="hero" style="margin-top:16px">${aro(r.cumplimiento, "xl")}
+        <div><div class="estado ${nivel(r.cumplimiento)}">${textoNivel(r.cumplimiento)}</div><p style="margin:6px 0 0">${esc(d.resumen)}</p></div></div>
+    </div>
+    ${d.calidad_foto && d.calidad_foto !== "buena" ? `<div class="aviso" style="margin-top:12px">La foto salió ${esc(d.calidad_foto)}. ${esc(d.recomendacion_foto || "")}</div>` : ""}
+    ${r.notas ? `<div class="bloque" style="margin-top:12px"><p class="rotulo">Notas del colaborador</p>${esc(r.notas)}</div>` : ""}
+    ${est.length ? `<h2>Estante por estante</h2><div class="bloque">${est.map(e => `
+      <div class="est ${e.estado === "con_diferencias" ? "dif" : e.estado === "no_visible" ? "nv" : ""}">
+        <span class="nro">${esc(e.estante)}</span>
+        <div><b style="font-size:14px">${e.estado === "correcto" ? "Correcto" : e.estado === "con_diferencias" ? "Con diferencias" : "No se ve en la foto"}</b>
+        <div class="sub" style="font-size:14px;color:var(--tinta)">${esc(e.detalle)}</div></div></div>`).join("")}</div>` : ""}
+    ${hall ? `<h2>Qué corregir</h2><div class="bloque hallazgos">${hall}</div>` : ""}
+    ${foto ? `<h2>Foto analizada</h2><div class="bloque" style="padding:8px"><img src="${foto}" alt="Foto analizada" style="width:100%;border-radius:10px;display:block"></div>` : ""}
+    <div class="acciones"><button class="btn sec" id="btnVolverRes">Volver al planograma</button></div>`;
+  $("btnVolverRes").onclick = volver;
+}
+
+function vistaInformes(dias = 7) {
+  marcarNav("inicio"); encabezado({ sub: "Informes", atras: () => vistaInicio() }); franja();
+  const desde = Date.now() - dias * 864e5;
+  const xs = E.resultados.filter(r => new Date(r.fecha).getTime() >= desde);
+  const prom = xs.length ? Math.round(xs.reduce((a, r) => a + r.cumplimiento, 0) / xs.length) : null;
+  const bajos = xs.filter(r => r.cumplimiento < 70).length;
+  const porPasillo = {};
+  for (const r of xs) (porPasillo[nombrePasillo(r.pasillo)] ||= []).push(r.cumplimiento);
+  const filas = Object.entries(porPasillo).map(([g, v]) => [g, Math.round(v.reduce((a, b) => a + b, 0) / v.length), v.length])
+    .sort((a, b) => a[1] - b[1]);
+
+  $main.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+      <h1 style="margin:0">Informes</h1>
+      <div class="segmento" role="group" aria-label="Periodo">${[1, 7, 30].map(d =>
+        `<button data-d="${d}" aria-pressed="${d === dias}">${d === 1 ? "Hoy" : d + " días"}</button>`).join("")}</div>
+    </div>
+    <div class="kpis" style="margin-top:14px">
+      <div class="kpi"><b class="${nivel(prom)}" style="color:var(--c, var(--bosque))">${prom == null ? "—" : prom + "%"}</b><span>Cumplimiento promedio</span></div>
+      <div class="kpi"><b>${xs.length}</b><span>Validaciones</span></div>
+      <div class="kpi"><b style="color:${bajos ? "var(--am-rojo)" : "var(--bosque)"}">${bajos}</b><span>Por debajo de 70%</span></div>
+    </div>
+    <h2>Pasillos, del más bajo al más alto</h2>
+    ${filas.length ? `<div class="bloque">${filas.map(([g, p, n]) => `<div class="barra-h ${nivel(p)}">
+        <span>${esc(g)}</span><div class="pista"><i style="width:${p}%"></i></div><b class="num" style="text-align:right;color:var(--c)">${p}%</b></div>`).join("")}</div>`
+      : `<div class="bloque vacio">No hay validaciones en este periodo.</div>`}
+    <h2>Validaciones del periodo</h2>
+    ${listaResultados(xs.slice(0, 50), "No hay validaciones en este periodo.")}`;
+  $main.querySelectorAll("[data-d]").forEach(b => b.onclick = () => vistaInformes(Number(b.dataset.d)));
+  enlazarResultados(() => vistaInformes(dias));
+}
+
+function vistaConfig() {
+  marcarNav("config"); encabezado({ sub: "Configuración" }); franja();
+  const rol = E.yo.admin ? "Administrador (todas las tiendas)" : E.yo.tiendas.map(t => "Tienda " + t).join(", ");
+  $main.innerHTML = `
+    <h1>Configuración</h1>
+    <div class="bloque" style="margin-top:14px">
+      <div class="dato"><span>Nombre</span><span>${esc(E.yo.nombre)}</span></div>
+      <div class="dato"><span>Usuario</span><span>${esc(E.yo.correo)}</span></div>
+      <div class="dato"><span>Acceso</span><span>${esc(rol)}</span></div>
+      <div class="dato"><span>Tienda actual</span><span>${esc(E.tienda ? E.tienda.nombre : "—")}</span></div>
+      <div class="dato"><span>Versión</span><span>${VERSION}</span></div>
+    </div>
+    <div class="acciones">
+      ${E.tiendas.length > 1 ? `<button class="btn sec" id="btnTienda">Cambiar tienda</button>` : ""}
+      <button class="btn sec" id="btnSalir" style="color:var(--am-rojo)">Cerrar sesión</button>
+    </div>`;
+  if ($("btnTienda")) $("btnTienda").onclick = () => vistaElegirTienda();
+  $("btnSalir").onclick = () => app.logoutRedirect({ account: app.getActiveAccount() });
+}
+
+function vistaLogin(msg) {
+  $("nav").hidden = true; $("franja").hidden = true; encabezado();
+  $main.innerHTML = `<div class="bloque" style="margin-top:24px;text-align:center;padding:28px 20px">
+    ${msg ? `<div class="error" style="margin-bottom:16px;text-align:left">${esc(msg)}</div>` : ""}
+    <h1>Validación de planogramas</h1>
+    <p class="sub" style="margin:6px 0 22px">En esta demostración no se usa ninguna cuenta real. Los planogramas y resultados son de prueba.</p>
+    <button class="btn prim" id="btnLogin" style="width:100%">Entrar a la demostración</button></div>`;
+  $("btnLogin").onclick = () => app.loginRedirect({ scopes: [SCOPE] });
+}
+
+// ---------- Arranque ----------
+document.querySelectorAll("nav.inf button").forEach(b => b.onclick = () => {
+  if (!E.tienda) return vistaElegirTienda();
+  ({ inicio: vistaInicio, config: vistaConfig })[b.dataset.vista]();
+});
+
+async function arrancar() {
+  $("nav").hidden = false;
+  $main.innerHTML = cargando();
+  try {
+    [E.yo, E.tiendas] = await Promise.all([api("/api/me"), api("/api/tiendas")]);
+    if (!E.tiendas.length) { $main.innerHTML = `<div class="error">Su usuario no tiene tiendas asignadas. Pida acceso al grupo GS_A de su tienda.</div>`; return; }
+    let guardada = null; try { guardada = sessionStorage.getItem("tienda"); } catch {}
+    const t = E.tiendas.length === 1 ? E.tiendas[0] : E.tiendas.find(x => x.storeId === guardada);
+    t ? elegirTienda(t) : vistaElegirTienda();
+  } catch (e) { $main.innerHTML = `<div class="error">${esc(e.message)}</div>`; }
+}
+
+app.initialize().then(() => app.handleRedirectPromise()).then(res => {
+  const cuenta = (res && res.account) || app.getAllAccounts()[0];
+  if (cuenta) { app.setActiveAccount(cuenta); arrancar(); } else vistaLogin();
+}).catch(err => vistaLogin("No se pudo iniciar sesión: " + (err.errorMessage || err.message)));
+</script>
+</body>
+</html>
